@@ -9,9 +9,9 @@ import com.google.common.eventbus.EventBus;
  * </ul>
  *
  * @since 0.0.1
- *         
+ *  
  */
-public interface HardwareWallet {
+public interface HardwareWalletClient {
 
   /**
    * @return The HardwareWalletSpecification in use for this exchange
@@ -44,14 +44,5 @@ public interface HardwareWallet {
    * <p>Break the connection to the device</p>
    */
   void close();
-
-  /**
-   * <p>Send a message to the device using the generated protocol buffer classes</p>
-   * <p>Any response will be provided through the listener interface (Callback mode)</p>
-   * <p>If this call fails the device will be closed and a DISCONNECT message will be emitted</p>
-   *
-   * @param message A generated protocol buffer message (e.g. Message.Initialize)
-   */
-  void sendMessage(Message message);
 
 }

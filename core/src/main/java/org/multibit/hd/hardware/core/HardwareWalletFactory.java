@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * <p>
- * Factory to provide the following to {@link HardwareWallet}:
+ * Factory to provide the following to {@link HardwareWalletClient}:
  * </p>
  * <ul>
  * <li>Manages the creation of specific HardwareWallet implementations using runtime dependencies</li>
@@ -26,11 +26,11 @@ public enum HardwareWalletFactory {
   }
 
   /**
-   * @param hardwareWalletClassName the fully-qualified class name of the HardwareWallet which must implement {@link HardwareWallet}
+   * @param hardwareWalletClassName the fully-qualified class name of the HardwareWallet which must implement {@link HardwareWalletClient}
    *
    * @return A new HardwareWallet instance configured with the default {@link HardwareWalletSpecification}
    */
-  public HardwareWallet newHardwareWallet(String hardwareWalletClassName) {
+  public HardwareWalletClient newHardwareWallet(String hardwareWalletClassName) {
 
     Preconditions.checkNotNull(hardwareWalletClassName, "HardwareWalletClassName cannot be null");
 
@@ -43,13 +43,13 @@ public enum HardwareWalletFactory {
       Class HardwareWalletProviderClass = Class.forName(hardwareWalletClassName);
 
       // Test that the class implements HardwareWallet
-      if (HardwareWallet.class.isAssignableFrom(HardwareWalletProviderClass)) {
+      if (HardwareWalletClient.class.isAssignableFrom(HardwareWalletProviderClass)) {
 
         // Instantiate through the default constructor and use the default HardwareWallet specification
-        HardwareWallet HardwareWallet = (HardwareWallet) HardwareWalletProviderClass.newInstance();
-        HardwareWallet.applySpecification(HardwareWallet.getDefaultSpecification());
+        HardwareWalletClient HardwareWalletClient = (HardwareWalletClient) HardwareWalletProviderClass.newInstance();
+        HardwareWalletClient.applySpecification(HardwareWalletClient.getDefaultSpecification());
 
-        return HardwareWallet;
+        return HardwareWalletClient;
 
       } else {
         throw new HardwareWalletException("Class '" + hardwareWalletClassName + "' does not implement HardwareWallet");
@@ -66,7 +66,7 @@ public enum HardwareWalletFactory {
 
   }
 
-  public HardwareWallet createHardwareWallet(HardwareWalletSpecification specification) {
+  public HardwareWalletClient createHardwareWallet(HardwareWalletSpecification specification) {
 
     Preconditions.checkNotNull(specification, "'specification' must be present");
 
@@ -81,13 +81,13 @@ public enum HardwareWalletFactory {
       Class HardwareWalletProviderClass = Class.forName(HardwareWalletClassName);
 
       // Test that the class implements HardwareWallet
-      if (HardwareWallet.class.isAssignableFrom(HardwareWalletProviderClass)) {
+      if (HardwareWalletClient.class.isAssignableFrom(HardwareWalletProviderClass)) {
 
         // Instantiate through the default constructor
-        HardwareWallet hardwareWallet = (HardwareWallet) HardwareWalletProviderClass.newInstance();
-        hardwareWallet.applySpecification(specification);
+        HardwareWalletClient hardwareWalletClient = (HardwareWalletClient) HardwareWalletProviderClass.newInstance();
+        hardwareWalletClient.applySpecification(specification);
 
-        return hardwareWallet;
+        return hardwareWalletClient;
 
       } else {
         throw new HardwareWalletException("Class '" + HardwareWalletClassName + "' does not implement HardwareWallet");

@@ -7,9 +7,9 @@ package org.multibit.hd.hardware.core.events;
  * </ul>
  *
  * @since 0.0.1
- *         
+ *  
  */
-public enum HardwareWalletEventType {
+public enum HardwareEventType {
 
   /**
    * Indicates that this is a protocol message

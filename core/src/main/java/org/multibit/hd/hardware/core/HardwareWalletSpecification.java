@@ -8,7 +8,7 @@ import java.util.Map;
  * Specification to provide the following to {@link HardwareWalletFactory}:
  * </p>
  * <ul>
- * <li>required hardware wallet specific parameters for creating an {@link HardwareWallet}</li>
+ * <li>required hardware wallet specific parameters for creating an {@link HardwareWalletClient}</li>
  * <li>optional hardware wallet specific parameters for additional configuration</li>
  * </ul>
  * <p>
@@ -58,7 +58,7 @@ public class HardwareWalletSpecification {
   /**
    * @param key The key into the parameter map (recommend using the provided standard static entries)
    *
-   * @return Any additional hardware wallet specific parameters that the {@link HardwareWallet} may consume to configure the device
+   * @return Any additional hardware wallet specific parameters that the {@link HardwareWalletClient} may consume to configure the device
    */
   public Object getParameter(String key) {
 

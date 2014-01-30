@@ -11,28 +11,27 @@ import org.slf4j.LoggerFactory;
  * </ul>
  *
  * @since 0.0.1
- *         
+ *  
  */
-public class CoreEvents {
+public class HardwareEvents {
 
-  private static final Logger log = LoggerFactory.getLogger(CoreEvents.class);
+  private static final Logger log = LoggerFactory.getLogger(HardwareEvents.class);
 
   private static final EventBus hardwareEventBus = new EventBus();
 
   /**
    * Utilities have a private constructor
    */
-  private CoreEvents() {
+  private HardwareEvents() {
   }
 
   /**
    * <p>Broadcast a new "hardware wallet " event</p>
-   *
    */
   public static void fireInitializeEvent() {
 
     log.debug("Firing 'initialize' event");
-    hardwareEventBus.post(new ProtocolEvent());
+    hardwareEventBus.post(new HardwareEvent(null));
 
   }
 
