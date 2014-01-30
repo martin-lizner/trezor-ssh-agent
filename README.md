@@ -1,4 +1,4 @@
-Status: [![Build Status](https://travis-ci.org/bitcoin-solutions/multibit-hw.png?branch=master)](https://travis-ci.org/bitcoin-solutions/multibit-hw)
+Status: [![Build Status](https://travis-ci.org/bitcoin-solutions/mbhd-hardware.png?branch=master)](https://travis-ci.org/bitcoin-solutions/mbhd-hardware)
 
 This project supersedes the [Trezorj](https://github.com/bitcoin-solutions/trezorj) project and repackages it to be more flexible.
 
