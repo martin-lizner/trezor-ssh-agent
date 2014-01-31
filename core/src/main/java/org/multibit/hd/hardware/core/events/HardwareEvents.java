@@ -36,7 +36,7 @@ public class HardwareEvents {
 
     Preconditions.checkNotNull(messageType, "'messageType' must be present");
 
-    log.debug("Firing 'hardware wallet system' event");
+    log.debug("Firing 'hardware wallet system' event: {}", messageType.name());
     HardwareWalletService.hardwareEventBus.post(new HardwareWalletSystemEvent(messageType));
 
   }
@@ -52,7 +52,7 @@ public class HardwareEvents {
     Preconditions.checkNotNull(messageType, "'messageType' must be present");
     Preconditions.checkNotNull(message, "'message' must be present");
 
-    log.debug("Firing 'hardware wallet protocol' event");
+    log.debug("Firing 'hardware wallet protocol' event: {}", messageType.name());
     HardwareWalletService.hardwareEventBus.post(new HardwareWalletProtocolEvent(
       messageType,
       message

@@ -12,7 +12,7 @@
   <artifactId>emulators</artifactId>
 
   <name>Emulators</name>
-  <description>Each supported hardware wallet has an emulator to assist developers with integration</description>
+  <description>Each supported hardware wallet has an emulator to assist developers with integration testing</description>
 
   <dependencies>
 
@@ -22,6 +22,22 @@
       <artifactId>trezor</artifactId>
       <version>0.0.1-SNAPSHOT</version>
     </dependency>
+
+    <!-- MigLayout for better Swing presentation -->
+    <!-- Encourages good layout design of forms -->
+    <dependency>
+      <groupId>com.miglayout</groupId>
+      <artifactId>miglayout-swing</artifactId>
+      <version>4.2</version>
+    </dependency>
+
+    <!-- Logback for logging messages -->
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <version>1.0.10</version>
+    </dependency>
+
 
   </dependencies>
 

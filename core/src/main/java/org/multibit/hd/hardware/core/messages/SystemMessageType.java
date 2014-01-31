@@ -12,11 +12,6 @@ package org.multibit.hd.hardware.core.messages;
 public enum SystemMessageType {
 
   /**
-   * Indicates that this is a protocol message
-   */
-  PROTOCOL_MESSAGE,
-
-  /**
    * Device encountered an error not associated with I/O (e.g. thread interrupt)
    */
   DEVICE_FAILURE,
