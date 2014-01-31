@@ -87,6 +87,7 @@
     <module>core</module>
     <module>trezor</module>
     <module>examples</module>
+    <module>emulators</module>
   </modules>
 
   <profiles>

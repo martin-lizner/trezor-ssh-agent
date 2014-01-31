@@ -1,14 +1,18 @@
 package org.multibit.hd.hardware.core;
 
+import com.google.common.base.Optional;
+import com.google.protobuf.ByteString;
+import org.multibit.hd.hardware.core.wallets.HardwareWallet;
+
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * <p>
- * Specification to provide the following to {@link HardwareWalletFactory}:
+ * Specification to provide the following to {@link org.multibit.hd.hardware.core.wallets.HardwareWallets}:
  * </p>
  * <ul>
- * <li>required hardware wallet specific parameters for creating an {@link HardwareWalletClient}</li>
+ * <li>required hardware wallet specific parameters for creating an {@link org.multibit.hd.hardware.core.clients.NonBlockingHardwareWalletClient}</li>
  * <li>optional hardware wallet specific parameters for additional configuration</li>
  * </ul>
  * <p>
@@ -19,6 +23,19 @@ public class HardwareWalletSpecification {
 
   private String description;
 
+  /**
+   * The session ID is normally transmitted over the wire using protobuf
+   */
+  private ByteString sessionId;
+
+  private boolean isUsb = false;
+
+  private Optional<Integer> vendorId;
+
+  private Optional<Integer> productId;
+
+  private Optional<String> serialNumber;
+
   private String host;
 
   private int port = 80;
@@ -28,7 +45,93 @@ public class HardwareWalletSpecification {
   private Map<String, Object> specificParameters = new HashMap<>();
 
   /**
-   * Dynamic binding
+   * <p>Builder for hardware wallets communicating over sockets using dynamic binding</p>
+   *
+   * @param className The hardware wallet class name (e.g. "org.example.hw.ExampleSocketHardwareWallet")
+   * @param host      The host name
+   * @param port      The port number
+   *
+   * @return A new hardware wallet specification suitable for use with sockets
+   */
+  public static HardwareWalletSpecification newSocketSpecification(String className, String host, int port) {
+
+    HardwareWalletSpecification specification = new HardwareWalletSpecification(className);
+    specification.setHost(host);
+    specification.setPort(port);
+
+    return specification;
+
+  }
+
+  /**
+   * <p>Builder for hardware wallets communicating over sockets using static binding</p>
+   *
+   * @param hardwareWalletClass The hardware wallet class
+   * @param host                The host name
+   * @param port                The port number
+   *
+   * @return A new hardware wallet specification suitable for use with sockets
+   */
+  public static HardwareWalletSpecification newSocketSpecification(
+    Class<HardwareWallet> hardwareWalletClass,
+    String host,
+    int port
+  ) {
+
+    // Delegate to the dynamic binding
+    return newSocketSpecification(hardwareWalletClass.getName(), host, port);
+  }
+
+  /**
+   * <p>Builder for hardware wallets communicating over USB HID using dynamic binding</p>
+   *
+   * @param className    The class name of the {@link HardwareWallet} implemention (e.g. "org.example.hw.ExampleUsbHardwareWallet")
+   * @param vendorId     The vendor ID (uses default if absent)
+   * @param productId    The product ID (uses default if absent)
+   * @param serialNumber The device serial number (accepts any if absent)
+   *
+   * @return A new hardware wallet specification suitable for use with sockets
+   */
+  public static HardwareWalletSpecification newUsbSpecification(
+    String className,
+    Optional<Integer> vendorId,
+    Optional<Integer> productId,
+    Optional<String> serialNumber
+  ) {
+
+    // Create the specification
+    HardwareWalletSpecification specification = new HardwareWalletSpecification(className);
+    specification.setUsb(true);
+    specification.setVendorId(vendorId);
+    specification.setProductId(productId);
+    specification.setSerialNumber(serialNumber);
+
+    return specification;
+  }
+
+  /**
+   * <p>Builder for hardware wallets communicating over USB HID using static binding</p>
+   *
+   * @param hardwareWalletClass The hardware wallet class
+   * @param vendorId            The vendor ID (uses default if absent)
+   * @param productId           The product ID (uses default if absent)
+   * @param serialNumber        The device serial number (accepts any if absent)
+   *
+   * @return A new hardware wallet specification suitable for use with sockets
+   */
+  public static HardwareWalletSpecification newUsbSpecification(
+    Class<HardwareWallet> hardwareWalletClass,
+    Optional<Integer> vendorId,
+    Optional<Integer> productId,
+    Optional<String> serialNumber
+  ) {
+
+    // Delegate to the dynamic binding
+    return newUsbSpecification(hardwareWalletClass.getName(), vendorId, productId, serialNumber);
+  }
+
+  /**
+   * <p>Constructor for dynamic binding</p>
    *
    * @param className The hardware wallet class name (e.g. "org.example.hw.ExampleHardwareWallet")
    */
@@ -58,7 +161,7 @@ public class HardwareWalletSpecification {
   /**
    * @param key The key into the parameter map (recommend using the provided standard static entries)
    *
-   * @return Any additional hardware wallet specific parameters that the {@link HardwareWalletClient} may consume to configure the device
+   * @return Any additional hardware wallet specific parameters that the {@link org.multibit.hd.hardware.core.clients.NonBlockingHardwareWalletClient} may consume to configure the device
    */
   public Object getParameter(String key) {
 
@@ -70,6 +173,62 @@ public class HardwareWalletSpecification {
    */
   public void setSpecificParameters(Map<String, Object> specificParameters) {
     this.specificParameters = specificParameters;
+  }
+
+  /**
+   * @return True if the physical link is via the USB human interface device hardware
+   */
+  public boolean isUsb() {
+    return isUsb;
+  }
+
+  /**
+   * @param isUsb True for USB hardware
+   */
+  public void setUsb(boolean isUsb) {
+    this.isUsb = isUsb;
+  }
+
+  /**
+   * @return The optional USB vendor ID
+   */
+  public Optional<Integer> getVendorId() {
+    return vendorId;
+  }
+
+  /**
+   * @param vendorId The USB vendor ID. If absent then the device-specific default is used.
+   */
+  public void setVendorId(Optional<Integer> vendorId) {
+    this.vendorId = vendorId;
+  }
+
+  /**
+   * @return The optional USB product ID
+   */
+  public Optional<Integer> getProductId() {
+    return productId;
+  }
+
+  /**
+   * @param productId The USB product ID. If absent then the device-specific default is used.
+   */
+  public void setProductId(Optional<Integer> productId) {
+    this.productId = productId;
+  }
+
+  /**
+   * @return The optional USB device serial number
+   */
+  public Optional<String> getSerialNumber() {
+    return serialNumber;
+  }
+
+  /**
+   * @param serialNumber The USB serial number. If absent then any serial number will be accepted.
+   */
+  public void setSerialNumber(Optional<String> serialNumber) {
+    this.serialNumber = serialNumber;
   }
 
   /**
@@ -143,5 +302,4 @@ public class HardwareWalletSpecification {
 
     this.description = description;
   }
-
 }

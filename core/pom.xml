@@ -11,6 +11,7 @@
 
   <artifactId>core</artifactId>
 
-  
+  <name>Core</name>
+  <description>Provides the core functionality that all implementations of hardware wallet compatible with MultiBit HD must adhere to</description>
 
 </project>

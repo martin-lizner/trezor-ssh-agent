@@ -1,6 +1,10 @@
 package org.multibit.hd.hardware.core.events;
 
-import com.google.common.eventbus.EventBus;
+import com.google.common.base.Preconditions;
+import com.google.protobuf.Message;
+import org.multibit.hd.hardware.core.HardwareWalletService;
+import org.multibit.hd.hardware.core.messages.ProtocolMessageType;
+import org.multibit.hd.hardware.core.messages.SystemMessageType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,8 +21,6 @@ public class HardwareEvents {
 
   private static final Logger log = LoggerFactory.getLogger(HardwareEvents.class);
 
-  private static final EventBus hardwareEventBus = new EventBus();
-
   /**
    * Utilities have a private constructor
    */
@@ -26,67 +28,35 @@ public class HardwareEvents {
   }
 
   /**
-   * <p>Broadcast a new "hardware wallet " event</p>
+   * <p>A system event is one that falls outside of the hardware communications protocol (i.e. a DISCONNECTED or similar)</p>
+   *
+   * @param messageType The message type (e.g. DISCONNECT)
    */
-  public static void fireInitializeEvent() {
+  public static void fireSystemEvent(final SystemMessageType messageType) {
 
-    log.debug("Firing 'initialize' event");
-    hardwareEventBus.post(new HardwareEvent(null));
+    Preconditions.checkNotNull(messageType, "'messageType' must be present");
+
+    log.debug("Firing 'hardware wallet system' event");
+    HardwareWalletService.hardwareEventBus.post(new HardwareWalletSystemEvent(messageType));
 
   }
 
-  /*
-  Initialize
+  /**
+   * <p>A protocol event is one that falls within the hardware communications protocol (i.e. a PING or similar)</p>
+   *
+   * @param messageType The message type (e.g. SUCCESS)
+   * @param message     The message itself (from protocol buffers)
+   */
+  public static void fireProtocolEvent(final ProtocolMessageType messageType, final Message message) {
 
-  Ping
+    Preconditions.checkNotNull(messageType, "'messageType' must be present");
+    Preconditions.checkNotNull(message, "'message' must be present");
 
-  Success
-  Failure
+    log.debug("Firing 'hardware wallet protocol' event");
+    HardwareWalletService.hardwareEventBus.post(new HardwareWalletProtocolEvent(
+      messageType,
+      message
+    ));
 
-  GetUUID
-  UUID
-
-  OtpRequest
-  OtpAck
-  OtpCancel
-
-  GetEntropy
-  Entropy
-
-  GetMasterPublicKey
-  MasterPublicKey
-
-  LoadDevice
-  ResetDevice
-
-  SignTx
-  Features
-
-  // PIN
-  PinRequest
-  PinAck
-  PinCancel
-
-  // Transactions
-  TxRequest
-  TxInput
-  TxOutput
-  SetMaxFeeKb
-
-  // Buttons
-  ButtonRequest
-  ButtonAck
-  ButtonCancel
-
-  // Address
-  GetAddress
-  Address
-
-  // Debugging messages
-  DebugLinkDecision
-  DebugLinkGetState
-  DebugLinkState
-  DebugLinkStop
-*/
-
+  }
 }

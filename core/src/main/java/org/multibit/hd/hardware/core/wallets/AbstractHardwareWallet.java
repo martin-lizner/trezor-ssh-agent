@@ -1,0 +1,112 @@
+package org.multibit.hd.hardware.core.wallets;
+
+import com.google.common.base.Preconditions;
+import org.multibit.hd.hardware.core.HardwareWalletSpecification;
+import org.multibit.hd.hardware.core.messages.ProtocolMessageType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.DataInputStream;
+import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+/**
+ * <p>
+ * Abstract base class to provide the following to {@link HardwareWallet}s:
+ * </p>
+ * <ul>
+ * <li>Access to common methods and fields</li>
+ * </ul>
+ *
+ * @param <P> The device-specific protocol message type
+ */
+public abstract class AbstractHardwareWallet<P> implements HardwareWallet {
+
+  private static final Logger log = LoggerFactory.getLogger(AbstractHardwareWallet.class);
+
+  // Provide a few threads for monitoring for specialised cases
+  protected final ExecutorService hardwareWalletMonitorService = Executors.newFixedThreadPool(5);
+
+  protected HardwareWalletSpecification specification;
+
+  /**
+   * Maps between the device specific protocol message type and the generic protocol message type
+   */
+  protected Map<P, ProtocolMessageType> protocolMessageMap;
+
+  @Override
+  public void applySpecification(HardwareWalletSpecification specification) {
+
+    Preconditions.checkNotNull(specification, "'specification' must be present");
+
+    log.debug("Applying hardware wallet specification");
+
+    HardwareWalletSpecification defaultSpecification = getDefaultSpecification();
+
+    // Check if default is for everything
+    if (specification == null) {
+      this.specification = defaultSpecification;
+    } else {
+      // Using a configured exchange
+      if (specification.getName() == null) {
+        specification.setName(defaultSpecification.getName());
+      }
+      if (specification.getDescription() == null) {
+        specification.setDescription(defaultSpecification.getDescription());
+      }
+      if (specification.getHost() == null) {
+        specification.setHost(defaultSpecification.getHost());
+      }
+      this.specification = specification;
+    }
+
+  }
+
+  @Override
+  public HardwareWalletSpecification getSpecification() {
+
+    return specification;
+  }
+
+  /**
+   * <p>Create an executor service to monitor the data input stream and raise events</p>
+   */
+  protected void monitorDataInputStream(final DataInputStream in) {
+
+    // Monitor the data input stream
+    hardwareWalletMonitorService.submit(new Runnable() {
+
+      @Override
+      public void run() {
+
+        while (true) {
+          try {
+            // Read protocol messages and fire off events (blocking)
+            boolean deviceOK = adaptProtocolMessageToEvents(in);
+
+            if (!deviceOK) {
+              // A shutdown is imminent so best to sleep to void multiple messages
+              Thread.sleep(2000);
+            } else {
+              // Provide a small break
+              Thread.sleep(100);
+            }
+
+          } catch (InterruptedException e) {
+            break;
+          }
+        }
+
+      }
+
+    });
+
+  }
+
+  /**
+   * <p>Map the generic protocol message types to those specific to the device using the super class.</p>
+   */
+  public abstract void mapProtocolMessageTypeToDevice();
+
+}

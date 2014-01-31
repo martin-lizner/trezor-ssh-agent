@@ -1,0 +1,108 @@
+package org.multibit.hd.hardware.trezor;
+
+import com.google.common.base.Preconditions;
+import com.google.protobuf.Message;
+import org.multibit.hd.hardware.core.events.HardwareEvents;
+import org.multibit.hd.hardware.core.messages.SystemMessageType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.*;
+import java.net.Socket;
+
+/**
+ * <p>Trezor implementation to provide the following to applications:</p>
+ * <ul>
+ * <li>Access to a Trezor device over a socket</li>
+ * </ul>
+ *
+ * @since 0.0.1
+ *  
+ */
+public class SocketTrezorHardwareWallet extends AbstractTrezorHardwareWallet {
+
+  private static final Logger log = LoggerFactory.getLogger(SocketTrezorHardwareWallet.class);
+
+  private Socket socket = null;
+  private DataOutputStream out = null;
+
+  private final String host;
+  private final int port;
+
+  /**
+   * <p>Create a new socket connection to a Trezor device</p>
+   *
+   * @param host The host name or IP address (e.g. "192.168.0.1")
+   * @param port The port (e.g. 3000)
+   */
+  public SocketTrezorHardwareWallet(String host, int port) {
+
+    Preconditions.checkNotNull(host, "'host' must be present");
+    Preconditions.checkState(port > 0 && port < 65535, "'port' must be within range");
+
+    this.host = host;
+    this.port = port;
+
+  }
+
+  @Override
+  public synchronized void connect() {
+
+    Preconditions.checkState(socket == null, "Socket is already connected");
+
+    try {
+
+      // Attempt to open a socket to the host/port
+      socket = new Socket(host, port);
+
+      // Add buffered data streams for easy data manipulation
+      out = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream(), 1024));
+      DataInputStream in = new DataInputStream(new BufferedInputStream(socket.getInputStream(), 1024));
+
+      // Monitor the input stream
+      monitorDataInputStream(in);
+
+      // Must have connected to be here
+      HardwareEvents.fireSystemEvent(SystemMessageType.DEVICE_CONNECTED);
+
+    } catch (IOException e) {
+      throw new IllegalArgumentException(e);
+    }
+  }
+
+  @Override
+  public synchronized void internalClose() {
+
+    Preconditions.checkNotNull(socket, "Socket is not connected. Use connect() first.");
+
+    // Attempt to close the socket (also closes the in/out streams)
+    try {
+      socket.close();
+      log.info("Disconnected from Trezor");
+
+      // Must have disconnected to be here
+      HardwareEvents.fireSystemEvent(SystemMessageType.DEVICE_DISCONNECTED);
+
+    } catch (IOException e) {
+      throw new IllegalArgumentException(e);
+    }
+  }
+
+  @Override
+  public void sendMessage(Message message) {
+
+    Preconditions.checkNotNull(message, "Message must be present");
+    Preconditions.checkNotNull(out, "Socket has not been connected. Use connect() first.");
+
+    try {
+      // Apply the message to the data output stream
+      TrezorMessageUtils.writeMessage(message, out);
+    } catch (IOException e) {
+      log.warn("I/O error during write. Closing socket.", e);
+
+      // Must have disconnected to be here
+      HardwareEvents.fireSystemEvent(SystemMessageType.DEVICE_DISCONNECTED);
+    }
+
+  }
+}
