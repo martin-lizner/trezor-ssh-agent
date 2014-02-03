@@ -3,21 +3,18 @@
 
 package org.multibit.hd.hardware.trezor.protobuf;
 
-public final class TrezorType {
-  private TrezorType() {
-  }
-
+public final class TrezorTypes {
+  private TrezorTypes() {}
   public static void registerAllExtensions(
-    com.google.protobuf.ExtensionRegistry registry) {
-    registry.add(org.multibit.hd.hardware.trezor.protobuf.TrezorType.binary);
-    registry.add(org.multibit.hd.hardware.trezor.protobuf.TrezorType.wireIn);
-    registry.add(org.multibit.hd.hardware.trezor.protobuf.TrezorType.wireOut);
-    registry.add(org.multibit.hd.hardware.trezor.protobuf.TrezorType.wireDebugIn);
-    registry.add(org.multibit.hd.hardware.trezor.protobuf.TrezorType.wireDebugOut);
+      com.google.protobuf.ExtensionRegistry registry) {
+    registry.add(org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.binary);
+    registry.add(org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.wireIn);
+    registry.add(org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.wireOut);
+    registry.add(org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.wireDebugIn);
+    registry.add(org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.wireDebugOut);
   }
-
   public enum FailureType
-    implements com.google.protobuf.ProtocolMessageEnum {
+      implements com.google.protobuf.ProtocolMessageEnum {
     Failure_UnexpectedMessage(0, 1),
     Failure_ButtonExpected(1, 2),
     Failure_SyntaxError(2, 3),
@@ -27,8 +24,9 @@ public final class TrezorType {
     Failure_PinInvalid(6, 7),
     Failure_InvalidSignature(7, 8),
     Failure_Other(8, 9),
-    Failure_FirmwareError(9, 99),;
-
+    Failure_FirmwareError(9, 99),
+    ;
+    
     public static final int Failure_UnexpectedMessage_VALUE = 1;
     public static final int Failure_ButtonExpected_VALUE = 2;
     public static final int Failure_SyntaxError_VALUE = 3;
@@ -39,415 +37,357 @@ public final class TrezorType {
     public static final int Failure_InvalidSignature_VALUE = 8;
     public static final int Failure_Other_VALUE = 9;
     public static final int Failure_FirmwareError_VALUE = 99;
-
-
-    public final int getNumber() {
-      return value;
-    }
-
+    
+    
+    public final int getNumber() { return value; }
+    
     public static FailureType valueOf(int value) {
       switch (value) {
-        case 1:
-          return Failure_UnexpectedMessage;
-        case 2:
-          return Failure_ButtonExpected;
-        case 3:
-          return Failure_SyntaxError;
-        case 4:
-          return Failure_ActionCancelled;
-        case 5:
-          return Failure_PinExpected;
-        case 6:
-          return Failure_PinCancelled;
-        case 7:
-          return Failure_PinInvalid;
-        case 8:
-          return Failure_InvalidSignature;
-        case 9:
-          return Failure_Other;
-        case 99:
-          return Failure_FirmwareError;
-        default:
-          return null;
+        case 1: return Failure_UnexpectedMessage;
+        case 2: return Failure_ButtonExpected;
+        case 3: return Failure_SyntaxError;
+        case 4: return Failure_ActionCancelled;
+        case 5: return Failure_PinExpected;
+        case 6: return Failure_PinCancelled;
+        case 7: return Failure_PinInvalid;
+        case 8: return Failure_InvalidSignature;
+        case 9: return Failure_Other;
+        case 99: return Failure_FirmwareError;
+        default: return null;
       }
     }
-
+    
     public static com.google.protobuf.Internal.EnumLiteMap<FailureType>
-    internalGetValueMap() {
+        internalGetValueMap() {
       return internalValueMap;
     }
-
     private static com.google.protobuf.Internal.EnumLiteMap<FailureType>
-      internalValueMap =
-      new com.google.protobuf.Internal.EnumLiteMap<FailureType>() {
-        public FailureType findValueByNumber(int number) {
-          return FailureType.valueOf(number);
-        }
-      };
-
+        internalValueMap =
+          new com.google.protobuf.Internal.EnumLiteMap<FailureType>() {
+            public FailureType findValueByNumber(int number) {
+              return FailureType.valueOf(number);
+            }
+          };
+    
     public final com.google.protobuf.Descriptors.EnumValueDescriptor
-    getValueDescriptor() {
+        getValueDescriptor() {
       return getDescriptor().getValues().get(index);
     }
-
     public final com.google.protobuf.Descriptors.EnumDescriptor
-    getDescriptorForType() {
+        getDescriptorForType() {
       return getDescriptor();
     }
-
     public static final com.google.protobuf.Descriptors.EnumDescriptor
-    getDescriptor() {
-      return org.multibit.hd.hardware.trezor.protobuf.TrezorType.getDescriptor().getEnumTypes().get(0);
+        getDescriptor() {
+      return org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.getDescriptor().getEnumTypes().get(0);
     }
-
+    
     private static final FailureType[] VALUES = {
-      Failure_UnexpectedMessage, Failure_ButtonExpected, Failure_SyntaxError, Failure_ActionCancelled, Failure_PinExpected, Failure_PinCancelled, Failure_PinInvalid, Failure_InvalidSignature, Failure_Other, Failure_FirmwareError,
+      Failure_UnexpectedMessage, Failure_ButtonExpected, Failure_SyntaxError, Failure_ActionCancelled, Failure_PinExpected, Failure_PinCancelled, Failure_PinInvalid, Failure_InvalidSignature, Failure_Other, Failure_FirmwareError, 
     };
-
+    
     public static FailureType valueOf(
-      com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
+        com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
       if (desc.getType() != getDescriptor()) {
         throw new java.lang.IllegalArgumentException(
           "EnumValueDescriptor is not for this type.");
       }
       return VALUES[desc.getIndex()];
     }
-
+    
     private final int index;
     private final int value;
-
+    
     private FailureType(int index, int value) {
       this.index = index;
       this.value = value;
     }
-
+    
     // @@protoc_insertion_point(enum_scope:FailureType)
   }
-
+  
   public enum ScriptType
-    implements com.google.protobuf.ProtocolMessageEnum {
+      implements com.google.protobuf.ProtocolMessageEnum {
     PAYTOADDRESS(0, 0),
-    PAYTOSCRIPTHASH(1, 1),;
-
+    PAYTOSCRIPTHASH(1, 1),
+    ;
+    
     public static final int PAYTOADDRESS_VALUE = 0;
     public static final int PAYTOSCRIPTHASH_VALUE = 1;
-
-
-    public final int getNumber() {
-      return value;
-    }
-
+    
+    
+    public final int getNumber() { return value; }
+    
     public static ScriptType valueOf(int value) {
       switch (value) {
-        case 0:
-          return PAYTOADDRESS;
-        case 1:
-          return PAYTOSCRIPTHASH;
-        default:
-          return null;
+        case 0: return PAYTOADDRESS;
+        case 1: return PAYTOSCRIPTHASH;
+        default: return null;
       }
     }
-
+    
     public static com.google.protobuf.Internal.EnumLiteMap<ScriptType>
-    internalGetValueMap() {
+        internalGetValueMap() {
       return internalValueMap;
     }
-
     private static com.google.protobuf.Internal.EnumLiteMap<ScriptType>
-      internalValueMap =
-      new com.google.protobuf.Internal.EnumLiteMap<ScriptType>() {
-        public ScriptType findValueByNumber(int number) {
-          return ScriptType.valueOf(number);
-        }
-      };
-
+        internalValueMap =
+          new com.google.protobuf.Internal.EnumLiteMap<ScriptType>() {
+            public ScriptType findValueByNumber(int number) {
+              return ScriptType.valueOf(number);
+            }
+          };
+    
     public final com.google.protobuf.Descriptors.EnumValueDescriptor
-    getValueDescriptor() {
+        getValueDescriptor() {
       return getDescriptor().getValues().get(index);
     }
-
     public final com.google.protobuf.Descriptors.EnumDescriptor
-    getDescriptorForType() {
+        getDescriptorForType() {
       return getDescriptor();
     }
-
     public static final com.google.protobuf.Descriptors.EnumDescriptor
-    getDescriptor() {
-      return org.multibit.hd.hardware.trezor.protobuf.TrezorType.getDescriptor().getEnumTypes().get(1);
+        getDescriptor() {
+      return org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.getDescriptor().getEnumTypes().get(1);
     }
-
+    
     private static final ScriptType[] VALUES = {
-      PAYTOADDRESS, PAYTOSCRIPTHASH,
+      PAYTOADDRESS, PAYTOSCRIPTHASH, 
     };
-
+    
     public static ScriptType valueOf(
-      com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
+        com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
       if (desc.getType() != getDescriptor()) {
         throw new java.lang.IllegalArgumentException(
           "EnumValueDescriptor is not for this type.");
       }
       return VALUES[desc.getIndex()];
     }
-
+    
     private final int index;
     private final int value;
-
+    
     private ScriptType(int index, int value) {
       this.index = index;
       this.value = value;
     }
-
+    
     // @@protoc_insertion_point(enum_scope:ScriptType)
   }
-
+  
   public enum RequestType
-    implements com.google.protobuf.ProtocolMessageEnum {
+      implements com.google.protobuf.ProtocolMessageEnum {
     TXINPUT(0, 0),
-    TXOUTPUT(1, 1),;
-
+    TXOUTPUT(1, 1),
+    ;
+    
     public static final int TXINPUT_VALUE = 0;
     public static final int TXOUTPUT_VALUE = 1;
-
-
-    public final int getNumber() {
-      return value;
-    }
-
+    
+    
+    public final int getNumber() { return value; }
+    
     public static RequestType valueOf(int value) {
       switch (value) {
-        case 0:
-          return TXINPUT;
-        case 1:
-          return TXOUTPUT;
-        default:
-          return null;
+        case 0: return TXINPUT;
+        case 1: return TXOUTPUT;
+        default: return null;
       }
     }
-
+    
     public static com.google.protobuf.Internal.EnumLiteMap<RequestType>
-    internalGetValueMap() {
+        internalGetValueMap() {
       return internalValueMap;
     }
-
     private static com.google.protobuf.Internal.EnumLiteMap<RequestType>
-      internalValueMap =
-      new com.google.protobuf.Internal.EnumLiteMap<RequestType>() {
-        public RequestType findValueByNumber(int number) {
-          return RequestType.valueOf(number);
-        }
-      };
-
+        internalValueMap =
+          new com.google.protobuf.Internal.EnumLiteMap<RequestType>() {
+            public RequestType findValueByNumber(int number) {
+              return RequestType.valueOf(number);
+            }
+          };
+    
     public final com.google.protobuf.Descriptors.EnumValueDescriptor
-    getValueDescriptor() {
+        getValueDescriptor() {
       return getDescriptor().getValues().get(index);
     }
-
     public final com.google.protobuf.Descriptors.EnumDescriptor
-    getDescriptorForType() {
+        getDescriptorForType() {
       return getDescriptor();
     }
-
     public static final com.google.protobuf.Descriptors.EnumDescriptor
-    getDescriptor() {
-      return org.multibit.hd.hardware.trezor.protobuf.TrezorType.getDescriptor().getEnumTypes().get(2);
+        getDescriptor() {
+      return org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.getDescriptor().getEnumTypes().get(2);
     }
-
+    
     private static final RequestType[] VALUES = {
-      TXINPUT, TXOUTPUT,
+      TXINPUT, TXOUTPUT, 
     };
-
+    
     public static RequestType valueOf(
-      com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
+        com.google.protobuf.Descriptors.EnumValueDescriptor desc) {
       if (desc.getType() != getDescriptor()) {
         throw new java.lang.IllegalArgumentException(
           "EnumValueDescriptor is not for this type.");
       }
       return VALUES[desc.getIndex()];
     }
-
+    
     private final int index;
     private final int value;
-
+    
     private RequestType(int index, int value) {
       this.index = index;
       this.value = value;
     }
-
+    
     // @@protoc_insertion_point(enum_scope:RequestType)
   }
-
+  
   public interface HDNodeTypeOrBuilder
-    extends com.google.protobuf.MessageOrBuilder {
-
+      extends com.google.protobuf.MessageOrBuilder {
+    
     // required uint32 version = 1;
     boolean hasVersion();
-
     int getVersion();
-
+    
     // required uint32 depth = 2;
     boolean hasDepth();
-
     int getDepth();
-
+    
     // required uint32 fingerprint = 3;
     boolean hasFingerprint();
-
     int getFingerprint();
-
+    
     // required uint32 child_num = 4;
     boolean hasChildNum();
-
     int getChildNum();
-
+    
     // required bytes chain_code = 5;
     boolean hasChainCode();
-
     com.google.protobuf.ByteString getChainCode();
-
+    
     // optional bytes private_key = 6;
     boolean hasPrivateKey();
-
     com.google.protobuf.ByteString getPrivateKey();
-
+    
     // optional bytes public_key = 7;
     boolean hasPublicKey();
-
     com.google.protobuf.ByteString getPublicKey();
-
+    
     // optional bytes address = 8;
     boolean hasAddress();
-
     com.google.protobuf.ByteString getAddress();
   }
-
   public static final class HDNodeType extends
-    com.google.protobuf.GeneratedMessage
-    implements HDNodeTypeOrBuilder {
+      com.google.protobuf.GeneratedMessage
+      implements HDNodeTypeOrBuilder {
     // Use HDNodeType.newBuilder() to construct.
     private HDNodeType(Builder builder) {
       super(builder);
     }
-
-    private HDNodeType(boolean noInit) {
-    }
-
+    private HDNodeType(boolean noInit) {}
+    
     private static final HDNodeType defaultInstance;
-
     public static HDNodeType getDefaultInstance() {
       return defaultInstance;
     }
-
+    
     public HDNodeType getDefaultInstanceForType() {
       return defaultInstance;
     }
-
+    
     public static final com.google.protobuf.Descriptors.Descriptor
-    getDescriptor() {
-      return org.multibit.hd.hardware.trezor.protobuf.TrezorType.internal_static_HDNodeType_descriptor;
+        getDescriptor() {
+      return org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.internal_static_HDNodeType_descriptor;
     }
-
+    
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-    internalGetFieldAccessorTable() {
-      return org.multibit.hd.hardware.trezor.protobuf.TrezorType.internal_static_HDNodeType_fieldAccessorTable;
+        internalGetFieldAccessorTable() {
+      return org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.internal_static_HDNodeType_fieldAccessorTable;
     }
-
+    
     private int bitField0_;
     // required uint32 version = 1;
     public static final int VERSION_FIELD_NUMBER = 1;
     private int version_;
-
     public boolean hasVersion() {
       return ((bitField0_ & 0x00000001) == 0x00000001);
     }
-
     public int getVersion() {
       return version_;
     }
-
+    
     // required uint32 depth = 2;
     public static final int DEPTH_FIELD_NUMBER = 2;
     private int depth_;
-
     public boolean hasDepth() {
       return ((bitField0_ & 0x00000002) == 0x00000002);
     }
-
     public int getDepth() {
       return depth_;
     }
-
+    
     // required uint32 fingerprint = 3;
     public static final int FINGERPRINT_FIELD_NUMBER = 3;
     private int fingerprint_;
-
     public boolean hasFingerprint() {
       return ((bitField0_ & 0x00000004) == 0x00000004);
     }
-
     public int getFingerprint() {
       return fingerprint_;
     }
-
+    
     // required uint32 child_num = 4;
     public static final int CHILD_NUM_FIELD_NUMBER = 4;
     private int childNum_;
-
     public boolean hasChildNum() {
       return ((bitField0_ & 0x00000008) == 0x00000008);
     }
-
     public int getChildNum() {
       return childNum_;
     }
-
+    
     // required bytes chain_code = 5;
     public static final int CHAIN_CODE_FIELD_NUMBER = 5;
     private com.google.protobuf.ByteString chainCode_;
-
     public boolean hasChainCode() {
       return ((bitField0_ & 0x00000010) == 0x00000010);
     }
-
     public com.google.protobuf.ByteString getChainCode() {
       return chainCode_;
     }
-
+    
     // optional bytes private_key = 6;
     public static final int PRIVATE_KEY_FIELD_NUMBER = 6;
     private com.google.protobuf.ByteString privateKey_;
-
     public boolean hasPrivateKey() {
       return ((bitField0_ & 0x00000020) == 0x00000020);
     }
-
     public com.google.protobuf.ByteString getPrivateKey() {
       return privateKey_;
     }
-
+    
     // optional bytes public_key = 7;
     public static final int PUBLIC_KEY_FIELD_NUMBER = 7;
     private com.google.protobuf.ByteString publicKey_;
-
     public boolean hasPublicKey() {
       return ((bitField0_ & 0x00000040) == 0x00000040);
     }
-
     public com.google.protobuf.ByteString getPublicKey() {
       return publicKey_;
     }
-
+    
     // optional bytes address = 8;
     public static final int ADDRESS_FIELD_NUMBER = 8;
     private com.google.protobuf.ByteString address_;
-
     public boolean hasAddress() {
       return ((bitField0_ & 0x00000080) == 0x00000080);
     }
-
     public com.google.protobuf.ByteString getAddress() {
       return address_;
     }
-
+    
     private void initFields() {
       version_ = 0;
       depth_ = 0;
@@ -458,13 +398,11 @@ public final class TrezorType {
       publicKey_ = com.google.protobuf.ByteString.EMPTY;
       address_ = com.google.protobuf.ByteString.EMPTY;
     }
-
     private byte memoizedIsInitialized = -1;
-
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
       if (isInitialized != -1) return isInitialized == 1;
-
+      
       if (!hasVersion()) {
         memoizedIsInitialized = 0;
         return false;
@@ -488,9 +426,9 @@ public final class TrezorType {
       memoizedIsInitialized = 1;
       return true;
     }
-
+    
     public void writeTo(com.google.protobuf.CodedOutputStream output)
-      throws java.io.IOException {
+                        throws java.io.IOException {
       getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         output.writeUInt32(1, version_);
@@ -518,13 +456,12 @@ public final class TrezorType {
       }
       getUnknownFields().writeTo(output);
     }
-
+    
     private int memoizedSerializedSize = -1;
-
     public int getSerializedSize() {
       int size = memoizedSerializedSize;
       if (size != -1) return size;
-
+    
       size = 0;
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         size += com.google.protobuf.CodedOutputStream
@@ -562,57 +499,50 @@ public final class TrezorType {
       memoizedSerializedSize = size;
       return size;
     }
-
+    
     private static final long serialVersionUID = 0L;
-
     @java.lang.Override
     protected java.lang.Object writeReplace()
-      throws java.io.ObjectStreamException {
+        throws java.io.ObjectStreamException {
       return super.writeReplace();
     }
-
-    public static org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType parseFrom(
-      com.google.protobuf.ByteString data)
-      throws com.google.protobuf.InvalidProtocolBufferException {
+    
+    public static org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
       return newBuilder().mergeFrom(data).buildParsed();
     }
-
-    public static org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType parseFrom(
-      com.google.protobuf.ByteString data,
-      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-      throws com.google.protobuf.InvalidProtocolBufferException {
+    public static org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
       return newBuilder().mergeFrom(data, extensionRegistry)
-        .buildParsed();
+               .buildParsed();
     }
-
-    public static org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType parseFrom(byte[] data)
-      throws com.google.protobuf.InvalidProtocolBufferException {
+    public static org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
       return newBuilder().mergeFrom(data).buildParsed();
     }
-
-    public static org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType parseFrom(
-      byte[] data,
-      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-      throws com.google.protobuf.InvalidProtocolBufferException {
+    public static org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
       return newBuilder().mergeFrom(data, extensionRegistry)
-        .buildParsed();
+               .buildParsed();
     }
-
-    public static org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType parseFrom(java.io.InputStream input)
-      throws java.io.IOException {
+    public static org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
       return newBuilder().mergeFrom(input).buildParsed();
     }
-
-    public static org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType parseFrom(
-      java.io.InputStream input,
-      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-      throws java.io.IOException {
+    public static org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
       return newBuilder().mergeFrom(input, extensionRegistry)
-        .buildParsed();
+               .buildParsed();
     }
-
-    public static org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType parseDelimitedFrom(java.io.InputStream input)
-      throws java.io.IOException {
+    public static org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
       Builder builder = newBuilder();
       if (builder.mergeDelimitedFrom(input)) {
         return builder.buildParsed();
@@ -620,11 +550,10 @@ public final class TrezorType {
         return null;
       }
     }
-
-    public static org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType parseDelimitedFrom(
-      java.io.InputStream input,
-      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-      throws java.io.IOException {
+    public static org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
       Builder builder = newBuilder();
       if (builder.mergeDelimitedFrom(input, extensionRegistry)) {
         return builder.buildParsed();
@@ -632,76 +561,62 @@ public final class TrezorType {
         return null;
       }
     }
-
-    public static org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType parseFrom(
-      com.google.protobuf.CodedInputStream input)
-      throws java.io.IOException {
+    public static org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
       return newBuilder().mergeFrom(input).buildParsed();
     }
-
-    public static org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType parseFrom(
-      com.google.protobuf.CodedInputStream input,
-      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-      throws java.io.IOException {
+    public static org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
       return newBuilder().mergeFrom(input, extensionRegistry)
-        .buildParsed();
+               .buildParsed();
     }
-
-    public static Builder newBuilder() {
-      return Builder.create();
-    }
-
-    public Builder newBuilderForType() {
-      return newBuilder();
-    }
-
-    public static Builder newBuilder(org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType prototype) {
+    
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType prototype) {
       return newBuilder().mergeFrom(prototype);
     }
-
-    public Builder toBuilder() {
-      return newBuilder(this);
-    }
-
+    public Builder toBuilder() { return newBuilder(this); }
+    
     @java.lang.Override
     protected Builder newBuilderForType(
-      com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
       Builder builder = new Builder(parent);
       return builder;
     }
-
     public static final class Builder extends
-      com.google.protobuf.GeneratedMessage.Builder<Builder>
-      implements org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeTypeOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder>
+       implements org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeTypeOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
-      getDescriptor() {
-        return org.multibit.hd.hardware.trezor.protobuf.TrezorType.internal_static_HDNodeType_descriptor;
+          getDescriptor() {
+        return org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.internal_static_HDNodeType_descriptor;
       }
-
+      
       protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internalGetFieldAccessorTable() {
-        return org.multibit.hd.hardware.trezor.protobuf.TrezorType.internal_static_HDNodeType_fieldAccessorTable;
+          internalGetFieldAccessorTable() {
+        return org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.internal_static_HDNodeType_fieldAccessorTable;
       }
-
-      // Construct using org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType.newBuilder()
+      
+      // Construct using org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType.newBuilder()
       private Builder() {
         maybeForceBuilderInitialization();
       }
-
+      
       private Builder(BuilderParent parent) {
         super(parent);
         maybeForceBuilderInitialization();
       }
-
       private void maybeForceBuilderInitialization() {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
         }
       }
-
       private static Builder create() {
         return new Builder();
       }
-
+      
       public Builder clear() {
         super.clear();
         version_ = 0;
@@ -722,40 +637,40 @@ public final class TrezorType {
         bitField0_ = (bitField0_ & ~0x00000080);
         return this;
       }
-
+      
       public Builder clone() {
         return create().mergeFrom(buildPartial());
       }
-
+      
       public com.google.protobuf.Descriptors.Descriptor
-      getDescriptorForType() {
-        return org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType.getDescriptor();
+          getDescriptorForType() {
+        return org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType.getDescriptor();
       }
-
-      public org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType getDefaultInstanceForType() {
-        return org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType.getDefaultInstance();
+      
+      public org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType getDefaultInstanceForType() {
+        return org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType.getDefaultInstance();
       }
-
-      public org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType build() {
-        org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType result = buildPartial();
+      
+      public org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType build() {
+        org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType result = buildPartial();
         if (!result.isInitialized()) {
           throw newUninitializedMessageException(result);
         }
         return result;
       }
-
-      private org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType buildParsed()
-        throws com.google.protobuf.InvalidProtocolBufferException {
-        org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType result = buildPartial();
+      
+      private org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType buildParsed()
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType result = buildPartial();
         if (!result.isInitialized()) {
           throw newUninitializedMessageException(
             result).asInvalidProtocolBufferException();
         }
         return result;
       }
-
-      public org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType buildPartial() {
-        org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType result = new org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType(this);
+      
+      public org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType buildPartial() {
+        org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType result = new org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType(this);
         int from_bitField0_ = bitField0_;
         int to_bitField0_ = 0;
         if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
@@ -794,18 +709,18 @@ public final class TrezorType {
         onBuilt();
         return result;
       }
-
+      
       public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType) {
-          return mergeFrom((org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType) other);
+        if (other instanceof org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType) {
+          return mergeFrom((org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType)other);
         } else {
           super.mergeFrom(other);
           return this;
         }
       }
-
-      public Builder mergeFrom(org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType other) {
-        if (other == org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType.getDefaultInstance()) return this;
+      
+      public Builder mergeFrom(org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType other) {
+        if (other == org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType.getDefaultInstance()) return this;
         if (other.hasVersion()) {
           setVersion(other.getVersion());
         }
@@ -833,35 +748,35 @@ public final class TrezorType {
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
       }
-
+      
       public final boolean isInitialized() {
         if (!hasVersion()) {
-
+          
           return false;
         }
         if (!hasDepth()) {
-
+          
           return false;
         }
         if (!hasFingerprint()) {
-
+          
           return false;
         }
         if (!hasChildNum()) {
-
+          
           return false;
         }
         if (!hasChainCode()) {
-
+          
           return false;
         }
         return true;
       }
-
+      
       public Builder mergeFrom(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
         com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder(
             this.getUnknownFields());
@@ -874,7 +789,7 @@ public final class TrezorType {
               return this;
             default: {
               if (!parseUnknownField(input, unknownFields,
-                extensionRegistry, tag)) {
+                                     extensionRegistry, tag)) {
                 this.setUnknownFields(unknownFields.build());
                 onChanged();
                 return this;
@@ -924,370 +839,316 @@ public final class TrezorType {
           }
         }
       }
-
+      
       private int bitField0_;
-
+      
       // required uint32 version = 1;
-      private int version_;
-
+      private int version_ ;
       public boolean hasVersion() {
         return ((bitField0_ & 0x00000001) == 0x00000001);
       }
-
       public int getVersion() {
         return version_;
       }
-
       public Builder setVersion(int value) {
         bitField0_ |= 0x00000001;
         version_ = value;
         onChanged();
         return this;
       }
-
       public Builder clearVersion() {
         bitField0_ = (bitField0_ & ~0x00000001);
         version_ = 0;
         onChanged();
         return this;
       }
-
+      
       // required uint32 depth = 2;
-      private int depth_;
-
+      private int depth_ ;
       public boolean hasDepth() {
         return ((bitField0_ & 0x00000002) == 0x00000002);
       }
-
       public int getDepth() {
         return depth_;
       }
-
       public Builder setDepth(int value) {
         bitField0_ |= 0x00000002;
         depth_ = value;
         onChanged();
         return this;
       }
-
       public Builder clearDepth() {
         bitField0_ = (bitField0_ & ~0x00000002);
         depth_ = 0;
         onChanged();
         return this;
       }
-
+      
       // required uint32 fingerprint = 3;
-      private int fingerprint_;
-
+      private int fingerprint_ ;
       public boolean hasFingerprint() {
         return ((bitField0_ & 0x00000004) == 0x00000004);
       }
-
       public int getFingerprint() {
         return fingerprint_;
       }
-
       public Builder setFingerprint(int value) {
         bitField0_ |= 0x00000004;
         fingerprint_ = value;
         onChanged();
         return this;
       }
-
       public Builder clearFingerprint() {
         bitField0_ = (bitField0_ & ~0x00000004);
         fingerprint_ = 0;
         onChanged();
         return this;
       }
-
+      
       // required uint32 child_num = 4;
-      private int childNum_;
-
+      private int childNum_ ;
       public boolean hasChildNum() {
         return ((bitField0_ & 0x00000008) == 0x00000008);
       }
-
       public int getChildNum() {
         return childNum_;
       }
-
       public Builder setChildNum(int value) {
         bitField0_ |= 0x00000008;
         childNum_ = value;
         onChanged();
         return this;
       }
-
       public Builder clearChildNum() {
         bitField0_ = (bitField0_ & ~0x00000008);
         childNum_ = 0;
         onChanged();
         return this;
       }
-
+      
       // required bytes chain_code = 5;
       private com.google.protobuf.ByteString chainCode_ = com.google.protobuf.ByteString.EMPTY;
-
       public boolean hasChainCode() {
         return ((bitField0_ & 0x00000010) == 0x00000010);
       }
-
       public com.google.protobuf.ByteString getChainCode() {
         return chainCode_;
       }
-
       public Builder setChainCode(com.google.protobuf.ByteString value) {
         if (value == null) {
-          throw new NullPointerException();
-        }
-        bitField0_ |= 0x00000010;
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000010;
         chainCode_ = value;
         onChanged();
         return this;
       }
-
       public Builder clearChainCode() {
         bitField0_ = (bitField0_ & ~0x00000010);
         chainCode_ = getDefaultInstance().getChainCode();
         onChanged();
         return this;
       }
-
+      
       // optional bytes private_key = 6;
       private com.google.protobuf.ByteString privateKey_ = com.google.protobuf.ByteString.EMPTY;
-
       public boolean hasPrivateKey() {
         return ((bitField0_ & 0x00000020) == 0x00000020);
       }
-
       public com.google.protobuf.ByteString getPrivateKey() {
         return privateKey_;
       }
-
       public Builder setPrivateKey(com.google.protobuf.ByteString value) {
         if (value == null) {
-          throw new NullPointerException();
-        }
-        bitField0_ |= 0x00000020;
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000020;
         privateKey_ = value;
         onChanged();
         return this;
       }
-
       public Builder clearPrivateKey() {
         bitField0_ = (bitField0_ & ~0x00000020);
         privateKey_ = getDefaultInstance().getPrivateKey();
         onChanged();
         return this;
       }
-
+      
       // optional bytes public_key = 7;
       private com.google.protobuf.ByteString publicKey_ = com.google.protobuf.ByteString.EMPTY;
-
       public boolean hasPublicKey() {
         return ((bitField0_ & 0x00000040) == 0x00000040);
       }
-
       public com.google.protobuf.ByteString getPublicKey() {
         return publicKey_;
       }
-
       public Builder setPublicKey(com.google.protobuf.ByteString value) {
         if (value == null) {
-          throw new NullPointerException();
-        }
-        bitField0_ |= 0x00000040;
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000040;
         publicKey_ = value;
         onChanged();
         return this;
       }
-
       public Builder clearPublicKey() {
         bitField0_ = (bitField0_ & ~0x00000040);
         publicKey_ = getDefaultInstance().getPublicKey();
         onChanged();
         return this;
       }
-
+      
       // optional bytes address = 8;
       private com.google.protobuf.ByteString address_ = com.google.protobuf.ByteString.EMPTY;
-
       public boolean hasAddress() {
         return ((bitField0_ & 0x00000080) == 0x00000080);
       }
-
       public com.google.protobuf.ByteString getAddress() {
         return address_;
       }
-
       public Builder setAddress(com.google.protobuf.ByteString value) {
         if (value == null) {
-          throw new NullPointerException();
-        }
-        bitField0_ |= 0x00000080;
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000080;
         address_ = value;
         onChanged();
         return this;
       }
-
       public Builder clearAddress() {
         bitField0_ = (bitField0_ & ~0x00000080);
         address_ = getDefaultInstance().getAddress();
         onChanged();
         return this;
       }
-
+      
       // @@protoc_insertion_point(builder_scope:HDNodeType)
     }
-
+    
     static {
       defaultInstance = new HDNodeType(true);
       defaultInstance.initFields();
     }
-
+    
     // @@protoc_insertion_point(class_scope:HDNodeType)
   }
-
+  
   public interface CoinTypeOrBuilder
-    extends com.google.protobuf.MessageOrBuilder {
-
+      extends com.google.protobuf.MessageOrBuilder {
+    
     // optional bytes coin_name = 1;
     boolean hasCoinName();
-
     com.google.protobuf.ByteString getCoinName();
-
+    
     // optional bytes coin_shortcut = 2;
     boolean hasCoinShortcut();
-
     com.google.protobuf.ByteString getCoinShortcut();
-
+    
     // optional uint32 address_type = 3;
     boolean hasAddressType();
-
     int getAddressType();
-
+    
     // optional uint64 maxfee_kb = 4;
     boolean hasMaxfeeKb();
-
     long getMaxfeeKb();
-
+    
     // optional uint32 ser_private = 5;
     boolean hasSerPrivate();
-
     int getSerPrivate();
-
+    
     // optional uint32 ser_public = 6;
     boolean hasSerPublic();
-
     int getSerPublic();
   }
-
   public static final class CoinType extends
-    com.google.protobuf.GeneratedMessage
-    implements CoinTypeOrBuilder {
+      com.google.protobuf.GeneratedMessage
+      implements CoinTypeOrBuilder {
     // Use CoinType.newBuilder() to construct.
     private CoinType(Builder builder) {
       super(builder);
     }
-
-    private CoinType(boolean noInit) {
-    }
-
+    private CoinType(boolean noInit) {}
+    
     private static final CoinType defaultInstance;
-
     public static CoinType getDefaultInstance() {
       return defaultInstance;
     }
-
+    
     public CoinType getDefaultInstanceForType() {
       return defaultInstance;
     }
-
+    
     public static final com.google.protobuf.Descriptors.Descriptor
-    getDescriptor() {
-      return org.multibit.hd.hardware.trezor.protobuf.TrezorType.internal_static_CoinType_descriptor;
+        getDescriptor() {
+      return org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.internal_static_CoinType_descriptor;
     }
-
+    
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-    internalGetFieldAccessorTable() {
-      return org.multibit.hd.hardware.trezor.protobuf.TrezorType.internal_static_CoinType_fieldAccessorTable;
+        internalGetFieldAccessorTable() {
+      return org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.internal_static_CoinType_fieldAccessorTable;
     }
-
+    
     private int bitField0_;
     // optional bytes coin_name = 1;
     public static final int COIN_NAME_FIELD_NUMBER = 1;
     private com.google.protobuf.ByteString coinName_;
-
     public boolean hasCoinName() {
       return ((bitField0_ & 0x00000001) == 0x00000001);
     }
-
     public com.google.protobuf.ByteString getCoinName() {
       return coinName_;
     }
-
+    
     // optional bytes coin_shortcut = 2;
     public static final int COIN_SHORTCUT_FIELD_NUMBER = 2;
     private com.google.protobuf.ByteString coinShortcut_;
-
     public boolean hasCoinShortcut() {
       return ((bitField0_ & 0x00000002) == 0x00000002);
     }
-
     public com.google.protobuf.ByteString getCoinShortcut() {
       return coinShortcut_;
     }
-
+    
     // optional uint32 address_type = 3;
     public static final int ADDRESS_TYPE_FIELD_NUMBER = 3;
     private int addressType_;
-
     public boolean hasAddressType() {
       return ((bitField0_ & 0x00000004) == 0x00000004);
     }
-
     public int getAddressType() {
       return addressType_;
     }
-
+    
     // optional uint64 maxfee_kb = 4;
     public static final int MAXFEE_KB_FIELD_NUMBER = 4;
     private long maxfeeKb_;
-
     public boolean hasMaxfeeKb() {
       return ((bitField0_ & 0x00000008) == 0x00000008);
     }
-
     public long getMaxfeeKb() {
       return maxfeeKb_;
     }
-
+    
     // optional uint32 ser_private = 5;
     public static final int SER_PRIVATE_FIELD_NUMBER = 5;
     private int serPrivate_;
-
     public boolean hasSerPrivate() {
       return ((bitField0_ & 0x00000010) == 0x00000010);
     }
-
     public int getSerPrivate() {
       return serPrivate_;
     }
-
+    
     // optional uint32 ser_public = 6;
     public static final int SER_PUBLIC_FIELD_NUMBER = 6;
     private int serPublic_;
-
     public boolean hasSerPublic() {
       return ((bitField0_ & 0x00000020) == 0x00000020);
     }
-
     public int getSerPublic() {
       return serPublic_;
     }
-
+    
     private void initFields() {
       coinName_ = com.google.protobuf.ByteString.EMPTY;
       coinShortcut_ = com.google.protobuf.ByteString.EMPTY;
@@ -1296,19 +1157,17 @@ public final class TrezorType {
       serPrivate_ = 0;
       serPublic_ = 0;
     }
-
     private byte memoizedIsInitialized = -1;
-
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
       if (isInitialized != -1) return isInitialized == 1;
-
+      
       memoizedIsInitialized = 1;
       return true;
     }
-
+    
     public void writeTo(com.google.protobuf.CodedOutputStream output)
-      throws java.io.IOException {
+                        throws java.io.IOException {
       getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         output.writeBytes(1, coinName_);
@@ -1330,13 +1189,12 @@ public final class TrezorType {
       }
       getUnknownFields().writeTo(output);
     }
-
+    
     private int memoizedSerializedSize = -1;
-
     public int getSerializedSize() {
       int size = memoizedSerializedSize;
       if (size != -1) return size;
-
+    
       size = 0;
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         size += com.google.protobuf.CodedOutputStream
@@ -1366,57 +1224,50 @@ public final class TrezorType {
       memoizedSerializedSize = size;
       return size;
     }
-
+    
     private static final long serialVersionUID = 0L;
-
     @java.lang.Override
     protected java.lang.Object writeReplace()
-      throws java.io.ObjectStreamException {
+        throws java.io.ObjectStreamException {
       return super.writeReplace();
     }
-
-    public static org.multibit.hd.hardware.trezor.protobuf.TrezorType.CoinType parseFrom(
-      com.google.protobuf.ByteString data)
-      throws com.google.protobuf.InvalidProtocolBufferException {
+    
+    public static org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.CoinType parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
       return newBuilder().mergeFrom(data).buildParsed();
     }
-
-    public static org.multibit.hd.hardware.trezor.protobuf.TrezorType.CoinType parseFrom(
-      com.google.protobuf.ByteString data,
-      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-      throws com.google.protobuf.InvalidProtocolBufferException {
+    public static org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.CoinType parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
       return newBuilder().mergeFrom(data, extensionRegistry)
-        .buildParsed();
+               .buildParsed();
     }
-
-    public static org.multibit.hd.hardware.trezor.protobuf.TrezorType.CoinType parseFrom(byte[] data)
-      throws com.google.protobuf.InvalidProtocolBufferException {
+    public static org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.CoinType parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
       return newBuilder().mergeFrom(data).buildParsed();
     }
-
-    public static org.multibit.hd.hardware.trezor.protobuf.TrezorType.CoinType parseFrom(
-      byte[] data,
-      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-      throws com.google.protobuf.InvalidProtocolBufferException {
+    public static org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.CoinType parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
       return newBuilder().mergeFrom(data, extensionRegistry)
-        .buildParsed();
+               .buildParsed();
     }
-
-    public static org.multibit.hd.hardware.trezor.protobuf.TrezorType.CoinType parseFrom(java.io.InputStream input)
-      throws java.io.IOException {
+    public static org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.CoinType parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
       return newBuilder().mergeFrom(input).buildParsed();
     }
-
-    public static org.multibit.hd.hardware.trezor.protobuf.TrezorType.CoinType parseFrom(
-      java.io.InputStream input,
-      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-      throws java.io.IOException {
+    public static org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.CoinType parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
       return newBuilder().mergeFrom(input, extensionRegistry)
-        .buildParsed();
+               .buildParsed();
     }
-
-    public static org.multibit.hd.hardware.trezor.protobuf.TrezorType.CoinType parseDelimitedFrom(java.io.InputStream input)
-      throws java.io.IOException {
+    public static org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.CoinType parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
       Builder builder = newBuilder();
       if (builder.mergeDelimitedFrom(input)) {
         return builder.buildParsed();
@@ -1424,11 +1275,10 @@ public final class TrezorType {
         return null;
       }
     }
-
-    public static org.multibit.hd.hardware.trezor.protobuf.TrezorType.CoinType parseDelimitedFrom(
-      java.io.InputStream input,
-      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-      throws java.io.IOException {
+    public static org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.CoinType parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
       Builder builder = newBuilder();
       if (builder.mergeDelimitedFrom(input, extensionRegistry)) {
         return builder.buildParsed();
@@ -1436,76 +1286,62 @@ public final class TrezorType {
         return null;
       }
     }
-
-    public static org.multibit.hd.hardware.trezor.protobuf.TrezorType.CoinType parseFrom(
-      com.google.protobuf.CodedInputStream input)
-      throws java.io.IOException {
+    public static org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.CoinType parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
       return newBuilder().mergeFrom(input).buildParsed();
     }
-
-    public static org.multibit.hd.hardware.trezor.protobuf.TrezorType.CoinType parseFrom(
-      com.google.protobuf.CodedInputStream input,
-      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-      throws java.io.IOException {
+    public static org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.CoinType parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
       return newBuilder().mergeFrom(input, extensionRegistry)
-        .buildParsed();
+               .buildParsed();
     }
-
-    public static Builder newBuilder() {
-      return Builder.create();
-    }
-
-    public Builder newBuilderForType() {
-      return newBuilder();
-    }
-
-    public static Builder newBuilder(org.multibit.hd.hardware.trezor.protobuf.TrezorType.CoinType prototype) {
+    
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.CoinType prototype) {
       return newBuilder().mergeFrom(prototype);
     }
-
-    public Builder toBuilder() {
-      return newBuilder(this);
-    }
-
+    public Builder toBuilder() { return newBuilder(this); }
+    
     @java.lang.Override
     protected Builder newBuilderForType(
-      com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
       Builder builder = new Builder(parent);
       return builder;
     }
-
     public static final class Builder extends
-      com.google.protobuf.GeneratedMessage.Builder<Builder>
-      implements org.multibit.hd.hardware.trezor.protobuf.TrezorType.CoinTypeOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder>
+       implements org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.CoinTypeOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
-      getDescriptor() {
-        return org.multibit.hd.hardware.trezor.protobuf.TrezorType.internal_static_CoinType_descriptor;
+          getDescriptor() {
+        return org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.internal_static_CoinType_descriptor;
       }
-
+      
       protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internalGetFieldAccessorTable() {
-        return org.multibit.hd.hardware.trezor.protobuf.TrezorType.internal_static_CoinType_fieldAccessorTable;
+          internalGetFieldAccessorTable() {
+        return org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.internal_static_CoinType_fieldAccessorTable;
       }
-
-      // Construct using org.multibit.hd.hardware.trezor.protobuf.TrezorType.CoinType.newBuilder()
+      
+      // Construct using org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.CoinType.newBuilder()
       private Builder() {
         maybeForceBuilderInitialization();
       }
-
+      
       private Builder(BuilderParent parent) {
         super(parent);
         maybeForceBuilderInitialization();
       }
-
       private void maybeForceBuilderInitialization() {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
         }
       }
-
       private static Builder create() {
         return new Builder();
       }
-
+      
       public Builder clear() {
         super.clear();
         coinName_ = com.google.protobuf.ByteString.EMPTY;
@@ -1522,40 +1358,40 @@ public final class TrezorType {
         bitField0_ = (bitField0_ & ~0x00000020);
         return this;
       }
-
+      
       public Builder clone() {
         return create().mergeFrom(buildPartial());
       }
-
+      
       public com.google.protobuf.Descriptors.Descriptor
-      getDescriptorForType() {
-        return org.multibit.hd.hardware.trezor.protobuf.TrezorType.CoinType.getDescriptor();
+          getDescriptorForType() {
+        return org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.CoinType.getDescriptor();
       }
-
-      public org.multibit.hd.hardware.trezor.protobuf.TrezorType.CoinType getDefaultInstanceForType() {
-        return org.multibit.hd.hardware.trezor.protobuf.TrezorType.CoinType.getDefaultInstance();
+      
+      public org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.CoinType getDefaultInstanceForType() {
+        return org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.CoinType.getDefaultInstance();
       }
-
-      public org.multibit.hd.hardware.trezor.protobuf.TrezorType.CoinType build() {
-        org.multibit.hd.hardware.trezor.protobuf.TrezorType.CoinType result = buildPartial();
+      
+      public org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.CoinType build() {
+        org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.CoinType result = buildPartial();
         if (!result.isInitialized()) {
           throw newUninitializedMessageException(result);
         }
         return result;
       }
-
-      private org.multibit.hd.hardware.trezor.protobuf.TrezorType.CoinType buildParsed()
-        throws com.google.protobuf.InvalidProtocolBufferException {
-        org.multibit.hd.hardware.trezor.protobuf.TrezorType.CoinType result = buildPartial();
+      
+      private org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.CoinType buildParsed()
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.CoinType result = buildPartial();
         if (!result.isInitialized()) {
           throw newUninitializedMessageException(
             result).asInvalidProtocolBufferException();
         }
         return result;
       }
-
-      public org.multibit.hd.hardware.trezor.protobuf.TrezorType.CoinType buildPartial() {
-        org.multibit.hd.hardware.trezor.protobuf.TrezorType.CoinType result = new org.multibit.hd.hardware.trezor.protobuf.TrezorType.CoinType(this);
+      
+      public org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.CoinType buildPartial() {
+        org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.CoinType result = new org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.CoinType(this);
         int from_bitField0_ = bitField0_;
         int to_bitField0_ = 0;
         if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
@@ -1586,18 +1422,18 @@ public final class TrezorType {
         onBuilt();
         return result;
       }
-
+      
       public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof org.multibit.hd.hardware.trezor.protobuf.TrezorType.CoinType) {
-          return mergeFrom((org.multibit.hd.hardware.trezor.protobuf.TrezorType.CoinType) other);
+        if (other instanceof org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.CoinType) {
+          return mergeFrom((org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.CoinType)other);
         } else {
           super.mergeFrom(other);
           return this;
         }
       }
-
-      public Builder mergeFrom(org.multibit.hd.hardware.trezor.protobuf.TrezorType.CoinType other) {
-        if (other == org.multibit.hd.hardware.trezor.protobuf.TrezorType.CoinType.getDefaultInstance()) return this;
+      
+      public Builder mergeFrom(org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.CoinType other) {
+        if (other == org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.CoinType.getDefaultInstance()) return this;
         if (other.hasCoinName()) {
           setCoinName(other.getCoinName());
         }
@@ -1619,15 +1455,15 @@ public final class TrezorType {
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
       }
-
+      
       public final boolean isInitialized() {
         return true;
       }
-
+      
       public Builder mergeFrom(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
         com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder(
             this.getUnknownFields());
@@ -1640,7 +1476,7 @@ public final class TrezorType {
               return this;
             default: {
               if (!parseUnknownField(input, unknownFields,
-                extensionRegistry, tag)) {
+                                     extensionRegistry, tag)) {
                 this.setUnknownFields(unknownFields.build());
                 onChanged();
                 return this;
@@ -1680,319 +1516,271 @@ public final class TrezorType {
           }
         }
       }
-
+      
       private int bitField0_;
-
+      
       // optional bytes coin_name = 1;
       private com.google.protobuf.ByteString coinName_ = com.google.protobuf.ByteString.EMPTY;
-
       public boolean hasCoinName() {
         return ((bitField0_ & 0x00000001) == 0x00000001);
       }
-
       public com.google.protobuf.ByteString getCoinName() {
         return coinName_;
       }
-
       public Builder setCoinName(com.google.protobuf.ByteString value) {
         if (value == null) {
-          throw new NullPointerException();
-        }
-        bitField0_ |= 0x00000001;
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000001;
         coinName_ = value;
         onChanged();
         return this;
       }
-
       public Builder clearCoinName() {
         bitField0_ = (bitField0_ & ~0x00000001);
         coinName_ = getDefaultInstance().getCoinName();
         onChanged();
         return this;
       }
-
+      
       // optional bytes coin_shortcut = 2;
       private com.google.protobuf.ByteString coinShortcut_ = com.google.protobuf.ByteString.EMPTY;
-
       public boolean hasCoinShortcut() {
         return ((bitField0_ & 0x00000002) == 0x00000002);
       }
-
       public com.google.protobuf.ByteString getCoinShortcut() {
         return coinShortcut_;
       }
-
       public Builder setCoinShortcut(com.google.protobuf.ByteString value) {
         if (value == null) {
-          throw new NullPointerException();
-        }
-        bitField0_ |= 0x00000002;
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000002;
         coinShortcut_ = value;
         onChanged();
         return this;
       }
-
       public Builder clearCoinShortcut() {
         bitField0_ = (bitField0_ & ~0x00000002);
         coinShortcut_ = getDefaultInstance().getCoinShortcut();
         onChanged();
         return this;
       }
-
+      
       // optional uint32 address_type = 3;
-      private int addressType_;
-
+      private int addressType_ ;
       public boolean hasAddressType() {
         return ((bitField0_ & 0x00000004) == 0x00000004);
       }
-
       public int getAddressType() {
         return addressType_;
       }
-
       public Builder setAddressType(int value) {
         bitField0_ |= 0x00000004;
         addressType_ = value;
         onChanged();
         return this;
       }
-
       public Builder clearAddressType() {
         bitField0_ = (bitField0_ & ~0x00000004);
         addressType_ = 0;
         onChanged();
         return this;
       }
-
+      
       // optional uint64 maxfee_kb = 4;
-      private long maxfeeKb_;
-
+      private long maxfeeKb_ ;
       public boolean hasMaxfeeKb() {
         return ((bitField0_ & 0x00000008) == 0x00000008);
       }
-
       public long getMaxfeeKb() {
         return maxfeeKb_;
       }
-
       public Builder setMaxfeeKb(long value) {
         bitField0_ |= 0x00000008;
         maxfeeKb_ = value;
         onChanged();
         return this;
       }
-
       public Builder clearMaxfeeKb() {
         bitField0_ = (bitField0_ & ~0x00000008);
         maxfeeKb_ = 0L;
         onChanged();
         return this;
       }
-
+      
       // optional uint32 ser_private = 5;
-      private int serPrivate_;
-
+      private int serPrivate_ ;
       public boolean hasSerPrivate() {
         return ((bitField0_ & 0x00000010) == 0x00000010);
       }
-
       public int getSerPrivate() {
         return serPrivate_;
       }
-
       public Builder setSerPrivate(int value) {
         bitField0_ |= 0x00000010;
         serPrivate_ = value;
         onChanged();
         return this;
       }
-
       public Builder clearSerPrivate() {
         bitField0_ = (bitField0_ & ~0x00000010);
         serPrivate_ = 0;
         onChanged();
         return this;
       }
-
+      
       // optional uint32 ser_public = 6;
-      private int serPublic_;
-
+      private int serPublic_ ;
       public boolean hasSerPublic() {
         return ((bitField0_ & 0x00000020) == 0x00000020);
       }
-
       public int getSerPublic() {
         return serPublic_;
       }
-
       public Builder setSerPublic(int value) {
         bitField0_ |= 0x00000020;
         serPublic_ = value;
         onChanged();
         return this;
       }
-
       public Builder clearSerPublic() {
         bitField0_ = (bitField0_ & ~0x00000020);
         serPublic_ = 0;
         onChanged();
         return this;
       }
-
+      
       // @@protoc_insertion_point(builder_scope:CoinType)
     }
-
+    
     static {
       defaultInstance = new CoinType(true);
       defaultInstance.initFields();
     }
-
+    
     // @@protoc_insertion_point(class_scope:CoinType)
   }
-
+  
   public interface TxInputTypeOrBuilder
-    extends com.google.protobuf.MessageOrBuilder {
-
+      extends com.google.protobuf.MessageOrBuilder {
+    
     // repeated uint32 address_n = 1;
     java.util.List<java.lang.Integer> getAddressNList();
-
     int getAddressNCount();
-
     int getAddressN(int index);
-
+    
     // required bytes prev_hash = 2;
     boolean hasPrevHash();
-
     com.google.protobuf.ByteString getPrevHash();
-
+    
     // required uint32 prev_index = 3;
     boolean hasPrevIndex();
-
     int getPrevIndex();
-
+    
     // optional bytes script_sig = 4;
     boolean hasScriptSig();
-
     com.google.protobuf.ByteString getScriptSig();
-
+    
     // optional uint32 sequence = 5 [default = 4294967295];
     boolean hasSequence();
-
     int getSequence();
   }
-
   public static final class TxInputType extends
-    com.google.protobuf.GeneratedMessage
-    implements TxInputTypeOrBuilder {
+      com.google.protobuf.GeneratedMessage
+      implements TxInputTypeOrBuilder {
     // Use TxInputType.newBuilder() to construct.
     private TxInputType(Builder builder) {
       super(builder);
     }
-
-    private TxInputType(boolean noInit) {
-    }
-
+    private TxInputType(boolean noInit) {}
+    
     private static final TxInputType defaultInstance;
-
     public static TxInputType getDefaultInstance() {
       return defaultInstance;
     }
-
+    
     public TxInputType getDefaultInstanceForType() {
       return defaultInstance;
     }
-
+    
     public static final com.google.protobuf.Descriptors.Descriptor
-    getDescriptor() {
-      return org.multibit.hd.hardware.trezor.protobuf.TrezorType.internal_static_TxInputType_descriptor;
+        getDescriptor() {
+      return org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.internal_static_TxInputType_descriptor;
     }
-
+    
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-    internalGetFieldAccessorTable() {
-      return org.multibit.hd.hardware.trezor.protobuf.TrezorType.internal_static_TxInputType_fieldAccessorTable;
+        internalGetFieldAccessorTable() {
+      return org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.internal_static_TxInputType_fieldAccessorTable;
     }
-
+    
     private int bitField0_;
     // repeated uint32 address_n = 1;
     public static final int ADDRESS_N_FIELD_NUMBER = 1;
     private java.util.List<java.lang.Integer> addressN_;
-
     public java.util.List<java.lang.Integer>
-    getAddressNList() {
+        getAddressNList() {
       return addressN_;
     }
-
     public int getAddressNCount() {
       return addressN_.size();
     }
-
     public int getAddressN(int index) {
       return addressN_.get(index);
     }
-
+    
     // required bytes prev_hash = 2;
     public static final int PREV_HASH_FIELD_NUMBER = 2;
     private com.google.protobuf.ByteString prevHash_;
-
     public boolean hasPrevHash() {
       return ((bitField0_ & 0x00000001) == 0x00000001);
     }
-
     public com.google.protobuf.ByteString getPrevHash() {
       return prevHash_;
     }
-
+    
     // required uint32 prev_index = 3;
     public static final int PREV_INDEX_FIELD_NUMBER = 3;
     private int prevIndex_;
-
     public boolean hasPrevIndex() {
       return ((bitField0_ & 0x00000002) == 0x00000002);
     }
-
     public int getPrevIndex() {
       return prevIndex_;
     }
-
+    
     // optional bytes script_sig = 4;
     public static final int SCRIPT_SIG_FIELD_NUMBER = 4;
     private com.google.protobuf.ByteString scriptSig_;
-
     public boolean hasScriptSig() {
       return ((bitField0_ & 0x00000004) == 0x00000004);
     }
-
     public com.google.protobuf.ByteString getScriptSig() {
       return scriptSig_;
     }
-
+    
     // optional uint32 sequence = 5 [default = 4294967295];
     public static final int SEQUENCE_FIELD_NUMBER = 5;
     private int sequence_;
-
     public boolean hasSequence() {
       return ((bitField0_ & 0x00000008) == 0x00000008);
     }
-
     public int getSequence() {
       return sequence_;
     }
-
+    
     private void initFields() {
-      addressN_ = java.util.Collections.emptyList();
-      ;
+      addressN_ = java.util.Collections.emptyList();;
       prevHash_ = com.google.protobuf.ByteString.EMPTY;
       prevIndex_ = 0;
       scriptSig_ = com.google.protobuf.ByteString.EMPTY;
       sequence_ = -1;
     }
-
     private byte memoizedIsInitialized = -1;
-
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
       if (isInitialized != -1) return isInitialized == 1;
-
+      
       if (!hasPrevHash()) {
         memoizedIsInitialized = 0;
         return false;
@@ -2004,9 +1792,9 @@ public final class TrezorType {
       memoizedIsInitialized = 1;
       return true;
     }
-
+    
     public void writeTo(com.google.protobuf.CodedOutputStream output)
-      throws java.io.IOException {
+                        throws java.io.IOException {
       getSerializedSize();
       for (int i = 0; i < addressN_.size(); i++) {
         output.writeUInt32(1, addressN_.get(i));
@@ -2025,13 +1813,12 @@ public final class TrezorType {
       }
       getUnknownFields().writeTo(output);
     }
-
+    
     private int memoizedSerializedSize = -1;
-
     public int getSerializedSize() {
       int size = memoizedSerializedSize;
       if (size != -1) return size;
-
+    
       size = 0;
       {
         int dataSize = 0;
@@ -2062,57 +1849,50 @@ public final class TrezorType {
       memoizedSerializedSize = size;
       return size;
     }
-
+    
     private static final long serialVersionUID = 0L;
-
     @java.lang.Override
     protected java.lang.Object writeReplace()
-      throws java.io.ObjectStreamException {
+        throws java.io.ObjectStreamException {
       return super.writeReplace();
     }
-
-    public static org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputType parseFrom(
-      com.google.protobuf.ByteString data)
-      throws com.google.protobuf.InvalidProtocolBufferException {
+    
+    public static org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputType parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
       return newBuilder().mergeFrom(data).buildParsed();
     }
-
-    public static org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputType parseFrom(
-      com.google.protobuf.ByteString data,
-      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-      throws com.google.protobuf.InvalidProtocolBufferException {
+    public static org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputType parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
       return newBuilder().mergeFrom(data, extensionRegistry)
-        .buildParsed();
+               .buildParsed();
     }
-
-    public static org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputType parseFrom(byte[] data)
-      throws com.google.protobuf.InvalidProtocolBufferException {
+    public static org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputType parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
       return newBuilder().mergeFrom(data).buildParsed();
     }
-
-    public static org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputType parseFrom(
-      byte[] data,
-      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-      throws com.google.protobuf.InvalidProtocolBufferException {
+    public static org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputType parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
       return newBuilder().mergeFrom(data, extensionRegistry)
-        .buildParsed();
+               .buildParsed();
     }
-
-    public static org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputType parseFrom(java.io.InputStream input)
-      throws java.io.IOException {
+    public static org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputType parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
       return newBuilder().mergeFrom(input).buildParsed();
     }
-
-    public static org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputType parseFrom(
-      java.io.InputStream input,
-      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-      throws java.io.IOException {
+    public static org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputType parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
       return newBuilder().mergeFrom(input, extensionRegistry)
-        .buildParsed();
+               .buildParsed();
     }
-
-    public static org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputType parseDelimitedFrom(java.io.InputStream input)
-      throws java.io.IOException {
+    public static org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputType parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
       Builder builder = newBuilder();
       if (builder.mergeDelimitedFrom(input)) {
         return builder.buildParsed();
@@ -2120,11 +1900,10 @@ public final class TrezorType {
         return null;
       }
     }
-
-    public static org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputType parseDelimitedFrom(
-      java.io.InputStream input,
-      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-      throws java.io.IOException {
+    public static org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputType parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
       Builder builder = newBuilder();
       if (builder.mergeDelimitedFrom(input, extensionRegistry)) {
         return builder.buildParsed();
@@ -2132,80 +1911,65 @@ public final class TrezorType {
         return null;
       }
     }
-
-    public static org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputType parseFrom(
-      com.google.protobuf.CodedInputStream input)
-      throws java.io.IOException {
+    public static org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputType parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
       return newBuilder().mergeFrom(input).buildParsed();
     }
-
-    public static org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputType parseFrom(
-      com.google.protobuf.CodedInputStream input,
-      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-      throws java.io.IOException {
+    public static org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputType parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
       return newBuilder().mergeFrom(input, extensionRegistry)
-        .buildParsed();
+               .buildParsed();
     }
-
-    public static Builder newBuilder() {
-      return Builder.create();
-    }
-
-    public Builder newBuilderForType() {
-      return newBuilder();
-    }
-
-    public static Builder newBuilder(org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputType prototype) {
+    
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputType prototype) {
       return newBuilder().mergeFrom(prototype);
     }
-
-    public Builder toBuilder() {
-      return newBuilder(this);
-    }
-
+    public Builder toBuilder() { return newBuilder(this); }
+    
     @java.lang.Override
     protected Builder newBuilderForType(
-      com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
       Builder builder = new Builder(parent);
       return builder;
     }
-
     public static final class Builder extends
-      com.google.protobuf.GeneratedMessage.Builder<Builder>
-      implements org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputTypeOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder>
+       implements org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputTypeOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
-      getDescriptor() {
-        return org.multibit.hd.hardware.trezor.protobuf.TrezorType.internal_static_TxInputType_descriptor;
+          getDescriptor() {
+        return org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.internal_static_TxInputType_descriptor;
       }
-
+      
       protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internalGetFieldAccessorTable() {
-        return org.multibit.hd.hardware.trezor.protobuf.TrezorType.internal_static_TxInputType_fieldAccessorTable;
+          internalGetFieldAccessorTable() {
+        return org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.internal_static_TxInputType_fieldAccessorTable;
       }
-
-      // Construct using org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputType.newBuilder()
+      
+      // Construct using org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputType.newBuilder()
       private Builder() {
         maybeForceBuilderInitialization();
       }
-
+      
       private Builder(BuilderParent parent) {
         super(parent);
         maybeForceBuilderInitialization();
       }
-
       private void maybeForceBuilderInitialization() {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
         }
       }
-
       private static Builder create() {
         return new Builder();
       }
-
+      
       public Builder clear() {
         super.clear();
-        addressN_ = java.util.Collections.emptyList();
-        ;
+        addressN_ = java.util.Collections.emptyList();;
         bitField0_ = (bitField0_ & ~0x00000001);
         prevHash_ = com.google.protobuf.ByteString.EMPTY;
         bitField0_ = (bitField0_ & ~0x00000002);
@@ -2217,40 +1981,40 @@ public final class TrezorType {
         bitField0_ = (bitField0_ & ~0x00000010);
         return this;
       }
-
+      
       public Builder clone() {
         return create().mergeFrom(buildPartial());
       }
-
+      
       public com.google.protobuf.Descriptors.Descriptor
-      getDescriptorForType() {
-        return org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputType.getDescriptor();
+          getDescriptorForType() {
+        return org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputType.getDescriptor();
       }
-
-      public org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputType getDefaultInstanceForType() {
-        return org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputType.getDefaultInstance();
+      
+      public org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputType getDefaultInstanceForType() {
+        return org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputType.getDefaultInstance();
       }
-
-      public org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputType build() {
-        org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputType result = buildPartial();
+      
+      public org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputType build() {
+        org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputType result = buildPartial();
         if (!result.isInitialized()) {
           throw newUninitializedMessageException(result);
         }
         return result;
       }
-
-      private org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputType buildParsed()
-        throws com.google.protobuf.InvalidProtocolBufferException {
-        org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputType result = buildPartial();
+      
+      private org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputType buildParsed()
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputType result = buildPartial();
         if (!result.isInitialized()) {
           throw newUninitializedMessageException(
             result).asInvalidProtocolBufferException();
         }
         return result;
       }
-
-      public org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputType buildPartial() {
-        org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputType result = new org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputType(this);
+      
+      public org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputType buildPartial() {
+        org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputType result = new org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputType(this);
         int from_bitField0_ = bitField0_;
         int to_bitField0_ = 0;
         if (((bitField0_ & 0x00000001) == 0x00000001)) {
@@ -2278,18 +2042,18 @@ public final class TrezorType {
         onBuilt();
         return result;
       }
-
+      
       public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputType) {
-          return mergeFrom((org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputType) other);
+        if (other instanceof org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputType) {
+          return mergeFrom((org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputType)other);
         } else {
           super.mergeFrom(other);
           return this;
         }
       }
-
-      public Builder mergeFrom(org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputType other) {
-        if (other == org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputType.getDefaultInstance()) return this;
+      
+      public Builder mergeFrom(org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputType other) {
+        if (other == org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputType.getDefaultInstance()) return this;
         if (!other.addressN_.isEmpty()) {
           if (addressN_.isEmpty()) {
             addressN_ = other.addressN_;
@@ -2315,23 +2079,23 @@ public final class TrezorType {
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
       }
-
+      
       public final boolean isInitialized() {
         if (!hasPrevHash()) {
-
+          
           return false;
         }
         if (!hasPrevIndex()) {
-
+          
           return false;
         }
         return true;
       }
-
+      
       public Builder mergeFrom(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
         com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder(
             this.getUnknownFields());
@@ -2344,7 +2108,7 @@ public final class TrezorType {
               return this;
             default: {
               if (!parseUnknownField(input, unknownFields,
-                extensionRegistry, tag)) {
+                                     extensionRegistry, tag)) {
                 this.setUnknownFields(unknownFields.build());
                 onChanged();
                 return this;
@@ -2388,332 +2152,279 @@ public final class TrezorType {
           }
         }
       }
-
+      
       private int bitField0_;
-
+      
       // repeated uint32 address_n = 1;
-      private java.util.List<java.lang.Integer> addressN_ = java.util.Collections.emptyList();
-      ;
-
+      private java.util.List<java.lang.Integer> addressN_ = java.util.Collections.emptyList();;
       private void ensureAddressNIsMutable() {
         if (!((bitField0_ & 0x00000001) == 0x00000001)) {
           addressN_ = new java.util.ArrayList<java.lang.Integer>(addressN_);
           bitField0_ |= 0x00000001;
-        }
+         }
       }
-
       public java.util.List<java.lang.Integer>
-      getAddressNList() {
+          getAddressNList() {
         return java.util.Collections.unmodifiableList(addressN_);
       }
-
       public int getAddressNCount() {
         return addressN_.size();
       }
-
       public int getAddressN(int index) {
         return addressN_.get(index);
       }
-
       public Builder setAddressN(
-        int index, int value) {
+          int index, int value) {
         ensureAddressNIsMutable();
         addressN_.set(index, value);
         onChanged();
         return this;
       }
-
       public Builder addAddressN(int value) {
         ensureAddressNIsMutable();
         addressN_.add(value);
         onChanged();
         return this;
       }
-
       public Builder addAllAddressN(
-        java.lang.Iterable<? extends java.lang.Integer> values) {
+          java.lang.Iterable<? extends java.lang.Integer> values) {
         ensureAddressNIsMutable();
         super.addAll(values, addressN_);
         onChanged();
         return this;
       }
-
       public Builder clearAddressN() {
-        addressN_ = java.util.Collections.emptyList();
-        ;
+        addressN_ = java.util.Collections.emptyList();;
         bitField0_ = (bitField0_ & ~0x00000001);
         onChanged();
         return this;
       }
-
+      
       // required bytes prev_hash = 2;
       private com.google.protobuf.ByteString prevHash_ = com.google.protobuf.ByteString.EMPTY;
-
       public boolean hasPrevHash() {
         return ((bitField0_ & 0x00000002) == 0x00000002);
       }
-
       public com.google.protobuf.ByteString getPrevHash() {
         return prevHash_;
       }
-
       public Builder setPrevHash(com.google.protobuf.ByteString value) {
         if (value == null) {
-          throw new NullPointerException();
-        }
-        bitField0_ |= 0x00000002;
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000002;
         prevHash_ = value;
         onChanged();
         return this;
       }
-
       public Builder clearPrevHash() {
         bitField0_ = (bitField0_ & ~0x00000002);
         prevHash_ = getDefaultInstance().getPrevHash();
         onChanged();
         return this;
       }
-
+      
       // required uint32 prev_index = 3;
-      private int prevIndex_;
-
+      private int prevIndex_ ;
       public boolean hasPrevIndex() {
         return ((bitField0_ & 0x00000004) == 0x00000004);
       }
-
       public int getPrevIndex() {
         return prevIndex_;
       }
-
       public Builder setPrevIndex(int value) {
         bitField0_ |= 0x00000004;
         prevIndex_ = value;
         onChanged();
         return this;
       }
-
       public Builder clearPrevIndex() {
         bitField0_ = (bitField0_ & ~0x00000004);
         prevIndex_ = 0;
         onChanged();
         return this;
       }
-
+      
       // optional bytes script_sig = 4;
       private com.google.protobuf.ByteString scriptSig_ = com.google.protobuf.ByteString.EMPTY;
-
       public boolean hasScriptSig() {
         return ((bitField0_ & 0x00000008) == 0x00000008);
       }
-
       public com.google.protobuf.ByteString getScriptSig() {
         return scriptSig_;
       }
-
       public Builder setScriptSig(com.google.protobuf.ByteString value) {
         if (value == null) {
-          throw new NullPointerException();
-        }
-        bitField0_ |= 0x00000008;
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000008;
         scriptSig_ = value;
         onChanged();
         return this;
       }
-
       public Builder clearScriptSig() {
         bitField0_ = (bitField0_ & ~0x00000008);
         scriptSig_ = getDefaultInstance().getScriptSig();
         onChanged();
         return this;
       }
-
+      
       // optional uint32 sequence = 5 [default = 4294967295];
       private int sequence_ = -1;
-
       public boolean hasSequence() {
         return ((bitField0_ & 0x00000010) == 0x00000010);
       }
-
       public int getSequence() {
         return sequence_;
       }
-
       public Builder setSequence(int value) {
         bitField0_ |= 0x00000010;
         sequence_ = value;
         onChanged();
         return this;
       }
-
       public Builder clearSequence() {
         bitField0_ = (bitField0_ & ~0x00000010);
         sequence_ = -1;
         onChanged();
         return this;
       }
-
+      
       // @@protoc_insertion_point(builder_scope:TxInputType)
     }
-
+    
     static {
       defaultInstance = new TxInputType(true);
       defaultInstance.initFields();
     }
-
+    
     // @@protoc_insertion_point(class_scope:TxInputType)
   }
-
+  
   public interface TxOutputTypeOrBuilder
-    extends com.google.protobuf.MessageOrBuilder {
-
+      extends com.google.protobuf.MessageOrBuilder {
+    
     // optional bytes address = 1;
     boolean hasAddress();
-
     com.google.protobuf.ByteString getAddress();
-
+    
     // repeated uint32 address_n = 2;
     java.util.List<java.lang.Integer> getAddressNList();
-
     int getAddressNCount();
-
     int getAddressN(int index);
-
+    
     // required uint64 amount = 3;
     boolean hasAmount();
-
     long getAmount();
-
+    
     // required .ScriptType script_type = 4;
     boolean hasScriptType();
-
-    org.multibit.hd.hardware.trezor.protobuf.TrezorType.ScriptType getScriptType();
-
+    org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.ScriptType getScriptType();
+    
     // repeated bytes script_args = 5;
     java.util.List<com.google.protobuf.ByteString> getScriptArgsList();
-
     int getScriptArgsCount();
-
     com.google.protobuf.ByteString getScriptArgs(int index);
   }
-
   public static final class TxOutputType extends
-    com.google.protobuf.GeneratedMessage
-    implements TxOutputTypeOrBuilder {
+      com.google.protobuf.GeneratedMessage
+      implements TxOutputTypeOrBuilder {
     // Use TxOutputType.newBuilder() to construct.
     private TxOutputType(Builder builder) {
       super(builder);
     }
-
-    private TxOutputType(boolean noInit) {
-    }
-
+    private TxOutputType(boolean noInit) {}
+    
     private static final TxOutputType defaultInstance;
-
     public static TxOutputType getDefaultInstance() {
       return defaultInstance;
     }
-
+    
     public TxOutputType getDefaultInstanceForType() {
       return defaultInstance;
     }
-
+    
     public static final com.google.protobuf.Descriptors.Descriptor
-    getDescriptor() {
-      return org.multibit.hd.hardware.trezor.protobuf.TrezorType.internal_static_TxOutputType_descriptor;
+        getDescriptor() {
+      return org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.internal_static_TxOutputType_descriptor;
     }
-
+    
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-    internalGetFieldAccessorTable() {
-      return org.multibit.hd.hardware.trezor.protobuf.TrezorType.internal_static_TxOutputType_fieldAccessorTable;
+        internalGetFieldAccessorTable() {
+      return org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.internal_static_TxOutputType_fieldAccessorTable;
     }
-
+    
     private int bitField0_;
     // optional bytes address = 1;
     public static final int ADDRESS_FIELD_NUMBER = 1;
     private com.google.protobuf.ByteString address_;
-
     public boolean hasAddress() {
       return ((bitField0_ & 0x00000001) == 0x00000001);
     }
-
     public com.google.protobuf.ByteString getAddress() {
       return address_;
     }
-
+    
     // repeated uint32 address_n = 2;
     public static final int ADDRESS_N_FIELD_NUMBER = 2;
     private java.util.List<java.lang.Integer> addressN_;
-
     public java.util.List<java.lang.Integer>
-    getAddressNList() {
+        getAddressNList() {
       return addressN_;
     }
-
     public int getAddressNCount() {
       return addressN_.size();
     }
-
     public int getAddressN(int index) {
       return addressN_.get(index);
     }
-
+    
     // required uint64 amount = 3;
     public static final int AMOUNT_FIELD_NUMBER = 3;
     private long amount_;
-
     public boolean hasAmount() {
       return ((bitField0_ & 0x00000002) == 0x00000002);
     }
-
     public long getAmount() {
       return amount_;
     }
-
+    
     // required .ScriptType script_type = 4;
     public static final int SCRIPT_TYPE_FIELD_NUMBER = 4;
-    private org.multibit.hd.hardware.trezor.protobuf.TrezorType.ScriptType scriptType_;
-
+    private org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.ScriptType scriptType_;
     public boolean hasScriptType() {
       return ((bitField0_ & 0x00000004) == 0x00000004);
     }
-
-    public org.multibit.hd.hardware.trezor.protobuf.TrezorType.ScriptType getScriptType() {
+    public org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.ScriptType getScriptType() {
       return scriptType_;
     }
-
+    
     // repeated bytes script_args = 5;
     public static final int SCRIPT_ARGS_FIELD_NUMBER = 5;
     private java.util.List<com.google.protobuf.ByteString> scriptArgs_;
-
     public java.util.List<com.google.protobuf.ByteString>
-    getScriptArgsList() {
+        getScriptArgsList() {
       return scriptArgs_;
     }
-
     public int getScriptArgsCount() {
       return scriptArgs_.size();
     }
-
     public com.google.protobuf.ByteString getScriptArgs(int index) {
       return scriptArgs_.get(index);
     }
-
+    
     private void initFields() {
       address_ = com.google.protobuf.ByteString.EMPTY;
-      addressN_ = java.util.Collections.emptyList();
-      ;
+      addressN_ = java.util.Collections.emptyList();;
       amount_ = 0L;
-      scriptType_ = org.multibit.hd.hardware.trezor.protobuf.TrezorType.ScriptType.PAYTOADDRESS;
-      scriptArgs_ = java.util.Collections.emptyList();
-      ;
+      scriptType_ = org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.ScriptType.PAYTOADDRESS;
+      scriptArgs_ = java.util.Collections.emptyList();;
     }
-
     private byte memoizedIsInitialized = -1;
-
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
       if (isInitialized != -1) return isInitialized == 1;
-
+      
       if (!hasAmount()) {
         memoizedIsInitialized = 0;
         return false;
@@ -2725,9 +2436,9 @@ public final class TrezorType {
       memoizedIsInitialized = 1;
       return true;
     }
-
+    
     public void writeTo(com.google.protobuf.CodedOutputStream output)
-      throws java.io.IOException {
+                        throws java.io.IOException {
       getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         output.writeBytes(1, address_);
@@ -2746,13 +2457,12 @@ public final class TrezorType {
       }
       getUnknownFields().writeTo(output);
     }
-
+    
     private int memoizedSerializedSize = -1;
-
     public int getSerializedSize() {
       int size = memoizedSerializedSize;
       if (size != -1) return size;
-
+    
       size = 0;
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         size += com.google.protobuf.CodedOutputStream
@@ -2788,57 +2498,50 @@ public final class TrezorType {
       memoizedSerializedSize = size;
       return size;
     }
-
+    
     private static final long serialVersionUID = 0L;
-
     @java.lang.Override
     protected java.lang.Object writeReplace()
-      throws java.io.ObjectStreamException {
+        throws java.io.ObjectStreamException {
       return super.writeReplace();
     }
-
-    public static org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputType parseFrom(
-      com.google.protobuf.ByteString data)
-      throws com.google.protobuf.InvalidProtocolBufferException {
+    
+    public static org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputType parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
       return newBuilder().mergeFrom(data).buildParsed();
     }
-
-    public static org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputType parseFrom(
-      com.google.protobuf.ByteString data,
-      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-      throws com.google.protobuf.InvalidProtocolBufferException {
+    public static org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputType parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
       return newBuilder().mergeFrom(data, extensionRegistry)
-        .buildParsed();
+               .buildParsed();
     }
-
-    public static org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputType parseFrom(byte[] data)
-      throws com.google.protobuf.InvalidProtocolBufferException {
+    public static org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputType parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
       return newBuilder().mergeFrom(data).buildParsed();
     }
-
-    public static org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputType parseFrom(
-      byte[] data,
-      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-      throws com.google.protobuf.InvalidProtocolBufferException {
+    public static org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputType parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
       return newBuilder().mergeFrom(data, extensionRegistry)
-        .buildParsed();
+               .buildParsed();
     }
-
-    public static org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputType parseFrom(java.io.InputStream input)
-      throws java.io.IOException {
+    public static org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputType parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
       return newBuilder().mergeFrom(input).buildParsed();
     }
-
-    public static org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputType parseFrom(
-      java.io.InputStream input,
-      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-      throws java.io.IOException {
+    public static org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputType parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
       return newBuilder().mergeFrom(input, extensionRegistry)
-        .buildParsed();
+               .buildParsed();
     }
-
-    public static org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputType parseDelimitedFrom(java.io.InputStream input)
-      throws java.io.IOException {
+    public static org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputType parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
       Builder builder = newBuilder();
       if (builder.mergeDelimitedFrom(input)) {
         return builder.buildParsed();
@@ -2846,11 +2549,10 @@ public final class TrezorType {
         return null;
       }
     }
-
-    public static org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputType parseDelimitedFrom(
-      java.io.InputStream input,
-      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-      throws java.io.IOException {
+    public static org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputType parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
       Builder builder = newBuilder();
       if (builder.mergeDelimitedFrom(input, extensionRegistry)) {
         return builder.buildParsed();
@@ -2858,126 +2560,110 @@ public final class TrezorType {
         return null;
       }
     }
-
-    public static org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputType parseFrom(
-      com.google.protobuf.CodedInputStream input)
-      throws java.io.IOException {
+    public static org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputType parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
       return newBuilder().mergeFrom(input).buildParsed();
     }
-
-    public static org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputType parseFrom(
-      com.google.protobuf.CodedInputStream input,
-      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-      throws java.io.IOException {
+    public static org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputType parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
       return newBuilder().mergeFrom(input, extensionRegistry)
-        .buildParsed();
+               .buildParsed();
     }
-
-    public static Builder newBuilder() {
-      return Builder.create();
-    }
-
-    public Builder newBuilderForType() {
-      return newBuilder();
-    }
-
-    public static Builder newBuilder(org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputType prototype) {
+    
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputType prototype) {
       return newBuilder().mergeFrom(prototype);
     }
-
-    public Builder toBuilder() {
-      return newBuilder(this);
-    }
-
+    public Builder toBuilder() { return newBuilder(this); }
+    
     @java.lang.Override
     protected Builder newBuilderForType(
-      com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
       Builder builder = new Builder(parent);
       return builder;
     }
-
     public static final class Builder extends
-      com.google.protobuf.GeneratedMessage.Builder<Builder>
-      implements org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputTypeOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder>
+       implements org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputTypeOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
-      getDescriptor() {
-        return org.multibit.hd.hardware.trezor.protobuf.TrezorType.internal_static_TxOutputType_descriptor;
+          getDescriptor() {
+        return org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.internal_static_TxOutputType_descriptor;
       }
-
+      
       protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internalGetFieldAccessorTable() {
-        return org.multibit.hd.hardware.trezor.protobuf.TrezorType.internal_static_TxOutputType_fieldAccessorTable;
+          internalGetFieldAccessorTable() {
+        return org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.internal_static_TxOutputType_fieldAccessorTable;
       }
-
-      // Construct using org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputType.newBuilder()
+      
+      // Construct using org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputType.newBuilder()
       private Builder() {
         maybeForceBuilderInitialization();
       }
-
+      
       private Builder(BuilderParent parent) {
         super(parent);
         maybeForceBuilderInitialization();
       }
-
       private void maybeForceBuilderInitialization() {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
         }
       }
-
       private static Builder create() {
         return new Builder();
       }
-
+      
       public Builder clear() {
         super.clear();
         address_ = com.google.protobuf.ByteString.EMPTY;
         bitField0_ = (bitField0_ & ~0x00000001);
-        addressN_ = java.util.Collections.emptyList();
-        ;
+        addressN_ = java.util.Collections.emptyList();;
         bitField0_ = (bitField0_ & ~0x00000002);
         amount_ = 0L;
         bitField0_ = (bitField0_ & ~0x00000004);
-        scriptType_ = org.multibit.hd.hardware.trezor.protobuf.TrezorType.ScriptType.PAYTOADDRESS;
+        scriptType_ = org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.ScriptType.PAYTOADDRESS;
         bitField0_ = (bitField0_ & ~0x00000008);
-        scriptArgs_ = java.util.Collections.emptyList();
-        ;
+        scriptArgs_ = java.util.Collections.emptyList();;
         bitField0_ = (bitField0_ & ~0x00000010);
         return this;
       }
-
+      
       public Builder clone() {
         return create().mergeFrom(buildPartial());
       }
-
+      
       public com.google.protobuf.Descriptors.Descriptor
-      getDescriptorForType() {
-        return org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputType.getDescriptor();
+          getDescriptorForType() {
+        return org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputType.getDescriptor();
       }
-
-      public org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputType getDefaultInstanceForType() {
-        return org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputType.getDefaultInstance();
+      
+      public org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputType getDefaultInstanceForType() {
+        return org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputType.getDefaultInstance();
       }
-
-      public org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputType build() {
-        org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputType result = buildPartial();
+      
+      public org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputType build() {
+        org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputType result = buildPartial();
         if (!result.isInitialized()) {
           throw newUninitializedMessageException(result);
         }
         return result;
       }
-
-      private org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputType buildParsed()
-        throws com.google.protobuf.InvalidProtocolBufferException {
-        org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputType result = buildPartial();
+      
+      private org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputType buildParsed()
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputType result = buildPartial();
         if (!result.isInitialized()) {
           throw newUninitializedMessageException(
             result).asInvalidProtocolBufferException();
         }
         return result;
       }
-
-      public org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputType buildPartial() {
-        org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputType result = new org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputType(this);
+      
+      public org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputType buildPartial() {
+        org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputType result = new org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputType(this);
         int from_bitField0_ = bitField0_;
         int to_bitField0_ = 0;
         if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
@@ -3006,18 +2692,18 @@ public final class TrezorType {
         onBuilt();
         return result;
       }
-
+      
       public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputType) {
-          return mergeFrom((org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputType) other);
+        if (other instanceof org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputType) {
+          return mergeFrom((org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputType)other);
         } else {
           super.mergeFrom(other);
           return this;
         }
       }
-
-      public Builder mergeFrom(org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputType other) {
-        if (other == org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputType.getDefaultInstance()) return this;
+      
+      public Builder mergeFrom(org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputType other) {
+        if (other == org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputType.getDefaultInstance()) return this;
         if (other.hasAddress()) {
           setAddress(other.getAddress());
         }
@@ -3050,23 +2736,23 @@ public final class TrezorType {
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
       }
-
+      
       public final boolean isInitialized() {
         if (!hasAmount()) {
-
+          
           return false;
         }
         if (!hasScriptType()) {
-
+          
           return false;
         }
         return true;
       }
-
+      
       public Builder mergeFrom(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
         com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder(
             this.getUnknownFields());
@@ -3079,7 +2765,7 @@ public final class TrezorType {
               return this;
             default: {
               if (!parseUnknownField(input, unknownFields,
-                extensionRegistry, tag)) {
+                                     extensionRegistry, tag)) {
                 this.setUnknownFields(unknownFields.build());
                 onChanged();
                 return this;
@@ -3112,7 +2798,7 @@ public final class TrezorType {
             }
             case 32: {
               int rawValue = input.readEnum();
-              org.multibit.hd.hardware.trezor.protobuf.TrezorType.ScriptType value = org.multibit.hd.hardware.trezor.protobuf.TrezorType.ScriptType.valueOf(rawValue);
+              org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.ScriptType value = org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.ScriptType.valueOf(rawValue);
               if (value == null) {
                 unknownFields.mergeVarintField(4, rawValue);
               } else {
@@ -3129,129 +2815,108 @@ public final class TrezorType {
           }
         }
       }
-
+      
       private int bitField0_;
-
+      
       // optional bytes address = 1;
       private com.google.protobuf.ByteString address_ = com.google.protobuf.ByteString.EMPTY;
-
       public boolean hasAddress() {
         return ((bitField0_ & 0x00000001) == 0x00000001);
       }
-
       public com.google.protobuf.ByteString getAddress() {
         return address_;
       }
-
       public Builder setAddress(com.google.protobuf.ByteString value) {
         if (value == null) {
-          throw new NullPointerException();
-        }
-        bitField0_ |= 0x00000001;
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000001;
         address_ = value;
         onChanged();
         return this;
       }
-
       public Builder clearAddress() {
         bitField0_ = (bitField0_ & ~0x00000001);
         address_ = getDefaultInstance().getAddress();
         onChanged();
         return this;
       }
-
+      
       // repeated uint32 address_n = 2;
-      private java.util.List<java.lang.Integer> addressN_ = java.util.Collections.emptyList();
-      ;
-
+      private java.util.List<java.lang.Integer> addressN_ = java.util.Collections.emptyList();;
       private void ensureAddressNIsMutable() {
         if (!((bitField0_ & 0x00000002) == 0x00000002)) {
           addressN_ = new java.util.ArrayList<java.lang.Integer>(addressN_);
           bitField0_ |= 0x00000002;
-        }
+         }
       }
-
       public java.util.List<java.lang.Integer>
-      getAddressNList() {
+          getAddressNList() {
         return java.util.Collections.unmodifiableList(addressN_);
       }
-
       public int getAddressNCount() {
         return addressN_.size();
       }
-
       public int getAddressN(int index) {
         return addressN_.get(index);
       }
-
       public Builder setAddressN(
-        int index, int value) {
+          int index, int value) {
         ensureAddressNIsMutable();
         addressN_.set(index, value);
         onChanged();
         return this;
       }
-
       public Builder addAddressN(int value) {
         ensureAddressNIsMutable();
         addressN_.add(value);
         onChanged();
         return this;
       }
-
       public Builder addAllAddressN(
-        java.lang.Iterable<? extends java.lang.Integer> values) {
+          java.lang.Iterable<? extends java.lang.Integer> values) {
         ensureAddressNIsMutable();
         super.addAll(values, addressN_);
         onChanged();
         return this;
       }
-
       public Builder clearAddressN() {
-        addressN_ = java.util.Collections.emptyList();
-        ;
+        addressN_ = java.util.Collections.emptyList();;
         bitField0_ = (bitField0_ & ~0x00000002);
         onChanged();
         return this;
       }
-
+      
       // required uint64 amount = 3;
-      private long amount_;
-
+      private long amount_ ;
       public boolean hasAmount() {
         return ((bitField0_ & 0x00000004) == 0x00000004);
       }
-
       public long getAmount() {
         return amount_;
       }
-
       public Builder setAmount(long value) {
         bitField0_ |= 0x00000004;
         amount_ = value;
         onChanged();
         return this;
       }
-
       public Builder clearAmount() {
         bitField0_ = (bitField0_ & ~0x00000004);
         amount_ = 0L;
         onChanged();
         return this;
       }
-
+      
       // required .ScriptType script_type = 4;
-      private org.multibit.hd.hardware.trezor.protobuf.TrezorType.ScriptType scriptType_ = org.multibit.hd.hardware.trezor.protobuf.TrezorType.ScriptType.PAYTOADDRESS;
-
+      private org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.ScriptType scriptType_ = org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.ScriptType.PAYTOADDRESS;
       public boolean hasScriptType() {
         return ((bitField0_ & 0x00000008) == 0x00000008);
       }
-
-      public org.multibit.hd.hardware.trezor.protobuf.TrezorType.ScriptType getScriptType() {
+      public org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.ScriptType getScriptType() {
         return scriptType_;
       }
-
-      public Builder setScriptType(org.multibit.hd.hardware.trezor.protobuf.TrezorType.ScriptType value) {
+      public Builder setScriptType(org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.ScriptType value) {
         if (value == null) {
           throw new NullPointerException();
         }
@@ -3260,167 +2925,144 @@ public final class TrezorType {
         onChanged();
         return this;
       }
-
       public Builder clearScriptType() {
         bitField0_ = (bitField0_ & ~0x00000008);
-        scriptType_ = org.multibit.hd.hardware.trezor.protobuf.TrezorType.ScriptType.PAYTOADDRESS;
+        scriptType_ = org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.ScriptType.PAYTOADDRESS;
         onChanged();
         return this;
       }
-
+      
       // repeated bytes script_args = 5;
-      private java.util.List<com.google.protobuf.ByteString> scriptArgs_ = java.util.Collections.emptyList();
-      ;
-
+      private java.util.List<com.google.protobuf.ByteString> scriptArgs_ = java.util.Collections.emptyList();;
       private void ensureScriptArgsIsMutable() {
         if (!((bitField0_ & 0x00000010) == 0x00000010)) {
           scriptArgs_ = new java.util.ArrayList<com.google.protobuf.ByteString>(scriptArgs_);
           bitField0_ |= 0x00000010;
-        }
+         }
       }
-
       public java.util.List<com.google.protobuf.ByteString>
-      getScriptArgsList() {
+          getScriptArgsList() {
         return java.util.Collections.unmodifiableList(scriptArgs_);
       }
-
       public int getScriptArgsCount() {
         return scriptArgs_.size();
       }
-
       public com.google.protobuf.ByteString getScriptArgs(int index) {
         return scriptArgs_.get(index);
       }
-
       public Builder setScriptArgs(
-        int index, com.google.protobuf.ByteString value) {
+          int index, com.google.protobuf.ByteString value) {
         if (value == null) {
-          throw new NullPointerException();
-        }
-        ensureScriptArgsIsMutable();
+    throw new NullPointerException();
+  }
+  ensureScriptArgsIsMutable();
         scriptArgs_.set(index, value);
         onChanged();
         return this;
       }
-
       public Builder addScriptArgs(com.google.protobuf.ByteString value) {
         if (value == null) {
-          throw new NullPointerException();
-        }
-        ensureScriptArgsIsMutable();
+    throw new NullPointerException();
+  }
+  ensureScriptArgsIsMutable();
         scriptArgs_.add(value);
         onChanged();
         return this;
       }
-
       public Builder addAllScriptArgs(
-        java.lang.Iterable<? extends com.google.protobuf.ByteString> values) {
+          java.lang.Iterable<? extends com.google.protobuf.ByteString> values) {
         ensureScriptArgsIsMutable();
         super.addAll(values, scriptArgs_);
         onChanged();
         return this;
       }
-
       public Builder clearScriptArgs() {
-        scriptArgs_ = java.util.Collections.emptyList();
-        ;
+        scriptArgs_ = java.util.Collections.emptyList();;
         bitField0_ = (bitField0_ & ~0x00000010);
         onChanged();
         return this;
       }
-
+      
       // @@protoc_insertion_point(builder_scope:TxOutputType)
     }
-
+    
     static {
       defaultInstance = new TxOutputType(true);
       defaultInstance.initFields();
     }
-
+    
     // @@protoc_insertion_point(class_scope:TxOutputType)
   }
-
+  
   public interface TxOutputBinTypeOrBuilder
-    extends com.google.protobuf.MessageOrBuilder {
-
+      extends com.google.protobuf.MessageOrBuilder {
+    
     // required uint64 amount = 1;
     boolean hasAmount();
-
     long getAmount();
-
+    
     // required bytes script_pubkey = 2;
     boolean hasScriptPubkey();
-
     com.google.protobuf.ByteString getScriptPubkey();
   }
-
   public static final class TxOutputBinType extends
-    com.google.protobuf.GeneratedMessage
-    implements TxOutputBinTypeOrBuilder {
+      com.google.protobuf.GeneratedMessage
+      implements TxOutputBinTypeOrBuilder {
     // Use TxOutputBinType.newBuilder() to construct.
     private TxOutputBinType(Builder builder) {
       super(builder);
     }
-
-    private TxOutputBinType(boolean noInit) {
-    }
-
+    private TxOutputBinType(boolean noInit) {}
+    
     private static final TxOutputBinType defaultInstance;
-
     public static TxOutputBinType getDefaultInstance() {
       return defaultInstance;
     }
-
+    
     public TxOutputBinType getDefaultInstanceForType() {
       return defaultInstance;
     }
-
+    
     public static final com.google.protobuf.Descriptors.Descriptor
-    getDescriptor() {
-      return org.multibit.hd.hardware.trezor.protobuf.TrezorType.internal_static_TxOutputBinType_descriptor;
+        getDescriptor() {
+      return org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.internal_static_TxOutputBinType_descriptor;
     }
-
+    
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-    internalGetFieldAccessorTable() {
-      return org.multibit.hd.hardware.trezor.protobuf.TrezorType.internal_static_TxOutputBinType_fieldAccessorTable;
+        internalGetFieldAccessorTable() {
+      return org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.internal_static_TxOutputBinType_fieldAccessorTable;
     }
-
+    
     private int bitField0_;
     // required uint64 amount = 1;
     public static final int AMOUNT_FIELD_NUMBER = 1;
     private long amount_;
-
     public boolean hasAmount() {
       return ((bitField0_ & 0x00000001) == 0x00000001);
     }
-
     public long getAmount() {
       return amount_;
     }
-
+    
     // required bytes script_pubkey = 2;
     public static final int SCRIPT_PUBKEY_FIELD_NUMBER = 2;
     private com.google.protobuf.ByteString scriptPubkey_;
-
     public boolean hasScriptPubkey() {
       return ((bitField0_ & 0x00000002) == 0x00000002);
     }
-
     public com.google.protobuf.ByteString getScriptPubkey() {
       return scriptPubkey_;
     }
-
+    
     private void initFields() {
       amount_ = 0L;
       scriptPubkey_ = com.google.protobuf.ByteString.EMPTY;
     }
-
     private byte memoizedIsInitialized = -1;
-
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
       if (isInitialized != -1) return isInitialized == 1;
-
+      
       if (!hasAmount()) {
         memoizedIsInitialized = 0;
         return false;
@@ -3432,9 +3074,9 @@ public final class TrezorType {
       memoizedIsInitialized = 1;
       return true;
     }
-
+    
     public void writeTo(com.google.protobuf.CodedOutputStream output)
-      throws java.io.IOException {
+                        throws java.io.IOException {
       getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         output.writeUInt64(1, amount_);
@@ -3444,13 +3086,12 @@ public final class TrezorType {
       }
       getUnknownFields().writeTo(output);
     }
-
+    
     private int memoizedSerializedSize = -1;
-
     public int getSerializedSize() {
       int size = memoizedSerializedSize;
       if (size != -1) return size;
-
+    
       size = 0;
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         size += com.google.protobuf.CodedOutputStream
@@ -3464,57 +3105,50 @@ public final class TrezorType {
       memoizedSerializedSize = size;
       return size;
     }
-
+    
     private static final long serialVersionUID = 0L;
-
     @java.lang.Override
     protected java.lang.Object writeReplace()
-      throws java.io.ObjectStreamException {
+        throws java.io.ObjectStreamException {
       return super.writeReplace();
     }
-
-    public static org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinType parseFrom(
-      com.google.protobuf.ByteString data)
-      throws com.google.protobuf.InvalidProtocolBufferException {
+    
+    public static org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinType parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
       return newBuilder().mergeFrom(data).buildParsed();
     }
-
-    public static org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinType parseFrom(
-      com.google.protobuf.ByteString data,
-      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-      throws com.google.protobuf.InvalidProtocolBufferException {
+    public static org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinType parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
       return newBuilder().mergeFrom(data, extensionRegistry)
-        .buildParsed();
+               .buildParsed();
     }
-
-    public static org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinType parseFrom(byte[] data)
-      throws com.google.protobuf.InvalidProtocolBufferException {
+    public static org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinType parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
       return newBuilder().mergeFrom(data).buildParsed();
     }
-
-    public static org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinType parseFrom(
-      byte[] data,
-      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-      throws com.google.protobuf.InvalidProtocolBufferException {
+    public static org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinType parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
       return newBuilder().mergeFrom(data, extensionRegistry)
-        .buildParsed();
+               .buildParsed();
     }
-
-    public static org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinType parseFrom(java.io.InputStream input)
-      throws java.io.IOException {
+    public static org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinType parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
       return newBuilder().mergeFrom(input).buildParsed();
     }
-
-    public static org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinType parseFrom(
-      java.io.InputStream input,
-      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-      throws java.io.IOException {
+    public static org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinType parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
       return newBuilder().mergeFrom(input, extensionRegistry)
-        .buildParsed();
+               .buildParsed();
     }
-
-    public static org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinType parseDelimitedFrom(java.io.InputStream input)
-      throws java.io.IOException {
+    public static org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinType parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
       Builder builder = newBuilder();
       if (builder.mergeDelimitedFrom(input)) {
         return builder.buildParsed();
@@ -3522,11 +3156,10 @@ public final class TrezorType {
         return null;
       }
     }
-
-    public static org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinType parseDelimitedFrom(
-      java.io.InputStream input,
-      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-      throws java.io.IOException {
+    public static org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinType parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
       Builder builder = newBuilder();
       if (builder.mergeDelimitedFrom(input, extensionRegistry)) {
         return builder.buildParsed();
@@ -3534,76 +3167,62 @@ public final class TrezorType {
         return null;
       }
     }
-
-    public static org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinType parseFrom(
-      com.google.protobuf.CodedInputStream input)
-      throws java.io.IOException {
+    public static org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinType parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
       return newBuilder().mergeFrom(input).buildParsed();
     }
-
-    public static org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinType parseFrom(
-      com.google.protobuf.CodedInputStream input,
-      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-      throws java.io.IOException {
+    public static org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinType parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
       return newBuilder().mergeFrom(input, extensionRegistry)
-        .buildParsed();
+               .buildParsed();
     }
-
-    public static Builder newBuilder() {
-      return Builder.create();
-    }
-
-    public Builder newBuilderForType() {
-      return newBuilder();
-    }
-
-    public static Builder newBuilder(org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinType prototype) {
+    
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinType prototype) {
       return newBuilder().mergeFrom(prototype);
     }
-
-    public Builder toBuilder() {
-      return newBuilder(this);
-    }
-
+    public Builder toBuilder() { return newBuilder(this); }
+    
     @java.lang.Override
     protected Builder newBuilderForType(
-      com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
       Builder builder = new Builder(parent);
       return builder;
     }
-
     public static final class Builder extends
-      com.google.protobuf.GeneratedMessage.Builder<Builder>
-      implements org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinTypeOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder>
+       implements org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinTypeOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
-      getDescriptor() {
-        return org.multibit.hd.hardware.trezor.protobuf.TrezorType.internal_static_TxOutputBinType_descriptor;
+          getDescriptor() {
+        return org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.internal_static_TxOutputBinType_descriptor;
       }
-
+      
       protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internalGetFieldAccessorTable() {
-        return org.multibit.hd.hardware.trezor.protobuf.TrezorType.internal_static_TxOutputBinType_fieldAccessorTable;
+          internalGetFieldAccessorTable() {
+        return org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.internal_static_TxOutputBinType_fieldAccessorTable;
       }
-
-      // Construct using org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinType.newBuilder()
+      
+      // Construct using org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinType.newBuilder()
       private Builder() {
         maybeForceBuilderInitialization();
       }
-
+      
       private Builder(BuilderParent parent) {
         super(parent);
         maybeForceBuilderInitialization();
       }
-
       private void maybeForceBuilderInitialization() {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
         }
       }
-
       private static Builder create() {
         return new Builder();
       }
-
+      
       public Builder clear() {
         super.clear();
         amount_ = 0L;
@@ -3612,40 +3231,40 @@ public final class TrezorType {
         bitField0_ = (bitField0_ & ~0x00000002);
         return this;
       }
-
+      
       public Builder clone() {
         return create().mergeFrom(buildPartial());
       }
-
+      
       public com.google.protobuf.Descriptors.Descriptor
-      getDescriptorForType() {
-        return org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinType.getDescriptor();
+          getDescriptorForType() {
+        return org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinType.getDescriptor();
       }
-
-      public org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinType getDefaultInstanceForType() {
-        return org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinType.getDefaultInstance();
+      
+      public org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinType getDefaultInstanceForType() {
+        return org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinType.getDefaultInstance();
       }
-
-      public org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinType build() {
-        org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinType result = buildPartial();
+      
+      public org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinType build() {
+        org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinType result = buildPartial();
         if (!result.isInitialized()) {
           throw newUninitializedMessageException(result);
         }
         return result;
       }
-
-      private org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinType buildParsed()
-        throws com.google.protobuf.InvalidProtocolBufferException {
-        org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinType result = buildPartial();
+      
+      private org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinType buildParsed()
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinType result = buildPartial();
         if (!result.isInitialized()) {
           throw newUninitializedMessageException(
             result).asInvalidProtocolBufferException();
         }
         return result;
       }
-
-      public org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinType buildPartial() {
-        org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinType result = new org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinType(this);
+      
+      public org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinType buildPartial() {
+        org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinType result = new org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinType(this);
         int from_bitField0_ = bitField0_;
         int to_bitField0_ = 0;
         if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
@@ -3660,18 +3279,18 @@ public final class TrezorType {
         onBuilt();
         return result;
       }
-
+      
       public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinType) {
-          return mergeFrom((org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinType) other);
+        if (other instanceof org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinType) {
+          return mergeFrom((org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinType)other);
         } else {
           super.mergeFrom(other);
           return this;
         }
       }
-
-      public Builder mergeFrom(org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinType other) {
-        if (other == org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinType.getDefaultInstance()) return this;
+      
+      public Builder mergeFrom(org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinType other) {
+        if (other == org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinType.getDefaultInstance()) return this;
         if (other.hasAmount()) {
           setAmount(other.getAmount());
         }
@@ -3681,23 +3300,23 @@ public final class TrezorType {
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
       }
-
+      
       public final boolean isInitialized() {
         if (!hasAmount()) {
-
+          
           return false;
         }
         if (!hasScriptPubkey()) {
-
+          
           return false;
         }
         return true;
       }
-
+      
       public Builder mergeFrom(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
         com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder(
             this.getUnknownFields());
@@ -3710,7 +3329,7 @@ public final class TrezorType {
               return this;
             default: {
               if (!parseUnknownField(input, unknownFields,
-                extensionRegistry, tag)) {
+                                     extensionRegistry, tag)) {
                 this.setUnknownFields(unknownFields.build());
                 onChanged();
                 return this;
@@ -3730,236 +3349,198 @@ public final class TrezorType {
           }
         }
       }
-
+      
       private int bitField0_;
-
+      
       // required uint64 amount = 1;
-      private long amount_;
-
+      private long amount_ ;
       public boolean hasAmount() {
         return ((bitField0_ & 0x00000001) == 0x00000001);
       }
-
       public long getAmount() {
         return amount_;
       }
-
       public Builder setAmount(long value) {
         bitField0_ |= 0x00000001;
         amount_ = value;
         onChanged();
         return this;
       }
-
       public Builder clearAmount() {
         bitField0_ = (bitField0_ & ~0x00000001);
         amount_ = 0L;
         onChanged();
         return this;
       }
-
+      
       // required bytes script_pubkey = 2;
       private com.google.protobuf.ByteString scriptPubkey_ = com.google.protobuf.ByteString.EMPTY;
-
       public boolean hasScriptPubkey() {
         return ((bitField0_ & 0x00000002) == 0x00000002);
       }
-
       public com.google.protobuf.ByteString getScriptPubkey() {
         return scriptPubkey_;
       }
-
       public Builder setScriptPubkey(com.google.protobuf.ByteString value) {
         if (value == null) {
-          throw new NullPointerException();
-        }
-        bitField0_ |= 0x00000002;
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000002;
         scriptPubkey_ = value;
         onChanged();
         return this;
       }
-
       public Builder clearScriptPubkey() {
         bitField0_ = (bitField0_ & ~0x00000002);
         scriptPubkey_ = getDefaultInstance().getScriptPubkey();
         onChanged();
         return this;
       }
-
+      
       // @@protoc_insertion_point(builder_scope:TxOutputBinType)
     }
-
+    
     static {
       defaultInstance = new TxOutputBinType(true);
       defaultInstance.initFields();
     }
-
+    
     // @@protoc_insertion_point(class_scope:TxOutputBinType)
   }
-
+  
   public interface TransactionTypeOrBuilder
-    extends com.google.protobuf.MessageOrBuilder {
-
+      extends com.google.protobuf.MessageOrBuilder {
+    
     // optional uint32 version = 1 [default = 1];
     boolean hasVersion();
-
     int getVersion();
-
+    
     // repeated .TxInputType inputs = 2;
-    java.util.List<org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputType>
-    getInputsList();
-
-    org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputType getInputs(int index);
-
+    java.util.List<org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputType> 
+        getInputsList();
+    org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputType getInputs(int index);
     int getInputsCount();
-
-    java.util.List<? extends org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputTypeOrBuilder>
-    getInputsOrBuilderList();
-
-    org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputTypeOrBuilder getInputsOrBuilder(
-      int index);
-
+    java.util.List<? extends org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputTypeOrBuilder> 
+        getInputsOrBuilderList();
+    org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputTypeOrBuilder getInputsOrBuilder(
+        int index);
+    
     // repeated .TxOutputBinType outputs = 3;
-    java.util.List<org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinType>
-    getOutputsList();
-
-    org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinType getOutputs(int index);
-
+    java.util.List<org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinType> 
+        getOutputsList();
+    org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinType getOutputs(int index);
     int getOutputsCount();
-
-    java.util.List<? extends org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinTypeOrBuilder>
-    getOutputsOrBuilderList();
-
-    org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinTypeOrBuilder getOutputsOrBuilder(
-      int index);
-
+    java.util.List<? extends org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinTypeOrBuilder> 
+        getOutputsOrBuilderList();
+    org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinTypeOrBuilder getOutputsOrBuilder(
+        int index);
+    
     // optional uint32 lock_time = 4 [default = 0];
     boolean hasLockTime();
-
     int getLockTime();
   }
-
   public static final class TransactionType extends
-    com.google.protobuf.GeneratedMessage
-    implements TransactionTypeOrBuilder {
+      com.google.protobuf.GeneratedMessage
+      implements TransactionTypeOrBuilder {
     // Use TransactionType.newBuilder() to construct.
     private TransactionType(Builder builder) {
       super(builder);
     }
-
-    private TransactionType(boolean noInit) {
-    }
-
+    private TransactionType(boolean noInit) {}
+    
     private static final TransactionType defaultInstance;
-
     public static TransactionType getDefaultInstance() {
       return defaultInstance;
     }
-
+    
     public TransactionType getDefaultInstanceForType() {
       return defaultInstance;
     }
-
+    
     public static final com.google.protobuf.Descriptors.Descriptor
-    getDescriptor() {
-      return org.multibit.hd.hardware.trezor.protobuf.TrezorType.internal_static_TransactionType_descriptor;
+        getDescriptor() {
+      return org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.internal_static_TransactionType_descriptor;
     }
-
+    
     protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-    internalGetFieldAccessorTable() {
-      return org.multibit.hd.hardware.trezor.protobuf.TrezorType.internal_static_TransactionType_fieldAccessorTable;
+        internalGetFieldAccessorTable() {
+      return org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.internal_static_TransactionType_fieldAccessorTable;
     }
-
+    
     private int bitField0_;
     // optional uint32 version = 1 [default = 1];
     public static final int VERSION_FIELD_NUMBER = 1;
     private int version_;
-
     public boolean hasVersion() {
       return ((bitField0_ & 0x00000001) == 0x00000001);
     }
-
     public int getVersion() {
       return version_;
     }
-
+    
     // repeated .TxInputType inputs = 2;
     public static final int INPUTS_FIELD_NUMBER = 2;
-    private java.util.List<org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputType> inputs_;
-
-    public java.util.List<org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputType> getInputsList() {
+    private java.util.List<org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputType> inputs_;
+    public java.util.List<org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputType> getInputsList() {
       return inputs_;
     }
-
-    public java.util.List<? extends org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputTypeOrBuilder>
-    getInputsOrBuilderList() {
+    public java.util.List<? extends org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputTypeOrBuilder> 
+        getInputsOrBuilderList() {
       return inputs_;
     }
-
     public int getInputsCount() {
       return inputs_.size();
     }
-
-    public org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputType getInputs(int index) {
+    public org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputType getInputs(int index) {
       return inputs_.get(index);
     }
-
-    public org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputTypeOrBuilder getInputsOrBuilder(
-      int index) {
+    public org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputTypeOrBuilder getInputsOrBuilder(
+        int index) {
       return inputs_.get(index);
     }
-
+    
     // repeated .TxOutputBinType outputs = 3;
     public static final int OUTPUTS_FIELD_NUMBER = 3;
-    private java.util.List<org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinType> outputs_;
-
-    public java.util.List<org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinType> getOutputsList() {
+    private java.util.List<org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinType> outputs_;
+    public java.util.List<org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinType> getOutputsList() {
       return outputs_;
     }
-
-    public java.util.List<? extends org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinTypeOrBuilder>
-    getOutputsOrBuilderList() {
+    public java.util.List<? extends org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinTypeOrBuilder> 
+        getOutputsOrBuilderList() {
       return outputs_;
     }
-
     public int getOutputsCount() {
       return outputs_.size();
     }
-
-    public org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinType getOutputs(int index) {
+    public org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinType getOutputs(int index) {
       return outputs_.get(index);
     }
-
-    public org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinTypeOrBuilder getOutputsOrBuilder(
-      int index) {
+    public org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinTypeOrBuilder getOutputsOrBuilder(
+        int index) {
       return outputs_.get(index);
     }
-
+    
     // optional uint32 lock_time = 4 [default = 0];
     public static final int LOCK_TIME_FIELD_NUMBER = 4;
     private int lockTime_;
-
     public boolean hasLockTime() {
       return ((bitField0_ & 0x00000002) == 0x00000002);
     }
-
     public int getLockTime() {
       return lockTime_;
     }
-
+    
     private void initFields() {
       version_ = 1;
       inputs_ = java.util.Collections.emptyList();
       outputs_ = java.util.Collections.emptyList();
       lockTime_ = 0;
     }
-
     private byte memoizedIsInitialized = -1;
-
     public final boolean isInitialized() {
       byte isInitialized = memoizedIsInitialized;
       if (isInitialized != -1) return isInitialized == 1;
-
+      
       for (int i = 0; i < getInputsCount(); i++) {
         if (!getInputs(i).isInitialized()) {
           memoizedIsInitialized = 0;
@@ -3975,9 +3556,9 @@ public final class TrezorType {
       memoizedIsInitialized = 1;
       return true;
     }
-
+    
     public void writeTo(com.google.protobuf.CodedOutputStream output)
-      throws java.io.IOException {
+                        throws java.io.IOException {
       getSerializedSize();
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         output.writeUInt32(1, version_);
@@ -3993,13 +3574,12 @@ public final class TrezorType {
       }
       getUnknownFields().writeTo(output);
     }
-
+    
     private int memoizedSerializedSize = -1;
-
     public int getSerializedSize() {
       int size = memoizedSerializedSize;
       if (size != -1) return size;
-
+    
       size = 0;
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         size += com.google.protobuf.CodedOutputStream
@@ -4021,57 +3601,50 @@ public final class TrezorType {
       memoizedSerializedSize = size;
       return size;
     }
-
+    
     private static final long serialVersionUID = 0L;
-
     @java.lang.Override
     protected java.lang.Object writeReplace()
-      throws java.io.ObjectStreamException {
+        throws java.io.ObjectStreamException {
       return super.writeReplace();
     }
-
-    public static org.multibit.hd.hardware.trezor.protobuf.TrezorType.TransactionType parseFrom(
-      com.google.protobuf.ByteString data)
-      throws com.google.protobuf.InvalidProtocolBufferException {
+    
+    public static org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TransactionType parseFrom(
+        com.google.protobuf.ByteString data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
       return newBuilder().mergeFrom(data).buildParsed();
     }
-
-    public static org.multibit.hd.hardware.trezor.protobuf.TrezorType.TransactionType parseFrom(
-      com.google.protobuf.ByteString data,
-      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-      throws com.google.protobuf.InvalidProtocolBufferException {
+    public static org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TransactionType parseFrom(
+        com.google.protobuf.ByteString data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
       return newBuilder().mergeFrom(data, extensionRegistry)
-        .buildParsed();
+               .buildParsed();
     }
-
-    public static org.multibit.hd.hardware.trezor.protobuf.TrezorType.TransactionType parseFrom(byte[] data)
-      throws com.google.protobuf.InvalidProtocolBufferException {
+    public static org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TransactionType parseFrom(byte[] data)
+        throws com.google.protobuf.InvalidProtocolBufferException {
       return newBuilder().mergeFrom(data).buildParsed();
     }
-
-    public static org.multibit.hd.hardware.trezor.protobuf.TrezorType.TransactionType parseFrom(
-      byte[] data,
-      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-      throws com.google.protobuf.InvalidProtocolBufferException {
+    public static org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TransactionType parseFrom(
+        byte[] data,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws com.google.protobuf.InvalidProtocolBufferException {
       return newBuilder().mergeFrom(data, extensionRegistry)
-        .buildParsed();
+               .buildParsed();
     }
-
-    public static org.multibit.hd.hardware.trezor.protobuf.TrezorType.TransactionType parseFrom(java.io.InputStream input)
-      throws java.io.IOException {
+    public static org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TransactionType parseFrom(java.io.InputStream input)
+        throws java.io.IOException {
       return newBuilder().mergeFrom(input).buildParsed();
     }
-
-    public static org.multibit.hd.hardware.trezor.protobuf.TrezorType.TransactionType parseFrom(
-      java.io.InputStream input,
-      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-      throws java.io.IOException {
+    public static org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TransactionType parseFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
       return newBuilder().mergeFrom(input, extensionRegistry)
-        .buildParsed();
+               .buildParsed();
     }
-
-    public static org.multibit.hd.hardware.trezor.protobuf.TrezorType.TransactionType parseDelimitedFrom(java.io.InputStream input)
-      throws java.io.IOException {
+    public static org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TransactionType parseDelimitedFrom(java.io.InputStream input)
+        throws java.io.IOException {
       Builder builder = newBuilder();
       if (builder.mergeDelimitedFrom(input)) {
         return builder.buildParsed();
@@ -4079,11 +3652,10 @@ public final class TrezorType {
         return null;
       }
     }
-
-    public static org.multibit.hd.hardware.trezor.protobuf.TrezorType.TransactionType parseDelimitedFrom(
-      java.io.InputStream input,
-      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-      throws java.io.IOException {
+    public static org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TransactionType parseDelimitedFrom(
+        java.io.InputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
       Builder builder = newBuilder();
       if (builder.mergeDelimitedFrom(input, extensionRegistry)) {
         return builder.buildParsed();
@@ -4091,78 +3663,64 @@ public final class TrezorType {
         return null;
       }
     }
-
-    public static org.multibit.hd.hardware.trezor.protobuf.TrezorType.TransactionType parseFrom(
-      com.google.protobuf.CodedInputStream input)
-      throws java.io.IOException {
+    public static org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TransactionType parseFrom(
+        com.google.protobuf.CodedInputStream input)
+        throws java.io.IOException {
       return newBuilder().mergeFrom(input).buildParsed();
     }
-
-    public static org.multibit.hd.hardware.trezor.protobuf.TrezorType.TransactionType parseFrom(
-      com.google.protobuf.CodedInputStream input,
-      com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-      throws java.io.IOException {
+    public static org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TransactionType parseFrom(
+        com.google.protobuf.CodedInputStream input,
+        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+        throws java.io.IOException {
       return newBuilder().mergeFrom(input, extensionRegistry)
-        .buildParsed();
+               .buildParsed();
     }
-
-    public static Builder newBuilder() {
-      return Builder.create();
-    }
-
-    public Builder newBuilderForType() {
-      return newBuilder();
-    }
-
-    public static Builder newBuilder(org.multibit.hd.hardware.trezor.protobuf.TrezorType.TransactionType prototype) {
+    
+    public static Builder newBuilder() { return Builder.create(); }
+    public Builder newBuilderForType() { return newBuilder(); }
+    public static Builder newBuilder(org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TransactionType prototype) {
       return newBuilder().mergeFrom(prototype);
     }
-
-    public Builder toBuilder() {
-      return newBuilder(this);
-    }
-
+    public Builder toBuilder() { return newBuilder(this); }
+    
     @java.lang.Override
     protected Builder newBuilderForType(
-      com.google.protobuf.GeneratedMessage.BuilderParent parent) {
+        com.google.protobuf.GeneratedMessage.BuilderParent parent) {
       Builder builder = new Builder(parent);
       return builder;
     }
-
     public static final class Builder extends
-      com.google.protobuf.GeneratedMessage.Builder<Builder>
-      implements org.multibit.hd.hardware.trezor.protobuf.TrezorType.TransactionTypeOrBuilder {
+        com.google.protobuf.GeneratedMessage.Builder<Builder>
+       implements org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TransactionTypeOrBuilder {
       public static final com.google.protobuf.Descriptors.Descriptor
-      getDescriptor() {
-        return org.multibit.hd.hardware.trezor.protobuf.TrezorType.internal_static_TransactionType_descriptor;
+          getDescriptor() {
+        return org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.internal_static_TransactionType_descriptor;
       }
-
+      
       protected com.google.protobuf.GeneratedMessage.FieldAccessorTable
-      internalGetFieldAccessorTable() {
-        return org.multibit.hd.hardware.trezor.protobuf.TrezorType.internal_static_TransactionType_fieldAccessorTable;
+          internalGetFieldAccessorTable() {
+        return org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.internal_static_TransactionType_fieldAccessorTable;
       }
-
-      // Construct using org.multibit.hd.hardware.trezor.protobuf.TrezorType.TransactionType.newBuilder()
+      
+      // Construct using org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TransactionType.newBuilder()
       private Builder() {
         maybeForceBuilderInitialization();
       }
-
+      
       private Builder(BuilderParent parent) {
         super(parent);
         maybeForceBuilderInitialization();
       }
-
       private void maybeForceBuilderInitialization() {
         if (com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders) {
           getInputsFieldBuilder();
           getOutputsFieldBuilder();
         }
       }
-
       private static Builder create() {
         return new Builder();
       }
-
+      
       public Builder clear() {
         super.clear();
         version_ = 1;
@@ -4183,40 +3741,40 @@ public final class TrezorType {
         bitField0_ = (bitField0_ & ~0x00000008);
         return this;
       }
-
+      
       public Builder clone() {
         return create().mergeFrom(buildPartial());
       }
-
+      
       public com.google.protobuf.Descriptors.Descriptor
-      getDescriptorForType() {
-        return org.multibit.hd.hardware.trezor.protobuf.TrezorType.TransactionType.getDescriptor();
+          getDescriptorForType() {
+        return org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TransactionType.getDescriptor();
       }
-
-      public org.multibit.hd.hardware.trezor.protobuf.TrezorType.TransactionType getDefaultInstanceForType() {
-        return org.multibit.hd.hardware.trezor.protobuf.TrezorType.TransactionType.getDefaultInstance();
+      
+      public org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TransactionType getDefaultInstanceForType() {
+        return org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TransactionType.getDefaultInstance();
       }
-
-      public org.multibit.hd.hardware.trezor.protobuf.TrezorType.TransactionType build() {
-        org.multibit.hd.hardware.trezor.protobuf.TrezorType.TransactionType result = buildPartial();
+      
+      public org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TransactionType build() {
+        org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TransactionType result = buildPartial();
         if (!result.isInitialized()) {
           throw newUninitializedMessageException(result);
         }
         return result;
       }
-
-      private org.multibit.hd.hardware.trezor.protobuf.TrezorType.TransactionType buildParsed()
-        throws com.google.protobuf.InvalidProtocolBufferException {
-        org.multibit.hd.hardware.trezor.protobuf.TrezorType.TransactionType result = buildPartial();
+      
+      private org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TransactionType buildParsed()
+          throws com.google.protobuf.InvalidProtocolBufferException {
+        org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TransactionType result = buildPartial();
         if (!result.isInitialized()) {
           throw newUninitializedMessageException(
             result).asInvalidProtocolBufferException();
         }
         return result;
       }
-
-      public org.multibit.hd.hardware.trezor.protobuf.TrezorType.TransactionType buildPartial() {
-        org.multibit.hd.hardware.trezor.protobuf.TrezorType.TransactionType result = new org.multibit.hd.hardware.trezor.protobuf.TrezorType.TransactionType(this);
+      
+      public org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TransactionType buildPartial() {
+        org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TransactionType result = new org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TransactionType(this);
         int from_bitField0_ = bitField0_;
         int to_bitField0_ = 0;
         if (((from_bitField0_ & 0x00000001) == 0x00000001)) {
@@ -4249,18 +3807,18 @@ public final class TrezorType {
         onBuilt();
         return result;
       }
-
+      
       public Builder mergeFrom(com.google.protobuf.Message other) {
-        if (other instanceof org.multibit.hd.hardware.trezor.protobuf.TrezorType.TransactionType) {
-          return mergeFrom((org.multibit.hd.hardware.trezor.protobuf.TrezorType.TransactionType) other);
+        if (other instanceof org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TransactionType) {
+          return mergeFrom((org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TransactionType)other);
         } else {
           super.mergeFrom(other);
           return this;
         }
       }
-
-      public Builder mergeFrom(org.multibit.hd.hardware.trezor.protobuf.TrezorType.TransactionType other) {
-        if (other == org.multibit.hd.hardware.trezor.protobuf.TrezorType.TransactionType.getDefaultInstance()) return this;
+      
+      public Builder mergeFrom(org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TransactionType other) {
+        if (other == org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TransactionType.getDefaultInstance()) return this;
         if (other.hasVersion()) {
           setVersion(other.getVersion());
         }
@@ -4282,9 +3840,9 @@ public final class TrezorType {
               inputsBuilder_ = null;
               inputs_ = other.inputs_;
               bitField0_ = (bitField0_ & ~0x00000002);
-              inputsBuilder_ =
+              inputsBuilder_ = 
                 com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
-                  getInputsFieldBuilder() : null;
+                   getInputsFieldBuilder() : null;
             } else {
               inputsBuilder_.addAllMessages(other.inputs_);
             }
@@ -4308,9 +3866,9 @@ public final class TrezorType {
               outputsBuilder_ = null;
               outputs_ = other.outputs_;
               bitField0_ = (bitField0_ & ~0x00000004);
-              outputsBuilder_ =
+              outputsBuilder_ = 
                 com.google.protobuf.GeneratedMessage.alwaysUseFieldBuilders ?
-                  getOutputsFieldBuilder() : null;
+                   getOutputsFieldBuilder() : null;
             } else {
               outputsBuilder_.addAllMessages(other.outputs_);
             }
@@ -4322,27 +3880,27 @@ public final class TrezorType {
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
       }
-
+      
       public final boolean isInitialized() {
         for (int i = 0; i < getInputsCount(); i++) {
           if (!getInputs(i).isInitialized()) {
-
+            
             return false;
           }
         }
         for (int i = 0; i < getOutputsCount(); i++) {
           if (!getOutputs(i).isInitialized()) {
-
+            
             return false;
           }
         }
         return true;
       }
-
+      
       public Builder mergeFrom(
-        com.google.protobuf.CodedInputStream input,
-        com.google.protobuf.ExtensionRegistryLite extensionRegistry)
-        throws java.io.IOException {
+          com.google.protobuf.CodedInputStream input,
+          com.google.protobuf.ExtensionRegistryLite extensionRegistry)
+          throws java.io.IOException {
         com.google.protobuf.UnknownFieldSet.Builder unknownFields =
           com.google.protobuf.UnknownFieldSet.newBuilder(
             this.getUnknownFields());
@@ -4355,7 +3913,7 @@ public final class TrezorType {
               return this;
             default: {
               if (!parseUnknownField(input, unknownFields,
-                extensionRegistry, tag)) {
+                                     extensionRegistry, tag)) {
                 this.setUnknownFields(unknownFields.build());
                 onChanged();
                 return this;
@@ -4368,13 +3926,13 @@ public final class TrezorType {
               break;
             }
             case 18: {
-              org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputType.Builder subBuilder = org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputType.newBuilder();
+              org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputType.Builder subBuilder = org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputType.newBuilder();
               input.readMessage(subBuilder, extensionRegistry);
               addInputs(subBuilder.buildPartial());
               break;
             }
             case 26: {
-              org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinType.Builder subBuilder = org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinType.newBuilder();
+              org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinType.Builder subBuilder = org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinType.newBuilder();
               input.readMessage(subBuilder, extensionRegistry);
               addOutputs(subBuilder.buildPartial());
               break;
@@ -4387,56 +3945,50 @@ public final class TrezorType {
           }
         }
       }
-
+      
       private int bitField0_;
-
+      
       // optional uint32 version = 1 [default = 1];
       private int version_ = 1;
-
       public boolean hasVersion() {
         return ((bitField0_ & 0x00000001) == 0x00000001);
       }
-
       public int getVersion() {
         return version_;
       }
-
       public Builder setVersion(int value) {
         bitField0_ |= 0x00000001;
         version_ = value;
         onChanged();
         return this;
       }
-
       public Builder clearVersion() {
         bitField0_ = (bitField0_ & ~0x00000001);
         version_ = 1;
         onChanged();
         return this;
       }
-
+      
       // repeated .TxInputType inputs = 2;
-      private java.util.List<org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputType> inputs_ =
+      private java.util.List<org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputType> inputs_ =
         java.util.Collections.emptyList();
-
       private void ensureInputsIsMutable() {
         if (!((bitField0_ & 0x00000002) == 0x00000002)) {
-          inputs_ = new java.util.ArrayList<org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputType>(inputs_);
+          inputs_ = new java.util.ArrayList<org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputType>(inputs_);
           bitField0_ |= 0x00000002;
-        }
+         }
       }
-
+      
       private com.google.protobuf.RepeatedFieldBuilder<
-        org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputType, org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputType.Builder, org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputTypeOrBuilder> inputsBuilder_;
-
-      public java.util.List<org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputType> getInputsList() {
+          org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputType, org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputType.Builder, org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputTypeOrBuilder> inputsBuilder_;
+      
+      public java.util.List<org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputType> getInputsList() {
         if (inputsBuilder_ == null) {
           return java.util.Collections.unmodifiableList(inputs_);
         } else {
           return inputsBuilder_.getMessageList();
         }
       }
-
       public int getInputsCount() {
         if (inputsBuilder_ == null) {
           return inputs_.size();
@@ -4444,17 +3996,15 @@ public final class TrezorType {
           return inputsBuilder_.getCount();
         }
       }
-
-      public org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputType getInputs(int index) {
+      public org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputType getInputs(int index) {
         if (inputsBuilder_ == null) {
           return inputs_.get(index);
         } else {
           return inputsBuilder_.getMessage(index);
         }
       }
-
       public Builder setInputs(
-        int index, org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputType value) {
+          int index, org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputType value) {
         if (inputsBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -4467,9 +4017,8 @@ public final class TrezorType {
         }
         return this;
       }
-
       public Builder setInputs(
-        int index, org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputType.Builder builderForValue) {
+          int index, org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputType.Builder builderForValue) {
         if (inputsBuilder_ == null) {
           ensureInputsIsMutable();
           inputs_.set(index, builderForValue.build());
@@ -4479,8 +4028,7 @@ public final class TrezorType {
         }
         return this;
       }
-
-      public Builder addInputs(org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputType value) {
+      public Builder addInputs(org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputType value) {
         if (inputsBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -4493,9 +4041,8 @@ public final class TrezorType {
         }
         return this;
       }
-
       public Builder addInputs(
-        int index, org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputType value) {
+          int index, org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputType value) {
         if (inputsBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -4508,9 +4055,8 @@ public final class TrezorType {
         }
         return this;
       }
-
       public Builder addInputs(
-        org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputType.Builder builderForValue) {
+          org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputType.Builder builderForValue) {
         if (inputsBuilder_ == null) {
           ensureInputsIsMutable();
           inputs_.add(builderForValue.build());
@@ -4520,9 +4066,8 @@ public final class TrezorType {
         }
         return this;
       }
-
       public Builder addInputs(
-        int index, org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputType.Builder builderForValue) {
+          int index, org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputType.Builder builderForValue) {
         if (inputsBuilder_ == null) {
           ensureInputsIsMutable();
           inputs_.add(index, builderForValue.build());
@@ -4532,9 +4077,8 @@ public final class TrezorType {
         }
         return this;
       }
-
       public Builder addAllInputs(
-        java.lang.Iterable<? extends org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputType> values) {
+          java.lang.Iterable<? extends org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputType> values) {
         if (inputsBuilder_ == null) {
           ensureInputsIsMutable();
           super.addAll(values, inputs_);
@@ -4544,7 +4088,6 @@ public final class TrezorType {
         }
         return this;
       }
-
       public Builder clearInputs() {
         if (inputsBuilder_ == null) {
           inputs_ = java.util.Collections.emptyList();
@@ -4555,7 +4098,6 @@ public final class TrezorType {
         }
         return this;
       }
-
       public Builder removeInputs(int index) {
         if (inputsBuilder_ == null) {
           ensureInputsIsMutable();
@@ -4566,83 +4108,73 @@ public final class TrezorType {
         }
         return this;
       }
-
-      public org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputType.Builder getInputsBuilder(
-        int index) {
+      public org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputType.Builder getInputsBuilder(
+          int index) {
         return getInputsFieldBuilder().getBuilder(index);
       }
-
-      public org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputTypeOrBuilder getInputsOrBuilder(
-        int index) {
+      public org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputTypeOrBuilder getInputsOrBuilder(
+          int index) {
         if (inputsBuilder_ == null) {
-          return inputs_.get(index);
-        } else {
+          return inputs_.get(index);  } else {
           return inputsBuilder_.getMessageOrBuilder(index);
         }
       }
-
-      public java.util.List<? extends org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputTypeOrBuilder>
-      getInputsOrBuilderList() {
+      public java.util.List<? extends org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputTypeOrBuilder> 
+           getInputsOrBuilderList() {
         if (inputsBuilder_ != null) {
           return inputsBuilder_.getMessageOrBuilderList();
         } else {
           return java.util.Collections.unmodifiableList(inputs_);
         }
       }
-
-      public org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputType.Builder addInputsBuilder() {
+      public org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputType.Builder addInputsBuilder() {
         return getInputsFieldBuilder().addBuilder(
-          org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputType.getDefaultInstance());
+            org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputType.getDefaultInstance());
       }
-
-      public org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputType.Builder addInputsBuilder(
-        int index) {
+      public org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputType.Builder addInputsBuilder(
+          int index) {
         return getInputsFieldBuilder().addBuilder(
-          index, org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputType.getDefaultInstance());
+            index, org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputType.getDefaultInstance());
       }
-
-      public java.util.List<org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputType.Builder>
-      getInputsBuilderList() {
+      public java.util.List<org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputType.Builder> 
+           getInputsBuilderList() {
         return getInputsFieldBuilder().getBuilderList();
       }
-
       private com.google.protobuf.RepeatedFieldBuilder<
-        org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputType, org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputType.Builder, org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputTypeOrBuilder>
-      getInputsFieldBuilder() {
+          org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputType, org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputType.Builder, org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputTypeOrBuilder> 
+          getInputsFieldBuilder() {
         if (inputsBuilder_ == null) {
           inputsBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
-            org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputType, org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputType.Builder, org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputTypeOrBuilder>(
-            inputs_,
-            ((bitField0_ & 0x00000002) == 0x00000002),
-            getParentForChildren(),
-            isClean());
+              org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputType, org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputType.Builder, org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputTypeOrBuilder>(
+                  inputs_,
+                  ((bitField0_ & 0x00000002) == 0x00000002),
+                  getParentForChildren(),
+                  isClean());
           inputs_ = null;
         }
         return inputsBuilder_;
       }
-
+      
       // repeated .TxOutputBinType outputs = 3;
-      private java.util.List<org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinType> outputs_ =
+      private java.util.List<org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinType> outputs_ =
         java.util.Collections.emptyList();
-
       private void ensureOutputsIsMutable() {
         if (!((bitField0_ & 0x00000004) == 0x00000004)) {
-          outputs_ = new java.util.ArrayList<org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinType>(outputs_);
+          outputs_ = new java.util.ArrayList<org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinType>(outputs_);
           bitField0_ |= 0x00000004;
-        }
+         }
       }
-
+      
       private com.google.protobuf.RepeatedFieldBuilder<
-        org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinType, org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinType.Builder, org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinTypeOrBuilder> outputsBuilder_;
-
-      public java.util.List<org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinType> getOutputsList() {
+          org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinType, org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinType.Builder, org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinTypeOrBuilder> outputsBuilder_;
+      
+      public java.util.List<org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinType> getOutputsList() {
         if (outputsBuilder_ == null) {
           return java.util.Collections.unmodifiableList(outputs_);
         } else {
           return outputsBuilder_.getMessageList();
         }
       }
-
       public int getOutputsCount() {
         if (outputsBuilder_ == null) {
           return outputs_.size();
@@ -4650,17 +4182,15 @@ public final class TrezorType {
           return outputsBuilder_.getCount();
         }
       }
-
-      public org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinType getOutputs(int index) {
+      public org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinType getOutputs(int index) {
         if (outputsBuilder_ == null) {
           return outputs_.get(index);
         } else {
           return outputsBuilder_.getMessage(index);
         }
       }
-
       public Builder setOutputs(
-        int index, org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinType value) {
+          int index, org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinType value) {
         if (outputsBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -4673,9 +4203,8 @@ public final class TrezorType {
         }
         return this;
       }
-
       public Builder setOutputs(
-        int index, org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinType.Builder builderForValue) {
+          int index, org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinType.Builder builderForValue) {
         if (outputsBuilder_ == null) {
           ensureOutputsIsMutable();
           outputs_.set(index, builderForValue.build());
@@ -4685,8 +4214,7 @@ public final class TrezorType {
         }
         return this;
       }
-
-      public Builder addOutputs(org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinType value) {
+      public Builder addOutputs(org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinType value) {
         if (outputsBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -4699,9 +4227,8 @@ public final class TrezorType {
         }
         return this;
       }
-
       public Builder addOutputs(
-        int index, org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinType value) {
+          int index, org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinType value) {
         if (outputsBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -4714,9 +4241,8 @@ public final class TrezorType {
         }
         return this;
       }
-
       public Builder addOutputs(
-        org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinType.Builder builderForValue) {
+          org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinType.Builder builderForValue) {
         if (outputsBuilder_ == null) {
           ensureOutputsIsMutable();
           outputs_.add(builderForValue.build());
@@ -4726,9 +4252,8 @@ public final class TrezorType {
         }
         return this;
       }
-
       public Builder addOutputs(
-        int index, org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinType.Builder builderForValue) {
+          int index, org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinType.Builder builderForValue) {
         if (outputsBuilder_ == null) {
           ensureOutputsIsMutable();
           outputs_.add(index, builderForValue.build());
@@ -4738,9 +4263,8 @@ public final class TrezorType {
         }
         return this;
       }
-
       public Builder addAllOutputs(
-        java.lang.Iterable<? extends org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinType> values) {
+          java.lang.Iterable<? extends org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinType> values) {
         if (outputsBuilder_ == null) {
           ensureOutputsIsMutable();
           super.addAll(values, outputs_);
@@ -4750,7 +4274,6 @@ public final class TrezorType {
         }
         return this;
       }
-
       public Builder clearOutputs() {
         if (outputsBuilder_ == null) {
           outputs_ = java.util.Collections.emptyList();
@@ -4761,7 +4284,6 @@ public final class TrezorType {
         }
         return this;
       }
-
       public Builder removeOutputs(int index) {
         if (outputsBuilder_ == null) {
           ensureOutputsIsMutable();
@@ -4772,271 +4294,257 @@ public final class TrezorType {
         }
         return this;
       }
-
-      public org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinType.Builder getOutputsBuilder(
-        int index) {
+      public org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinType.Builder getOutputsBuilder(
+          int index) {
         return getOutputsFieldBuilder().getBuilder(index);
       }
-
-      public org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinTypeOrBuilder getOutputsOrBuilder(
-        int index) {
+      public org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinTypeOrBuilder getOutputsOrBuilder(
+          int index) {
         if (outputsBuilder_ == null) {
-          return outputs_.get(index);
-        } else {
+          return outputs_.get(index);  } else {
           return outputsBuilder_.getMessageOrBuilder(index);
         }
       }
-
-      public java.util.List<? extends org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinTypeOrBuilder>
-      getOutputsOrBuilderList() {
+      public java.util.List<? extends org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinTypeOrBuilder> 
+           getOutputsOrBuilderList() {
         if (outputsBuilder_ != null) {
           return outputsBuilder_.getMessageOrBuilderList();
         } else {
           return java.util.Collections.unmodifiableList(outputs_);
         }
       }
-
-      public org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinType.Builder addOutputsBuilder() {
+      public org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinType.Builder addOutputsBuilder() {
         return getOutputsFieldBuilder().addBuilder(
-          org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinType.getDefaultInstance());
+            org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinType.getDefaultInstance());
       }
-
-      public org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinType.Builder addOutputsBuilder(
-        int index) {
+      public org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinType.Builder addOutputsBuilder(
+          int index) {
         return getOutputsFieldBuilder().addBuilder(
-          index, org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinType.getDefaultInstance());
+            index, org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinType.getDefaultInstance());
       }
-
-      public java.util.List<org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinType.Builder>
-      getOutputsBuilderList() {
+      public java.util.List<org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinType.Builder> 
+           getOutputsBuilderList() {
         return getOutputsFieldBuilder().getBuilderList();
       }
-
       private com.google.protobuf.RepeatedFieldBuilder<
-        org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinType, org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinType.Builder, org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinTypeOrBuilder>
-      getOutputsFieldBuilder() {
+          org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinType, org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinType.Builder, org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinTypeOrBuilder> 
+          getOutputsFieldBuilder() {
         if (outputsBuilder_ == null) {
           outputsBuilder_ = new com.google.protobuf.RepeatedFieldBuilder<
-            org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinType, org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinType.Builder, org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinTypeOrBuilder>(
-            outputs_,
-            ((bitField0_ & 0x00000004) == 0x00000004),
-            getParentForChildren(),
-            isClean());
+              org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinType, org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinType.Builder, org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinTypeOrBuilder>(
+                  outputs_,
+                  ((bitField0_ & 0x00000004) == 0x00000004),
+                  getParentForChildren(),
+                  isClean());
           outputs_ = null;
         }
         return outputsBuilder_;
       }
-
+      
       // optional uint32 lock_time = 4 [default = 0];
-      private int lockTime_;
-
+      private int lockTime_ ;
       public boolean hasLockTime() {
         return ((bitField0_ & 0x00000008) == 0x00000008);
       }
-
       public int getLockTime() {
         return lockTime_;
       }
-
       public Builder setLockTime(int value) {
         bitField0_ |= 0x00000008;
         lockTime_ = value;
         onChanged();
         return this;
       }
-
       public Builder clearLockTime() {
         bitField0_ = (bitField0_ & ~0x00000008);
         lockTime_ = 0;
         onChanged();
         return this;
       }
-
+      
       // @@protoc_insertion_point(builder_scope:TransactionType)
     }
-
+    
     static {
       defaultInstance = new TransactionType(true);
       defaultInstance.initFields();
     }
-
+    
     // @@protoc_insertion_point(class_scope:TransactionType)
   }
-
+  
   public static final int BINARY_FIELD_NUMBER = 50001;
   public static final
-  com.google.protobuf.GeneratedMessage.GeneratedExtension<
-    com.google.protobuf.DescriptorProtos.FieldOptions,
-    java.lang.Boolean> binary = com.google.protobuf.GeneratedMessage
-    .newFileScopedGeneratedExtension(
-      java.lang.Boolean.class,
-      null);
+    com.google.protobuf.GeneratedMessage.GeneratedExtension<
+      com.google.protobuf.DescriptorProtos.FieldOptions,
+      java.lang.Boolean> binary = com.google.protobuf.GeneratedMessage
+          .newFileScopedGeneratedExtension(
+        java.lang.Boolean.class,
+        null);
   public static final int WIRE_IN_FIELD_NUMBER = 50002;
   public static final
-  com.google.protobuf.GeneratedMessage.GeneratedExtension<
-    com.google.protobuf.DescriptorProtos.EnumValueOptions,
-    java.lang.Boolean> wireIn = com.google.protobuf.GeneratedMessage
-    .newFileScopedGeneratedExtension(
-      java.lang.Boolean.class,
-      null);
+    com.google.protobuf.GeneratedMessage.GeneratedExtension<
+      com.google.protobuf.DescriptorProtos.EnumValueOptions,
+      java.lang.Boolean> wireIn = com.google.protobuf.GeneratedMessage
+          .newFileScopedGeneratedExtension(
+        java.lang.Boolean.class,
+        null);
   public static final int WIRE_OUT_FIELD_NUMBER = 50003;
   public static final
-  com.google.protobuf.GeneratedMessage.GeneratedExtension<
-    com.google.protobuf.DescriptorProtos.EnumValueOptions,
-    java.lang.Boolean> wireOut = com.google.protobuf.GeneratedMessage
-    .newFileScopedGeneratedExtension(
-      java.lang.Boolean.class,
-      null);
+    com.google.protobuf.GeneratedMessage.GeneratedExtension<
+      com.google.protobuf.DescriptorProtos.EnumValueOptions,
+      java.lang.Boolean> wireOut = com.google.protobuf.GeneratedMessage
+          .newFileScopedGeneratedExtension(
+        java.lang.Boolean.class,
+        null);
   public static final int WIRE_DEBUG_IN_FIELD_NUMBER = 50004;
   public static final
-  com.google.protobuf.GeneratedMessage.GeneratedExtension<
-    com.google.protobuf.DescriptorProtos.EnumValueOptions,
-    java.lang.Boolean> wireDebugIn = com.google.protobuf.GeneratedMessage
-    .newFileScopedGeneratedExtension(
-      java.lang.Boolean.class,
-      null);
+    com.google.protobuf.GeneratedMessage.GeneratedExtension<
+      com.google.protobuf.DescriptorProtos.EnumValueOptions,
+      java.lang.Boolean> wireDebugIn = com.google.protobuf.GeneratedMessage
+          .newFileScopedGeneratedExtension(
+        java.lang.Boolean.class,
+        null);
   public static final int WIRE_DEBUG_OUT_FIELD_NUMBER = 50005;
   public static final
-  com.google.protobuf.GeneratedMessage.GeneratedExtension<
-    com.google.protobuf.DescriptorProtos.EnumValueOptions,
-    java.lang.Boolean> wireDebugOut = com.google.protobuf.GeneratedMessage
-    .newFileScopedGeneratedExtension(
-      java.lang.Boolean.class,
-      null);
+    com.google.protobuf.GeneratedMessage.GeneratedExtension<
+      com.google.protobuf.DescriptorProtos.EnumValueOptions,
+      java.lang.Boolean> wireDebugOut = com.google.protobuf.GeneratedMessage
+          .newFileScopedGeneratedExtension(
+        java.lang.Boolean.class,
+        null);
   private static com.google.protobuf.Descriptors.Descriptor
     internal_static_HDNodeType_descriptor;
   private static
-  com.google.protobuf.GeneratedMessage.FieldAccessorTable
-    internal_static_HDNodeType_fieldAccessorTable;
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_HDNodeType_fieldAccessorTable;
   private static com.google.protobuf.Descriptors.Descriptor
     internal_static_CoinType_descriptor;
   private static
-  com.google.protobuf.GeneratedMessage.FieldAccessorTable
-    internal_static_CoinType_fieldAccessorTable;
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_CoinType_fieldAccessorTable;
   private static com.google.protobuf.Descriptors.Descriptor
     internal_static_TxInputType_descriptor;
   private static
-  com.google.protobuf.GeneratedMessage.FieldAccessorTable
-    internal_static_TxInputType_fieldAccessorTable;
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_TxInputType_fieldAccessorTable;
   private static com.google.protobuf.Descriptors.Descriptor
     internal_static_TxOutputType_descriptor;
   private static
-  com.google.protobuf.GeneratedMessage.FieldAccessorTable
-    internal_static_TxOutputType_fieldAccessorTable;
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_TxOutputType_fieldAccessorTable;
   private static com.google.protobuf.Descriptors.Descriptor
     internal_static_TxOutputBinType_descriptor;
   private static
-  com.google.protobuf.GeneratedMessage.FieldAccessorTable
-    internal_static_TxOutputBinType_fieldAccessorTable;
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_TxOutputBinType_fieldAccessorTable;
   private static com.google.protobuf.Descriptors.Descriptor
     internal_static_TransactionType_descriptor;
   private static
-  com.google.protobuf.GeneratedMessage.FieldAccessorTable
-    internal_static_TransactionType_fieldAccessorTable;
-
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_TransactionType_fieldAccessorTable;
+  
   public static com.google.protobuf.Descriptors.FileDescriptor
-  getDescriptor() {
+      getDescriptor() {
     return descriptor;
   }
-
   private static com.google.protobuf.Descriptors.FileDescriptor
-    descriptor;
-
+      descriptor;
   static {
     java.lang.String[] descriptorData = {
       "\n\013types.proto\032 google/protobuf/descripto" +
-        "r.proto\"\264\001\n\nHDNodeType\022\017\n\007version\030\001 \002(\r\022" +
-        "\r\n\005depth\030\002 \002(\r\022\023\n\013fingerprint\030\003 \002(\r\022\021\n\tc" +
-        "hild_num\030\004 \002(\r\022\030\n\nchain_code\030\005 \002(\014B\004\210\265\030\001" +
-        "\022\031\n\013private_key\030\006 \001(\014B\004\210\265\030\001\022\030\n\npublic_ke" +
-        "y\030\007 \001(\014B\004\210\265\030\001\022\017\n\007address\030\010 \001(\014\"\206\001\n\010CoinT" +
-        "ype\022\021\n\tcoin_name\030\001 \001(\014\022\025\n\rcoin_shortcut\030" +
-        "\002 \001(\014\022\024\n\014address_type\030\003 \001(\r\022\021\n\tmaxfee_kb" +
-        "\030\004 \001(\004\022\023\n\013ser_private\030\005 \001(\r\022\022\n\nser_publi" +
-        "c\030\006 \001(\r\"\205\001\n\013TxInputType\022\021\n\taddress_n\030\001 \003",
+      "r.proto\"\264\001\n\nHDNodeType\022\017\n\007version\030\001 \002(\r\022" +
+      "\r\n\005depth\030\002 \002(\r\022\023\n\013fingerprint\030\003 \002(\r\022\021\n\tc" +
+      "hild_num\030\004 \002(\r\022\030\n\nchain_code\030\005 \002(\014B\004\210\265\030\001" +
+      "\022\031\n\013private_key\030\006 \001(\014B\004\210\265\030\001\022\030\n\npublic_ke" +
+      "y\030\007 \001(\014B\004\210\265\030\001\022\017\n\007address\030\010 \001(\014\"\206\001\n\010CoinT" +
+      "ype\022\021\n\tcoin_name\030\001 \001(\014\022\025\n\rcoin_shortcut\030" +
+      "\002 \001(\014\022\024\n\014address_type\030\003 \001(\r\022\021\n\tmaxfee_kb" +
+      "\030\004 \001(\004\022\023\n\013ser_private\030\005 \001(\r\022\022\n\nser_publi" +
+      "c\030\006 \001(\r\"\205\001\n\013TxInputType\022\021\n\taddress_n\030\001 \003",
       "(\r\022\027\n\tprev_hash\030\002 \002(\014B\004\210\265\030\001\022\022\n\nprev_inde" +
-        "x\030\003 \002(\r\022\030\n\nscript_sig\030\004 \001(\014B\004\210\265\030\001\022\034\n\010seq" +
-        "uence\030\005 \001(\r:\n4294967295\"\177\n\014TxOutputType\022" +
-        "\017\n\007address\030\001 \001(\014\022\021\n\taddress_n\030\002 \003(\r\022\016\n\006a" +
-        "mount\030\003 \002(\004\022 \n\013script_type\030\004 \002(\0162\013.Scrip" +
-        "tType\022\031\n\013script_args\030\005 \003(\014B\004\210\265\030\001\">\n\017TxOu" +
-        "tputBinType\022\016\n\006amount\030\001 \002(\004\022\033\n\rscript_pu" +
-        "bkey\030\002 \002(\014B\004\210\265\030\001\"|\n\017TransactionType\022\022\n\007v" +
-        "ersion\030\001 \001(\r:\0011\022\034\n\006inputs\030\002 \003(\0132\014.TxInpu" +
-        "tType\022!\n\007outputs\030\003 \003(\0132\020.TxOutputBinType",
+      "x\030\003 \002(\r\022\030\n\nscript_sig\030\004 \001(\014B\004\210\265\030\001\022\034\n\010seq" +
+      "uence\030\005 \001(\r:\n4294967295\"\177\n\014TxOutputType\022" +
+      "\017\n\007address\030\001 \001(\014\022\021\n\taddress_n\030\002 \003(\r\022\016\n\006a" +
+      "mount\030\003 \002(\004\022 \n\013script_type\030\004 \002(\0162\013.Scrip" +
+      "tType\022\031\n\013script_args\030\005 \003(\014B\004\210\265\030\001\">\n\017TxOu" +
+      "tputBinType\022\016\n\006amount\030\001 \002(\004\022\033\n\rscript_pu" +
+      "bkey\030\002 \002(\014B\004\210\265\030\001\"|\n\017TransactionType\022\022\n\007v" +
+      "ersion\030\001 \001(\r:\0011\022\034\n\006inputs\030\002 \003(\0132\014.TxInpu" +
+      "tType\022!\n\007outputs\030\003 \003(\0132\020.TxOutputBinType",
       "\022\024\n\tlock_time\030\004 \001(\r:\0010*\225\002\n\013FailureType\022\035" +
-        "\n\031Failure_UnexpectedMessage\020\001\022\032\n\026Failure" +
-        "_ButtonExpected\020\002\022\027\n\023Failure_SyntaxError" +
-        "\020\003\022\033\n\027Failure_ActionCancelled\020\004\022\027\n\023Failu" +
-        "re_PinExpected\020\005\022\030\n\024Failure_PinCancelled" +
-        "\020\006\022\026\n\022Failure_PinInvalid\020\007\022\034\n\030Failure_In" +
-        "validSignature\020\010\022\021\n\rFailure_Other\020\t\022\031\n\025F" +
-        "ailure_FirmwareError\020c*3\n\nScriptType\022\020\n\014" +
-        "PAYTOADDRESS\020\000\022\023\n\017PAYTOSCRIPTHASH\020\001*(\n\013R" +
-        "equestType\022\013\n\007TXINPUT\020\000\022\014\n\010TXOUTPUT\020\001:/\n",
+      "\n\031Failure_UnexpectedMessage\020\001\022\032\n\026Failure" +
+      "_ButtonExpected\020\002\022\027\n\023Failure_SyntaxError" +
+      "\020\003\022\033\n\027Failure_ActionCancelled\020\004\022\027\n\023Failu" +
+      "re_PinExpected\020\005\022\030\n\024Failure_PinCancelled" +
+      "\020\006\022\026\n\022Failure_PinInvalid\020\007\022\034\n\030Failure_In" +
+      "validSignature\020\010\022\021\n\rFailure_Other\020\t\022\031\n\025F" +
+      "ailure_FirmwareError\020c*3\n\nScriptType\022\020\n\014" +
+      "PAYTOADDRESS\020\000\022\023\n\017PAYTOSCRIPTHASH\020\001*(\n\013R" +
+      "equestType\022\013\n\007TXINPUT\020\000\022\014\n\010TXOUTPUT\020\001:/\n",
       "\006binary\022\035.google.protobuf.FieldOptions\030\321" +
-        "\206\003 \001(\010:4\n\007wire_in\022!.google.protobuf.Enum" +
-        "ValueOptions\030\322\206\003 \001(\010:5\n\010wire_out\022!.googl" +
-        "e.protobuf.EnumValueOptions\030\323\206\003 \001(\010::\n\rw" +
-        "ire_debug_in\022!.google.protobuf.EnumValue" +
-        "Options\030\324\206\003 \001(\010:;\n\016wire_debug_out\022!.goog" +
-        "le.protobuf.EnumValueOptions\030\325\206\003 \001(\010B6\n(" +
-        "org.multibit.hd.hardware.trezor.protobuf" +
-        "B\nTrezorType"
+      "\206\003 \001(\010:4\n\007wire_in\022!.google.protobuf.Enum" +
+      "ValueOptions\030\322\206\003 \001(\010:5\n\010wire_out\022!.googl" +
+      "e.protobuf.EnumValueOptions\030\323\206\003 \001(\010::\n\rw" +
+      "ire_debug_in\022!.google.protobuf.EnumValue" +
+      "Options\030\324\206\003 \001(\010:;\n\016wire_debug_out\022!.goog" +
+      "le.protobuf.EnumValueOptions\030\325\206\003 \001(\010B7\n(" +
+      "org.multibit.hd.hardware.trezor.protobuf" +
+      "B\013TrezorTypes"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
         public com.google.protobuf.ExtensionRegistry assignDescriptors(
-          com.google.protobuf.Descriptors.FileDescriptor root) {
+            com.google.protobuf.Descriptors.FileDescriptor root) {
           descriptor = root;
           internal_static_HDNodeType_descriptor =
             getDescriptor().getMessageTypes().get(0);
           internal_static_HDNodeType_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-            internal_static_HDNodeType_descriptor,
-            new java.lang.String[]{"Version", "Depth", "Fingerprint", "ChildNum", "ChainCode", "PrivateKey", "PublicKey", "Address",},
-            org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType.class,
-            org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType.Builder.class);
+              internal_static_HDNodeType_descriptor,
+              new java.lang.String[] { "Version", "Depth", "Fingerprint", "ChildNum", "ChainCode", "PrivateKey", "PublicKey", "Address", },
+              org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType.class,
+              org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType.Builder.class);
           internal_static_CoinType_descriptor =
             getDescriptor().getMessageTypes().get(1);
           internal_static_CoinType_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-            internal_static_CoinType_descriptor,
-            new java.lang.String[]{"CoinName", "CoinShortcut", "AddressType", "MaxfeeKb", "SerPrivate", "SerPublic",},
-            org.multibit.hd.hardware.trezor.protobuf.TrezorType.CoinType.class,
-            org.multibit.hd.hardware.trezor.protobuf.TrezorType.CoinType.Builder.class);
+              internal_static_CoinType_descriptor,
+              new java.lang.String[] { "CoinName", "CoinShortcut", "AddressType", "MaxfeeKb", "SerPrivate", "SerPublic", },
+              org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.CoinType.class,
+              org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.CoinType.Builder.class);
           internal_static_TxInputType_descriptor =
             getDescriptor().getMessageTypes().get(2);
           internal_static_TxInputType_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-            internal_static_TxInputType_descriptor,
-            new java.lang.String[]{"AddressN", "PrevHash", "PrevIndex", "ScriptSig", "Sequence",},
-            org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputType.class,
-            org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxInputType.Builder.class);
+              internal_static_TxInputType_descriptor,
+              new java.lang.String[] { "AddressN", "PrevHash", "PrevIndex", "ScriptSig", "Sequence", },
+              org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputType.class,
+              org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxInputType.Builder.class);
           internal_static_TxOutputType_descriptor =
             getDescriptor().getMessageTypes().get(3);
           internal_static_TxOutputType_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-            internal_static_TxOutputType_descriptor,
-            new java.lang.String[]{"Address", "AddressN", "Amount", "ScriptType", "ScriptArgs",},
-            org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputType.class,
-            org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputType.Builder.class);
+              internal_static_TxOutputType_descriptor,
+              new java.lang.String[] { "Address", "AddressN", "Amount", "ScriptType", "ScriptArgs", },
+              org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputType.class,
+              org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputType.Builder.class);
           internal_static_TxOutputBinType_descriptor =
             getDescriptor().getMessageTypes().get(4);
           internal_static_TxOutputBinType_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-            internal_static_TxOutputBinType_descriptor,
-            new java.lang.String[]{"Amount", "ScriptPubkey",},
-            org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinType.class,
-            org.multibit.hd.hardware.trezor.protobuf.TrezorType.TxOutputBinType.Builder.class);
+              internal_static_TxOutputBinType_descriptor,
+              new java.lang.String[] { "Amount", "ScriptPubkey", },
+              org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinType.class,
+              org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TxOutputBinType.Builder.class);
           internal_static_TransactionType_descriptor =
             getDescriptor().getMessageTypes().get(5);
           internal_static_TransactionType_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
-            internal_static_TransactionType_descriptor,
-            new java.lang.String[]{"Version", "Inputs", "Outputs", "LockTime",},
-            org.multibit.hd.hardware.trezor.protobuf.TrezorType.TransactionType.class,
-            org.multibit.hd.hardware.trezor.protobuf.TrezorType.TransactionType.Builder.class);
+              internal_static_TransactionType_descriptor,
+              new java.lang.String[] { "Version", "Inputs", "Outputs", "LockTime", },
+              org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TransactionType.class,
+              org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.TransactionType.Builder.class);
           binary.internalInit(descriptor.getExtensions().get(0));
           wireIn.internalInit(descriptor.getExtensions().get(1));
           wireOut.internalInit(descriptor.getExtensions().get(2));
@@ -5051,10 +4559,10 @@ public final class TrezorType {
       };
     com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
-        new com.google.protobuf.Descriptors.FileDescriptor[]{
+        new com.google.protobuf.Descriptors.FileDescriptor[] {
           com.google.protobuf.DescriptorProtos.getDescriptor(),
         }, assigner);
   }
-
+  
   // @@protoc_insertion_point(outer_class_scope)
 }

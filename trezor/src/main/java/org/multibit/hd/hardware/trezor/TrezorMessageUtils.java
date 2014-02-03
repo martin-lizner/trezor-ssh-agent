@@ -10,7 +10,7 @@ import com.google.protobuf.ByteString;
 import com.google.protobuf.Message;
 import org.multibit.hd.hardware.trezor.protobuf.TrezorMessage;
 import org.multibit.hd.hardware.trezor.protobuf.TrezorProtocolMessageType;
-import org.multibit.hd.hardware.trezor.protobuf.TrezorType;
+import org.multibit.hd.hardware.trezor.protobuf.TrezorTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -103,7 +103,7 @@ public final class TrezorMessageUtils {
 
       TrezorMessage.TxInput.Builder txInputBuilder = TrezorMessage.TxInput.newBuilder();
 
-      txInputBuilder.setInput(TrezorType.TxInputType
+      txInputBuilder.setInput(TrezorTypes.TxInputType
         .newBuilder()
           // TODO (GR) integrate this
         .addAddressN(0)
@@ -149,11 +149,11 @@ public final class TrezorMessageUtils {
     }
 
     TrezorMessage.TxOutput.Builder builder = TrezorMessage.TxOutput.newBuilder();
-    builder.setOutput(TrezorType.TxOutputType
+    builder.setOutput(TrezorTypes.TxOutputType
       .newBuilder()
       .setAddress(ByteString.copyFrom(address))
       .setAmount(satoshiAmount)
-      .setScriptType(TrezorType.ScriptType.PAYTOADDRESS)
+      .setScriptType(TrezorTypes.ScriptType.PAYTOADDRESS)
       .addAddressN(0) // Depth of receiving address
       .addAddressN(1) // 0 is recipient address, 1 is change address
 
