@@ -91,6 +91,8 @@
   </modules>
 
   <profiles>
+
+    <!-- To active this use 'mvn release:prepare release:perform' -->
     <profile>
       <id>release-sign-artifacts</id>
       <activation>
@@ -118,6 +120,45 @@
         </plugins>
       </build>
     </profile>
+
+    <!-- To activate this build use 'mvn -DupdateProtobuf=true clean compile' -->
+    <profile>
+      <id>update-protobuf</id>
+      <activation>
+        <property>
+          <name>updateProtobuf</name>
+          <value>true</value>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <!-- Ensure Maven performs "git submodule update" before running protobuf -->
+          <plugin>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>git-submodule-update</id>
+                <phase>generate-sources</phase>
+                <configuration>
+                  <tasks>
+                    <exec executable="git" failonerror="true">
+                      <arg value="submodule"/>
+                      <arg value="update"/>
+                      <arg value="--init"/>
+                      <arg value="--recursive"/>
+                    </exec>
+                  </tasks>
+                </configuration>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
   </profiles>
 
   <build>

@@ -22,9 +22,9 @@ public final class TrezorStorage {
     // optional .HDNodeType node = 2;
     boolean hasNode();
 
-    org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType getNode();
+    org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType getNode();
 
-    org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeTypeOrBuilder getNodeOrBuilder();
+    org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeTypeOrBuilder getNodeOrBuilder();
 
     // optional bytes mnemonic = 3;
     boolean hasMnemonic();
@@ -103,17 +103,17 @@ public final class TrezorStorage {
 
     // optional .HDNodeType node = 2;
     public static final int NODE_FIELD_NUMBER = 2;
-    private org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType node_;
+    private org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType node_;
 
     public boolean hasNode() {
       return ((bitField0_ & 0x00000002) == 0x00000002);
     }
 
-    public org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType getNode() {
+    public org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType getNode() {
       return node_;
     }
 
-    public org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeTypeOrBuilder getNodeOrBuilder() {
+    public org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeTypeOrBuilder getNodeOrBuilder() {
       return node_;
     }
 
@@ -191,7 +191,7 @@ public final class TrezorStorage {
 
     private void initFields() {
       version_ = 0;
-      node_ = org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType.getDefaultInstance();
+      node_ = org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType.getDefaultInstance();
       mnemonic_ = com.google.protobuf.ByteString.EMPTY;
       passphraseProtection_ = false;
       pinFailedAttempts_ = 0;
@@ -439,7 +439,7 @@ public final class TrezorStorage {
         version_ = 0;
         bitField0_ = (bitField0_ & ~0x00000001);
         if (nodeBuilder_ == null) {
-          node_ = org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType.getDefaultInstance();
+          node_ = org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType.getDefaultInstance();
         } else {
           nodeBuilder_.clear();
         }
@@ -617,7 +617,7 @@ public final class TrezorStorage {
               break;
             }
             case 18: {
-              org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType.Builder subBuilder = org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType.newBuilder();
+              org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType.Builder subBuilder = org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType.newBuilder();
               if (hasNode()) {
                 subBuilder.mergeFrom(getNode());
               }
@@ -687,15 +687,15 @@ public final class TrezorStorage {
       }
 
       // optional .HDNodeType node = 2;
-      private org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType node_ = org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType.getDefaultInstance();
+      private org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType node_ = org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
-        org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType, org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType.Builder, org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeTypeOrBuilder> nodeBuilder_;
+        org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType, org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType.Builder, org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeTypeOrBuilder> nodeBuilder_;
 
       public boolean hasNode() {
         return ((bitField0_ & 0x00000002) == 0x00000002);
       }
 
-      public org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType getNode() {
+      public org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType getNode() {
         if (nodeBuilder_ == null) {
           return node_;
         } else {
@@ -703,7 +703,7 @@ public final class TrezorStorage {
         }
       }
 
-      public Builder setNode(org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType value) {
+      public Builder setNode(org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType value) {
         if (nodeBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -718,7 +718,7 @@ public final class TrezorStorage {
       }
 
       public Builder setNode(
-        org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType.Builder builderForValue) {
+        org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType.Builder builderForValue) {
         if (nodeBuilder_ == null) {
           node_ = builderForValue.build();
           onChanged();
@@ -729,12 +729,12 @@ public final class TrezorStorage {
         return this;
       }
 
-      public Builder mergeNode(org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType value) {
+      public Builder mergeNode(org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType value) {
         if (nodeBuilder_ == null) {
           if (((bitField0_ & 0x00000002) == 0x00000002) &&
-            node_ != org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType.getDefaultInstance()) {
+            node_ != org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType.getDefaultInstance()) {
             node_ =
-              org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType.newBuilder(node_).mergeFrom(value).buildPartial();
+              org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType.newBuilder(node_).mergeFrom(value).buildPartial();
           } else {
             node_ = value;
           }
@@ -748,7 +748,7 @@ public final class TrezorStorage {
 
       public Builder clearNode() {
         if (nodeBuilder_ == null) {
-          node_ = org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType.getDefaultInstance();
+          node_ = org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType.getDefaultInstance();
           onChanged();
         } else {
           nodeBuilder_.clear();
@@ -757,13 +757,13 @@ public final class TrezorStorage {
         return this;
       }
 
-      public org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType.Builder getNodeBuilder() {
+      public org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType.Builder getNodeBuilder() {
         bitField0_ |= 0x00000002;
         onChanged();
         return getNodeFieldBuilder().getBuilder();
       }
 
-      public org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeTypeOrBuilder getNodeOrBuilder() {
+      public org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeTypeOrBuilder getNodeOrBuilder() {
         if (nodeBuilder_ != null) {
           return nodeBuilder_.getMessageOrBuilder();
         } else {
@@ -772,11 +772,11 @@ public final class TrezorStorage {
       }
 
       private com.google.protobuf.SingleFieldBuilder<
-        org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType, org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType.Builder, org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeTypeOrBuilder>
+        org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType, org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType.Builder, org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeTypeOrBuilder>
       getNodeFieldBuilder() {
         if (nodeBuilder_ == null) {
           nodeBuilder_ = new com.google.protobuf.SingleFieldBuilder<
-            org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType, org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType.Builder, org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeTypeOrBuilder>(
+            org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType, org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType.Builder, org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeTypeOrBuilder>(
             node_,
             getParentForChildren(),
             isClean());
@@ -969,9 +969,9 @@ public final class TrezorStorage {
     // optional .HDNodeType node = 2;
     boolean hasNode();
 
-    org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType getNode();
+    org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType getNode();
 
-    org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeTypeOrBuilder getNodeOrBuilder();
+    org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeTypeOrBuilder getNodeOrBuilder();
   }
 
   public static final class Session extends
@@ -1020,23 +1020,23 @@ public final class TrezorStorage {
 
     // optional .HDNodeType node = 2;
     public static final int NODE_FIELD_NUMBER = 2;
-    private org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType node_;
+    private org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType node_;
 
     public boolean hasNode() {
       return ((bitField0_ & 0x00000002) == 0x00000002);
     }
 
-    public org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType getNode() {
+    public org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType getNode() {
       return node_;
     }
 
-    public org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeTypeOrBuilder getNodeOrBuilder() {
+    public org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeTypeOrBuilder getNodeOrBuilder() {
       return node_;
     }
 
     private void initFields() {
       passphrase_ = com.google.protobuf.ByteString.EMPTY;
-      node_ = org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType.getDefaultInstance();
+      node_ = org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType.getDefaultInstance();
     }
 
     private byte memoizedIsInitialized = -1;
@@ -1232,7 +1232,7 @@ public final class TrezorStorage {
         passphrase_ = com.google.protobuf.ByteString.EMPTY;
         bitField0_ = (bitField0_ & ~0x00000001);
         if (nodeBuilder_ == null) {
-          node_ = org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType.getDefaultInstance();
+          node_ = org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType.getDefaultInstance();
         } else {
           nodeBuilder_.clear();
         }
@@ -1352,7 +1352,7 @@ public final class TrezorStorage {
               break;
             }
             case 18: {
-              org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType.Builder subBuilder = org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType.newBuilder();
+              org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType.Builder subBuilder = org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType.newBuilder();
               if (hasNode()) {
                 subBuilder.mergeFrom(getNode());
               }
@@ -1395,15 +1395,15 @@ public final class TrezorStorage {
       }
 
       // optional .HDNodeType node = 2;
-      private org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType node_ = org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType.getDefaultInstance();
+      private org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType node_ = org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType.getDefaultInstance();
       private com.google.protobuf.SingleFieldBuilder<
-        org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType, org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType.Builder, org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeTypeOrBuilder> nodeBuilder_;
+        org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType, org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType.Builder, org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeTypeOrBuilder> nodeBuilder_;
 
       public boolean hasNode() {
         return ((bitField0_ & 0x00000002) == 0x00000002);
       }
 
-      public org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType getNode() {
+      public org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType getNode() {
         if (nodeBuilder_ == null) {
           return node_;
         } else {
@@ -1411,7 +1411,7 @@ public final class TrezorStorage {
         }
       }
 
-      public Builder setNode(org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType value) {
+      public Builder setNode(org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType value) {
         if (nodeBuilder_ == null) {
           if (value == null) {
             throw new NullPointerException();
@@ -1426,7 +1426,7 @@ public final class TrezorStorage {
       }
 
       public Builder setNode(
-        org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType.Builder builderForValue) {
+        org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType.Builder builderForValue) {
         if (nodeBuilder_ == null) {
           node_ = builderForValue.build();
           onChanged();
@@ -1437,12 +1437,12 @@ public final class TrezorStorage {
         return this;
       }
 
-      public Builder mergeNode(org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType value) {
+      public Builder mergeNode(org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType value) {
         if (nodeBuilder_ == null) {
           if (((bitField0_ & 0x00000002) == 0x00000002) &&
-            node_ != org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType.getDefaultInstance()) {
+            node_ != org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType.getDefaultInstance()) {
             node_ =
-              org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType.newBuilder(node_).mergeFrom(value).buildPartial();
+              org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType.newBuilder(node_).mergeFrom(value).buildPartial();
           } else {
             node_ = value;
           }
@@ -1456,7 +1456,7 @@ public final class TrezorStorage {
 
       public Builder clearNode() {
         if (nodeBuilder_ == null) {
-          node_ = org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType.getDefaultInstance();
+          node_ = org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType.getDefaultInstance();
           onChanged();
         } else {
           nodeBuilder_.clear();
@@ -1465,13 +1465,13 @@ public final class TrezorStorage {
         return this;
       }
 
-      public org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType.Builder getNodeBuilder() {
+      public org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType.Builder getNodeBuilder() {
         bitField0_ |= 0x00000002;
         onChanged();
         return getNodeFieldBuilder().getBuilder();
       }
 
-      public org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeTypeOrBuilder getNodeOrBuilder() {
+      public org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeTypeOrBuilder getNodeOrBuilder() {
         if (nodeBuilder_ != null) {
           return nodeBuilder_.getMessageOrBuilder();
         } else {
@@ -1480,11 +1480,11 @@ public final class TrezorStorage {
       }
 
       private com.google.protobuf.SingleFieldBuilder<
-        org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType, org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType.Builder, org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeTypeOrBuilder>
+        org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType, org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType.Builder, org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeTypeOrBuilder>
       getNodeFieldBuilder() {
         if (nodeBuilder_ == null) {
           nodeBuilder_ = new com.google.protobuf.SingleFieldBuilder<
-            org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType, org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeType.Builder, org.multibit.hd.hardware.trezor.protobuf.TrezorType.HDNodeTypeOrBuilder>(
+            org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType, org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeType.Builder, org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.HDNodeTypeOrBuilder>(
             node_,
             getParentForChildren(),
             isClean());
@@ -1559,14 +1559,14 @@ public final class TrezorStorage {
           com.google.protobuf.ExtensionRegistry registry =
             com.google.protobuf.ExtensionRegistry.newInstance();
           registerAllExtensions(registry);
-          org.multibit.hd.hardware.trezor.protobuf.TrezorType.registerAllExtensions(registry);
+          org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.registerAllExtensions(registry);
           return registry;
         }
       };
     com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
         new com.google.protobuf.Descriptors.FileDescriptor[]{
-          org.multibit.hd.hardware.trezor.protobuf.TrezorType.getDescriptor(),
+          org.multibit.hd.hardware.trezor.protobuf.TrezorTypes.getDescriptor(),
         }, assigner);
   }
 
