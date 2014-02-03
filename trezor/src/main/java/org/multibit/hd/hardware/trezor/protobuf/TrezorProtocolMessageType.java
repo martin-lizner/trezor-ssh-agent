@@ -14,59 +14,81 @@ import com.google.protobuf.Message;
  */
 public enum TrezorProtocolMessageType {
 
+  // Connection
   INITALIZE(TrezorMessage.Initialize.getDefaultInstance(), (short) 0),
-
   PING(TrezorMessage.Ping.getDefaultInstance(), (short) 1),
 
+  // Generic responses
   SUCCESS(TrezorMessage.Success.getDefaultInstance(), (short) 2),
   FAILURE(TrezorMessage.Failure.getDefaultInstance(), (short) 3),
 
-  GET_UUID(TrezorMessage.GetUUID.getDefaultInstance(), (short) 4),
-  UUID(TrezorMessage.UUID.getDefaultInstance(), (short) 5),
+  // Setup
+  CHANGE_PIN(TrezorMessage.ChangePin.getDefaultInstance(), (short) 4),
+  WIPE_DEVICE(TrezorMessage.WipeDevice.getDefaultInstance(), (short) 5),
+  FIRMWARE_ERASE(TrezorMessage.FirmwareErase.getDefaultInstance(), (short) 6),
+  FIRMWARE_UPLOAD(TrezorMessage.FirmwareUpload.getDefaultInstance(), (short) 7),
 
-  OTP_REQUEST(TrezorMessage.OtpRequest.getDefaultInstance(), (short) 6),
-  OTP_ACK(TrezorMessage.OtpAck.getDefaultInstance(), (short) 7),
-  OTP_CANCEL(TrezorMessage.OtpCancel.getDefaultInstance(), (short) 8),
-
+  // Entropy
   GET_ENTROPY(TrezorMessage.GetEntropy.getDefaultInstance(), (short) 9),
   ENTROPY(TrezorMessage.Entropy.getDefaultInstance(), (short) 10),
 
-  GET_MASTER_PUBLIC_KEY(TrezorMessage.GetMasterPublicKey.getDefaultInstance(), (short) 11),
-  MASTER_PUBLIC_KEY(TrezorMessage.MasterPublicKey.getDefaultInstance(), (short) 12),
+  // Key passing
+  GET_PUBLIC_KEY(TrezorMessage.GetPublicKey.getDefaultInstance(), (short) 11),
+  PUBLIC_KEY(TrezorMessage.PublicKey.getDefaultInstance(), (short) 12),
 
+  // Load and reset
   LOAD_DEVICE(TrezorMessage.LoadDevice.getDefaultInstance(), (short) 13),
   RESET_DEVICE(TrezorMessage.ResetDevice.getDefaultInstance(), (short) 14),
 
+  // Signing
   SIGN_TX(TrezorMessage.SignTx.getDefaultInstance(), (short) 15),
-  // SIGNED_TX(Message.SignedTx.getDefaultInstance(),(short)16),
+  SIMPLE_SIGN_TX(TrezorMessage.SimpleSignTx.getDefaultInstance(), (short) 16),
+
+  // Features
   FEATURES(TrezorMessage.Features.getDefaultInstance(), (short) 17),
 
   // PIN
-  PIN_REQUEST(TrezorMessage.PinRequest.getDefaultInstance(), (short) 18),
-  PIN_ACK(TrezorMessage.PinAck.getDefaultInstance(), (short) 19),
-  PIN_CANCEL(TrezorMessage.PinCancel.getDefaultInstance(), (short) 20),
+  PIN_MATRIX_REQUEST(TrezorMessage.PinMatrixRequest.getDefaultInstance(), (short) 18),
+  PIN_MATRIX_ACK(TrezorMessage.PinMatrixAck.getDefaultInstance(), (short) 19),
+  CANCEL(TrezorMessage.Cancel.getDefaultInstance(), (short) 20),
 
   // Transactions
   TX_REQUEST(TrezorMessage.TxRequest.getDefaultInstance(), (short) 21),
-  // OUTPUT_REQUEST(Message.OutputRequest.getDefaultInstance(),(short)22),
   TX_INPUT(TrezorMessage.TxInput.getDefaultInstance(), (short) 23),
   TX_OUTPUT(TrezorMessage.TxOutput.getDefaultInstance(), (short) 24),
-  SET_MAX_FEE_KB(TrezorMessage.SetMaxFeeKb.getDefaultInstance(), (short) 25),
+  APPLY_SETTINGS(TrezorMessage.ApplySettings.getDefaultInstance(), (short) 25),
 
   // Buttons
   BUTTON_REQUEST(TrezorMessage.ButtonRequest.getDefaultInstance(), (short) 26),
   BUTTON_ACK(TrezorMessage.ButtonAck.getDefaultInstance(), (short) 27),
-  BUTTON_CANCEL(TrezorMessage.ButtonCancel.getDefaultInstance(), (short) 28),
 
   // Address
   GET_ADDRESS(TrezorMessage.GetAddress.getDefaultInstance(), (short) 29),
   ADDRESS(TrezorMessage.Address.getDefaultInstance(), (short) 30),
+
+  // Entropy
+  ENTROPY_REQUEST(TrezorMessage.GetAddress.getDefaultInstance(), (short) 35),
+  ENTROPY_ACK(TrezorMessage.GetAddress.getDefaultInstance(), (short) 36),
+
+  // Message signing
+  SIGN_MESSAGE(TrezorMessage.GetAddress.getDefaultInstance(), (short) 38),
+  VERIFY_MESSAGE(TrezorMessage.GetAddress.getDefaultInstance(), (short) 39),
+  MESSAGE_SIGNATURE(TrezorMessage.GetAddress.getDefaultInstance(), (short) 40),
+
+  // Passphrase
+  PASSPHRASE_REQUEST(TrezorMessage.GetAddress.getDefaultInstance(), (short) 41),
+  PASSPHRASE_ACK(TrezorMessage.GetAddress.getDefaultInstance(), (short) 42),
+
+  // Transaction size
+  ESTIMATE_TX_SIZE(TrezorMessage.GetAddress.getDefaultInstance(), (short) 43),
+  TX_SIZE(TrezorMessage.GetAddress.getDefaultInstance(), (short) 44),
 
   // Debugging messages
   DEBUG_LINK_DECISION(TrezorMessage.DebugLinkDecision.getDefaultInstance(), (short) 100),
   DEBUG_LINK_GET_STATE(TrezorMessage.DebugLinkGetState.getDefaultInstance(), (short) 101),
   DEBUG_LINK_STATE(TrezorMessage.DebugLinkState.getDefaultInstance(), (short) 102),
   DEBUG_LINK_STOP(TrezorMessage.DebugLinkStop.getDefaultInstance(), (short) 103),
+  DEBUG_LINK_LOG(TrezorMessage.DebugLinkLog.getDefaultInstance(), (short) 104),
 
   // End of enum
   ;

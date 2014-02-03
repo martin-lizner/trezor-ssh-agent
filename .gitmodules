@@ -1,0 +1,3 @@
+[submodule "trezor/src/main/trezor-common"]
+	path = trezor/src/main/trezor-common
+	url = https://github.com/trezor/trezor-common.git

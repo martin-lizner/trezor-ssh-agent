@@ -27,7 +27,8 @@ public interface HardwareWallet {
   HardwareWalletSpecification getDefaultSpecification();
 
   /**
-   * Applies any exchange specific parameters
+   * <p>Apply any hardware wallet specific parameters</p>
+   * <p>Implementers should override this, but call super.applySpecification(specification) as part of the application process</p>
    *
    * @param specification The {@link HardwareWalletSpecification}
    */

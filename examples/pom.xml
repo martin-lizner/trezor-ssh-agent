@@ -113,13 +113,6 @@
       <version>0.0.1-SNAPSHOT</version>
     </dependency>
 
-    <!-- SLF4J simple for logging example output -->
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-simple</artifactId>
-      <scope>compile</scope>
-    </dependency>
-
   </dependencies>
 
 </project>

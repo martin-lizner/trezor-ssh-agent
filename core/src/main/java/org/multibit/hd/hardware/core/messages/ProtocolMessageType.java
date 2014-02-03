@@ -11,50 +11,71 @@ package org.multibit.hd.hardware.core.messages;
  */
 public enum ProtocolMessageType {
 
+  // Connection
   INITALIZE,
-
   PING,
 
+  // Generic responses
   SUCCESS,
   FAILURE,
 
-  GET_UUID,
-  UUID,
+  // Setup
+  CHANGE_PIN,
+  WIPE_DEVICE,
+  FIRMWARE_ERASE,
+  FIRMWARE_UPLOAD,
 
-  OTP_REQUEST,
-  OTP_ACK,
-  OTP_CANCEL,
-
+  // Entropy
   GET_ENTROPY,
   ENTROPY,
 
-  GET_MASTER_PUBLIC_KEY,
-  MASTER_PUBLIC_KEY,
+  // Key passing
+  GET_PUBLIC_KEY,
+  PUBLIC_KEY,
 
+  // Load and reset
   LOAD_DEVICE,
   RESET_DEVICE,
 
+  // Signing
   SIGN_TX,
+  SIMPLE_SIGN_TX,
   FEATURES,
 
-  PIN_REQUEST,
-  PIN_ACK,
-  PIN_CANCEL,
+  // PIN
+  PIN_MATRIX_REQUEST,
+  PIN_MATRIX_ACK,
+  CANCEL,
 
   // Transactions
   TX_REQUEST,
   TX_INPUT,
   TX_OUTPUT,
-  SET_MAX_FEE_KB,
+  APPLY_SETTINGS,
 
   // Buttons
   BUTTON_REQUEST,
   BUTTON_ACK,
-  BUTTON_CANCEL,
 
   // Address
   GET_ADDRESS,
   ADDRESS,
+
+  ENTROPY_REQUEST,
+  ENTROPY_ACK,
+
+  // Message signing
+  SIGN_MESSAGE,
+  VERIFY_MESSAGE,
+  MESSAGE_SIGNATURE,
+
+  // Passphrase
+  PASSPHRASE_REQUEST,
+  PASSPHRASE_ACK,
+
+  // Transaction size
+  ESTIMATE_TX_SIZE,
+  TX_SIZE,
 
   // Debugging messages
   DEBUG_LINK_DECISION,

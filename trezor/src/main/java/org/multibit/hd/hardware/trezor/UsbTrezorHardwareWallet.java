@@ -7,6 +7,7 @@ import com.codeminders.hidapi.HIDManager;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.protobuf.Message;
+import org.multibit.hd.hardware.core.HardwareWalletSpecification;
 import org.multibit.hd.hardware.core.events.HardwareEvents;
 import org.multibit.hd.hardware.core.messages.SystemMessageType;
 import org.multibit.hd.hardware.core.usb.CP211xBridge;
@@ -33,24 +34,31 @@ public class UsbTrezorHardwareWallet extends AbstractTrezorHardwareWallet {
 
   private static final Logger log = LoggerFactory.getLogger(UsbTrezorHardwareWallet.class);
 
-  private Optional<Integer> vendorIdOptional = Optional.absent();
-  private Optional<Integer> productIdOptional = Optional.absent();
-  private Optional<String> serialNumberOptional = Optional.absent();
+  private Optional<Integer> vendorId = Optional.absent();
+  private Optional<Integer> productId = Optional.absent();
+  private Optional<String> serialNumber = Optional.absent();
 
   private DataOutputStream out = null;
 
   private Optional<HIDDevice> deviceOptional = Optional.absent();
 
   /**
+   * Default constructor for use with dynamic binding
+   */
+  public UsbTrezorHardwareWallet() {
+    this(Optional.<Integer>absent(), Optional.<Integer>absent(), Optional.<String>absent());
+  }
+
+  /**
    * <p>Create a new instance of a USB-based Trezor device (standard)</p>
    *
-   * @param vendorIdOptional     The vendor ID (default is 0x10c4)
-   * @param productIdOptional    The product ID (default is 0xea80)
-   * @param serialNumberOptional The device serial number (default is to accept any)
+   * @param vendorId     The vendor ID (default is 0x10c4)
+   * @param productId    The product ID (default is 0xea80)
+   * @param serialNumber The device serial number (default is to accept any)
    */
-  public UsbTrezorHardwareWallet(Optional<Integer> vendorIdOptional,
-                                 Optional<Integer> productIdOptional,
-                                 Optional<String> serialNumberOptional) {
+  public UsbTrezorHardwareWallet(Optional<Integer> vendorId,
+                                 Optional<Integer> productId,
+                                 Optional<String> serialNumber) {
 
     // Initialise the HID library
     if (!ClassPathLibraryLoader.loadNativeHIDLibrary()) {
@@ -58,9 +66,21 @@ public class UsbTrezorHardwareWallet extends AbstractTrezorHardwareWallet {
         "Unable to load native USB library. Check class loader permissions/JAR integrity.");
     }
 
-    this.vendorIdOptional = vendorIdOptional;
-    this.productIdOptional = productIdOptional;
-    this.serialNumberOptional = serialNumberOptional;
+    this.vendorId = vendorId;
+    this.productId = productId;
+    this.serialNumber = serialNumber;
+
+  }
+
+
+  @Override
+  public void applySpecification(HardwareWalletSpecification specification) {
+
+    super.applySpecification(specification);
+
+    this.vendorId = specification.getVendorId();
+    this.productId = specification.getProductId();
+    this.serialNumber = specification.getSerialNumber();
 
   }
 
@@ -159,8 +179,8 @@ public class UsbTrezorHardwareWallet extends AbstractTrezorHardwareWallet {
       throw new IllegalStateException("Unable to access connected device list. Check USB security policy for this account.");
     }
 
-    Integer vendorId = vendorIdOptional.isPresent() ? vendorIdOptional.get() : DEFAULT_USB_VENDOR_ID;
-    Integer productId = productIdOptional.isPresent() ? productIdOptional.get() : DEFAULT_USB_PRODUCT_ID;
+    Integer vendorId = this.vendorId.isPresent() ? this.vendorId.get() : DEFAULT_USB_VENDOR_ID;
+    Integer productId = this.productId.isPresent() ? this.productId.get() : DEFAULT_USB_PRODUCT_ID;
 
     // Attempt to locate the required device
     Optional<HIDDeviceInfo> selectedInfo = Optional.absent();
@@ -168,8 +188,8 @@ public class UsbTrezorHardwareWallet extends AbstractTrezorHardwareWallet {
       if (vendorId.equals(info.getVendor_id()) &&
         productId.equals(info.getProduct_id())) {
         // Allow a wildcard serial number
-        if (serialNumberOptional.isPresent()) {
-          if (serialNumberOptional.get().equals(info.getSerial_number())) {
+        if (serialNumber.isPresent()) {
+          if (serialNumber.get().equals(info.getSerial_number())) {
             selectedInfo = Optional.of(info);
             break;
           }

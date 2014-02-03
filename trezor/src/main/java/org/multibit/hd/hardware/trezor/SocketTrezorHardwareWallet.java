@@ -2,6 +2,7 @@ package org.multibit.hd.hardware.trezor;
 
 import com.google.common.base.Preconditions;
 import com.google.protobuf.Message;
+import org.multibit.hd.hardware.core.HardwareWalletSpecification;
 import org.multibit.hd.hardware.core.events.HardwareEvents;
 import org.multibit.hd.hardware.core.messages.SystemMessageType;
 import org.slf4j.Logger;
@@ -26,8 +27,15 @@ public class SocketTrezorHardwareWallet extends AbstractTrezorHardwareWallet {
   private Socket socket = null;
   private DataOutputStream out = null;
 
-  private final String host;
-  private final int port;
+  private String host;
+  private int port;
+
+  /**
+   * Default constructor for use with dynamic binding
+   */
+  public SocketTrezorHardwareWallet() {
+    this("localhost", 3000);
+  }
 
   /**
    * <p>Create a new socket connection to a Trezor device</p>
@@ -42,6 +50,16 @@ public class SocketTrezorHardwareWallet extends AbstractTrezorHardwareWallet {
 
     this.host = host;
     this.port = port;
+
+  }
+
+  @Override
+  public void applySpecification(HardwareWalletSpecification specification) {
+
+    super.applySpecification(specification);
+
+    this.host = specification.getHost();
+    this.port = specification.getPort();
 
   }
 

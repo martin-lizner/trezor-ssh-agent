@@ -10,6 +10,7 @@ import com.google.protobuf.ByteString;
 import com.google.protobuf.Message;
 import org.multibit.hd.hardware.trezor.protobuf.TrezorMessage;
 import org.multibit.hd.hardware.trezor.protobuf.TrezorProtocolMessageType;
+import org.multibit.hd.hardware.trezor.protobuf.TrezorType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,28 +90,31 @@ public final class TrezorMessageUtils {
 
     // Input index is valid
     TransactionInput txInput = tx.getInput(index);
-    TrezorMessage.TxInput.Builder builder = TrezorMessage.TxInput.newBuilder();
-    builder.setIndex(index);
 
     // Fill in the input addresses
     long prevIndex = txInput.getOutpoint().getIndex();
     byte[] prevHash = txInput.getOutpoint().getHash().getBytes();
 
-    // In Bitcoinj "nanocoins" are Satoshis
+    // TODO Locate amount field in TxInput
     long satoshiAmount = txInput.getConnectedOutput().getValue().longValue();
-    builder.setAmount(satoshiAmount);
 
     try {
       byte[] scriptSig = txInput.getScriptSig().toString().getBytes();
-      builder.setScriptSig(ByteString.copyFrom(scriptSig));
 
-      builder.setPrevIndex((int) prevIndex);
-      builder.setPrevHash(ByteString.copyFrom(prevHash));
+      TrezorMessage.TxInput.Builder txInputBuilder = TrezorMessage.TxInput.newBuilder();
 
-      builder.addAddressN(0);
-      builder.addAddressN(index);
+      txInputBuilder.setInput(TrezorType.TxInputType
+        .newBuilder()
+          // TODO (GR) integrate this
+        .addAddressN(0)
+        .addAddressN(index)
+        .setScriptSig(ByteString.copyFrom(scriptSig))
+        .setPrevHash(ByteString.copyFrom(prevHash))
+        .setPrevIndex((int) prevIndex)
+        .build()
+      );
 
-      return builder.build();
+      return txInputBuilder.build();
 
     } catch (ScriptException e) {
       throw new IllegalStateException(e);
@@ -133,33 +137,30 @@ public final class TrezorMessageUtils {
 
     // Output index is valid
     TransactionOutput txOutput = tx.getOutput(index);
-    TrezorMessage.TxOutput.Builder builder = TrezorMessage.TxOutput.newBuilder();
-    builder.setIndex(index);
 
-    // In Bitcoinj "nanocoins" are Satoshis
     long satoshiAmount = txOutput.getValue().longValue();
-    builder.setAmount(satoshiAmount);
 
-    // Extract the receiving address from the output
+    // Extract the Base58 receiving address from the output
+    final byte[] address;
     try {
-      builder.setAddress(txOutput.getScriptPubKey().getToAddress(MainNetParams.get()).toString());
+      address = txOutput.getScriptPubKey().getToAddress(MainNetParams.get()).toString().getBytes();
     } catch (ScriptException e) {
       throw new IllegalArgumentException("Transaction script pub key invalid", e);
     }
-    //builder.setAddressBytes(ByteString.copyFrom("".getBytes()));
 
-    // Bitcoinj only support Pay to Address
-    builder.setScriptType(TrezorMessage.ScriptType.PAYTOADDRESS);
+    TrezorMessage.TxOutput.Builder builder = TrezorMessage.TxOutput.newBuilder();
+    builder.setOutput(TrezorType.TxOutputType
+      .newBuilder()
+      .setAddress(ByteString.copyFrom(address))
+      .setAmount(satoshiAmount)
+      .setScriptType(TrezorType.ScriptType.PAYTOADDRESS)
+      .addAddressN(0) // Depth of receiving address
+      .addAddressN(1) // 0 is recipient address, 1 is change address
 
-    // TODO (GR) Verify what ScriptArgs is doing (array of script arguments?)
-    //builder.setScriptArgs(0,0);
-
-    // AddressN encodes the branch co-ordinates of the receiving/change public keys
-    // Leave it unset if the Trezor does not control the output address
-    if (index == 1) {
-      builder.addAddressN(0); // Depth of receiving address was
-      builder.addAddressN(1); // 0 is recipient address, 1 is change address
-    }
+        // TODO (GR) Verify what ScriptArgs is doing (array of script arguments?)
+        //.setScriptArgs(0,0);
+      .build()
+    );
 
     return builder.build();
 

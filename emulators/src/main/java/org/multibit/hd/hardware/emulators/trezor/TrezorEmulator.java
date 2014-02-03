@@ -3,6 +3,7 @@ package org.multibit.hd.hardware.emulators.trezor;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.google.protobuf.ByteString;
 import com.google.protobuf.Message;
 import org.multibit.hd.hardware.trezor.TrezorMessageUtils;
 import org.multibit.hd.hardware.trezor.protobuf.TrezorMessage;
@@ -82,7 +83,7 @@ public class TrezorEmulator {
     trezorEmulator.addMessage(new EmulatorMessage(
       TrezorMessage.Success
         .newBuilder()
-        .setMessage("")
+        .setMessage(ByteString.copyFrom("Emulator is up".getBytes()))
         .build(),
       duration,
       timeUnit

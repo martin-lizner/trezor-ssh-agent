@@ -3,14 +3,10 @@ package org.multibit.hd.hardware.core;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.eventbus.EventBus;
-import com.google.common.primitives.Longs;
-import com.google.protobuf.ByteString;
-import org.multibit.hd.hardware.core.clients.DefaultBlockingHardwareWalletClient;
 import org.multibit.hd.hardware.core.wallets.HardwareWallet;
 import org.multibit.hd.hardware.core.wallets.HardwareWallets;
 
 import java.util.List;
-import java.util.UUID;
 
 /**
  * <p>Service to provide the following to application:</p>
@@ -30,20 +26,11 @@ public class HardwareWalletService {
   public static final EventBus hardwareEventBus = new EventBus();
 
   /**
-   * <p>Generate a session ID as a protocol buffer ByteString</p>
-   *
-   * @return The session ID
-   */
-  public static ByteString newSessionId() {
-    return ByteString.copyFrom(Longs.toByteArray(UUID.randomUUID().getLeastSignificantBits()));
-  }
-
-  /**
    * <p>Handles the process of discovering any hardware wallets attached to USB ports</p>
    *
-   * @return A list of initialised blocking hardware wallet clients for the discovered devices
+   * @return A list of hardware wallets for the discovered devices
    */
-  public List<DefaultBlockingHardwareWalletClient> discoverUsbHardwareWallets() {
+  public List<HardwareWallet> discoverUsbHardwareWallets() {
 
     return Lists.newArrayList();
 

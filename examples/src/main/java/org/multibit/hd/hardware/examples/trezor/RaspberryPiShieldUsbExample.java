@@ -5,7 +5,6 @@ import com.google.bitcoin.core.AddressFormatException;
 import com.google.bitcoin.core.Transaction;
 import com.google.common.base.Optional;
 import com.google.common.eventbus.Subscribe;
-import com.google.protobuf.ByteString;
 import org.multibit.hd.hardware.core.HardwareWalletService;
 import org.multibit.hd.hardware.core.events.HardwareWalletProtocolEvent;
 import org.multibit.hd.hardware.core.events.HardwareWalletSystemEvent;
@@ -73,8 +72,7 @@ public class RaspberryPiShieldUsbExample {
     );
 
     // Create a USB-based default Trezor client with blocking methods (quite limited)
-    ByteString sessionId = BlockingTrezorClient.newSessionId();
-    BlockingTrezorClient client = new BlockingTrezorClient(wallet, sessionId);
+    BlockingTrezorClient client = new BlockingTrezorClient(wallet);
 
     // Connect the client
     client.connect();
@@ -90,12 +88,12 @@ public class RaspberryPiShieldUsbExample {
     Thread.sleep(2000);
 
     // Load device (words must be on the internal list - this seed is hard coded to some Electrum addresses))
-    char[] seed = "beyond neighbor scratch swirl embarrass doll cause also stick softly physical nice".toCharArray();
+    String seed = "beyond neighbor scratch swirl embarrass doll cause also stick softly physical nice";
 
     client.loadDevice(
+      "en",
       seed,
-      false,
-      "1234".getBytes(),
+      "1234",
       false
     );
 

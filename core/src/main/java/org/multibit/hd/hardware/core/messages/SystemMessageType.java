@@ -12,7 +12,7 @@ package org.multibit.hd.hardware.core.messages;
 public enum SystemMessageType {
 
   /**
-   * Device encountered an error not associated with I/O (e.g. thread interrupt)
+   * Device encountered an error not associated with I/O (e.g. thread interrupt due to timeout)
    */
   DEVICE_FAILURE,
 

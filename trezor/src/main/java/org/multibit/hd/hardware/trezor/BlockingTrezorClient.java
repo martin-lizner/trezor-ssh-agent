@@ -1,28 +1,31 @@
 package org.multibit.hd.hardware.trezor;
 
+import com.google.bitcoin.core.Address;
 import com.google.bitcoin.core.Transaction;
 import com.google.bitcoin.script.Script;
 import com.google.bitcoin.script.ScriptBuilder;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-import com.google.common.primitives.Longs;
+import com.google.common.collect.Queues;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Message;
-import org.multibit.hd.hardware.core.clients.BlockingHardwareWalletClient;
+import org.multibit.hd.hardware.core.HardwareWalletClient;
+import org.multibit.hd.hardware.core.events.HardwareEvents;
 import org.multibit.hd.hardware.core.events.HardwareWalletProtocolEvent;
 import org.multibit.hd.hardware.core.messages.ProtocolMessageType;
+import org.multibit.hd.hardware.core.messages.SystemMessageType;
 import org.multibit.hd.hardware.core.utils.SecureErase;
 import org.multibit.hd.hardware.core.wallets.HardwareWallet;
 import org.multibit.hd.hardware.trezor.protobuf.TrezorMessage;
+import org.multibit.hd.hardware.trezor.protobuf.TrezorType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.security.SecureRandom;
 import java.util.List;
-import java.util.UUID;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -37,7 +40,8 @@ import java.util.concurrent.TimeUnit;
  * <p>Example:</p>
  * <pre>
  * // Create a socket based Trezor client with blocking methods
- * BlockingTrezorClient client = BlockingTrezorClient.newSocketInstance(host, port, BlockingTrezorClient.newSessionId());
+ * TODO Fill this in
+ * BlockingTrezorClient client = new BlockingTrezorClient(trezorWallet);
  *
  * // Connect the client
  * client.connect();
@@ -55,7 +59,7 @@ import java.util.concurrent.TimeUnit;
  * @since 0.0.1
  *  
  */
-public class BlockingTrezorClient implements BlockingHardwareWalletClient {
+public class BlockingTrezorClient implements HardwareWalletClient {
 
   private static final Logger log = LoggerFactory.getLogger(BlockingTrezorClient.class);
   private static final int MIN_ENTROPY = 256;
@@ -65,23 +69,17 @@ public class BlockingTrezorClient implements BlockingHardwareWalletClient {
 
   private ExecutorService trezorEventExecutorService = Executors.newSingleThreadExecutor();
   private boolean isSessionIdValid = true;
-  private final ByteString sessionId;
-  private final SecureRandom secureRandom = new SecureRandom();
 
   /**
-   * @return The session ID
+   * Keep track of hardware wallet events to allow blocking to occur
    */
-  public static ByteString newSessionId() {
-    return ByteString.copyFrom(Longs.toByteArray(UUID.randomUUID().getLeastSignificantBits()));
-  }
+  private final BlockingQueue<HardwareWalletProtocolEvent> hardwareWalletEvents = Queues.newArrayBlockingQueue(10);
 
   /**
-   * @param trezor    The Trezor device
-   * @param sessionId The session ID
+   * @param trezor The Trezor device
    */
-  public BlockingTrezorClient(HardwareWallet trezor, ByteString sessionId) {
+  public BlockingTrezorClient(HardwareWallet trezor) {
     this.trezor = trezor;
-    this.sessionId = sessionId;
   }
 
   @Override
@@ -99,144 +97,115 @@ public class BlockingTrezorClient implements BlockingHardwareWalletClient {
   }
 
   @Override
-  public HardwareWalletProtocolEvent ping() {
-    return sendDefaultBlockingMessage(TrezorMessage.Ping.getDefaultInstance());
-  }
-
-  @Override
-  public HardwareWalletProtocolEvent initialize() {
+  public Optional<HardwareWalletProtocolEvent> initialize() {
     return sendBlockingMessage(TrezorMessage.Initialize
       .newBuilder()
-      .setSessionId(sessionId)
       .build(),
       2, TimeUnit.SECONDS
     );
   }
 
   @Override
-  public HardwareWalletProtocolEvent getUUID() {
-    return sendDefaultBlockingMessage(TrezorMessage.GetUUID.getDefaultInstance());
+  public Optional<HardwareWalletProtocolEvent> ping() {
+    return sendDefaultBlockingMessage(TrezorMessage.Ping.getDefaultInstance());
   }
 
   @Override
-  public HardwareWalletProtocolEvent optAck(char[] oneTimePassword) {
+  public Optional<HardwareWalletProtocolEvent> changePin(boolean remove) {
 
-    HardwareWalletProtocolEvent event = sendDefaultBlockingMessage(TrezorMessage.OtpAck
+    return sendDefaultBlockingMessage(TrezorMessage.ChangePin
       .newBuilder()
-        // TODO (GR) This String creation is a security risk (Trezor folks have been notified)
-      .setOtp(new String(oneTimePassword))
+      .setRemove(remove)
       .build()
     );
-    SecureErase.secureErase(oneTimePassword);
-
-    return event;
   }
 
   @Override
-  public HardwareWalletProtocolEvent optCancel() {
-    return sendDefaultBlockingMessage(TrezorMessage.OtpCancel.getDefaultInstance());
+  public Optional<HardwareWalletProtocolEvent> wipeDevice() {
+    return sendDefaultBlockingMessage(TrezorMessage.WipeDevice.getDefaultInstance());
   }
 
   @Override
-  public HardwareWalletProtocolEvent pinAck(char[] pin) {
-
-    HardwareWalletProtocolEvent event = sendDefaultBlockingMessage(TrezorMessage.PinAck
-      .newBuilder()
-        // TODO (GR) This String creation is a security risk (Trezor folks have been notified)
-      .setPin(new String(pin))
-      .build()
-    );
-    SecureErase.secureErase(pin);
-
-    return event;
+  public Optional<HardwareWalletProtocolEvent> firmwareErase() {
+    return null;
   }
 
   @Override
-  public HardwareWalletProtocolEvent pinCancel() {
-    return sendDefaultBlockingMessage(TrezorMessage.PinCancel.getDefaultInstance());
+  public Optional<HardwareWalletProtocolEvent> firmwareUpload() {
+    return null;
   }
 
   @Override
-  public HardwareWalletProtocolEvent getEntropy() {
+  public Optional<HardwareWalletProtocolEvent> getEntropy() {
     return sendDefaultBlockingMessage(TrezorMessage.GetEntropy.getDefaultInstance());
   }
 
   @Override
-  public HardwareWalletProtocolEvent setMaxFeeKb(long satoshisPerKb) {
-
-    Preconditions.checkState(
-      satoshisPerKb >= 0L && satoshisPerKb < 10000000L,
-      "Max fee per Kb is outside a reasonable range");
-
-    return sendDefaultBlockingMessage(TrezorMessage.SetMaxFeeKb
-      .newBuilder()
-      .setMaxfeeKb(satoshisPerKb)
-      .build()
-    );
-  }
-
-  @Override
-  public HardwareWalletProtocolEvent getMasterPublicKey() {
+  public Optional<HardwareWalletProtocolEvent> getPublicKey(int index, int value, Optional<String> coinName) {
 
     // The master public key normally takes up to 10 seconds to complete
-    return sendBlockingMessage(
-      TrezorMessage.GetMasterPublicKey.getDefaultInstance(),
+    return sendBlockingMessage(TrezorMessage.GetPublicKey
+      .newBuilder()
+      .setCoinName(ByteString.copyFromUtf8(coinName.or("Bitcoin")))
+      .setAddressN(index, value)
+      .build(),
       10, TimeUnit.SECONDS
     );
   }
 
   @Override
-  public HardwareWalletProtocolEvent getAddress(int index, int value) {
-    return sendDefaultBlockingMessage(TrezorMessage.GetAddress
-      .newBuilder()
-      .setAddressN(index, value)
-      .build());
-  }
-
-  @Override
-  public HardwareWalletProtocolEvent loadDevice(
-    char[] seed,
-    boolean useOtp,
-    byte[] pin,
-    boolean useSpv) {
-
-    // TODO Default to BIP0032 (need some new addresses)
-    TrezorMessage.Algorithm algorithm = TrezorMessage.Algorithm.ELECTRUM;
+  public Optional<HardwareWalletProtocolEvent> loadDevice(
+    String language,
+    String seed,
+    String pin,
+    boolean passphraseProtection
+  ) {
 
     // A load normally takes about 10 seconds to complete
-    HardwareWalletProtocolEvent event = sendBlockingMessage(TrezorMessage.LoadDevice
+    return sendBlockingMessage(TrezorMessage.LoadDevice
       .newBuilder()
-      .setAlgo(algorithm)
-      .setSeed(new String(seed))
-      .setOtp(useOtp)
-      .setPin(ByteString.copyFrom(pin))
-      .setSpv(useSpv)
+      .setMnemonic(ByteString.copyFromUtf8(seed))
+      .setLanguage(ByteString.copyFromUtf8(language))
+      .setNode(TrezorType.HDNodeType.getDefaultInstance())
+      .setPin(ByteString.copyFromUtf8(pin))
+      .setPassphraseProtection(passphraseProtection)
       .build(),
       15, TimeUnit.SECONDS);
 
-    SecureErase.secureErase(seed);
+  }
 
-    return event;
+  @Override
+  public Optional<HardwareWalletProtocolEvent> resetDevice(
+    String language,
+    String label,
+    boolean displayRandom,
+    boolean passphraseProtection,
+    boolean pinProtection,
+    int strength
+  ) {
+
+    return sendDefaultBlockingMessage(TrezorMessage.ResetDevice
+      .newBuilder()
+      .setLanguage(ByteString.copyFromUtf8(language))
+      .setLabel(ByteString.copyFromUtf8(label))
+      .setDisplayRandom(displayRandom)
+      .setPassphraseProtection(passphraseProtection)
+      .setStrength(strength)
+      .setPinProtection(pinProtection)
+      .build());
 
   }
 
   @Override
-  public HardwareWalletProtocolEvent resetDevice(
-    byte[] entropy) {
+  public Optional<HardwareWalletProtocolEvent> recoverDevice(String language, String label, int wordCount, boolean passphraseProtection, boolean pinProtection) {
+    // TODO Implement this
+    return null;
+  }
 
-    Preconditions.checkState(
-      entropy.length >= MIN_ENTROPY,
-      "Insufficient entropy for generating a new seed (256 bytes is a minimum");
-
-    HardwareWalletProtocolEvent event = sendDefaultBlockingMessage(TrezorMessage.ResetDevice
-      .newBuilder()
-      .setRandom(ByteString.copyFrom(entropy))
-      .build());
-
-    SecureErase.secureErase(entropy);
-
-    return event;
-
+  @Override
+  public Optional<HardwareWalletProtocolEvent> wordAck(String language, String label, int wordCount, boolean passphraseProtection, boolean pinProtection) {
+    // TODO Implement this
+    return null;
   }
 
   @Override
@@ -250,17 +219,15 @@ public class BlockingTrezorClient implements BlockingHardwareWalletClient {
     int inputIndex = 0;
     int outputIndex = 0;
 
-    secureRandom.nextBytes(entropy);
-
     Preconditions.checkState(
       entropy.length >= MIN_ENTROPY,
       "Insufficient entropy for signing a transaction (256 bytes is a minimum");
 
-    HardwareWalletProtocolEvent event = sendDefaultBlockingMessage(TrezorMessage.SignTx
+    Optional<HardwareWalletProtocolEvent> event = sendDefaultBlockingMessage(TrezorMessage.SignTx
       .newBuilder()
       .setInputsCount(inputsCount)
       .setOutputsCount(outputsCount)
-      .setRandom(ByteString.copyFrom(entropy))
+      .setCoinName(ByteString.copyFromUtf8("BTC"))
       .build());
 
     SecureErase.secureErase(entropy);
@@ -274,10 +241,10 @@ public class BlockingTrezorClient implements BlockingHardwareWalletClient {
     while (!finished) {
 
       // Check the response is a transaction request
-      if (ProtocolMessageType.TX_REQUEST.equals(event.getMessageType())) {
+      if (ProtocolMessageType.TX_REQUEST.equals(event.get().getMessageType())) {
 
         // Examine the response (it may contain signature information in response to a TxOutput etc)
-        TrezorMessage.TxRequest txRequest = (TrezorMessage.TxRequest) event.getMessage();
+        TrezorMessage.TxRequest txRequest = (TrezorMessage.TxRequest) event.get().getMessage();
 
         // Check for a serialized transaction
         if (txRequest.getSerializedTx() != null) {
@@ -317,11 +284,11 @@ public class BlockingTrezorClient implements BlockingHardwareWalletClient {
 
               // Check for a TxRequest which can be processed as part of the overall loop
               // in order to extract signature information etc
-              if (ProtocolMessageType.TX_REQUEST.equals(event.getMessageType())) {
+              if (ProtocolMessageType.TX_REQUEST.equals(event.get().getMessageType())) {
                 continue;
               }
 
-              log.warn("Transaction signing failed on input index {} with event type '{}'", inputIndex, event.getMessageType().name());
+              log.warn("Transaction signing failed on input index {} with event type '{}'", inputIndex, event.get().getMessageType().name());
 
               return Optional.absent();
 
@@ -334,11 +301,11 @@ public class BlockingTrezorClient implements BlockingHardwareWalletClient {
 
               // Check for a TxRequest which can be processed as part of the overall loop
               // in order to extract signature information etc
-              if (ProtocolMessageType.TX_REQUEST.equals(event.getMessageType())) {
+              if (ProtocolMessageType.TX_REQUEST.equals(event.get().getMessageType())) {
                 continue;
               }
 
-              log.warn("Transaction signing failed on output index {} with event type '{}'", outputIndex, event.getMessageType().name());
+              log.warn("Transaction signing failed on output index {} with event type '{}'", outputIndex, event.get().getMessageType().name());
 
               return Optional.absent();
 
@@ -361,7 +328,7 @@ public class BlockingTrezorClient implements BlockingHardwareWalletClient {
 
       byte[] trezorSignature = trezorSignatures.get(i).toByteArray();
 
-      // TODO (GR/JB) Work out how to retrofit this into Bitcoinj using AddressN co-ordinates for keys
+      // TODO (GR/JB) Integrate these into MBHD (requires Bitcoinj to support HD)
       Script scriptSignature = new ScriptBuilder().data(trezorSignature).build();
 
     }
@@ -369,6 +336,73 @@ public class BlockingTrezorClient implements BlockingHardwareWalletClient {
     // TODO (GR) This is currently unmodified
     return Optional.of(tx);
 
+  }
+
+  @Override
+  public Optional<HardwareWalletProtocolEvent> pinMatrixAck(byte[] pin) {
+    // TODO Implement this
+    return null;
+  }
+
+  @Override
+  public Optional<HardwareWalletProtocolEvent> buttonAck() {
+    // TODO Implement this
+    return null;
+  }
+
+  public Optional<HardwareWalletProtocolEvent> cancel() {
+    // TODO Implement this
+    return null;
+  }
+
+  @Override
+  public Optional<HardwareWalletProtocolEvent> getAddress(int index, int value, Optional<String> coinName) {
+    return sendDefaultBlockingMessage(TrezorMessage.GetAddress
+      .newBuilder()
+      .setAddressN(index, value)
+      .setCoinName(ByteString.copyFromUtf8(coinName.or("Bitcoin")))
+      .build());
+  }
+
+  @Override
+  public Optional<HardwareWalletProtocolEvent> applySettings(String language, String label) {
+
+    return sendDefaultBlockingMessage(TrezorMessage.ApplySettings
+      .newBuilder()
+      .setLanguage(ByteString.copyFromUtf8(language))
+      .setLabel(ByteString.copyFromUtf8(label))
+      .build()
+    );
+  }
+
+  @Override
+  public Optional<HardwareWalletProtocolEvent> entropyAck() {
+    // TODO Implement this
+    return null;
+  }
+
+  @Override
+  public Optional<HardwareWalletProtocolEvent> signMessage() {
+    // TODO Implement this
+    return null;
+  }
+
+  @Override
+  public Optional<HardwareWalletProtocolEvent> verifyMessage(Address address, byte[] signature, String message) {
+    // TODO Implement this
+    return null;
+  }
+
+  @Override
+  public Optional<HardwareWalletProtocolEvent> passphraseAck() {
+    // TODO Implement this
+    return null;
+  }
+
+  @Override
+  public Optional<HardwareWalletProtocolEvent> estimateTxSize(Transaction tx) {
+    // TODO Implement this
+    return null;
   }
 
   @Override
@@ -382,31 +416,34 @@ public class BlockingTrezorClient implements BlockingHardwareWalletClient {
     log.debug("Received event: {}", event.getMessageType().name());
     log.debug("{}", event.getMessage().toString());
 
+    // TODO Consider a better place to put this
     if (ProtocolMessageType.BUTTON_REQUEST.equals(messageType)) {
       sendBlockingMessage(TrezorMessage.ButtonAck.getDefaultInstance(), 10, TimeUnit.SECONDS);
     }
 
+    // Add the event to the queue for blocking purposes
+    hardwareWalletEvents.add(event);
+
   }
 
-  @Override
-  public byte[] newEntropy(int size) {
-    byte[] entropy = new byte[size];
-    secureRandom.nextBytes(entropy);
-    return entropy;
-  }
-
-  private HardwareWalletProtocolEvent sendDefaultBlockingMessage(Message trezorMessage) {
+  private Optional<HardwareWalletProtocolEvent> sendDefaultBlockingMessage(Message trezorMessage) {
     return sendBlockingMessage(trezorMessage, 1, TimeUnit.SECONDS);
   }
 
-  private HardwareWalletProtocolEvent sendBlockingMessage(Message trezorMessage, int duration, TimeUnit timeUnit) {
+  private Optional<HardwareWalletProtocolEvent> sendBlockingMessage(Message trezorMessage, int duration, TimeUnit timeUnit) {
 
     Preconditions.checkState(isTrezorValid, "Trezor device is not valid. Try connecting or start a new session after a disconnect.");
     Preconditions.checkState(isSessionIdValid, "An old session ID must be discarded. Create a new instance.");
 
     trezor.sendMessage(trezorMessage);
 
-    return null;
+    // Wait for a response
+    try {
+      return Optional.of(hardwareWalletEvents.poll(duration, timeUnit));
+    } catch (InterruptedException e) {
+      HardwareEvents.fireSystemEvent(SystemMessageType.DEVICE_FAILURE);
+      return Optional.absent();
+    }
 
   }
 

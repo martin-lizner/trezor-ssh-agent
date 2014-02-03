@@ -40,7 +40,7 @@ public abstract class AbstractHardwareWallet<P> implements HardwareWallet {
 
     Preconditions.checkNotNull(specification, "'specification' must be present");
 
-    log.debug("Applying hardware wallet specification");
+    log.debug("Applying default hardware wallet specification");
 
     HardwareWalletSpecification defaultSpecification = getDefaultSpecification();
 
@@ -48,7 +48,7 @@ public abstract class AbstractHardwareWallet<P> implements HardwareWallet {
     if (specification == null) {
       this.specification = defaultSpecification;
     } else {
-      // Using a configured exchange
+      // Using a configured hardware wallet
       if (specification.getName() == null) {
         specification.setName(defaultSpecification.getName());
       }
