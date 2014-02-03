@@ -26,11 +26,29 @@
       </activation>
       <build>
         <plugins>
+          <!-- Ensure Maven performs "git submodule update" before running protobuf -->
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <version>1.1</version>
+            <executions>
+              <execution>
+                <id>1-update-submodules</id>
+                <phase>generate-sources</phase>
+                <goals>
+                  <goal>exec</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <executable>git submodule update --init --recursive</executable>
+            </configuration>
+          </plugin>
           <plugin>
             <artifactId>maven-antrun-plugin</artifactId>
             <executions>
               <execution>
-                <id>compile-protoc</id>
+                <id>2-compile-protoc</id>
                 <phase>generate-sources</phase>
                 <configuration>
                   <tasks>
