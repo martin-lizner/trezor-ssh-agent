@@ -18,7 +18,7 @@ import org.multibit.hd.hardware.core.messages.SystemMessageType;
 import org.multibit.hd.hardware.core.utils.SecureErase;
 import org.multibit.hd.hardware.core.wallets.HardwareWallet;
 import org.multibit.hd.hardware.trezor.protobuf.TrezorMessage;
-import org.multibit.hd.hardware.trezor.protobuf.TrezorTypes;
+import org.multibit.hd.hardware.trezor.protobuf.TrezorType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -166,7 +166,7 @@ public class BlockingTrezorClient implements HardwareWalletClient {
       .newBuilder()
       .setMnemonic(ByteString.copyFromUtf8(seed))
       .setLanguage(ByteString.copyFromUtf8(language))
-      .setNode(TrezorTypes.HDNodeType.getDefaultInstance())
+      .setNode(TrezorType.HDNodeType.getDefaultInstance())
       .setPin(ByteString.copyFromUtf8(pin))
       .setPassphraseProtection(passphraseProtection)
       .build(),
