@@ -27,13 +27,34 @@ One example of a supported hardware wallet is the Trezor and full examples and d
 We believe that the use of Google Protocol Buffers for "on the wire" data transmission provides the best balance between an efficient
 binary format and the flexibility to allow a wide range of other languages to access the device. Having your device speak "protobuf"
 means that someone can rip out the `.proto` files and use them to generate the appropriate accessor code for their language (e.g. Ruby).
-If you wish, you can declare the module within the MBHD Hardware project as the single point of reference, but you don't have to.
+
+#### Do you support git submodules for `.proto` files ?
+
+Yes. While you can have treat your module within the MBHD Hardware project as the single point of (Java) reference, you don't have to.
+
+You are also free to offer up your `.proto` files as common libraries that remain in your repo and under your control. We then include
+ them as a [git submodule](http://git-scm.com/book/en/Git-Tools-Submodules). This is the approach taken by the Trezor development team
+ and enables them to retain complete control over the wire protocol, while allowing MBHD Hardware to implement support in a phased
+ approach.
 
 #### Why no listeners ?
 
 The Guava library offers the [EventBus](https://code.google.com/p/guava-libraries/wiki/EventBusExplained) which is a much simpler way to
  manage events within an application. Since MultiBit HD uses this internally and will be the primary consumer of this library it makes
  a lot of sense to mandate its use.
+
+#### How do I get my hardware included ?
+
+The quickest way is to use the Trezor device as a basis for your hardware wallet.
+
+We treat Trezor as our reference client, and their developers shape the specification. In turn we map our more abstract API over their
+protobuf files to arrive at a slightly more generic solution. This is similar to how Java works with SQL databases through JDBC.
+
+If your hardware takes a completely different approach you should raise an Issue against this project to request additional support
+within the Core module. We would then determine the level of effort required to include your requirements both here and in the
+MultiBit HD project.
+
+Of course, pull requests will greatly increase your chances.
 
 #### What happened to Trezorj ?
 
@@ -44,5 +65,52 @@ expending a lot of effort in software development.
 
 ### Getting started
 
+MultiBit Hardware uses the standard Maven build process and can be used without having external hardware attached. Just do the usual
+
+```
+$ cd <project directory>
+$ mvn clean install
+```
+
+and you're good to go.
+
+#### Collaborators need to do some extra work
+
+If you are a collaborator (i.e. you have commit access to the repo) then you will need to perform an additional stage to ensure you have
+the correct version of the protobuf files:
+
+```
+$ cd <project directory>
+$ git submodule init
+$ git submodule update
+```
+This will bring down the `.proto` files referenced in the submodules and allow you to select which tagged commit to use when generating
+the protobuf files. See the "Updating protobuf files" section later.
+
+#### Read the wiki for detailed instructions
+
 Have a read of [the wiki pages](https://github.com/bitcoin-solutions/mbhd-hardware/wiki/_pages) which gives comprehensive
 instructions for a variety of environments.
+
+### Updating protobuf files
+
+MultiBit Hardware does not maintain `.proto` files other than for our emulator. Periodically we will update the protobuf files through
+ the following process:
+
+```
+$ cd <submodule directory>
+$ git checkout master
+$ git pull origin master
+$ cd <project directory>
+$ git add <submodule directory>
+$ git commit -m "Updating protobuf for '<submodule>'"
+$ git push
+
+```
+
+We normally expect the HEAD of the submodule origin master branch to [represent the latest production release](http://nvie.com/posts/a-successful-git-branching-model/), but that's up to the
+owner of the repo.
+
+### Closing notes
+
+All trademarks and copyrights are acknowledged.

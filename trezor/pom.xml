@@ -14,7 +14,23 @@
   <name>Trezor</name>
   <description>MBHD Hardware wrapper for Trezor device</description>
 
-  <!-- To active this build as 'mvn -DupdateProtobuf=true clean compile' -->
+  <!-- Ensure that you have correctly updated the protobuf submodule using
+
+      $ cd <submodule directory>
+      $ git checkout master
+      $ git pull origin master
+      $ cd <project directory>
+      $ git add <submodule directory>
+      $ git commit -m "Updating protobuf for '<submodule>'"
+      $ git push
+
+      Then use
+
+      $ mvn -DupdateProtobuf=true clean compile
+
+      to perform the actual update and make the necessary code changes
+
+   -->
   <profiles>
     <profile>
       <id>update-protobuf</id>
@@ -27,12 +43,13 @@
       <build>
 
         <plugins>
+
           <!-- Build the protobuf file -->
           <plugin>
             <artifactId>maven-antrun-plugin</artifactId>
             <executions>
               <execution>
-                <id>2-compile-protoc</id>
+                <id>compile-protoc</id>
                 <phase>generate-sources</phase>
                 <configuration>
                   <tasks>
