@@ -47,6 +47,7 @@ public class UsbTrezorHardwareWallet extends AbstractTrezorHardwareWallet {
    */
   public UsbTrezorHardwareWallet() {
     this(Optional.<Integer>absent(), Optional.<Integer>absent(), Optional.<String>absent());
+
   }
 
   /**
@@ -70,6 +71,8 @@ public class UsbTrezorHardwareWallet extends AbstractTrezorHardwareWallet {
     this.productId = productId;
     this.serialNumber = serialNumber;
 
+    initialise();
+
   }
 
 
@@ -85,7 +88,7 @@ public class UsbTrezorHardwareWallet extends AbstractTrezorHardwareWallet {
   }
 
   @Override
-  public synchronized void connect() {
+  public synchronized boolean connect() {
 
     Preconditions.checkState(isDeviceConnected(), "Device is already connected");
 
@@ -96,7 +99,7 @@ public class UsbTrezorHardwareWallet extends AbstractTrezorHardwareWallet {
 
       if (!hidDeviceInfoOptional.isPresent()) {
         HardwareEvents.fireSystemEvent(SystemMessageType.DEVICE_DISCONNECTED);
-        return;
+        return false;
       }
       HIDDeviceInfo hidDeviceInfo = hidDeviceInfoOptional.get();
 
@@ -137,9 +140,15 @@ public class UsbTrezorHardwareWallet extends AbstractTrezorHardwareWallet {
       // Must have connected to be here
       HardwareEvents.fireSystemEvent(SystemMessageType.DEVICE_CONNECTED);
 
+      return true;
+
     } catch (IOException e) {
-      throw new IllegalArgumentException(e);
+      HardwareEvents.fireSystemEvent(SystemMessageType.DEVICE_FAILURE);
     }
+
+    // Must have failed to be here
+    return false;
+
   }
 
   /**

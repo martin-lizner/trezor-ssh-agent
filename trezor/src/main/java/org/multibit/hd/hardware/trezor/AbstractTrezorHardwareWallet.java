@@ -32,8 +32,8 @@ public abstract class AbstractTrezorHardwareWallet extends AbstractHardwareWalle
     HardwareWalletSpecification specification = new HardwareWalletSpecification(this.getClass().getCanonicalName());
     specification.setName("TREZOR The Bitcoin Safe");
     specification.setDescription("The hardware Bitcoin wallet. A step in the evolution of Bitcoin towards a completely safe payment system.");
-    specification.setHost("localhost");
-    specification.setPort(8080);
+    specification.setHost("192.168.0.8");
+    specification.setPort(3000);
 
     return specification;
   }
@@ -50,16 +50,6 @@ public abstract class AbstractTrezorHardwareWallet extends AbstractHardwareWalle
       );
 
     }
-
-  }
-
-  @Override
-  public void connect() {
-
-  }
-
-  @Override
-  public void sendMessage(Message message) {
 
   }
 
@@ -85,6 +75,7 @@ public abstract class AbstractTrezorHardwareWallet extends AbstractHardwareWalle
 
       Preconditions.checkNotNull(trezorMessageType, "'trezorMessageType' must be present");
       Preconditions.checkState(protocolMessageMap.containsKey(trezorMessageType), "Unmapped protocol message: {}", trezorMessageType.name());
+
       final ProtocolMessageType messageType = protocolMessageMap.get(trezorMessageType);
 
       // Read the detail length

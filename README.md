@@ -92,6 +92,33 @@ the protobuf files. See the "Updating protobuf files" section later.
 Have a read of [the wiki pages](https://github.com/bitcoin-solutions/mbhd-hardware/wiki/_pages) which gives comprehensive
 instructions for a variety of environments.
 
+#### Configuring a RPi for socket emulation
+
+Note your RPi's IP address so that you can open an SSH connection to it.
+
+If you're using a laptop enable DHCP and plug in the device's network cable.
+
+On Unix you can issue the following command to map the local network (install with brew for OSX):
+```
+nmap 192.168.0.0/24
+```
+Replace the IP address range with what IP address your laptop
+
+Change the standard <code>rpi-serial.sh</code> script to use the following:</p>
+```
+python trezor/__init__.py -s -t socket -p 0.0.0.0:3000 -d -dt socket -dp 0.0.0.0:2000
+```
+This will ensure that the Shield is serving over port 3000 with a debug socket on port 2000
+**Warning** Do not use this mode with real private keys since it is unsafe!
+
+Run it up with
+```
+sudo ./rpi-serial.sh
+```
+You should see the Shield OLED show the Trezor logo.
+
+
+
 ### Updating protobuf files
 
 MultiBit Hardware does not maintain `.proto` files other than for our emulator. Periodically we will update the protobuf files through

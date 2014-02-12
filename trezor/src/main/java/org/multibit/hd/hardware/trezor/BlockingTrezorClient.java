@@ -13,6 +13,7 @@ import com.google.protobuf.Message;
 import org.multibit.hd.hardware.core.HardwareWalletClient;
 import org.multibit.hd.hardware.core.events.HardwareEvents;
 import org.multibit.hd.hardware.core.events.HardwareWalletProtocolEvent;
+import org.multibit.hd.hardware.core.events.HardwareWalletSystemEvent;
 import org.multibit.hd.hardware.core.messages.ProtocolMessageType;
 import org.multibit.hd.hardware.core.messages.SystemMessageType;
 import org.multibit.hd.hardware.core.utils.SecureErase;
@@ -83,9 +84,12 @@ public class BlockingTrezorClient implements HardwareWalletClient {
   }
 
   @Override
-  public void connect() {
-    trezor.connect();
+  public boolean connect() {
+    boolean connected = trezor.connect();
     isTrezorValid = true;
+
+    return connected;
+
   }
 
   @Override
@@ -161,12 +165,22 @@ public class BlockingTrezorClient implements HardwareWalletClient {
     boolean passphraseProtection
   ) {
 
+    // Define the node
+    TrezorType.HDNodeType nodeType = TrezorType.HDNodeType
+      .newBuilder()
+      .setChainCode(ByteString.copyFromUtf8(""))
+      .setChildNum(0)
+      .setDepth(0)
+      .setFingerprint(0)
+      .setVersion(1)
+      .build();
+
     // A load normally takes about 10 seconds to complete
     return sendBlockingMessage(TrezorMessage.LoadDevice
       .newBuilder()
       .setMnemonic(ByteString.copyFromUtf8(seed))
       .setLanguage(ByteString.copyFromUtf8(language))
-      .setNode(TrezorType.HDNodeType.getDefaultInstance())
+      .setNode(nodeType)
       .setPin(ByteString.copyFromUtf8(pin))
       .setPassphraseProtection(passphraseProtection)
       .build(),
@@ -426,6 +440,18 @@ public class BlockingTrezorClient implements HardwareWalletClient {
 
   }
 
+  @Override
+  public void onHardwareWalletSystemEvent(HardwareWalletSystemEvent event) {
+
+    // Decode into a message type for use with a switch
+    SystemMessageType messageType = event.getMessageType();
+
+    // System message
+
+    log.debug("Received event: {}", event.getMessageType().name());
+
+  }
+
   private Optional<HardwareWalletProtocolEvent> sendDefaultBlockingMessage(Message trezorMessage) {
     return sendBlockingMessage(trezorMessage, 1, TimeUnit.SECONDS);
   }
@@ -439,7 +465,7 @@ public class BlockingTrezorClient implements HardwareWalletClient {
 
     // Wait for a response
     try {
-      return Optional.of(hardwareWalletEvents.poll(duration, timeUnit));
+      return Optional.fromNullable(hardwareWalletEvents.poll(duration, timeUnit));
     } catch (InterruptedException e) {
       HardwareEvents.fireSystemEvent(SystemMessageType.DEVICE_FAILURE);
       return Optional.absent();

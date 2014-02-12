@@ -51,6 +51,8 @@ public class SocketTrezorHardwareWallet extends AbstractTrezorHardwareWallet {
     this.host = host;
     this.port = port;
 
+    initialise();
+
   }
 
   @Override
@@ -64,7 +66,7 @@ public class SocketTrezorHardwareWallet extends AbstractTrezorHardwareWallet {
   }
 
   @Override
-  public synchronized void connect() {
+  public synchronized boolean connect() {
 
     Preconditions.checkState(socket == null, "Socket is already connected");
 
@@ -83,9 +85,14 @@ public class SocketTrezorHardwareWallet extends AbstractTrezorHardwareWallet {
       // Must have connected to be here
       HardwareEvents.fireSystemEvent(SystemMessageType.DEVICE_CONNECTED);
 
+      return true;
+
     } catch (IOException e) {
-      throw new IllegalArgumentException(e);
+      HardwareEvents.fireSystemEvent(SystemMessageType.DEVICE_FAILURE);
     }
+
+    // Must have failed to be here
+    return false;
   }
 
   @Override
@@ -102,7 +109,7 @@ public class SocketTrezorHardwareWallet extends AbstractTrezorHardwareWallet {
       HardwareEvents.fireSystemEvent(SystemMessageType.DEVICE_DISCONNECTED);
 
     } catch (IOException e) {
-      throw new IllegalArgumentException(e);
+      HardwareEvents.fireSystemEvent(SystemMessageType.DEVICE_FAILURE);
     }
   }
 

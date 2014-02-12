@@ -1,4 +1,4 @@
-package org.multibit.hd.hardware.examples.trezor;
+package org.multibit.hd.hardware.examples.trezor.rpi;
 
 import com.google.bitcoin.core.Address;
 import com.google.bitcoin.core.AddressFormatException;
@@ -36,9 +36,9 @@ import java.math.BigInteger;
  * @since 0.0.1
  *  
  */
-public class RaspberryPiShieldUsbExample {
+public class UsbSigningExample {
 
-  private static final Logger log = LoggerFactory.getLogger(RaspberryPiShieldUsbExample.class);
+  private static final Logger log = LoggerFactory.getLogger(UsbSigningExample.class);
 
   /**
    * <p>Main entry point to the example</p>
@@ -50,7 +50,7 @@ public class RaspberryPiShieldUsbExample {
   public static void main(String[] args) throws Exception {
 
     // All the work is done in the class
-    RaspberryPiShieldUsbExample example = new RaspberryPiShieldUsbExample();
+    UsbSigningExample example = new UsbSigningExample();
 
     // Subscribe to hardware wallet events
     HardwareWalletService.hardwareEventBus.register(example);

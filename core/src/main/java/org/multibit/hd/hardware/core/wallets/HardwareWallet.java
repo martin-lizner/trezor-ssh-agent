@@ -35,9 +35,16 @@ public interface HardwareWallet {
   void applySpecification(HardwareWalletSpecification specification);
 
   /**
-   * <p>Attempt a connection to the device</p>
+   * <p>Perform any pre-connection initialisation</p>
    */
-  void connect();
+  void initialise();
+
+  /**
+   * <p>Attempt a connection to the device</p>
+   *
+   * @return True if the connection was successful
+   */
+  boolean connect();
 
   /**
    * <p>Break the connection to the device</p>

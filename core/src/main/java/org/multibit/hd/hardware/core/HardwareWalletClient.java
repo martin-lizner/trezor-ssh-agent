@@ -5,6 +5,7 @@ import com.google.bitcoin.core.Transaction;
 import com.google.common.base.Optional;
 import com.google.common.eventbus.Subscribe;
 import org.multibit.hd.hardware.core.events.HardwareWalletProtocolEvent;
+import org.multibit.hd.hardware.core.events.HardwareWalletSystemEvent;
 
 /**
  * <p>Interface to provide the following to applications:</p>
@@ -23,8 +24,10 @@ public interface HardwareWalletClient {
 
   /**
    * <p>Connect to the hardware wallet device. No initialization takes place.</p>
+   *
+   * @return True if the client connected to the device
    */
-  void connect();
+  boolean connect();
 
   /**
    * <p>Disconnect from the hardware wallet device. This client instance can no longer be used.</p>
@@ -412,4 +415,11 @@ public interface HardwareWalletClient {
    */
   @Subscribe
   void onHardwareWalletProtocolEvent(HardwareWalletProtocolEvent event);
+
+  /**
+   * @param event The hardware wallet system event
+   */
+  @Subscribe
+  void onHardwareWalletSystemEvent(HardwareWalletSystemEvent event);
+
 }

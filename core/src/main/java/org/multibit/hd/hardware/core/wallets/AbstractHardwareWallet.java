@@ -1,6 +1,7 @@
 package org.multibit.hd.hardware.core.wallets;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
 import org.multibit.hd.hardware.core.HardwareWalletSpecification;
 import org.multibit.hd.hardware.core.messages.ProtocolMessageType;
 import org.slf4j.Logger;
@@ -33,7 +34,15 @@ public abstract class AbstractHardwareWallet<P> implements HardwareWallet {
   /**
    * Maps between the device specific protocol message type and the generic protocol message type
    */
-  protected Map<P, ProtocolMessageType> protocolMessageMap;
+  protected Map<P, ProtocolMessageType> protocolMessageMap= Maps.newHashMap();
+
+  @Override
+  public void initialise() {
+
+    // Ensure the protocol message map is initialised
+    mapProtocolMessageTypeToDevice();
+
+  }
 
   @Override
   public void applySpecification(HardwareWalletSpecification specification) {
