@@ -3,7 +3,7 @@ package org.multibit.hd.hardware.trezor;
 import com.google.common.base.Preconditions;
 import com.google.protobuf.Message;
 import org.multibit.hd.hardware.core.HardwareWalletSpecification;
-import org.multibit.hd.hardware.core.events.HardwareEvents;
+import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
 import org.multibit.hd.hardware.core.messages.SystemMessageType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,12 +83,12 @@ public class SocketTrezorHardwareWallet extends AbstractTrezorHardwareWallet {
       monitorDataInputStream(in);
 
       // Must have connected to be here
-      HardwareEvents.fireSystemEvent(SystemMessageType.DEVICE_CONNECTED);
+      HardwareWalletEvents.fireSystemEvent(SystemMessageType.DEVICE_CONNECTED);
 
       return true;
 
     } catch (IOException e) {
-      HardwareEvents.fireSystemEvent(SystemMessageType.DEVICE_FAILURE);
+      HardwareWalletEvents.fireSystemEvent(SystemMessageType.DEVICE_FAILURE);
     }
 
     // Must have failed to be here
@@ -106,10 +106,10 @@ public class SocketTrezorHardwareWallet extends AbstractTrezorHardwareWallet {
       log.info("Disconnected from Trezor");
 
       // Must have disconnected to be here
-      HardwareEvents.fireSystemEvent(SystemMessageType.DEVICE_DISCONNECTED);
+      HardwareWalletEvents.fireSystemEvent(SystemMessageType.DEVICE_DISCONNECTED);
 
     } catch (IOException e) {
-      HardwareEvents.fireSystemEvent(SystemMessageType.DEVICE_FAILURE);
+      HardwareWalletEvents.fireSystemEvent(SystemMessageType.DEVICE_FAILURE);
     }
   }
 
@@ -126,7 +126,7 @@ public class SocketTrezorHardwareWallet extends AbstractTrezorHardwareWallet {
       log.warn("I/O error during write. Closing socket.", e);
 
       // Must have disconnected to be here
-      HardwareEvents.fireSystemEvent(SystemMessageType.DEVICE_DISCONNECTED);
+      HardwareWalletEvents.fireSystemEvent(SystemMessageType.DEVICE_DISCONNECTED);
     }
 
   }

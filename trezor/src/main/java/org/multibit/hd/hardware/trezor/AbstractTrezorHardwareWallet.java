@@ -3,7 +3,7 @@ package org.multibit.hd.hardware.trezor;
 import com.google.common.base.Preconditions;
 import com.google.protobuf.Message;
 import org.multibit.hd.hardware.core.HardwareWalletSpecification;
-import org.multibit.hd.hardware.core.events.HardwareEvents;
+import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
 import org.multibit.hd.hardware.core.messages.ProtocolMessageType;
 import org.multibit.hd.hardware.core.messages.SystemMessageType;
 import org.multibit.hd.hardware.core.wallets.AbstractHardwareWallet;
@@ -97,20 +97,20 @@ public abstract class AbstractTrezorHardwareWallet extends AbstractHardwareWalle
       }
 
       // Fire the generic protocol event
-      HardwareEvents.fireProtocolEvent(messageType, message);
+      HardwareWalletEvents.fireProtocolEvent(messageType, message);
 
       // Must be OK to be here
       return true;
 
     } catch (EOFException e) {
       log.warn("Unexpected EOF from device");
-      HardwareEvents.fireSystemEvent(SystemMessageType.DEVICE_EOF);
+      HardwareWalletEvents.fireSystemEvent(SystemMessageType.DEVICE_EOF);
     } catch (IOException e) {
       log.warn("Unexpected disconnect from device.");
-      HardwareEvents.fireSystemEvent(SystemMessageType.DEVICE_DISCONNECTED);
+      HardwareWalletEvents.fireSystemEvent(SystemMessageType.DEVICE_DISCONNECTED);
     } catch (Throwable e) {
       log.error("Unexpected error during read.", e);
-      HardwareEvents.fireSystemEvent(SystemMessageType.DEVICE_FAILURE);
+      HardwareWalletEvents.fireSystemEvent(SystemMessageType.DEVICE_FAILURE);
     }
 
     // Must have failed to be here

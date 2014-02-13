@@ -11,20 +11,20 @@ import org.slf4j.LoggerFactory;
 /**
  * <p>Factory to provide the following to application API:</p>
  * <ul>
- * <li>Entry point to broadcast org.multibit.hd.hardware.trezor.core events</li>
+ * <li>Entry point to broadcast hardware wallet events</li>
  * </ul>
  *
  * @since 0.0.1
  *  
  */
-public class HardwareEvents {
+public class HardwareWalletEvents {
 
-  private static final Logger log = LoggerFactory.getLogger(HardwareEvents.class);
+  private static final Logger log = LoggerFactory.getLogger(HardwareWalletEvents.class);
 
   /**
    * Utilities have a private constructor
    */
-  private HardwareEvents() {
+  private HardwareWalletEvents() {
   }
 
   /**

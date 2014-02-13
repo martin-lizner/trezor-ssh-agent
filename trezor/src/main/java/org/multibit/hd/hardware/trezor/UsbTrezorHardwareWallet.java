@@ -8,7 +8,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.protobuf.Message;
 import org.multibit.hd.hardware.core.HardwareWalletSpecification;
-import org.multibit.hd.hardware.core.events.HardwareEvents;
+import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
 import org.multibit.hd.hardware.core.messages.SystemMessageType;
 import org.multibit.hd.hardware.core.usb.CP211xBridge;
 import org.slf4j.Logger;
@@ -98,7 +98,7 @@ public class UsbTrezorHardwareWallet extends AbstractTrezorHardwareWallet {
       final Optional<HIDDeviceInfo> hidDeviceInfoOptional = locateTrezor();
 
       if (!hidDeviceInfoOptional.isPresent()) {
-        HardwareEvents.fireSystemEvent(SystemMessageType.DEVICE_DISCONNECTED);
+        HardwareWalletEvents.fireSystemEvent(SystemMessageType.DEVICE_DISCONNECTED);
         return false;
       }
       HIDDeviceInfo hidDeviceInfo = hidDeviceInfoOptional.get();
@@ -138,12 +138,12 @@ public class UsbTrezorHardwareWallet extends AbstractTrezorHardwareWallet {
       monitorDataInputStream(in);
 
       // Must have connected to be here
-      HardwareEvents.fireSystemEvent(SystemMessageType.DEVICE_CONNECTED);
+      HardwareWalletEvents.fireSystemEvent(SystemMessageType.DEVICE_CONNECTED);
 
       return true;
 
     } catch (IOException e) {
-      HardwareEvents.fireSystemEvent(SystemMessageType.DEVICE_FAILURE);
+      HardwareWalletEvents.fireSystemEvent(SystemMessageType.DEVICE_FAILURE);
     }
 
     // Must have failed to be here
@@ -170,7 +170,7 @@ public class UsbTrezorHardwareWallet extends AbstractTrezorHardwareWallet {
       log.info("Disconnected from Trezor");
 
       // Let everyone know
-      HardwareEvents.fireSystemEvent(SystemMessageType.DEVICE_DISCONNECTED);
+      HardwareWalletEvents.fireSystemEvent(SystemMessageType.DEVICE_DISCONNECTED);
 
     } catch (IOException e) {
       throw new IllegalArgumentException(e);
@@ -228,7 +228,7 @@ public class UsbTrezorHardwareWallet extends AbstractTrezorHardwareWallet {
     } catch (IOException e) {
 
       log.warn("I/O error during write. Closing device.", e);
-      HardwareEvents.fireSystemEvent(SystemMessageType.DEVICE_DISCONNECTED);
+      HardwareWalletEvents.fireSystemEvent(SystemMessageType.DEVICE_DISCONNECTED);
 
     }
 

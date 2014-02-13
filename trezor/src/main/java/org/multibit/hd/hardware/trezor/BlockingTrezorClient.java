@@ -11,7 +11,7 @@ import com.google.common.collect.Queues;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Message;
 import org.multibit.hd.hardware.core.HardwareWalletClient;
-import org.multibit.hd.hardware.core.events.HardwareEvents;
+import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
 import org.multibit.hd.hardware.core.events.HardwareWalletProtocolEvent;
 import org.multibit.hd.hardware.core.events.HardwareWalletSystemEvent;
 import org.multibit.hd.hardware.core.messages.ProtocolMessageType;
@@ -467,7 +467,7 @@ public class BlockingTrezorClient implements HardwareWalletClient {
     try {
       return Optional.fromNullable(hardwareWalletEvents.poll(duration, timeUnit));
     } catch (InterruptedException e) {
-      HardwareEvents.fireSystemEvent(SystemMessageType.DEVICE_FAILURE);
+      HardwareWalletEvents.fireSystemEvent(SystemMessageType.DEVICE_FAILURE);
       return Optional.absent();
     }
 
