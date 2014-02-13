@@ -183,7 +183,12 @@ public class UsbTrezorHardwareWallet extends AbstractTrezorHardwareWallet {
     HIDManager hidManager = HIDManager.getInstance();
 
     // Attempt to list the attached devices
-    HIDDeviceInfo[] infos = hidManager.listDevices();
+    HIDDeviceInfo[] infos=null;
+    try {
+    infos = hidManager.listDevices();
+    } catch (Error e) {
+      throw new IllegalStateException("Unable to access USB due to iconv returning -1. Check device firmware character set.");
+    }
     if (infos == null) {
       throw new IllegalStateException("Unable to access connected device list. Check USB security policy for this account.");
     }

@@ -100,15 +100,45 @@ If you're using a laptop enable DHCP and plug in the device's network cable.
 
 On Unix you can issue the following command to map the local network (install with brew for OSX):
 ```
-nmap 192.168.0.0/24
+$ nmap 192.168.0.0/24
 ```
 Replace the IP address range with what IP address your laptop
 
-Change the standard <code>rpi-serial.sh</code> script to use the following:</p>
+Change the standard `rpi-serial.sh` script to use the following:
 ```
-python trezor/__init__.py -s -t socket -p 0.0.0.0:3000 -d -dt socket -dp 0.0.0.0:2000
+$ python trezor/__init__.py -s -t socket -p 0.0.0.0:3000 -d -dt socket -dp 0.0.0.0:2000
 ```
-This will ensure that the Shield is serving over port 3000 with a debug socket on port 2000
+This will ensure that the Shield is serving over port 3000 with a debug socket on port 2000.
+
+**Warning** Do not use this mode with real private keys since it is unsafe!
+
+Run it up with
+```
+$ sudo ./rpi-serial.sh
+```
+You should see the Shield OLED show the Trezor logo.
+
+#### Configuring a RPi for USB emulation
+
+Apply power to the RPi through the USB on the Trezor Shield board. Connect a network cable as normal.
+
+After the blinking lights have settled, test the USB device is connected:
+
+* `lsusb` for Linux
+* `system_profiler SPUSBDataType` for Mac
+* `reg query hklm\system\currentcontrolset\enum\usbstor /s` for Windows (untested so might be a better way)
+
+You should see a CP2110 HID USB-to-UART device.
+
+Establish the IP address of the RPi and SSH on to it as normal.
+
+Use the standard `rpi-serial.sh` script but ensure that RPi Getty is turned off:
+```
+$ sudo nano /etc/inittab
+$ #T0:23:respawn:/sbin/getty -L ttyAMA0 115200 vt100
+```
+This will ensure that the Shield is using the UART reach the RPi GPIO serial port with a debug socket on port 2000.
+
 **Warning** Do not use this mode with real private keys since it is unsafe!
 
 Run it up with
@@ -117,13 +147,10 @@ sudo ./rpi-serial.sh
 ```
 You should see the Shield OLED show the Trezor logo.
 
-
-
 ### Updating protobuf files
 
 MultiBit Hardware does not maintain `.proto` files other than for our emulator. Periodically we will update the protobuf files through
  the following process:
-
 ```
 $ cd <submodule directory>
 $ git checkout master
@@ -132,9 +159,7 @@ $ cd <project directory>
 $ git add <submodule directory>
 $ git commit -m "Updating protobuf for '<submodule>'"
 $ git push
-
 ```
-
 We normally expect the HEAD of the submodule origin master branch to [represent the latest production release](http://nvie.com/posts/a-successful-git-branching-model/), but that's up to the
 owner of the repo.
 
