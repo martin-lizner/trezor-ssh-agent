@@ -187,7 +187,7 @@ public class UsbTrezorHardwareWallet extends AbstractTrezorHardwareWallet {
     try {
     infos = hidManager.listDevices();
     } catch (Error e) {
-      throw new IllegalStateException("Unable to access USB due to iconv returning -1. Check device firmware character set.");
+      throw new IllegalStateException("Unable to access USB due to iconv returning -1. Check device firmware character set.", e);
     }
     if (infos == null) {
       throw new IllegalStateException("Unable to access connected device list. Check USB security policy for this account.");
@@ -199,6 +199,9 @@ public class UsbTrezorHardwareWallet extends AbstractTrezorHardwareWallet {
     // Attempt to locate the required device
     Optional<HIDDeviceInfo> selectedInfo = Optional.absent();
     for (HIDDeviceInfo info : infos) {
+
+      log.info("Found {}", info);
+
       if (vendorId.equals(info.getVendor_id()) &&
         productId.equals(info.getProduct_id())) {
         // Allow a wildcard serial number

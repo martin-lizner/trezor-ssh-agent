@@ -30,11 +30,11 @@ means that someone can rip out the `.proto` files and use them to generate the a
 
 #### Do you support git submodules for `.proto` files ?
 
-Yes. While you can have treat your module within the MBHD Hardware project as the single point of (Java) reference, you don't have to.
+Yes. While you can have treat your module within the MultiBit Hardware project as the single point of (Java) reference, you don't have to.
 
 You are also free to offer up your `.proto` files as common libraries that remain in your repo and under your control. We then include
  them as a [git submodule](http://git-scm.com/book/en/Git-Tools-Submodules). This is the approach taken by the Trezor development team
- and enables them to retain complete control over the wire protocol, while allowing MBHD Hardware to implement support in a phased
+ and enables them to retain complete control over the wire protocol, while allowing MultiBit Hardware to implement support in a phased
  approach.
 
 #### Why no listeners ?
@@ -45,23 +45,15 @@ The Guava library offers the [EventBus](https://code.google.com/p/guava-librarie
 
 #### How do I get my hardware included ?
 
-The quickest way is to use the Trezor device as a basis for your hardware wallet.
+While we welcome a wide variety of hardware wallet devices into the Bitcoin ecosystem supporting them all through MultiBit HD gives rise 
+to some obvious problems:
 
-We treat Trezor as our reference client, and their developers shape the specification. In turn we map our more abstract API over their
-protobuf files to arrive at a slightly more generic solution. This is similar to how Java works with SQL databases through JDBC.
+* maintaining compatibility for legacy versions (variants, quirks, deprecated functionality etc)
+* verifying the security of the wallet (robust enough for mainstream users, entropy source etc)
+* simplicity of use (mainstream users must find it easy to obtain and use) 
 
-If your hardware takes a completely different approach you should raise an Issue against this project to request additional support
-within the Core module. We would then determine the level of effort required to include your requirements both here and in the
-MultiBit HD project.
-
-Of course, pull requests will greatly increase your chances.
-
-#### What happened to Trezorj ?
-
-While [Trezorj](https://github.com/bitcoin-solutions/trezorj) worked well for a single hardware wallet it did not offer a good way to
-scale out to multiple hardware wallets from different vendors. Consequently there was a need for a common support library containing
-device-specific modules. This allows individual hardware wallet manufacturers to take advantage of the the MultiBit HD user base without
-expending a lot of effort in software development.
+Thus the current situation is that the MultiBit Hardware development team is only supporting the Trezor device, but in time we would like to
+open up support for other leading hardware wallet vendors.
 
 ### Getting started
 
@@ -74,7 +66,7 @@ $ mvn clean install
 
 and you're good to go.
 
-#### Collaborators need to do some extra work
+#### Collaborators and the protobuf files
 
 If you are a collaborator (i.e. you have commit access to the repo) then you will need to perform an additional stage to ensure you have
 the correct version of the protobuf files:
@@ -87,10 +79,42 @@ $ git submodule update
 This will bring down the `.proto` files referenced in the submodules and allow you to select which tagged commit to use when generating
 the protobuf files. See the "Updating protobuf files" section later.
 
+MultiBit Hardware does not maintain `.proto` files other than for our emulator. Periodically we will update the protobuf files through
+ the following process:
+```
+$ cd <submodule directory>
+$ git checkout master
+$ git pull origin master
+$ cd <project directory>
+$ git add <submodule directory>
+$ git commit -m "Updating protobuf for '<submodule>'"
+$ git push
+```
+We normally expect the HEAD of the submodule origin master branch to [represent the latest production release](http://nvie.com/posts/a-successful-git-branching-model/), but that's up to the
+owner of the repo.
+
 #### Read the wiki for detailed instructions
 
 Have a read of [the wiki pages](https://github.com/bitcoin-solutions/mbhd-hardware/wiki/_pages) which gives comprehensive
 instructions for a variety of environments.
+
+### Working with a production Trezor device (recommended)
+
+After [purchasing a production Trezor device](https://www.buytrezor.com/) do the following (assuming a completely new :
+
+Plug in the device to the USB port and wait for initialisation to complete.
+
+Attempt to discover the device using the `UsbMonitoringExample` through the command line:
+```
+cd examples
+mvn exec:java -Dexec.mainClass="org.multibit.hd.hardware.examples.trezor.rpi.UsbMonitoringExample"
+```
+
+
+
+### Working with a Raspberry Pi emulation device
+
+A low-cost introduction to the Trezor is the use of a Raspberry Pi and the Trezor Shield development hardware available from [Satoshi Labs](http://satoshilabs.com/news/2013-07-15-raspberry-pi-shield-for-developers/).
 
 #### Configuring a RPi for socket emulation
 
@@ -105,6 +129,7 @@ $ nmap 192.168.0.0/24
 Replace the IP address range with what IP address your laptop
 
 Change the standard `rpi-serial.sh` script to use the following:
+
 ```
 $ python trezor/__init__.py -s -t socket -p 0.0.0.0:3000 -d -dt socket -dp 0.0.0.0:2000
 ```
@@ -116,6 +141,7 @@ Run it up with
 ```
 $ sudo ./rpi-serial.sh
 ```
+
 You should see the Shield OLED show the Trezor logo.
 
 #### Configuring a RPi for USB emulation
@@ -147,21 +173,14 @@ sudo ./rpi-serial.sh
 ```
 You should see the Shield OLED show the Trezor logo.
 
-### Updating protobuf files
+### Troubleshooting
 
-MultiBit Hardware does not maintain `.proto` files other than for our emulator. Periodically we will update the protobuf files through
- the following process:
-```
-$ cd <submodule directory>
-$ git checkout master
-$ git pull origin master
-$ cd <project directory>
-$ git add <submodule directory>
-$ git commit -m "Updating protobuf for '<submodule>'"
-$ git push
-```
-We normally expect the HEAD of the submodule origin master branch to [represent the latest production release](http://nvie.com/posts/a-successful-git-branching-model/), but that's up to the
-owner of the repo.
+The following are known issues and their solutions or workarounds.
+
+#### When running the examples I get errors indicating `iconv` is missing or broken
+
+You may need to upgrade your copy of the `iconv.dll` or `libiconv.so` which is used to handle character encodings across
+operating systems.  
 
 ### Closing notes
 
