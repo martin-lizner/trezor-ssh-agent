@@ -80,18 +80,22 @@ This will bring down the `.proto` files referenced in the submodules and allow y
 the protobuf files. See the "Updating protobuf files" section later.
 
 MultiBit Hardware does not maintain `.proto` files other than for our emulator. Periodically we will update the protobuf files through
- the following process:
+ the following process (assuming an update to the Trezor protobuf):
 ```
-$ cd <submodule directory>
+$ cd trezor/src/main/trezor-common
 $ git checkout master
 $ git pull origin master
-$ cd <project directory>
-$ git add <submodule directory>
-$ git commit -m "Updating protobuf for '<submodule>'"
+$ cd ../../..
+$ mvn -DupdateProtobuf=true clean compile
+$ cd ..
+$ git add trezor
+$ git commit -m "Updating protobuf files for 'trezor'"
 $ git push
 ```
 We normally expect the HEAD of the submodule origin master branch to [represent the latest production release](http://nvie.com/posts/a-successful-git-branching-model/), but that's up to the
 owner of the repo.
+
+The new protobuf files  
 
 #### Read the wiki for detailed instructions
 
@@ -104,12 +108,13 @@ After [purchasing a production Trezor device](https://www.buytrezor.com/) do the
 
 Plug in the device to the USB port and wait for initialisation to complete.
 
-Attempt to discover the device using the `UsbMonitoringExample` through the command line:
+Attempt to discover the device using the `UsbMonitoringExample` through the command line not the IDE:
 ```
 cd examples
 mvn exec:java -Dexec.mainClass="org.multibit.hd.hardware.examples.trezor.rpi.UsbMonitoringExample"
 ```
 
+This will list available devices on the USB and select a Trezor if present.
 
 
 ### Working with a Raspberry Pi emulation device
@@ -179,8 +184,9 @@ The following are known issues and their solutions or workarounds.
 
 #### When running the examples I get errors indicating `iconv` is missing or broken
 
-You may need to upgrade your copy of the `iconv.dll` or `libiconv.so` which is used to handle character encodings across
-operating systems.  
+The `iconv` library is used to map character sets and is usually provided as part of the operating system. MultiBit Hardware
+will work with version 1.11+. We have seen problems with running the code through an IDE where `iconv` responds with a failure
+code of -1.   
 
 ### Closing notes
 
