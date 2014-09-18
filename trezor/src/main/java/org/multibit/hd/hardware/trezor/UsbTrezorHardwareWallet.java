@@ -183,7 +183,7 @@ public class UsbTrezorHardwareWallet extends AbstractTrezorHardwareWallet {
     HIDManager hidManager = HIDManager.getInstance();
 
     // Attempt to list the attached devices
-    HIDDeviceInfo[] infos=null;
+    HIDDeviceInfo[] infos;
     try {
     infos = hidManager.listDevices();
     } catch (Error e) {
@@ -193,6 +193,7 @@ public class UsbTrezorHardwareWallet extends AbstractTrezorHardwareWallet {
       throw new IllegalStateException("Unable to access connected device list. Check USB security policy for this account.");
     }
 
+    // Use the default IDs or those supplied externally
     Integer vendorId = this.vendorId.isPresent() ? this.vendorId.get() : SATOSHI_LABS_VENDOR_ID;
     Integer productId = this.productId.isPresent() ? this.productId.get() : TREZOR_V1_PRODUCT_ID;
 
@@ -200,7 +201,7 @@ public class UsbTrezorHardwareWallet extends AbstractTrezorHardwareWallet {
     Optional<HIDDeviceInfo> selectedInfo = Optional.absent();
     for (HIDDeviceInfo info : infos) {
 
-      log.info("Found {}", info);
+      log.debug("Found {}", info);
 
       if (vendorId.equals(info.getVendor_id()) &&
         productId.equals(info.getProduct_id())) {
