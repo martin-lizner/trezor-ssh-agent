@@ -29,8 +29,8 @@ import java.io.IOException;
  */
 public class UsbTrezorHardwareWallet extends AbstractTrezorHardwareWallet {
 
-  private static final Integer DEFAULT_USB_VENDOR_ID = 0x10c4;
-  private static final Integer DEFAULT_USB_PRODUCT_ID = 0xea80;
+  private static final Integer SATOSHI_LABS_VENDOR_ID = 21324;
+  private static final Integer TREZOR_V1_PRODUCT_ID = 1;
 
   private static final Logger log = LoggerFactory.getLogger(UsbTrezorHardwareWallet.class);
 
@@ -193,8 +193,8 @@ public class UsbTrezorHardwareWallet extends AbstractTrezorHardwareWallet {
       throw new IllegalStateException("Unable to access connected device list. Check USB security policy for this account.");
     }
 
-    Integer vendorId = this.vendorId.isPresent() ? this.vendorId.get() : DEFAULT_USB_VENDOR_ID;
-    Integer productId = this.productId.isPresent() ? this.productId.get() : DEFAULT_USB_PRODUCT_ID;
+    Integer vendorId = this.vendorId.isPresent() ? this.vendorId.get() : SATOSHI_LABS_VENDOR_ID;
+    Integer productId = this.productId.isPresent() ? this.productId.get() : TREZOR_V1_PRODUCT_ID;
 
     // Attempt to locate the required device
     Optional<HIDDeviceInfo> selectedInfo = Optional.absent();
