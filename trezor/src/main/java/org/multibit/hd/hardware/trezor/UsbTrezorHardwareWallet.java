@@ -187,7 +187,7 @@ public class UsbTrezorHardwareWallet extends AbstractTrezorHardwareWallet {
     try {
     infos = hidManager.listDevices();
     } catch (Error e) {
-      throw new IllegalStateException("Unable to access USB due to iconv returning -1. Check device firmware character set.", e);
+      throw new IllegalStateException("Unable to access USB due to iconv returning -1. Check .", e);
     }
     if (infos == null) {
       throw new IllegalStateException("Unable to access connected device list. Check USB security policy for this account.");

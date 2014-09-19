@@ -36,6 +36,8 @@ public class UsbMonitoringExample {
    */
   public static void main(String[] args) throws Exception {
 
+    log.info(System.getProperties().toString());
+
     // All the work is done in the class
     UsbMonitoringExample example = new UsbMonitoringExample();
 
@@ -51,6 +53,7 @@ public class UsbMonitoringExample {
    */
   public void executeExample() throws IOException, InterruptedException, AddressFormatException {
 
+    // Create a default USB instance (expects a production Trezor device)
     UsbTrezorHardwareWallet wallet = (UsbTrezorHardwareWallet) HardwareWalletService.newUsbInstance(
       UsbTrezorHardwareWallet.class.getName(),
       Optional.<Integer>absent(),
