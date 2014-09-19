@@ -7,7 +7,6 @@ import com.google.common.util.concurrent.Uninterruptibles;
 import org.multibit.hd.hardware.core.HardwareWalletService;
 import org.multibit.hd.hardware.core.events.HardwareWalletProtocolEvent;
 import org.multibit.hd.hardware.core.events.HardwareWalletSystemEvent;
-import org.multibit.hd.hardware.core.messages.SystemMessageType;
 import org.multibit.hd.hardware.trezor.BlockingTrezorClient;
 import org.multibit.hd.hardware.trezor.UsbTrezorHardwareWallet;
 import org.slf4j.Logger;
@@ -26,6 +25,8 @@ import java.util.concurrent.TimeUnit;
 public class UsbMonitoringExample {
 
   private static final Logger log = LoggerFactory.getLogger(UsbMonitoringExample.class);
+
+  private boolean deviceFailed = false;
 
   /**
    * <p>Main entry point to the example</p>
@@ -65,17 +66,27 @@ public class UsbMonitoringExample {
     BlockingTrezorClient client = new BlockingTrezorClient(wallet);
 
     // Connect the client
-    while (!client.connect()) {
+    while (!client.connect() && !deviceFailed) {
 
       Uninterruptibles.sleepUninterruptibly(2, TimeUnit.SECONDS);
 
     }
 
-    // Initialize
-    client.initialize();
+    if (!deviceFailed) {
 
-    // Send a ping
-    client.ping();
+      log.info("Attempting basic Trezor protobuf communication");
+
+      // Initialize
+      client.initialize();
+
+      // Send a ping
+      client.ping();
+
+    } else {
+
+      log.info("Device has failed. Aborting.");
+
+    }
 
     log.info("Closing connections");
 
@@ -98,11 +109,15 @@ public class UsbMonitoringExample {
   @Subscribe
   public void onHardwareWalletSystemEvent(HardwareWalletSystemEvent event) {
 
-    if (SystemMessageType.DEVICE_DISCONNECTED.equals(event.getMessageType())) {
-      log.error("Device is not connected");
-      System.exit(-1);
+    switch (event.getMessageType()) {
+      case DEVICE_DISCONNECTED:
+        log.error("Device is not connected");
+        break;
+      case DEVICE_FAILURE:
+        log.error("Device has failed (hardware problem)");
+        deviceFailed=true;
+        break;
     }
-
 
   }
 

@@ -90,64 +90,104 @@ public class UsbTrezorHardwareWallet extends AbstractTrezorHardwareWallet {
   @Override
   public synchronized boolean connect() {
 
-    Preconditions.checkState(isDeviceConnected(), "Device is already connected");
+    try {
+      deviceOptional = locateDevice();
+    } catch (IOException e) {
+      log.error("Failed to connect device due to USB problem", e);
+      return false;
+    }
+
+    if (!deviceOptional.isPresent()) {
+      log.info("Failed to connect device due to unmatched device (assumed disconnected)");
+      return false;
+    }
+
+    // Must have a present device to be here
+
+    HIDDevice device = deviceOptional.get();
 
     try {
-
-      // Attempt to locate an attached Trezor device
-      final Optional<HIDDeviceInfo> hidDeviceInfoOptional = locateTrezor();
-
-      if (!hidDeviceInfoOptional.isPresent()) {
-        HardwareWalletEvents.fireSystemEvent(SystemMessageType.DEVICE_DISCONNECTED);
-        return false;
-      }
-      HIDDeviceInfo hidDeviceInfo = hidDeviceInfoOptional.get();
-
-      // Get the HID manager
-      HIDManager hidManager = HIDManager.getInstance();
-
-      // Attempt to open a serial connection to the USB device
-      // Open the device
-      deviceOptional = Optional.fromNullable(hidManager.openById(
-        hidDeviceInfo.getVendor_id(),
-        hidDeviceInfo.getProduct_id(),
-        hidDeviceInfo.getSerial_number()
-      ));
-
-      Preconditions.checkState(deviceOptional.isPresent(), "Unable to open device");
-
-      HIDDevice device = deviceOptional.get();
-
       log.debug("Selected: {}, {}, {}",
         device.getManufacturerString(),
         device.getProductString(),
         device.getSerialNumberString()
       );
-
-      // Create and configure the USB to UART bridge
-      final CP211xBridge uart = new CP211xBridge(device);
-
-      uart.enable(true);
-      uart.purge(3);
-
-      // Add unbuffered data streams for easy data manipulation
-      out = new DataOutputStream(uart.getOutputStream());
-      DataInputStream in = new DataInputStream(uart.getInputStream());
-
-      // Monitor the input stream
-      monitorDataInputStream(in);
-
-      // Must have connected to be here
-      HardwareWalletEvents.fireSystemEvent(SystemMessageType.DEVICE_CONNECTED);
-
-      return true;
-
     } catch (IOException e) {
+      log.error("Failed to connect device due to problem reading device information", e);
+      return false;
+    }
+
+    // Attempt to open UART communications
+    try {
+      return attachDevice(device);
+    } catch (IOException e) {
+      log.error("Failed to attach device due to problem reading UART data stream", e);
       HardwareWalletEvents.fireSystemEvent(SystemMessageType.DEVICE_FAILURE);
     }
 
     // Must have failed to be here
     return false;
+
+  }
+
+  /**
+   * @param device The HID device to communicate with
+   *
+   * @return True if the device responded to the UART serial initialisation
+   *
+   * @throws IOException If something goes wrong
+   */
+  private boolean attachDevice(HIDDevice device) throws IOException {
+
+    // Create and configure the USB to UART bridge
+    final CP211xBridge uart = new CP211xBridge(device);
+
+    uart.enable(true);
+    uart.purge(3);
+
+    // Add unbuffered data streams for easy data manipulation
+    out = new DataOutputStream(uart.getOutputStream());
+    DataInputStream in = new DataInputStream(uart.getInputStream());
+
+    // Monitor the input stream
+    monitorDataInputStream(in);
+
+    // Must have connected to be here
+    HardwareWalletEvents.fireSystemEvent(SystemMessageType.DEVICE_CONNECTED);
+
+    return true;
+
+  }
+
+  /**
+   * @return A HID device with the given vendor, product and serial number IDs
+   *
+   * @throws IOException If something goes wrong with the USB
+   */
+  private Optional<HIDDevice> locateDevice() throws IOException {
+
+    Preconditions.checkState(isDeviceConnected(), "Device is already connected");
+
+    // Attempt to locate an attached Trezor device
+    final Optional<HIDDeviceInfo> hidDeviceInfoOptional = locateTrezor();
+
+    // No matching device so indicate that it is disconnected
+    if (!hidDeviceInfoOptional.isPresent()) {
+      HardwareWalletEvents.fireSystemEvent(SystemMessageType.DEVICE_DISCONNECTED);
+      return Optional.absent();
+    }
+
+    HIDDeviceInfo hidDeviceInfo = hidDeviceInfoOptional.get();
+
+    // Get the HID manager
+    HIDManager hidManager = HIDManager.getInstance();
+
+    // Attempt to open a serial connection to the USB device
+    return Optional.fromNullable(hidManager.openById(
+      hidDeviceInfo.getVendor_id(),
+      hidDeviceInfo.getProduct_id(),
+      hidDeviceInfo.getSerial_number()
+    ));
 
   }
 
@@ -177,6 +217,11 @@ public class UsbTrezorHardwareWallet extends AbstractTrezorHardwareWallet {
     }
   }
 
+  /**
+   * @return The HID device info, if present
+   *
+   * @throws IOException If the USB connection fails
+   */
   private Optional<HIDDeviceInfo> locateTrezor() throws IOException {
 
     // Get the HID manager
@@ -185,7 +230,7 @@ public class UsbTrezorHardwareWallet extends AbstractTrezorHardwareWallet {
     // Attempt to list the attached devices
     HIDDeviceInfo[] infos;
     try {
-    infos = hidManager.listDevices();
+      infos = hidManager.listDevices();
     } catch (Error e) {
       throw new IllegalStateException("Unable to access USB due to iconv returning -1. Check .", e);
     }

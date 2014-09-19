@@ -77,8 +77,13 @@ public class BlockingTrezorClient implements HardwareWalletClient {
 
   @Override
   public boolean connect() {
+
+    log.debug("Attempting to connect...");
+
     boolean connected = trezor.connect();
     isTrezorValid = true;
+
+    log.debug("Connection result: {}", connected);
 
     return connected;
 
