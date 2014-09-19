@@ -1,4 +1,4 @@
-package org.multibit.hd.hardware.examples.trezor.rpi;
+package org.multibit.hd.hardware.examples.trezor.usb;
 
 import com.google.bitcoin.core.Address;
 import com.google.bitcoin.core.AddressFormatException;

@@ -5,8 +5,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Message;
+import com.satoshilabs.trezor.protobuf.TrezorMessage;
 import org.multibit.hd.hardware.trezor.TrezorMessageUtils;
-import org.multibit.hd.hardware.trezor.protobuf.TrezorMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -83,7 +83,7 @@ public class TrezorEmulator {
     trezorEmulator.addMessage(new EmulatorMessage(
       TrezorMessage.Success
         .newBuilder()
-        .setMessage(ByteString.copyFrom("Emulator is up".getBytes()))
+        .setMessage("Emulator is up")
         .build(),
       duration,
       timeUnit

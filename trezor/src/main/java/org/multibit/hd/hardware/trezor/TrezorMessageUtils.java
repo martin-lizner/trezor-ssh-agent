@@ -1,16 +1,8 @@
 package org.multibit.hd.hardware.trezor;
 
-import com.google.bitcoin.core.ScriptException;
-import com.google.bitcoin.core.Transaction;
-import com.google.bitcoin.core.TransactionInput;
-import com.google.bitcoin.core.TransactionOutput;
-import com.google.bitcoin.params.MainNetParams;
-import com.google.common.base.Preconditions;
-import com.google.protobuf.ByteString;
+import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
-import org.multibit.hd.hardware.trezor.protobuf.TrezorMessage;
-import org.multibit.hd.hardware.trezor.protobuf.TrezorProtocolMessageType;
-import org.multibit.hd.hardware.trezor.protobuf.TrezorType;
+import com.satoshilabs.trezor.protobuf.TrezorMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,27 +22,28 @@ public final class TrezorMessageUtils {
 
   private static final Logger log = LoggerFactory.getLogger(TrezorMessageUtils.class);
 
-  /**
-   * Utilities should not have public constructors
-   */
-  private TrezorMessageUtils() {
-  }
+    /**
+     * Utilities should not have public constructors
+     */
+    private TrezorMessageUtils() {
+    }
 
-  /**
-   * <p>Write a Trezor protocol buffer message to an OutputStream</p>
-   *
-   * @param message The protocol buffer message to read
-   * @param out     The data output stream (must be open)
-   *
-   * @throws java.io.IOException If the device disconnects during IO
-   */
+    /**
+     * <p>Write a Trezor protocol buffer message to an OutputStream</p>
+     *
+     * @param message The protocol buffer message to read
+     * @param out     The data output stream (must be open)
+     *
+     * @throws java.io.IOException If the device disconnects during IO
+     */
+
   public static void writeMessage(Message message, DataOutputStream out) throws IOException {
 
     // Require the header code
-    short headerCode = TrezorProtocolMessageType.getHeaderCode(message);
+    short headerCode = getHeaderCode(message);
 
     // Provide some debugging
-    TrezorProtocolMessageType messageType = TrezorProtocolMessageType.getMessageTypeByHeaderCode(headerCode);
+    TrezorMessage.MessageType messageType = getMessageTypeByHeaderCode(headerCode);
     log.debug("> {}", messageType.name());
 
     // Write magic alignment string (avoiding immediate flush)
@@ -76,93 +69,61 @@ public final class TrezorMessageUtils {
   }
 
   /**
-   * <p>Construct a TxInput message based on the given transaction </p>
+   * @param headerCode The header code (e.g. "0" for INITIALIZE)
    *
-   * @param tx    The Bitcoinj transaction
-   * @param index The index of the input transaction to work with
+   * @return The matching message
    *
-   * @return A TxInput message representing the transaction input
+   * @throws IllegalArgumentException If the header code is not valid
    */
-  public static TrezorMessage.TxInput newTxInput(Transaction tx, int index) {
+  public static TrezorMessage.MessageType getMessageTypeByHeaderCode(short headerCode) {
 
-    Preconditions.checkNotNull(tx, "Transaction must be present");
-    Preconditions.checkElementIndex(index, tx.getInputs().size(), "TransactionInput not present at index " + index);
-
-    // Input index is valid
-    TransactionInput txInput = tx.getInput(index);
-
-    // Fill in the input addresses
-    long prevIndex = txInput.getOutpoint().getIndex();
-    byte[] prevHash = txInput.getOutpoint().getHash().getBytes();
-
-    // TODO Locate amount field in TxInput
-    long satoshiAmount = txInput.getConnectedOutput().getValue().longValue();
-
-    try {
-      byte[] scriptSig = txInput.getScriptSig().toString().getBytes();
-
-      TrezorMessage.TxInput.Builder txInputBuilder = TrezorMessage.TxInput.newBuilder();
-
-      txInputBuilder.setInput(TrezorType.TxInputType
-        .newBuilder()
-          // TODO (GR) integrate this
-        .addAddressN(0)
-        .addAddressN(index)
-        .setScriptSig(ByteString.copyFrom(scriptSig))
-        .setPrevHash(ByteString.copyFrom(prevHash))
-        .setPrevIndex((int) prevIndex)
-        .build()
-      );
-
-      return txInputBuilder.build();
-
-    } catch (ScriptException e) {
-      throw new IllegalStateException(e);
-    }
+    return TrezorMessage.MessageType.valueOf(headerCode);
 
   }
 
   /**
-   * <p>Construct a TxOutput message based on the given transaction</p>
+   * @param message The protocol buffer message class (e.g. "Initialize")
    *
-   * @param tx    The Bitcoinj transaction
-   * @param index The index of the output transaction to work with
+   * @return The header code for use with the Trezor header section
    *
-   * @return A TxOutput message representing the transaction output
+   * @throws IllegalArgumentException If the message is not valid
    */
-  public static TrezorMessage.TxOutput newTxOutput(Transaction tx, int index) {
+  public static short getHeaderCode(Message message) {
 
-    Preconditions.checkNotNull(tx, "Transaction must be present");
-    Preconditions.checkElementIndex(index, tx.getOutputs().size(), "TransactionOutput not present at index " + index);
+    for (TrezorMessage.MessageType trezorMessageType : TrezorMessage.MessageType.values()) {
 
-    // Output index is valid
-    TransactionOutput txOutput = tx.getOutput(index);
-
-    long satoshiAmount = txOutput.getValue().longValue();
-
-    // Extract the Base58 receiving address from the output
-    final byte[] address;
-    try {
-      address = txOutput.getScriptPubKey().getToAddress(MainNetParams.get()).toString().getBytes();
-    } catch (ScriptException e) {
-      throw new IllegalArgumentException("Transaction script pub key invalid", e);
+      // Check for same type
+      if (trezorMessageType.getClass().equals(message.getClass())) {
+        return (short) trezorMessageType.getNumber();
+      }
     }
 
-    TrezorMessage.TxOutput.Builder builder = TrezorMessage.TxOutput.newBuilder();
-    builder.setOutput(TrezorType.TxOutputType
-      .newBuilder()
-      .setAddress(ByteString.copyFrom(address))
-      .setAmount(satoshiAmount)
-      .setScriptType(TrezorType.ScriptType.PAYTOADDRESS)
-      .addAddressN(0) // Depth of receiving address
-      .addAddressN(1) // 0 is recipient address, 1 is change address
-
-        // TODO (GR) Verify what ScriptArgs is doing (array of script arguments?)
-        //.setScriptArgs(0,0);
-      .build()
-    );
-
-    return builder.build();
+    throw new IllegalArgumentException("Message class '" + message.getClass().getName() + "' is not known");
 
   }
+
+  /**
+   * @param headerCode The header code (e.g. "0" for INITIALIZE)
+   * @param bytes      The bytes forming the message
+   *
+   * @return A protocol buffer Message derived from the bytes
+   *
+   * @throws InvalidProtocolBufferException If the bytes cannot be merged
+   */
+  public static Message parse(Short headerCode, byte[] bytes) throws InvalidProtocolBufferException {
+
+    // Identify the message type from the header code
+    TrezorMessage.MessageType messageType = getMessageTypeByHeaderCode(headerCode);
+
+    // Use a default instance to merge the bytes
+    return messageType
+      .getDescriptorForType()
+      .toProto()
+      .getDefaultInstanceForType()
+      .newBuilderForType()
+      .mergeFrom(bytes)
+      .build();
+
+  }
+
 }

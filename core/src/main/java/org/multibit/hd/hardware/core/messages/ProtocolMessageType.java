@@ -49,8 +49,13 @@ public enum ProtocolMessageType {
 
   // Transactions
   TX_REQUEST,
-  TX_INPUT,
-  TX_OUTPUT,
+  TX_ACK,
+
+  // Cipher key
+  CIPHER_KEY_VALUE,
+  CLEAR_SESSION,
+
+  // Settings
   APPLY_SETTINGS,
 
   // Buttons
@@ -69,6 +74,10 @@ public enum ProtocolMessageType {
   VERIFY_MESSAGE,
   MESSAGE_SIGNATURE,
 
+  // Message encryption
+  ENCRYPT_MESSAGE,
+  DECRYPT_MESSAGE,
+
   // Passphrase
   PASSPHRASE_REQUEST,
   PASSPHRASE_ACK,
@@ -77,13 +86,23 @@ public enum ProtocolMessageType {
   ESTIMATE_TX_SIZE,
   TX_SIZE,
 
+  // Recovery
+  RECOVERY_DEVICE,
+
+    // Word
+  WORD_REQUEST,
+  WORD_ACK,
+
   // Debugging messages
   DEBUG_LINK_DECISION,
   DEBUG_LINK_GET_STATE,
   DEBUG_LINK_STATE,
   DEBUG_LINK_STOP,
+  DEBUG_LINK_LOG,
 
   // End of enum
   ;
+
+
 
 }

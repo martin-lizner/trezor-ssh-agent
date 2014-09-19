@@ -34,7 +34,7 @@ public abstract class AbstractHardwareWallet<P> implements HardwareWallet {
   /**
    * Maps between the device specific protocol message type and the generic protocol message type
    */
-  protected Map<P, ProtocolMessageType> protocolMessageMap= Maps.newHashMap();
+  protected Map<P, ProtocolMessageType> protocolMessageMap = Maps.newHashMap();
 
   @Override
   public void initialise() {
@@ -54,21 +54,17 @@ public abstract class AbstractHardwareWallet<P> implements HardwareWallet {
     HardwareWalletSpecification defaultSpecification = getDefaultSpecification();
 
     // Check if default is for everything
-    if (specification == null) {
-      this.specification = defaultSpecification;
-    } else {
-      // Using a configured hardware wallet
-      if (specification.getName() == null) {
-        specification.setName(defaultSpecification.getName());
-      }
-      if (specification.getDescription() == null) {
-        specification.setDescription(defaultSpecification.getDescription());
-      }
-      if (specification.getHost() == null) {
-        specification.setHost(defaultSpecification.getHost());
-      }
-      this.specification = specification;
+    // Using a configured hardware wallet
+    if (specification.getName() == null) {
+      specification.setName(defaultSpecification.getName());
     }
+    if (specification.getDescription() == null) {
+      specification.setDescription(defaultSpecification.getDescription());
+    }
+    if (specification.getHost() == null) {
+      specification.setHost(defaultSpecification.getHost());
+    }
+    this.specification = specification;
 
   }
 

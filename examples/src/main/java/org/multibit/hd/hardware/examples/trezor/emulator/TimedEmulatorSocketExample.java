@@ -1,4 +1,4 @@
-package org.multibit.hd.hardware.examples.trezor;
+package org.multibit.hd.hardware.examples.trezor.emulator;
 
 import com.google.common.eventbus.Subscribe;
 import org.multibit.hd.hardware.core.events.HardwareWalletProtocolEvent;

@@ -1,9 +1,8 @@
-package org.multibit.hd.hardware.examples.trezor;
+package org.multibit.hd.hardware.examples.trezor.emulator;
 
-import com.google.protobuf.ByteString;
+import com.satoshilabs.trezor.protobuf.TrezorMessage;
 import org.multibit.hd.hardware.emulators.trezor.TrezorEmulator;
 import org.multibit.hd.hardware.emulators.trezor.TrezorEmulatorUI;
-import org.multibit.hd.hardware.trezor.protobuf.TrezorMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,7 +64,7 @@ public class TrezorEmulatorUIExample {
     trezorEmulator.addMessage(new TrezorEmulator.EmulatorMessage(
       TrezorMessage.Success
         .newBuilder()
-        .setMessage(ByteString.copyFromUtf8("Emulator is running"))
+        .setMessage("Emulator is running")
         .build(),
       2000, TimeUnit.MILLISECONDS
     ));

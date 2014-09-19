@@ -1,4 +1,4 @@
-package org.multibit.hd.hardware.examples.trezor.rpi;
+package org.multibit.hd.hardware.examples.trezor.usb;
 
 import com.google.bitcoin.core.AddressFormatException;
 import com.google.common.base.Optional;
@@ -17,8 +17,8 @@ import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 /**
- * <p>Example of communicating with a Raspberry Pi Shield Trezor using USB:</p>
- * <p>See the README for instructions on how to configure your RPi</p>
+ * <p>Example of communicating with a Trezor device/emulator using USB:</p>
+ * <p>This is useful as an initial verification of correct </p>
  *
  * @since 0.0.1
  *  
@@ -58,7 +58,7 @@ public class UsbMonitoringExample {
       Optional.<String>absent()
     );
 
-    // Create a socket-based default Trezor client with blocking methods (quite limited)
+    // Create a blocking Trezor client (good for demonstrations but not practical for wallets)
     BlockingTrezorClient client = new BlockingTrezorClient(wallet);
 
     // Connect the client

@@ -2,13 +2,12 @@ package org.multibit.hd.hardware.trezor;
 
 import com.google.common.base.Preconditions;
 import com.google.protobuf.Message;
+import com.satoshilabs.trezor.protobuf.TrezorMessage;
 import org.multibit.hd.hardware.core.HardwareWalletSpecification;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
 import org.multibit.hd.hardware.core.messages.ProtocolMessageType;
 import org.multibit.hd.hardware.core.messages.SystemMessageType;
 import org.multibit.hd.hardware.core.wallets.AbstractHardwareWallet;
-import org.multibit.hd.hardware.trezor.protobuf.TrezorMessage;
-import org.multibit.hd.hardware.trezor.protobuf.TrezorProtocolMessageType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +21,7 @@ import java.io.IOException;
  * <li>Access to common methods</li>
  * </ul>
  */
-public abstract class AbstractTrezorHardwareWallet extends AbstractHardwareWallet<TrezorProtocolMessageType> {
+public abstract class AbstractTrezorHardwareWallet extends AbstractHardwareWallet<TrezorMessage.MessageType> {
 
   private static final Logger log = LoggerFactory.getLogger(AbstractTrezorHardwareWallet.class);
 
@@ -41,11 +40,165 @@ public abstract class AbstractTrezorHardwareWallet extends AbstractHardwareWalle
   @Override
   public void mapProtocolMessageTypeToDevice() {
 
+    // Ensure all protocol message types are covered
     for (ProtocolMessageType protocolMessageType : ProtocolMessageType.values()) {
+
+      final TrezorMessage.MessageType trezorMessageType;
+
+      switch (protocolMessageType) {
+
+        case INITALIZE:
+          trezorMessageType = TrezorMessage.MessageType.MessageType_Initialize;
+          break;
+        case PING:
+          trezorMessageType = TrezorMessage.MessageType.MessageType_Ping;
+          break;
+        case SUCCESS:
+          trezorMessageType = TrezorMessage.MessageType.MessageType_Success;
+          break;
+        case FAILURE:
+          trezorMessageType = TrezorMessage.MessageType.MessageType_Failure;
+          break;
+        case CHANGE_PIN:
+          trezorMessageType = TrezorMessage.MessageType.MessageType_ChangePin;
+          break;
+        case WIPE_DEVICE:
+          trezorMessageType = TrezorMessage.MessageType.MessageType_WipeDevice;
+          break;
+        case FIRMWARE_ERASE:
+          trezorMessageType = TrezorMessage.MessageType.MessageType_FirmwareErase;
+          break;
+        case FIRMWARE_UPLOAD:
+          trezorMessageType = TrezorMessage.MessageType.MessageType_FirmwareUpload;
+          break;
+        case GET_ENTROPY:
+          trezorMessageType = TrezorMessage.MessageType.MessageType_GetEntropy;
+          break;
+        case ENTROPY:
+          trezorMessageType = TrezorMessage.MessageType.MessageType_Entropy;
+          break;
+        case GET_PUBLIC_KEY:
+          trezorMessageType = TrezorMessage.MessageType.MessageType_GetPublicKey;
+          break;
+        case PUBLIC_KEY:
+          trezorMessageType = TrezorMessage.MessageType.MessageType_PublicKey;
+          break;
+        case LOAD_DEVICE:
+          trezorMessageType = TrezorMessage.MessageType.MessageType_LoadDevice;
+          break;
+        case RESET_DEVICE:
+          trezorMessageType = TrezorMessage.MessageType.MessageType_ResetDevice;
+          break;
+        case SIGN_TX:
+          trezorMessageType = TrezorMessage.MessageType.MessageType_SignTx;
+          break;
+        case SIMPLE_SIGN_TX:
+          trezorMessageType = TrezorMessage.MessageType.MessageType_SimpleSignTx;
+          break;
+        case FEATURES:
+          trezorMessageType = TrezorMessage.MessageType.MessageType_Features;
+          break;
+        case PIN_MATRIX_REQUEST:
+          trezorMessageType = TrezorMessage.MessageType.MessageType_PinMatrixRequest;
+          break;
+        case PIN_MATRIX_ACK:
+          trezorMessageType = TrezorMessage.MessageType.MessageType_PinMatrixAck;
+          break;
+        case CANCEL:
+          trezorMessageType = TrezorMessage.MessageType.MessageType_Cancel;
+          break;
+        case TX_REQUEST:
+          trezorMessageType = TrezorMessage.MessageType.MessageType_TxRequest;
+          break;
+        case TX_ACK:
+          trezorMessageType = TrezorMessage.MessageType.MessageType_TxAck;
+          break;
+        case CIPHER_KEY_VALUE:
+          trezorMessageType = TrezorMessage.MessageType.MessageType_CipherKeyValue;
+          break;
+        case CLEAR_SESSION:
+          trezorMessageType = TrezorMessage.MessageType.MessageType_ClearSession;
+          break;
+        case APPLY_SETTINGS:
+          trezorMessageType = TrezorMessage.MessageType.MessageType_ApplySettings;
+          break;
+        case BUTTON_REQUEST:
+          trezorMessageType = TrezorMessage.MessageType.MessageType_ButtonRequest;
+          break;
+        case BUTTON_ACK:
+          trezorMessageType = TrezorMessage.MessageType.MessageType_ButtonAck;
+          break;
+        case GET_ADDRESS:
+          trezorMessageType = TrezorMessage.MessageType.MessageType_GetAddress;
+          break;
+        case ADDRESS:
+          trezorMessageType = TrezorMessage.MessageType.MessageType_Address;
+          break;
+        case ENTROPY_REQUEST:
+          trezorMessageType = TrezorMessage.MessageType.MessageType_EntropyRequest;
+          break;
+        case ENTROPY_ACK:
+          trezorMessageType = TrezorMessage.MessageType.MessageType_EntropyAck;
+          break;
+        case SIGN_MESSAGE:
+          trezorMessageType = TrezorMessage.MessageType.MessageType_SignMessage;
+          break;
+        case VERIFY_MESSAGE:
+          trezorMessageType = TrezorMessage.MessageType.MessageType_VerifyMessage;
+          break;
+        case MESSAGE_SIGNATURE:
+          trezorMessageType = TrezorMessage.MessageType.MessageType_MessageSignature;
+          break;
+        case ENCRYPT_MESSAGE:
+          trezorMessageType = TrezorMessage.MessageType.MessageType_EncryptMessage;
+          break;
+        case DECRYPT_MESSAGE:
+          trezorMessageType = TrezorMessage.MessageType.MessageType_DecryptMessage;
+          break;
+        case PASSPHRASE_REQUEST:
+          trezorMessageType = TrezorMessage.MessageType.MessageType_PassphraseRequest;
+          break;
+        case PASSPHRASE_ACK:
+          trezorMessageType = TrezorMessage.MessageType.MessageType_PassphraseAck;
+          break;
+        case ESTIMATE_TX_SIZE:
+          trezorMessageType = TrezorMessage.MessageType.MessageType_EstimateTxSize;
+          break;
+        case TX_SIZE:
+          trezorMessageType = TrezorMessage.MessageType.MessageType_TxSize;
+          break;
+        case RECOVERY_DEVICE:
+          trezorMessageType = TrezorMessage.MessageType.MessageType_RecoveryDevice;
+          break;
+        case WORD_REQUEST:
+          trezorMessageType = TrezorMessage.MessageType.MessageType_WordRequest;
+          break;
+        case WORD_ACK:
+          trezorMessageType = TrezorMessage.MessageType.MessageType_WordAck;
+          break;
+        case DEBUG_LINK_DECISION:
+          trezorMessageType = TrezorMessage.MessageType.MessageType_DebugLinkDecision;
+          break;
+        case DEBUG_LINK_GET_STATE:
+          trezorMessageType = TrezorMessage.MessageType.MessageType_DebugLinkGetState;
+          break;
+        case DEBUG_LINK_STATE:
+          trezorMessageType = TrezorMessage.MessageType.MessageType_DebugLinkState;
+          break;
+        case DEBUG_LINK_STOP:
+          trezorMessageType = TrezorMessage.MessageType.MessageType_DebugLinkStop;
+          break;
+        case DEBUG_LINK_LOG:
+          trezorMessageType = TrezorMessage.MessageType.MessageType_DebugLinkLog;
+          break;
+        default:
+          throw new IllegalStateException("Missing protocol message type: " + protocolMessageType.name());
+
+      }
 
       // Using the same name greatly simplifies this process
       protocolMessageMap.put(
-        TrezorProtocolMessageType.valueOf(protocolMessageType.name()),
+        trezorMessageType,
         protocolMessageType
       );
 
@@ -71,7 +224,7 @@ public abstract class AbstractTrezorHardwareWallet extends AbstractHardwareWalle
 
       // Read the header code and select a suitable parser
       final Short headerCode = in.readShort();
-      final TrezorProtocolMessageType trezorMessageType = TrezorProtocolMessageType.getMessageTypeByHeaderCode(headerCode);
+      final TrezorMessage.MessageType trezorMessageType = TrezorMessageUtils.getMessageTypeByHeaderCode(headerCode);
 
       Preconditions.checkNotNull(trezorMessageType, "'trezorMessageType' must be present");
       Preconditions.checkState(protocolMessageMap.containsKey(trezorMessageType), "Unmapped protocol message: {}", trezorMessageType.name());
@@ -89,10 +242,10 @@ public abstract class AbstractTrezorHardwareWallet extends AbstractHardwareWalle
       Preconditions.checkState(actualLength == detailLength, "Detail not read fully. Expected=" + detailLength + " Actual=" + actualLength);
 
       // Parse the detail into a message
-      final Message message = TrezorProtocolMessageType.parse(headerCode, detail);
+      final Message message = TrezorMessageUtils.parse(headerCode, detail);
       log.debug("< {}", message.getClass().getName());
 
-      if (TrezorProtocolMessageType.FAILURE.equals(trezorMessageType)) {
+      if (TrezorMessage.MessageType.MessageType_Failure.equals(trezorMessageType)) {
         log.error("FAILED: {}", ((TrezorMessage.Failure) message).getMessage());
       }
 
