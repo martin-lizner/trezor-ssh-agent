@@ -10,7 +10,7 @@ import com.google.protobuf.Message;
 import org.multibit.hd.hardware.core.HardwareWalletSpecification;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
 import org.multibit.hd.hardware.core.messages.SystemMessageType;
-import org.multibit.hd.hardware.core.usb.CP211xBridge;
+import org.multibit.hd.hardware.core.usb.STM32F205xBridge;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +29,7 @@ import java.io.IOException;
  */
 public class UsbTrezorHardwareWallet extends AbstractTrezorHardwareWallet {
 
-  private static final Integer SATOSHI_LABS_VENDOR_ID = 21324;
+  private static final Integer SATOSHI_LABS_VENDOR_ID = 0x534c; // 21324 dec
   private static final Integer TREZOR_V1_PRODUCT_ID = 1;
 
   private static final Logger log = LoggerFactory.getLogger(UsbTrezorHardwareWallet.class);
@@ -140,10 +140,12 @@ public class UsbTrezorHardwareWallet extends AbstractTrezorHardwareWallet {
   private boolean attachDevice(HIDDevice device) throws IOException {
 
     // Create and configure the USB to UART bridge
-    final CP211xBridge uart = new CP211xBridge(device);
+    final STM32F205xBridge uart = new STM32F205xBridge(device);
 
-    uart.enable(true);
-    uart.purge(3);
+//    uart.enable(true);
+//    uart.purge(3);
+
+    uart.probe();
 
     // Add unbuffered data streams for easy data manipulation
     out = new DataOutputStream(uart.getOutputStream());
@@ -232,7 +234,8 @@ public class UsbTrezorHardwareWallet extends AbstractTrezorHardwareWallet {
     try {
       infos = hidManager.listDevices();
     } catch (Error e) {
-      throw new IllegalStateException("Unable to access USB due to iconv returning -1. Check .", e);
+      // TODO Create collection of descriptive USB exceptions
+      throw new IllegalStateException("Unable to access USB due to 'iconv' library returning -1. Check your locale supports conversion from UTF-8 to your native character set.", e);
     }
     if (infos == null) {
       throw new IllegalStateException("Unable to access connected device list. Check USB security policy for this account.");
@@ -246,10 +249,13 @@ public class UsbTrezorHardwareWallet extends AbstractTrezorHardwareWallet {
     Optional<HIDDeviceInfo> selectedInfo = Optional.absent();
     for (HIDDeviceInfo info : infos) {
 
-      log.debug("Found {}", info);
+      log.debug("Found device: {}", info);
 
       if (vendorId.equals(info.getVendor_id()) &&
         productId.equals(info.getProduct_id())) {
+
+        log.debug("Found Trezor: {}", info);
+
         // Allow a wildcard serial number
         if (serialNumber.isPresent()) {
           if (serialNumber.get().equals(info.getSerial_number())) {
