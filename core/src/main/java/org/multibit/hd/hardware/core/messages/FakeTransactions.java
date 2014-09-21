@@ -5,7 +5,6 @@ import com.google.bitcoin.params.MainNetParams;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 
-import java.math.BigInteger;
 import java.util.Map;
 
 /**
@@ -101,7 +100,7 @@ public class FakeTransactions {
    * <li>output[0]: us giving random2 bitcoins</li>
    * <li>output[1]: us giving us change</li>
    * </ul>
-   * <p>See {@link uk.co.bsol.trezorj.core.utils.FakeTransactions#newMainNetAddress()} for new Addresses</p>
+   * <p>See {@link FakeTransactions#newMainNetAddress()} for new Addresses</p>
    * <p>Note that in Bitcoinj a satoshi is a "nanocoin"</p>
    *
    * @param ourReceivingAddress Our receiving address (present on the input from random1)
@@ -116,8 +115,8 @@ public class FakeTransactions {
     Address ourReceivingAddress,
     Address ourChangeAddress,
     Address random2Address,
-    BigInteger inputSatoshis,
-    BigInteger outputSatoshis) {
+    Coin inputSatoshis,
+    Coin outputSatoshis) {
 
     Preconditions.checkState(inputSatoshis.compareTo(outputSatoshis) == 1, "Input must be greater than output");
 

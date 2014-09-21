@@ -10,7 +10,8 @@
   <packaging>pom</packaging>
 
   <name>MultiBit HD Hardware</name>
-  <description>MBHD Hardware provides a common API for hardware wallets that wish to interface with MultiBit HD</description>
+  <description>MBHD Hardware provides a common API for hardware wallets that wish to interface with MultiBit HD
+  </description>
 
   <properties>
     <!-- Source encoding -->
@@ -54,11 +55,24 @@
   </issueManagement>
 
   <repositories>
+    <!-- Define the MultiBit staging repository for snapshots
+         GitHub requires mixture of raw and blob for POM and JAR -->
+    <repository>
+      <id>mbhd-maven-raw</id>
+      <url>https://raw.githubusercontent.com/bitcoin-solutions/mbhd-maven/master/snapshots</url>
+      <snapshots/>
+    </repository>
+    <repository>
+      <id>mbhd-maven-blob</id>
+      <url>https://github.com/bitcoin-solutions/mbhd-maven/blob/master/snapshots</url>
+      <snapshots/>
+    </repository>
+    <!-- Bitcoinj releases -->
     <repository>
       <id>bitcoinj-releases</id>
       <name>Bitcoinj Releases</name>
       <url>http://distribution.bitcoinj.googlecode.com/git/releases</url>
-      <releases />
+      <releases/>
     </repository>
   </repositories>
 
@@ -186,6 +200,7 @@
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
         <version>${slf4j.version}</version>
+        <scope>provided</scope>
       </dependency>
 
       <!-- mbhd-hardware consumers are expected to provide their own SLF4J adapters
@@ -205,6 +220,7 @@
         <groupId>com.google.guava</groupId>
         <artifactId>guava</artifactId>
         <version>14.0.1</version>
+        <scope>provided</scope>
       </dependency>
 
       <!-- Java HID API for USB -->
@@ -218,7 +234,22 @@
       <dependency>
         <groupId>com.google</groupId>
         <artifactId>bitcoinj</artifactId>
-        <version>0.10</version>
+        <version>0.12-SNAPSHOT</version>
+        <scope>provided</scope>
+        <exclusions>
+          <exclusion>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+
+      <!-- Protocol buffers for serialisation -->
+      <dependency>
+        <groupId>com.google.protobuf</groupId>
+        <artifactId>protobuf-java</artifactId>
+        <version>2.5.0</version>
+        <scope>provided</scope>
       </dependency>
 
       <!-- Testing -->
@@ -244,6 +275,7 @@
         <groupId>org.mockito</groupId>
         <artifactId>mockito-core</artifactId>
         <version>1.8.5</version>
+        <scope>test</scope>
       </dependency>
 
     </dependencies>
@@ -274,6 +306,12 @@
     <dependency>
       <groupId>com.google</groupId>
       <artifactId>bitcoinj</artifactId>
+    </dependency>
+
+    <!-- Protocol buffers for serialisation -->
+    <dependency>
+      <groupId>com.google.protobuf</groupId>
+      <artifactId>protobuf-java</artifactId>
     </dependency>
 
     <!-- Testing -->

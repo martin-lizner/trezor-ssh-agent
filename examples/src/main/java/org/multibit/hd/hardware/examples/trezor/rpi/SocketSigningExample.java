@@ -2,6 +2,7 @@ package org.multibit.hd.hardware.examples.trezor.rpi;
 
 import com.google.bitcoin.core.Address;
 import com.google.bitcoin.core.AddressFormatException;
+import com.google.bitcoin.core.Coin;
 import com.google.bitcoin.core.Transaction;
 import com.google.common.base.Preconditions;
 import com.google.common.eventbus.Subscribe;
@@ -16,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.math.BigInteger;
 
 /**
  * <p>Example of communicating with a Raspberry Pi Shield Trezor over a socket:</p>
@@ -117,8 +117,8 @@ public class SocketSigningExample {
       ourReceivingAddress,
       ourChangeAddress,
       random2Address,
-      BigInteger.TEN,
-      BigInteger.ONE
+      Coin.valueOf(10L),
+      Coin.valueOf(1L)
     );
 
     client.signTx(tx);
