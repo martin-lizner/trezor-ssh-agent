@@ -104,6 +104,7 @@ public class HIDInputStream extends InputStream {
    * @throws java.io.IOException If something goes wrong
    */
   /* package */ int readFromDevice(byte[] hidBuffer, Optional<Integer> durationMillis) throws IOException {
+
     if (durationMillis.isPresent()) {
       return device.readTimeout(hidBuffer, durationMillis.get());
     } else {
@@ -120,7 +121,7 @@ public class HIDInputStream extends InputStream {
    */
   private void bufferAllFrames() throws IOException {
 
-    log.debug("Buffering all HID frames");
+    log.debug("Buffering all HID frames from device");
 
     // The insert position for any new HID payload
     int messageBufferFrameIndex = 0;
@@ -133,6 +134,9 @@ public class HIDInputStream extends InputStream {
       // Attempt to read the next 64-byte message (timeout on fail)
       int bytesRead;
       if (messageBufferFrameIndex==0) {
+
+        log.debug("Blocking read");
+
         // First read is blocking (we want to hold here)
         bytesRead = readFromDevice(hidBuffer, Optional.<Integer>absent());
       } else {

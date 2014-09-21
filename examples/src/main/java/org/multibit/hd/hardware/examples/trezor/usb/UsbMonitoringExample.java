@@ -37,7 +37,8 @@ public class UsbMonitoringExample {
    */
   public static void main(String[] args) throws Exception {
 
-    log.info(System.getProperties().toString());
+    // TODO Use this to isolate iconv problem
+    //log.info(System.getProperties().toString());
 
     // All the work is done in the class
     UsbMonitoringExample example = new UsbMonitoringExample();
@@ -76,11 +77,13 @@ public class UsbMonitoringExample {
 
       log.info("Attempting basic Trezor protobuf communication");
 
-      // Initialize
-      client.initialize();
+      client.resetDevice("en", "hello", true, false, false, 256);
 
       // Send a ping
       client.ping();
+
+      // Initialize
+      client.initialize();
 
     } else {
 

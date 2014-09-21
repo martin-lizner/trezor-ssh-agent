@@ -121,7 +121,7 @@ public class CP211xBridge {
 
     Preconditions.checkNotNull(device, "Device is not connected");
 
-    byte[] featureReport = new byte[10];
+    byte[] featureReport = new byte[7];
     featureReport[0] = 0x42;
     int bytesReceived = device.getFeatureReport(featureReport);
     log.debug("< UART Status: {} '{}'", bytesReceived, featureReport);

@@ -71,9 +71,9 @@ public final class TrezorMessageUtils {
 //        case MessageType_LoadDevice:
 //          trezorMessageMap.put(TrezorMessage.Initialize.class, trezorMessageType);
 //          break;
-//        case MessageType_ResetDevice:
-//          trezorMessageMap.put(TrezorMessage.Initialize.class, trezorMessageType);
-//          break;
+        case MessageType_ResetDevice:
+          trezorMessageMap.put(TrezorMessage.ResetDevice.class, trezorMessageType);
+          break;
 //        case MessageType_SignTx:
 //          trezorMessageMap.put(TrezorMessage.Initialize.class, trezorMessageType);
 //          break;

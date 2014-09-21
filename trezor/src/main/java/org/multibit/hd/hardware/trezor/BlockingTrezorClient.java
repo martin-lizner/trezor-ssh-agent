@@ -321,16 +321,16 @@ public class BlockingTrezorClient implements HardwareWalletClient {
 
   }
 
-  private Optional<HardwareWalletProtocolEvent> sendDefaultBlockingMessage(Message MessageType) {
-    return sendBlockingMessage(MessageType, 1, TimeUnit.SECONDS);
+  private Optional<HardwareWalletProtocolEvent> sendDefaultBlockingMessage(Message messageType) {
+    return sendBlockingMessage(messageType, 1, TimeUnit.SECONDS);
   }
 
-  private Optional<HardwareWalletProtocolEvent> sendBlockingMessage(Message MessageType, int duration, TimeUnit timeUnit) {
+  private Optional<HardwareWalletProtocolEvent> sendBlockingMessage(Message messageType, int duration, TimeUnit timeUnit) {
 
     Preconditions.checkState(isTrezorValid, "Trezor device is not valid. Try connecting or start a new session after a disconnect.");
     Preconditions.checkState(isSessionIdValid, "An old session ID must be discarded. Create a new instance.");
 
-    trezor.sendMessage(MessageType);
+    trezor.sendMessage(messageType);
 
     // Wait for a response
     try {

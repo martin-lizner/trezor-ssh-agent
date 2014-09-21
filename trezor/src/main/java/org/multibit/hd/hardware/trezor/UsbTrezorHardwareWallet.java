@@ -10,7 +10,7 @@ import com.google.protobuf.Message;
 import org.multibit.hd.hardware.core.HardwareWalletSpecification;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
 import org.multibit.hd.hardware.core.messages.SystemMessageType;
-import org.multibit.hd.hardware.core.usb.STM32F205xBridge;
+import org.multibit.hd.hardware.core.usb.CP211xBridge;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +31,9 @@ public class UsbTrezorHardwareWallet extends AbstractTrezorHardwareWallet {
 
   private static final Integer SATOSHI_LABS_VENDOR_ID = 0x534c; // 21324 dec
   private static final Integer TREZOR_V1_PRODUCT_ID = 1;
+
+//  private static final Integer SATOSHI_LABS_VENDOR_ID = 0x10c4; // 21324 dec
+//  private static final Integer TREZOR_V1_PRODUCT_ID = 0xea80;
 
   private static final Logger log = LoggerFactory.getLogger(UsbTrezorHardwareWallet.class);
 
@@ -140,12 +143,11 @@ public class UsbTrezorHardwareWallet extends AbstractTrezorHardwareWallet {
   private boolean attachDevice(HIDDevice device) throws IOException {
 
     // Create and configure the USB to UART bridge
-    final STM32F205xBridge uart = new STM32F205xBridge(device);
+    final CP211xBridge uart = new CP211xBridge(device);
 
 //    uart.enable(true);
 //    uart.purge(3);
-
-    uart.probe();
+//    uart.status();
 
     // Add unbuffered data streams for easy data manipulation
     out = new DataOutputStream(uart.getOutputStream());

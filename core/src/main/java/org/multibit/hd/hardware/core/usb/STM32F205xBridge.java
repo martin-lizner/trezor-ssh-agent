@@ -2,10 +2,12 @@ package org.multibit.hd.hardware.core.usb;
 
 import com.codeminders.hidapi.HIDDevice;
 import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.Uninterruptibles;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>USB HID wrapper to provide the following to USB handlers:</p>
@@ -79,21 +81,41 @@ public class STM32F205xBridge {
 //    int bytesSent = device.sendFeatureReport(featureReport);
 //    log.debug("> UART Probe: {} '{}'", bytesSent, featureReport);
 
+    System.err.println("Probing...");
+
+//    int msg_id = 0;
+//    int msg_size = 0;
+//
+//    ByteBuffer data = ByteBuffer.allocate(32768);
+//    data.put((byte)'#');
+//    data.put((byte)'#');
+//    data.put((byte)((msg_id >> 8) & 0xFF));
+//    data.put((byte)(msg_id & 0xFF));
+//    data.put((byte)((msg_size >> 24) & 0xFF));
+//    data.put((byte)((msg_size >> 16) & 0xFF));
+//    data.put((byte)((msg_size >> 8) & 0xFF));
+//    data.put((byte)(msg_size & 0xFF));
+//    data.put(new byte[0]);
+
     device.disableBlocking();
-    device.write(new byte[] {0x02,0x01,(byte)0x95});
 
-    try {
-      Thread.sleep(200L);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
+    for (int i = 0; i < 255; i++) {
+
+      byte[] buffer = new byte[]{(byte) i};
+
+      System.err.printf("Wrote %d bytes.", device.write(buffer));
+
+      Uninterruptibles.sleepUninterruptibly(200, TimeUnit.MILLISECONDS);
+
+      byte[] buf = new byte[11];
+      int n = device.getFeatureReport(buf);
+
+      System.err.printf("Input buffer was %d bytes%n", n);
+
     }
 
-    byte[] buf = new byte[11];
-    int n = device.read(buf);
 
-    for (int i = 0; i < n; i++) {
-      System.out.println(buf[i]);
-    }
+    System.exit(0);
 
     return 0;
 

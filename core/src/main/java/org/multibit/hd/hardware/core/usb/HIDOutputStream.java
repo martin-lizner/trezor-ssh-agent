@@ -30,6 +30,7 @@ public class HIDOutputStream extends OutputStream {
 
   /**
    * @param device The HID device providing the low-level communications
+   *
    * @throws java.io.IOException If something goes wrong
    */
   public HIDOutputStream(HIDDevice device) throws IOException {
@@ -45,6 +46,7 @@ public class HIDOutputStream extends OutputStream {
    * {@link HIDOutputStream#write(byte[], int, int)} instead </p>
    *
    * @param b The byte to send (downcast from int)
+   *
    * @throws java.io.IOException
    */
   @Override
@@ -75,15 +77,14 @@ public class HIDOutputStream extends OutputStream {
       System.arraycopy(messageBuffer, messageBufferFrameIndex, hidBuffer, 1, hidBufferLength);
 
       int hidBytesSent = writeToDevice(hidBuffer);
-      if (hidBytesSent != hidBuffer.length) {
-        throw new IOException("Unable to send bytes to device. Expected: " + hidBuffer.length + " Actual: " + hidBytesSent);
+      if (hidBytesSent != hidBufferLength + 1) {
+        throw new IOException("Unable to send bytes to device. Expected: " + hidBufferLength + " Actual: " + hidBytesSent);
       }
 
       // Adjust the frame index by the number of bytes sent (less 1 for the length)
       messageBufferFrameIndex += (hidBytesSent - 1);
 
     }
-
 
   }
 
@@ -99,13 +100,17 @@ public class HIDOutputStream extends OutputStream {
    * <p>Wrap the device write method to allow for easier unit testing (Mockito cannot handle native methods)</p>
    *
    * @param hidBuffer The buffer contents to write to the device
+   *
    * @return The number of bytes written
+   *
    * @throws java.io.IOException
    */
   /* package */ int writeToDevice(byte[] hidBuffer) throws IOException {
 
-    log.debug("> {} '{}' ", hidBuffer.length, hidBuffer);
-    return device.write(hidBuffer);
+    int bytesSent = device.write(hidBuffer);
+    log.debug("> Actual: {} | Expected: {} '{}' ", bytesSent, hidBuffer.length, hidBuffer);
+
+    return bytesSent;
 
   }
 }
