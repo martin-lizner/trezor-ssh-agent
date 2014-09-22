@@ -2,12 +2,11 @@ package org.multibit.hd.hardware.core.usb;
 
 import com.codeminders.hidapi.HIDDevice;
 import com.google.common.base.Preconditions;
-import com.google.common.util.concurrent.Uninterruptibles;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.concurrent.TimeUnit;
+import java.nio.ByteBuffer;
 
 /**
  * <p>USB HID wrapper to provide the following to USB handlers:</p>
@@ -74,50 +73,61 @@ public class STM32F205xBridge {
 
     Preconditions.checkNotNull(device, "Device is not connected");
 
-//    byte[] featureReport;
-//
-//    featureReport = new byte[]{0x02, (byte) 0xa0, 0x0a};
-//
-//    int bytesSent = device.sendFeatureReport(featureReport);
-//    log.debug("> UART Probe: {} '{}'", bytesSent, featureReport);
-
     System.err.println("Probing...");
 
-//    int msg_id = 0;
-//    int msg_size = 0;
-//
-//    ByteBuffer data = ByteBuffer.allocate(32768);
-//    data.put((byte)'#');
-//    data.put((byte)'#');
-//    data.put((byte)((msg_id >> 8) & 0xFF));
-//    data.put((byte)(msg_id & 0xFF));
-//    data.put((byte)((msg_size >> 24) & 0xFF));
-//    data.put((byte)((msg_size >> 16) & 0xFF));
-//    data.put((byte)((msg_size >> 8) & 0xFF));
-//    data.put((byte)(msg_size & 0xFF));
-//    data.put(new byte[0]);
+    byte[] reportBuffer = new byte[]{0x0, (byte) 0x81};
+    System.err.printf("Feature report: %d bytes.%n", device.write(reportBuffer));
 
-    device.disableBlocking();
+    byte[] buf = new byte[32768];
+    int n = device.readTimeout(buf, 1000);
 
-    for (int i = 0; i < 255; i++) {
+    // Send Initialize
+    int msg_id = 0;
+    int msg_size = 0;
 
-      byte[] buffer = new byte[]{(byte) i};
+    ByteBuffer data = ByteBuffer.allocate(9);
+    data.put((byte) '#');
+    data.put((byte) '#');
+    data.put((byte) ((msg_id >> 8) & 0xFF));
+    data.put((byte) (msg_id & 0xFF));
+    data.put((byte) ((msg_size >> 24) & 0xFF));
+    data.put((byte) ((msg_size >> 16) & 0xFF));
+    data.put((byte) ((msg_size >> 8) & 0xFF));
+    data.put((byte) (msg_size & 0xFF));
+    data.put(new byte[0]);
 
-      System.err.printf("Wrote %d bytes.", device.write(buffer));
+    System.err.printf("Wrote %d bytes.%n", device.write(data.array()));
 
-      Uninterruptibles.sleepUninterruptibly(200, TimeUnit.MILLISECONDS);
+    // Provide a big buffer
+    buf = new byte[32768];
+    n = device.readTimeout(buf, 1000);
 
-      byte[] buf = new byte[11];
-      int n = device.getFeatureReport(buf);
+    System.err.printf("Input buffer was %d bytes%n", n);
 
-      System.err.printf("Input buffer was %d bytes%n", n);
+    // Send Ping
+    msg_id = 1;
+    msg_size = 0;
 
-    }
+    data = ByteBuffer.allocate(9);
+    data.put((byte) '#');
+    data.put((byte) '#');
+    data.put((byte) ((msg_id >> 8) & 0xFF));
+    data.put((byte) (msg_id & 0xFF));
+    data.put((byte) ((msg_size >> 24) & 0xFF));
+    data.put((byte) ((msg_size >> 16) & 0xFF));
+    data.put((byte) ((msg_size >> 8) & 0xFF));
+    data.put((byte) (msg_size & 0xFF));
+    data.put(new byte[0]);
 
+    System.err.printf("Wrote %d bytes.%n", device.write(data.array()));
 
-    System.exit(0);
+    // Provide a big buffer
+    buf = new byte[32768];
+    n = device.readTimeout(buf, 1000);
 
-    return 0;
+    System.err.printf("Input buffer was %d bytes%n", n);
+
+    return n;
 
   }
 

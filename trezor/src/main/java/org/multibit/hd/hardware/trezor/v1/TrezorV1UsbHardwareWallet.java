@@ -144,6 +144,8 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet {
     // Create and configure the USB to UART bridge
     final STM32F205xBridge usb = new STM32F205xBridge(device);
 
+    usb.probe();
+
     // Add unbuffered data streams for easy data manipulation
     out = new DataOutputStream(usb.getOutputStream());
     DataInputStream in = new DataInputStream(usb.getInputStream());
