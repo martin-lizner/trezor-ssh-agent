@@ -5,7 +5,9 @@
 
   <modelVersion>4.0.0</modelVersion>
 
+  <groupId>org.multibit.hd.hardware</groupId>
   <artifactId>examples</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
 
   <name>Examples</name>
   <description>Provides a set of standalone examples that demonstrate how to access various devices and emulators in client applications</description>
