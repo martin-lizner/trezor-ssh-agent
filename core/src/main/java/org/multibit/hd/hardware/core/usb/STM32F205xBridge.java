@@ -69,7 +69,7 @@ public class STM32F205xBridge {
    *
    * @throws java.io.IOException If something goes wrong
    */
-  public int probe() throws IOException {
+  public int probe() {
 
     Preconditions.checkNotNull(device, "Device is not connected");
 
@@ -78,12 +78,15 @@ public class STM32F205xBridge {
     byte[] reportBuffer = new byte[64];
     reportBuffer[0] = 0x0;
     //reportBuffer[1]= (byte) 0x81;
-    
-    log.info("Feature report > {} bytes.", device.write(reportBuffer));
 
-    byte[] buf = new byte[64];
-    log.info("Feature report < {} bytes.", device.readTimeout(buf, 1000));
+    try {
+      log.info("Feature report > {} bytes.", device.write(reportBuffer));
+  byte[] buf = new byte[64];
+  log.info("Feature report < {} bytes.", device.readTimeout(buf, 1000));
 
+} catch (IOException e) {
+  log.error("FAILED. Feature report.");
+}
     // Send Initialize
     int msg_id = 0;
     int msg_size = 0;
@@ -99,13 +102,17 @@ public class STM32F205xBridge {
     data.put((byte) (msg_size & 0xFF));
     data.put(new byte[0]);
 
-    log.info("Wrote {} bytes.", device.write(data.array()));
+    try {
+      log.info("Wrote {} bytes.", device.write(data.array()));
 
-    // Provide a big buffer
-    buf = new byte[32768];
-    int n = device.readTimeout(buf, 1000);
+      // Provide a big buffer
+      byte[] buf = new byte[32768];
+      int n = device.readTimeout(buf, 1000);
 
-    log.info("Input buffer was {} bytes", n);
+      log.info("Input buffer was {} bytes", n);
+    } catch (IOException e) {
+      log.error("FAILED Initialize");
+    }
 
     // Send Ping
     msg_id = 1;
@@ -122,15 +129,19 @@ public class STM32F205xBridge {
     data.put((byte) (msg_size & 0xFF));
     data.put(new byte[0]);
 
-    log.info("Wrote {} bytes.", device.write(data.array()));
+    try {
+      log.info("Wrote {} bytes.", device.write(data.array()));
 
-    // Provide a big buffer
-    buf = new byte[32768];
-    n = device.readTimeout(buf, 1000);
+      // Provide a big buffer
+      byte[] buf = new byte[32768];
+      int n = device.readTimeout(buf, 1000);
 
-    log.info("Input buffer was {} bytes", n);
+      log.info("Input buffer was {} bytes", n);
+    } catch (IOException e) {
+      log.error("FAILED. Ping.");
+    }
 
-    return n;
+    return 0;
 
   }
 
