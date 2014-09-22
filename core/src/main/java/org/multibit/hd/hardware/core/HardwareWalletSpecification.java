@@ -12,7 +12,7 @@ import java.util.Map;
  * Specification to provide the following to {@link org.multibit.hd.hardware.core.wallets.HardwareWallets}:
  * </p>
  * <ul>
- * <li>required hardware wallet specific parameters for creating an {@link org.multibit.hd.hardware.core.clients.NonBlockingHardwareWalletClient}</li>
+ * <li>required hardware wallet specific parameters for creating a client</li>
  * <li>optional hardware wallet specific parameters for additional configuration</li>
  * </ul>
  * <p>
@@ -72,8 +72,8 @@ public class HardwareWalletSpecification {
    *
    * @return A new hardware wallet specification suitable for use with sockets
    */
-  public static HardwareWalletSpecification newSocketSpecification(
-    Class<HardwareWallet> hardwareWalletClass,
+  public static <T extends HardwareWallet> HardwareWalletSpecification newSocketSpecification(
+    Class<T> hardwareWalletClass,
     String host,
     int port
   ) {
@@ -119,8 +119,8 @@ public class HardwareWalletSpecification {
    *
    * @return A new hardware wallet specification suitable for use with sockets
    */
-  public static HardwareWalletSpecification newUsbSpecification(
-    Class<HardwareWallet> hardwareWalletClass,
+  public static <T extends HardwareWallet> HardwareWalletSpecification newUsbSpecification(
+    Class<T> hardwareWalletClass,
     Optional<Integer> vendorId,
     Optional<Integer> productId,
     Optional<String> serialNumber
@@ -161,7 +161,7 @@ public class HardwareWalletSpecification {
   /**
    * @param key The key into the parameter map (recommend using the provided standard static entries)
    *
-   * @return Any additional hardware wallet specific parameters that the {@link org.multibit.hd.hardware.core.clients.NonBlockingHardwareWalletClient} may consume to configure the device
+   * @return Any additional hardware wallet specific parameters that the client may consume to configure the device
    */
   public Object getParameter(String key) {
 

@@ -7,6 +7,7 @@ import com.google.common.util.concurrent.Uninterruptibles;
 import org.multibit.hd.hardware.core.HardwareWalletService;
 import org.multibit.hd.hardware.core.events.HardwareWalletProtocolEvent;
 import org.multibit.hd.hardware.core.events.HardwareWalletSystemEvent;
+import org.multibit.hd.hardware.core.wallets.HardwareWallets;
 import org.multibit.hd.hardware.trezor.BlockingTrezorClient;
 import org.multibit.hd.hardware.trezor.UsbTrezorHardwareWallet;
 import org.slf4j.Logger;
@@ -16,8 +17,8 @@ import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 /**
- * <p>Example of communicating with a Trezor device/emulator using USB:</p>
- * <p>This is useful as an initial verification of correct </p>
+ * <p>Example of communicating with a production Trezor device over a USB HID interface:</p>
+ * <p>This is useful as an initial verification of recognising insertion and removal of a Trezor</p>
  *
  * @since 0.0.1
  *  
@@ -55,9 +56,9 @@ public class UsbMonitoringExample {
    */
   public void executeExample() throws IOException, InterruptedException, AddressFormatException {
 
-    // Create a default USB instance (expects a production Trezor device)
-    UsbTrezorHardwareWallet wallet = (UsbTrezorHardwareWallet) HardwareWalletService.newUsbInstance(
-      UsbTrezorHardwareWallet.class.getName(),
+    // Use factory to statically bind the device
+    UsbTrezorHardwareWallet wallet = HardwareWallets.newUsbInstance(
+      UsbTrezorHardwareWallet.class,
       Optional.<Integer>absent(),
       Optional.<Integer>absent(),
       Optional.<String>absent()
@@ -118,7 +119,7 @@ public class UsbMonitoringExample {
         break;
       case DEVICE_FAILURE:
         log.error("Device has failed (hardware problem)");
-        deviceFailed=true;
+        deviceFailed = true;
         break;
     }
 

@@ -8,8 +8,11 @@ import java.io.DataInputStream;
 /**
  * <p>Interface to provide the following to applications:</p>
  * <ul>
- * <li>Common methods available to hardware wallet devices</li>
+ * <li>Low level communication methods to hardware wallet devices</li>
  * </ul>
+ *
+ * <p>Typically a hardware wallet device is wrapped by a client that provides the higher protocol messages such as
+ * Initialise or Ping.</p>
  *
  * @since 0.0.1
  *  
@@ -17,7 +20,7 @@ import java.io.DataInputStream;
 public interface HardwareWallet {
 
   /**
-   * @return The hardware wallet specification in use for this exchange
+   * @return The hardware wallet specification in use
    */
   HardwareWalletSpecification getSpecification();
 

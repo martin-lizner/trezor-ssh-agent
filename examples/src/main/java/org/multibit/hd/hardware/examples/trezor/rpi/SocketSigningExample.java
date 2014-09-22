@@ -11,6 +11,7 @@ import org.multibit.hd.hardware.core.events.HardwareWalletProtocolEvent;
 import org.multibit.hd.hardware.core.events.HardwareWalletSystemEvent;
 import org.multibit.hd.hardware.core.messages.FakeTransactions;
 import org.multibit.hd.hardware.core.messages.SystemMessageType;
+import org.multibit.hd.hardware.core.wallets.HardwareWallets;
 import org.multibit.hd.hardware.trezor.BlockingTrezorClient;
 import org.multibit.hd.hardware.trezor.SocketTrezorHardwareWallet;
 import org.slf4j.Logger;
@@ -68,8 +69,8 @@ public class SocketSigningExample {
    */
   public void executeExample(String host, int port) throws IOException, InterruptedException, AddressFormatException {
 
-    SocketTrezorHardwareWallet wallet = (SocketTrezorHardwareWallet) HardwareWalletService.newSocketInstance(
-      SocketTrezorHardwareWallet.class.getName(),
+    SocketTrezorHardwareWallet wallet = HardwareWallets.newSocketInstance(
+      SocketTrezorHardwareWallet.class,
       host,
       port
     );

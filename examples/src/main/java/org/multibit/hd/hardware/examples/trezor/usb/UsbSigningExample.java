@@ -11,6 +11,7 @@ import org.multibit.hd.hardware.core.events.HardwareWalletProtocolEvent;
 import org.multibit.hd.hardware.core.events.HardwareWalletSystemEvent;
 import org.multibit.hd.hardware.core.messages.FakeTransactions;
 import org.multibit.hd.hardware.core.messages.SystemMessageType;
+import org.multibit.hd.hardware.core.wallets.HardwareWallets;
 import org.multibit.hd.hardware.trezor.BlockingTrezorClient;
 import org.multibit.hd.hardware.trezor.UsbTrezorHardwareWallet;
 import org.slf4j.Logger;
@@ -64,8 +65,8 @@ public class UsbSigningExample {
    */
   public void executeExample() throws IOException, InterruptedException, AddressFormatException {
 
-    UsbTrezorHardwareWallet wallet = (UsbTrezorHardwareWallet) HardwareWalletService.newUsbInstance(
-      UsbTrezorHardwareWallet.class.getName(),
+    UsbTrezorHardwareWallet wallet = HardwareWallets.newUsbInstance(
+      UsbTrezorHardwareWallet.class,
       Optional.<Integer>absent(),
       Optional.<Integer>absent(),
       Optional.<String>absent()
