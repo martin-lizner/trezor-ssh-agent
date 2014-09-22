@@ -75,17 +75,20 @@ public class STM32F205xBridge {
 
     System.err.println("Probing...");
 
-//    byte[] reportBuffer = new byte[]{0x0, (byte) 0x81};
-//    System.err.printf("Feature report: %d bytes.%n", device.write(reportBuffer));
+    byte[] reportBuffer = new byte[64];
+    reportBuffer[0] = 0x0;
+    //reportBuffer[1]= (byte) 0x81;
+    
+    log.info("Feature report > {} bytes.", device.write(reportBuffer));
 
-//    byte[] buf = new byte[32768];
-//    int n = device.readTimeout(buf, 1000);
+    byte[] buf = new byte[64];
+    log.info("Feature report < {} bytes.", device.readTimeout(buf, 1000));
 
     // Send Initialize
     int msg_id = 0;
     int msg_size = 0;
 
-    ByteBuffer data = ByteBuffer.allocate(9);
+    ByteBuffer data = ByteBuffer.allocate(64);
     data.put((byte) '#');
     data.put((byte) '#');
     data.put((byte) ((msg_id >> 8) & 0xFF));
@@ -96,13 +99,13 @@ public class STM32F205xBridge {
     data.put((byte) (msg_size & 0xFF));
     data.put(new byte[0]);
 
-    System.err.printf("Wrote %d bytes.%n", device.write(data.array()));
+    log.info("Wrote {} bytes.", device.write(data.array()));
 
     // Provide a big buffer
-    byte[] buf = new byte[32768];
+    buf = new byte[32768];
     int n = device.readTimeout(buf, 1000);
 
-    System.err.printf("Input buffer was %d bytes%n", n);
+    log.info("Input buffer was {} bytes", n);
 
     // Send Ping
     msg_id = 1;
@@ -119,13 +122,13 @@ public class STM32F205xBridge {
     data.put((byte) (msg_size & 0xFF));
     data.put(new byte[0]);
 
-    System.err.printf("Wrote %d bytes.%n", device.write(data.array()));
+    log.info("Wrote {} bytes.", device.write(data.array()));
 
     // Provide a big buffer
     buf = new byte[32768];
     n = device.readTimeout(buf, 1000);
 
-    System.err.printf("Input buffer was %d bytes%n", n);
+    log.info("Input buffer was {} bytes", n);
 
     return n;
 
