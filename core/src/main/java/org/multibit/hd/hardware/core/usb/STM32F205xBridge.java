@@ -75,11 +75,11 @@ public class STM32F205xBridge {
 
     System.err.println("Probing...");
 
-    byte[] reportBuffer = new byte[]{0x0, (byte) 0x81};
-    System.err.printf("Feature report: %d bytes.%n", device.write(reportBuffer));
+//    byte[] reportBuffer = new byte[]{0x0, (byte) 0x81};
+//    System.err.printf("Feature report: %d bytes.%n", device.write(reportBuffer));
 
-    byte[] buf = new byte[32768];
-    int n = device.readTimeout(buf, 1000);
+//    byte[] buf = new byte[32768];
+//    int n = device.readTimeout(buf, 1000);
 
     // Send Initialize
     int msg_id = 0;
@@ -99,8 +99,8 @@ public class STM32F205xBridge {
     System.err.printf("Wrote %d bytes.%n", device.write(data.array()));
 
     // Provide a big buffer
-    buf = new byte[32768];
-    n = device.readTimeout(buf, 1000);
+    byte[] buf = new byte[32768];
+    int n = device.readTimeout(buf, 1000);
 
     System.err.printf("Input buffer was %d bytes%n", n);
 
