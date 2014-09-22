@@ -109,9 +109,9 @@ public class STM32F205xBridge {
       byte[] buf = new byte[32768];
       int n = device.readTimeout(buf, 1000);
 
-      log.info("Input buffer was {} bytes", n);
+      log.info("Initialise: {} bytes", n);
     } catch (IOException e) {
-      log.error("FAILED Initialize");
+      log.error("FAILED Initialise");
     }
 
     // Send Ping
@@ -136,7 +136,7 @@ public class STM32F205xBridge {
       byte[] buf = new byte[32768];
       int n = device.readTimeout(buf, 1000);
 
-      log.info("Input buffer was {} bytes", n);
+      log.info("Ping: {} bytes", n);
     } catch (IOException e) {
       log.error("FAILED. Ping.");
     }

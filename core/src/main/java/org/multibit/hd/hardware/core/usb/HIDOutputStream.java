@@ -77,9 +77,6 @@ public class HIDOutputStream extends OutputStream {
       System.arraycopy(messageBuffer, messageBufferFrameIndex, hidBuffer, 1, hidBufferLength);
 
       int hidBytesSent = writeToDevice(hidBuffer);
-      if (hidBytesSent != hidBufferLength + 1) {
-        throw new IOException("Unable to send bytes to device. Expected: " + hidBufferLength + " Actual: " + hidBytesSent);
-      }
 
       // Adjust the frame index by the number of bytes sent (less 1 for the length)
       messageBufferFrameIndex += (hidBytesSent - 1);
