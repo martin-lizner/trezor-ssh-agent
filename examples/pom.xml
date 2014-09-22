@@ -2,17 +2,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <parent>
-    <groupId>org.multibit.hd.hardware</groupId>
-    <artifactId>parent</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-  </parent>
+
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>examples</artifactId>
 
   <name>Examples</name>
-  <description>Provides a set of examples that demonstrate how to access various devices and emulators in client applications</description>
+  <description>Provides a set of standalone examples that demonstrate how to access various devices and emulators in client applications</description>
 
   <build>
 
@@ -96,7 +92,7 @@
 
   </build>
 
-  <!-- Parent provides default configuration for dependencies -->
+  <!-- Examples are a standalone downstream project so must provide the dependencies -->
   <dependencies>
 
     <!-- Emulators -->
@@ -106,11 +102,48 @@
       <version>0.0.1-SNAPSHOT</version>
     </dependency>
 
-    <!-- Trezor -->
+    <!-- Trezor (brings in most dependencies transitively) -->
     <dependency>
       <groupId>org.multibit.hd.hardware</groupId>
       <artifactId>trezor</artifactId>
       <version>0.0.1-SNAPSHOT</version>
+    </dependency>
+
+    <!-- SLF$J Simple for logging in the Examples project
+
+         Your project is expected to provide its own SLF4J adapters
+         such as logback, slf4j-log4j12, slf4j-jcl and so on
+    -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-simple</artifactId>
+      <version>1.7.2</version>
+    </dependency>
+
+    <!-- Testing -->
+
+    <!-- JUnit for testing -->
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.11</version>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- FEST for fluent test assertions -->
+    <dependency>
+      <groupId>org.easytesting</groupId>
+      <artifactId>fest-assert-core</artifactId>
+      <version>2.0M10</version>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- Mockito for mocking -->
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <version>1.8.5</version>
+      <scope>test</scope>
     </dependency>
 
   </dependencies>

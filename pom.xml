@@ -100,7 +100,6 @@
   <modules>
     <module>core</module>
     <module>trezor</module>
-    <module>examples</module>
     <module>emulators</module>
   </modules>
 
@@ -191,7 +190,8 @@
     </plugins>
   </build>
 
-  <!-- Provide defaults for all modules to use -->
+  <!-- Parent provides default configuration for dependencies
+       (see examples project to how to arrange this in downstream applications -->
   <dependencyManagement>
     <dependencies>
 
@@ -200,27 +200,6 @@
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
         <version>${slf4j.version}</version>
-        <scope>provided</scope>
-      </dependency>
-
-      <!-- mbhd-hardware consumers are expected to provide their own SLF4J adapters
-           such as logback, slf4j-log4j12, slf4j-jcl and so on
-           The SLF4J Simple is just for console logging for the tests
-           See http://www.slf4j.org/faq.html -->
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-simple</artifactId>
-        <version>${slf4j.version}</version>
-        <scope>test</scope>
-        <optional>true</optional>
-      </dependency>
-
-      <!-- Google Guava for code utilities -->
-      <dependency>
-        <groupId>com.google.guava</groupId>
-        <artifactId>guava</artifactId>
-        <version>14.0.1</version>
-        <scope>provided</scope>
       </dependency>
 
       <!-- Java HID API for USB -->
@@ -235,21 +214,6 @@
         <groupId>com.google</groupId>
         <artifactId>bitcoinj</artifactId>
         <version>0.12-SNAPSHOT</version>
-        <scope>provided</scope>
-        <exclusions>
-          <exclusion>
-            <groupId>com.google.protobuf</groupId>
-            <artifactId>protobuf-java</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-
-      <!-- Protocol buffers for serialisation -->
-      <dependency>
-        <groupId>com.google.protobuf</groupId>
-        <artifactId>protobuf-java</artifactId>
-        <version>2.5.0</version>
-        <scope>provided</scope>
       </dependency>
 
       <!-- Testing -->
@@ -290,12 +254,6 @@
       <artifactId>slf4j-api</artifactId>
     </dependency>
 
-    <!-- Google Guava for code utilities -->
-    <dependency>
-      <groupId>com.google.guava</groupId>
-      <artifactId>guava</artifactId>
-    </dependency>
-
     <!-- Java HID API for USB -->
     <dependency>
       <groupId>com.codeminders</groupId>
@@ -308,18 +266,13 @@
       <artifactId>bitcoinj</artifactId>
     </dependency>
 
-    <!-- Protocol buffers for serialisation -->
-    <dependency>
-      <groupId>com.google.protobuf</groupId>
-      <artifactId>protobuf-java</artifactId>
-    </dependency>
-
     <!-- Testing -->
 
     <!-- SLF4J simple for logging test output -->
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-simple</artifactId>
+      <version>${slf4j.version}</version>
       <scope>test</scope>
     </dependency>
 
