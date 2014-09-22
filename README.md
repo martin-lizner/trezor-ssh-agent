@@ -111,7 +111,7 @@ Plug in the device to the USB port and wait for initialisation to complete.
 Attempt to discover the device using the `UsbMonitoringExample` through the command line not the IDE:
 ```
 cd examples
-mvn exec:java -Dexec.mainClass="org.multibit.hd.hardware.examples.trezor.usb.UsbMonitoringExample"
+mvn clean compile exec:java -Dexec.mainClass="org.multibit.hd.hardware.examples.trezor.usb.UsbMonitoringExample"
 ```
 
 This will list available devices on the USB and select a Trezor if present.
