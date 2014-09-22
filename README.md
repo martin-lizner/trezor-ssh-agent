@@ -114,7 +114,8 @@ cd examples
 mvn clean compile exec:java -Dexec.mainClass="org.multibit.hd.hardware.examples.trezor.usb.UsbMonitoringExample"
 ```
 
-This will list available devices on the USB and select a Trezor if present.
+This will list available devices on the USB and select a Trezor if present. It relies on the MultiBit Hardware project
+JARs being installed into the local repository (e.g. built with `mvn clean install`).
 
 ### Working with a Raspberry Pi emulation device
 
