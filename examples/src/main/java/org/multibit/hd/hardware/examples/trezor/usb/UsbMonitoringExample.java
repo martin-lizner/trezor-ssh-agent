@@ -3,18 +3,16 @@ package org.multibit.hd.hardware.examples.trezor.usb;
 import com.google.bitcoin.core.AddressFormatException;
 import com.google.common.base.Optional;
 import com.google.common.eventbus.Subscribe;
-import com.google.common.util.concurrent.Uninterruptibles;
 import org.multibit.hd.hardware.core.HardwareWalletService;
 import org.multibit.hd.hardware.core.events.HardwareWalletProtocolEvent;
 import org.multibit.hd.hardware.core.events.HardwareWalletSystemEvent;
 import org.multibit.hd.hardware.core.wallets.HardwareWallets;
 import org.multibit.hd.hardware.trezor.BlockingTrezorClient;
-import org.multibit.hd.hardware.trezor.UsbTrezorHardwareWallet;
+import org.multibit.hd.hardware.trezor.v1.TrezorV1UsbHardwareWallet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.concurrent.TimeUnit;
 
 /**
  * <p>Example of communicating with a production Trezor device over a USB HID interface:</p>
@@ -57,8 +55,8 @@ public class UsbMonitoringExample {
   public void executeExample() throws IOException, InterruptedException, AddressFormatException {
 
     // Use factory to statically bind the device
-    UsbTrezorHardwareWallet wallet = HardwareWallets.newUsbInstance(
-      UsbTrezorHardwareWallet.class,
+    TrezorV1UsbHardwareWallet wallet = HardwareWallets.newUsbInstance(
+      TrezorV1UsbHardwareWallet.class,
       Optional.<Integer>absent(),
       Optional.<Integer>absent(),
       Optional.<String>absent()
@@ -67,24 +65,16 @@ public class UsbMonitoringExample {
     // Create a blocking Trezor client (good for demonstrations but not practical for wallets)
     BlockingTrezorClient client = new BlockingTrezorClient(wallet);
 
-    // Connect the client
-    while (!client.connect() && !deviceFailed) {
-
-      Uninterruptibles.sleepUninterruptibly(2, TimeUnit.SECONDS);
-
-    }
-
-    if (!deviceFailed) {
+    // Block until a client connects or fails
+    if (client.connect()) {
 
       log.info("Attempting basic Trezor protobuf communication");
 
-      client.resetDevice("en", "hello", true, false, false, 256);
+      // Initialize
+      client.initialize();
 
       // Send a ping
       client.ping();
-
-      // Initialize
-      client.initialize();
 
     } else {
 

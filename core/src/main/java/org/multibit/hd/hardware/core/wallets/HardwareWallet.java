@@ -45,6 +45,13 @@ public interface HardwareWallet {
   /**
    * <p>Attempt a connection to the device</p>
    *
+   * <p>Implementers must ensure the following behaviour:</p>
+   * <ul>
+   *   <li>The device is assumed to be connected and discoverable</li>
+   *   <li>Method will return false if USB HID librar</li>
+   *   <li>A HardwareWalletSystemEvent.FAILURE event will be generated if the USB HID communication fails</li>
+   * </ul>
+   *
    * @return True if the connection was successful
    */
   boolean connect();

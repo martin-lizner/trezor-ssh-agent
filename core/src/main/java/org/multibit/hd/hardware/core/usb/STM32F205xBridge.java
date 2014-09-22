@@ -156,17 +156,7 @@ public class STM32F205xBridge {
 
     Preconditions.checkNotNull(device, "Device is not connected");
 
-    byte[] featureReport;
-    if (enabled) {
-      featureReport = new byte[]{0x041, 0x01};
-    } else {
-      featureReport = new byte[]{0x041, 0x00};
-
-    }
-    int bytesSent = device.sendFeatureReport(featureReport);
-    log.debug("> UART Enable: {} '{}'", bytesSent, featureReport);
-
-    return bytesSent;
+    return 0;
   }
 
   /**

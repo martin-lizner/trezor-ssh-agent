@@ -10,7 +10,7 @@ import org.multibit.hd.hardware.core.events.HardwareWalletSystemEvent;
 import org.multibit.hd.hardware.core.messages.SystemMessageType;
 import org.multibit.hd.hardware.core.wallets.HardwareWallets;
 import org.multibit.hd.hardware.trezor.BlockingTrezorClient;
-import org.multibit.hd.hardware.trezor.SocketTrezorHardwareWallet;
+import org.multibit.hd.hardware.trezor.shield.TrezorShieldSocketHardwareWallet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,8 +58,8 @@ public class SocketMonitoringExample {
    */
   public void executeExample(String host, int port) throws IOException, InterruptedException, AddressFormatException {
 
-    SocketTrezorHardwareWallet wallet = HardwareWallets.newSocketInstance(
-      SocketTrezorHardwareWallet.class,
+    TrezorShieldSocketHardwareWallet wallet = HardwareWallets.newSocketInstance(
+      TrezorShieldSocketHardwareWallet.class,
       host,
       port
     );

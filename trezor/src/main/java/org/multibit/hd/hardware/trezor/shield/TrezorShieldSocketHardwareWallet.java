@@ -1,10 +1,12 @@
-package org.multibit.hd.hardware.trezor;
+package org.multibit.hd.hardware.trezor.shield;
 
 import com.google.common.base.Preconditions;
 import com.google.protobuf.Message;
 import org.multibit.hd.hardware.core.HardwareWalletSpecification;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
 import org.multibit.hd.hardware.core.messages.SystemMessageType;
+import org.multibit.hd.hardware.trezor.AbstractTrezorHardwareWallet;
+import org.multibit.hd.hardware.trezor.TrezorMessageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,15 +16,15 @@ import java.net.Socket;
 /**
  * <p>Trezor implementation to provide the following to applications:</p>
  * <ul>
- * <li>Access to a Trezor device over a socket</li>
+ * <li>Access to a Trezor emulator (such as a Shield on a RPi or Linux VM) communicating over a socket</li>
  * </ul>
  *
  * @since 0.0.1
  *  
  */
-public class SocketTrezorHardwareWallet extends AbstractTrezorHardwareWallet {
+public class TrezorShieldSocketHardwareWallet extends AbstractTrezorHardwareWallet {
 
-  private static final Logger log = LoggerFactory.getLogger(SocketTrezorHardwareWallet.class);
+  private static final Logger log = LoggerFactory.getLogger(TrezorShieldSocketHardwareWallet.class);
 
   private Socket socket = null;
   private DataOutputStream out = null;
@@ -33,7 +35,7 @@ public class SocketTrezorHardwareWallet extends AbstractTrezorHardwareWallet {
   /**
    * Default constructor for use with dynamic binding
    */
-  public SocketTrezorHardwareWallet() {
+  public TrezorShieldSocketHardwareWallet() {
     this("localhost", 3000);
   }
 
@@ -43,7 +45,7 @@ public class SocketTrezorHardwareWallet extends AbstractTrezorHardwareWallet {
    * @param host The host name or IP address (e.g. "192.168.0.1")
    * @param port The port (e.g. 3000)
    */
-  public SocketTrezorHardwareWallet(String host, int port) {
+  public TrezorShieldSocketHardwareWallet(String host, int port) {
 
     Preconditions.checkNotNull(host, "'host' must be present");
     Preconditions.checkState(port > 0 && port < 65535, "'port' must be within range");

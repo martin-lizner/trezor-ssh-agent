@@ -1,4 +1,4 @@
-package org.multibit.hd.hardware.trezor;
+package org.multibit.hd.hardware.trezor.shield;
 
 import com.codeminders.hidapi.ClassPathLibraryLoader;
 import com.codeminders.hidapi.HIDDevice;
@@ -11,6 +11,8 @@ import org.multibit.hd.hardware.core.HardwareWalletSpecification;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
 import org.multibit.hd.hardware.core.messages.SystemMessageType;
 import org.multibit.hd.hardware.core.usb.CP211xBridge;
+import org.multibit.hd.hardware.trezor.AbstractTrezorHardwareWallet;
+import org.multibit.hd.hardware.trezor.TrezorMessageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,21 +23,18 @@ import java.io.IOException;
 /**
  * <p>Trezor implementation to provide the following to applications:</p>
  * <ul>
- * <li>Access to a Trezor device over USB</li>
+ * <li>Access to the Trezor RPi emulation device over USB</li>
  * </ul>
  *
  * @since 0.0.1
  *  
  */
-public class UsbTrezorHardwareWallet extends AbstractTrezorHardwareWallet {
+public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet {
 
-  private static final Integer SATOSHI_LABS_VENDOR_ID = 0x534c; // 21324 dec
-  private static final Integer TREZOR_V1_PRODUCT_ID = 1;
+  private static final Integer RPI_UART_VENDOR_ID = 0x10c4;
+  private static final Integer RPI_UART_PRODUCT_ID = 0xea80;
 
-//  private static final Integer SATOSHI_LABS_VENDOR_ID = 0x10c4; // 21324 dec
-//  private static final Integer TREZOR_V1_PRODUCT_ID = 0xea80;
-
-  private static final Logger log = LoggerFactory.getLogger(UsbTrezorHardwareWallet.class);
+  private static final Logger log = LoggerFactory.getLogger(TrezorShieldUsbHardwareWallet.class);
 
   private Optional<Integer> vendorId = Optional.absent();
   private Optional<Integer> productId = Optional.absent();
@@ -48,21 +47,21 @@ public class UsbTrezorHardwareWallet extends AbstractTrezorHardwareWallet {
   /**
    * Default constructor for use with dynamic binding
    */
-  public UsbTrezorHardwareWallet() {
+  public TrezorShieldUsbHardwareWallet() {
     this(Optional.<Integer>absent(), Optional.<Integer>absent(), Optional.<String>absent());
 
   }
 
   /**
-   * <p>Create a new instance of a USB-based Trezor device (standard)</p>
+   * <p>Create a new instance of a USB-based Trezor emulator running on a Raspberry Pi with the Shield hardware</p>
    *
    * @param vendorId     The vendor ID (default is 0x10c4)
    * @param productId    The product ID (default is 0xea80)
    * @param serialNumber The device serial number (default is to accept any)
    */
-  public UsbTrezorHardwareWallet(Optional<Integer> vendorId,
-                                 Optional<Integer> productId,
-                                 Optional<String> serialNumber) {
+  public TrezorShieldUsbHardwareWallet(Optional<Integer> vendorId,
+                                       Optional<Integer> productId,
+                                       Optional<String> serialNumber) {
 
     // Initialise the HID library
     if (!ClassPathLibraryLoader.loadNativeHIDLibrary()) {
@@ -138,16 +137,15 @@ public class UsbTrezorHardwareWallet extends AbstractTrezorHardwareWallet {
    *
    * @return True if the device responded to the UART serial initialisation
    *
-   * @throws IOException If something goes wrong
+   * @throws java.io.IOException If something goes wrong
    */
   private boolean attachDevice(HIDDevice device) throws IOException {
 
     // Create and configure the USB to UART bridge
     final CP211xBridge uart = new CP211xBridge(device);
 
-//    uart.enable(true);
-//    uart.purge(3);
-//    uart.status();
+    uart.enable(true);
+    uart.purge(3);
 
     // Add unbuffered data streams for easy data manipulation
     out = new DataOutputStream(uart.getOutputStream());
@@ -166,7 +164,7 @@ public class UsbTrezorHardwareWallet extends AbstractTrezorHardwareWallet {
   /**
    * @return A HID device with the given vendor, product and serial number IDs
    *
-   * @throws IOException If something goes wrong with the USB
+   * @throws java.io.IOException If something goes wrong with the USB
    */
   private Optional<HIDDevice> locateDevice() throws IOException {
 
@@ -224,7 +222,7 @@ public class UsbTrezorHardwareWallet extends AbstractTrezorHardwareWallet {
   /**
    * @return The HID device info, if present
    *
-   * @throws IOException If the USB connection fails
+   * @throws java.io.IOException If the USB connection fails
    */
   private Optional<HIDDeviceInfo> locateTrezor() throws IOException {
 
@@ -244,8 +242,8 @@ public class UsbTrezorHardwareWallet extends AbstractTrezorHardwareWallet {
     }
 
     // Use the default IDs or those supplied externally
-    Integer vendorId = this.vendorId.isPresent() ? this.vendorId.get() : SATOSHI_LABS_VENDOR_ID;
-    Integer productId = this.productId.isPresent() ? this.productId.get() : TREZOR_V1_PRODUCT_ID;
+    Integer vendorId = this.vendorId.isPresent() ? this.vendorId.get() : RPI_UART_VENDOR_ID;
+    Integer productId = this.productId.isPresent() ? this.productId.get() : RPI_UART_PRODUCT_ID;
 
     // Attempt to locate the required device
     Optional<HIDDeviceInfo> selectedInfo = Optional.absent();
