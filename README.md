@@ -95,8 +95,6 @@ $ git push
 We normally expect the HEAD of the submodule origin master branch to [represent the latest production release](http://nvie.com/posts/a-successful-git-branching-model/), but that's up to the
 owner of the repo.
 
-The new protobuf files  
-
 #### Read the wiki for detailed instructions
 
 Have a read of [the wiki pages](https://github.com/bitcoin-solutions/mbhd-hardware/wiki/_pages) which gives comprehensive
@@ -120,6 +118,7 @@ JARs being installed into the local repository (e.g. built with `mvn clean insta
 ### Working with a Raspberry Pi emulation device
 
 A low-cost introduction to the Trezor is the use of a Raspberry Pi and the Trezor Shield development hardware available from [Satoshi Labs](http://satoshilabs.com/news/2013-07-15-raspberry-pi-shield-for-developers/).
+Please read the [instructions on how to set up your RPi + Shield hardware](https://github.com/bitcoin-solutions/multibit-hardware/wiki/Trezor-on-Raspberry-Pi-from-scratch).
 
 #### Configuring a RPi for socket emulation
 
@@ -178,6 +177,14 @@ sudo ./rpi-serial.sh
 ```
 You should see the Shield OLED show the Trezor logo.
 
+If you want your Raspberry Pi to be a dedicated USB Trezor device then adding the following commands will cause the
+emulator software to be run on boot up
+
+```
+$ sudo ln -s /home/pi/trezor-emu/rpi-init /etc/init.d/trezor
+$ sudo update-rc.d trezor defaults
+```
+
 ### Troubleshooting
 
 The following are known issues and their solutions or workarounds.
@@ -187,6 +194,23 @@ The following are known issues and their solutions or workarounds.
 The `iconv` library is used to map character sets and is usually provided as part of the operating system. MultiBit Hardware
 will work with version 1.11+. We have seen problems with running the code through an IDE where `iconv` responds with a failure
 code of -1.   
+
+#### My production Trezor doesn't work on Mac OS X
+
+Correct. After 4 days of trying everything we could think of we just could not get the HID interface to a production Trezor
+to work on Mac OS X Mavericks. Our conclusion was the following:
+
+* A device declaring itself as USB HID is claimed by Mac OS X and is not released to anything using `libusb` so usb4java is ineffective
+* A signed kernel extension (kext) can be used to trick OS X into releasing this claim removing the "Access denied" message but this
+ cannot be part of the MultiBit Hardware project because it's really the responsibility of the device manufacturers to provide
+* it could be that an update to the `javahidapi` wrapper for the Signal 11 `hidapi` would work but to go down that road would
+ mean the MultiBit Hardware project forking `javahidapi` and that's just too much effort for us to maintain
+ 
+Possible workarounds are:
+ 
+* buy a cheap Windows laptop and use that for your Trezor 
+* use a Raspberry Pi as a "bridge" between the production Trezor and an Ethernet socket connection 
+* invest time and money into getting Mac OS X support integrated into MultiBit Hardware (donations and pull requests accepted)
 
 ### Closing notes
 
