@@ -189,22 +189,39 @@ $ sudo update-rc.d trezor defaults
 
 The following are known issues and their solutions or workarounds.
 
+#### My production Trezor doesn't work on Ubuntu
+
+Out of the box Ubuntu classifies HID devices as belonging to root. You can override this rule by creating your own under `/etc/udev/rules.d`:
+
+```
+$ sudo gedit /etc/udev/rules.d/99-trezorhid.rules
+```
+
+Make the content of this file as below:
+
+```
+# Trezor HID device
+ATTRS{idProduct}=="0001", ATTRS{idVendor}=="534c", MODE="0660", GROUP="plugdev"
+```
+
+Save and exit from root, then unplug and replug your production Trezor. The rules should take effect immediately. If they're still not running it may that you're not a member of the `plugdev` group. You can fix this as follows (assuming that `plugdev` is not present on your system):
+
+```
+$ sudo addgroup plugdev
+$ sudo addgroup yourusername plugdev 
+```
+
 #### When running the examples I get errors indicating `iconv` is missing or broken
 
-The `iconv` library is used to map character sets and is usually provided as part of the operating system. MultiBit Hardware
-will work with version 1.11+. We have seen problems with running the code through an IDE where `iconv` responds with a failure
-code of -1.   
+The `iconv` library is used to map character sets and is usually provided as part of the operating system. MultiBit Hardware will work with version 1.11+. We have seen problems with running the code through an IDE where `iconv` responds with a failure code of -1.
 
 #### My production Trezor doesn't work on Mac OS X
 
-Correct. After 4 days of trying everything we could think of we just could not get the HID interface to a production Trezor
-to work on Mac OS X Mavericks. Our conclusion was the following:
+Correct. After 4 days of trying everything we could think of we just could not get the HID interface to a production Trezor to work on Mac OS X Mavericks. Our conclusion was the following:
 
 * A device declaring itself as USB HID is claimed by Mac OS X and is not released to anything using `libusb` so usb4java is ineffective
-* A signed kernel extension (kext) can be used to trick OS X into releasing this claim removing the "Access denied" message but this
- cannot be part of the MultiBit Hardware project because it's really the responsibility of the device manufacturers to provide
-* it could be that an update to the `javahidapi` wrapper for the Signal 11 `hidapi` would work but to go down that road would
- mean the MultiBit Hardware project forking `javahidapi` and that's just too much effort for us to maintain
+* A signed kernel extension (kext) can be used to trick OS X into releasing this claim removing the "Access denied" message but this cannot be part of the MultiBit Hardware project because it's really the responsibility of the device manufacturers to provide
+* it could be that an update to the `javahidapi` wrapper for the Signal 11 `hidapi` library would work but to go down that road would  mean the MultiBit Hardware project forking `javahidapi` and that's just too much effort for us to maintain
  
 Possible workarounds are:
  
