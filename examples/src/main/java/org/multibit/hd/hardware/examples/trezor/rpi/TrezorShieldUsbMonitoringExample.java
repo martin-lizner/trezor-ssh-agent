@@ -71,15 +71,20 @@ public class TrezorShieldUsbMonitoringExample {
 
       log.info("Attempting basic Trezor protobuf communication");
 
+      // Wipe
+      client.wipeDevice();
+
       // Reset
-      client.resetDevice(
-        "english",
-        "Aardvark",
-        true,
-        true,
-        true,
-        128
-      );
+//      client.resetDevice(
+//        "english",
+//        "Aardvark",
+//        true,
+//        true,
+//        true,
+//        128
+//      );
+
+
 
       // Initialize
       client.initialize();
