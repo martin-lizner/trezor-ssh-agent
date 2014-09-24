@@ -1,4 +1,4 @@
-package org.multibit.hd.hardware.core.usb;
+package org.multibit.hd.hardware.core.devicetransport;
 
 import com.codeminders.hidapi.HIDDevice;
 import com.google.common.base.Preconditions;
@@ -13,13 +13,14 @@ import java.io.IOException;
  * <li>Low level read/write operations with a CP211x USB to UART bridge</li>
  * <li>Simple stream-based communication via a {@link com.codeminders.hidapi.HIDDevice}</li>
  * </ul>
+ * <p>This supports a Raspberry Pi emulator running over a USB connection</p>
  */
-public class CP211xBridge {
+public class CP211xTransport implements DeviceTransport {
 
   /**
    * Provides logging for this class
    */
-  private static final Logger log = LoggerFactory.getLogger(CP211xBridge.class);
+  private static final Logger log = LoggerFactory.getLogger(CP211xTransport.class);
 
   private final HIDDevice device;
   private final HIDInputStream hidInputStream;
@@ -29,7 +30,7 @@ public class CP211xBridge {
    * @param device The HID device providing the low-level communications
    * @throws java.io.IOException If something goes wrong
    */
-  public CP211xBridge(HIDDevice device) throws IOException {
+  public CP211xTransport(HIDDevice device) throws IOException {
     this.device = device;
     this.hidInputStream = new HIDInputStream(device);
     this.hidOutputStream = new HIDOutputStream(device);
@@ -42,6 +43,7 @@ public class CP211xBridge {
    * @return The HID input stream
    * @throws java.io.IOException If something goes wrong
    */
+  @Override
   public HIDInputStream getInputStream() throws IOException {
     return this.hidInputStream;
   }
@@ -53,6 +55,7 @@ public class CP211xBridge {
    * @return The HID input stream
    * @throws java.io.IOException If something goes wrong
    */
+  @Override
   public HIDOutputStream getOutputStream() throws IOException {
     return this.hidOutputStream;
 
@@ -65,6 +68,7 @@ public class CP211xBridge {
    * @return The number of bytes sent in the feature report
    * @throws java.io.IOException If something goes wrong
    */
+  @Override
   public int reset() throws IOException {
 
     Preconditions.checkNotNull(device, "Device is not connected");
@@ -85,6 +89,7 @@ public class CP211xBridge {
    * @return The number of bytes sent in the feature report
    * @throws java.io.IOException If something goes wrong
    */
+  @Override
   public int enable(boolean enabled) throws IOException {
 
     Preconditions.checkNotNull(device, "Device is not connected");
@@ -117,6 +122,7 @@ public class CP211xBridge {
    * @return The feature report
    * @throws java.io.IOException If something goes wrong
    */
+  @Override
   public byte[] status() throws IOException {
 
     Preconditions.checkNotNull(device, "Device is not connected");
@@ -136,6 +142,7 @@ public class CP211xBridge {
    * @return The number of bytes sent in the feature report
    * @throws java.io.IOException If something goes wrong
    */
+  @Override
   public int purge(int purgeType) throws IOException {
 
     Preconditions.checkNotNull(device, "Device is not connected");

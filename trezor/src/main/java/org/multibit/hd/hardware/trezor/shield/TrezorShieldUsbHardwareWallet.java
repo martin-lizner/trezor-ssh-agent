@@ -10,7 +10,7 @@ import com.google.protobuf.Message;
 import org.multibit.hd.hardware.core.HardwareWalletSpecification;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
 import org.multibit.hd.hardware.core.messages.SystemMessageType;
-import org.multibit.hd.hardware.core.usb.CP211xBridge;
+import org.multibit.hd.hardware.core.devicetransport.CP211xTransport;
 import org.multibit.hd.hardware.trezor.AbstractTrezorHardwareWallet;
 import org.multibit.hd.hardware.trezor.TrezorMessageUtils;
 import org.slf4j.Logger;
@@ -142,7 +142,7 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
   private boolean attachDevice(HIDDevice device) throws IOException {
 
     // Create and configure the USB to UART bridge
-    final CP211xBridge uart = new CP211xBridge(device);
+    final CP211xTransport uart = new CP211xTransport(device);
 
     uart.enable(true);
     uart.purge(3);

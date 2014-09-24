@@ -1,4 +1,4 @@
-package org.multibit.hd.hardware.core.usb;
+package org.multibit.hd.hardware.core.devicetransport;
 
 import com.codeminders.hidapi.HIDDevice;
 import com.google.common.base.Preconditions;
@@ -13,14 +13,15 @@ import java.nio.ByteBuffer;
  * <ul>
  * <li>Low level read/write operations with an STM 32F205x USB to UART bridge</li>
  * <li>Simple stream-based communication via a {@link com.codeminders.hidapi.HIDDevice}</li>
+ * <p>This supports a version 1 production Trezor</p>
  * </ul>
  */
-public class STM32F205xBridge {
+public class STM32F205xTransport {
 
   /**
    * Provides logging for this class
    */
-  private static final Logger log = LoggerFactory.getLogger(STM32F205xBridge.class);
+  private static final Logger log = LoggerFactory.getLogger(STM32F205xTransport.class);
 
   private final HIDDevice device;
   private final HIDInputStream hidInputStream;
@@ -31,7 +32,7 @@ public class STM32F205xBridge {
    *
    * @throws java.io.IOException If something goes wrong
    */
-  public STM32F205xBridge(HIDDevice device) throws IOException {
+  public STM32F205xTransport(HIDDevice device) throws IOException {
     this.device = device;
     this.hidInputStream = new HIDInputStream(device);
     this.hidOutputStream = new HIDOutputStream(device);

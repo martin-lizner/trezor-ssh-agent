@@ -1,4 +1,4 @@
-package org.multibit.hd.hardware.core.usb;
+package org.multibit.hd.hardware.core.devicetransport;
 
 import com.codeminders.hidapi.HIDDevice;
 import com.google.common.base.Preconditions;

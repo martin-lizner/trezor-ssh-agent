@@ -292,7 +292,7 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet {
   private boolean attachDevice(UsbDevice device) throws IOException {
 
     // Create and configure the USB to UART bridge
-//    final CP211xBridge uart = new CP211xBridge(device);
+//    final CP211xTransport uart = new CP211xTransport(device);
 
     //   uart.enable(true);
     //   uart.purge(3);
