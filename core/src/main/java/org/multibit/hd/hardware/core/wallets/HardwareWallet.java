@@ -1,9 +1,11 @@
 package org.multibit.hd.hardware.core.wallets;
 
 import com.google.protobuf.Message;
+import org.multibit.hd.hardware.core.HardwareWalletException;
 import org.multibit.hd.hardware.core.HardwareWalletSpecification;
 
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 
 /**
  * <p>Interface to provide the following to applications:</p>
@@ -71,13 +73,21 @@ public interface HardwareWallet {
   void sendMessage(Message message);
 
   /**
-   * <p>Convert the protocol message(s) in the data stream to events</p>
-   *
-   * @param in The data input stream from the device
-   */
-  boolean adaptProtocolMessageToEvents(DataInputStream in);
+    * Parse a Trezor protobuf message from a data input stream
+    * @param in The DataInputStream
+    * @return the parsed Message
+    */
+   Message parseTrezorMessage(DataInputStream in) throws HardwareWalletException;
 
-  // TODO consider a session ID for multiple attached devices and event separation
+  /**
+   * Get the DataInputStream that the hardware wallet is using to emit data
+   */
+   DataInputStream getDataInputStream();
+
+  /**
+    * Get the DataOutputStream that the hardware wallet is using to receive data
+    */
+   DataOutputStream getDataOutputStream();
 
 
 }

@@ -41,6 +41,7 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
   private Optional<String> serialNumber = Optional.absent();
 
   private DataOutputStream out = null;
+  private DataInputStream in = null;
 
   private Optional<HIDDevice> deviceOptional = Optional.absent();
 
@@ -149,7 +150,7 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
 
     // Add unbuffered data streams for easy data manipulation
     out = new DataOutputStream(uart.getOutputStream());
-    DataInputStream in = new DataInputStream(uart.getInputStream());
+    in = new DataInputStream(uart.getInputStream());
 
     // Monitor the input stream
     monitorDataInputStream(in);
@@ -294,4 +295,13 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
 
   }
 
+  @Override
+  public DataInputStream getDataInputStream() {
+    return in;
+  }
+
+  @Override
+  public DataOutputStream getDataOutputStream() {
+    return out;
+  }
 }

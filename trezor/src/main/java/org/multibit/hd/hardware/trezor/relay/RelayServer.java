@@ -65,11 +65,11 @@ public class RelayServer {
     create(hardwareWallet, portNumber);
 
     serverExecutorService.submit(new Runnable() {
-       @Override
-       public void run() {
-         start();
-       }
-     });
+      @Override
+      public void run() {
+        start();
+      }
+    });
   }
 
   private void create(HardwareWallet hardwareWallet, int portNumber) {
@@ -104,16 +104,16 @@ public class RelayServer {
       DataInputStream inputFromClient = new DataInputStream(new BufferedInputStream(clientSocket.getInputStream(), 1024));
 
       // Get the output and input streams to and from the hardwareWallet
-      DataOutputStream outputToHardwareWallet = getHardwareWalletOutputStream();
-      DataInputStream inputFromHardwareWallet = getHardwareWalletInputStream();
+      DataOutputStream outputToHardwareWallet = hardwareWallet.getDataOutputStream();
+      DataInputStream inputFromHardwareWallet = hardwareWallet.getDataInputStream();
 
-      Message messageFromClient = parseMessage(inputFromClient);
+      Message messageFromClient = hardwareWallet.parseTrezorMessage(inputFromClient);
       log.debug("Received message from client, relaying to hardware wallet. Message = '" + messageFromClient.toString() + "'");
 
-      sendMessage(messageFromClient, outputToHardwareWallet);
       // Send the Message to the trezor (serialising again to protobuf)
+      sendMessage(messageFromClient, outputToHardwareWallet);
 
-      // Monitor the input stream from the hardware wallet - this is then logged and relayed to the client
+      // Monitor the input stream from the hardware wallet - this is then logged and relayed back to the client
       monitorDataInputStream(inputFromHardwareWallet, outputToClient);
     } catch (IOException ioe) {
       ioe.printStackTrace();
@@ -121,55 +121,20 @@ public class RelayServer {
   }
 
   /**
-   * Parse the protobuf coming down the DataInputStream into a protobuf message
-   * @param inputFromClient DataInputStream containing protobuf messages
-   * @return the protobuf message deserialised
-   */
-  private Message parseMessage (DataInputStream inputFromClient) {
-    // TODO
-    return null;
-  }
-
-  private DataOutputStream getHardwareWalletOutputStream () {
-    // TODO
-    return null;
-  }
-
-  private DataInputStream getHardwareWalletInputStream () {
-     // TODO
-     return null;
-   }
-
-  /**
    * <p>Create an executor service to monitor the hardware wallet data input stream, raise events and relay them to the client output</p>
    */
   private void monitorDataInputStream(final DataInputStream inputFromHardwareWallet, final DataOutputStream outputToClient) {
-
     // Monitor the data input stream
     hardwareWalletMonitorService.submit(new Runnable() {
 
       @Override
       public void run() {
-
         while (true) {
-          try {
-            // Read protocol messages and fire off events (blocking)
-            // TODO don't want to bother with events, simply send the protobuf of the TrezorMessage back to the client
-            boolean deviceOK = hardwareWallet.adaptProtocolMessageToEvents(inputFromHardwareWallet);
+          // Read protocol message
+          Message messageFromClient = hardwareWallet.parseTrezorMessage(inputFromHardwareWallet);
 
-            // TODO send the Events thrown by the adaptProtocolMessageToEvents as serialised protobuf to the outputToClient
-
-            if (!deviceOK) {
-              // A shutdown is imminent so best to sleep to void multiple messages
-              Thread.sleep(2000);
-            } else {
-              // Provide a small break
-              Thread.sleep(100);
-            }
-
-          } catch (InterruptedException e) {
-            break;
-          }
+          // Send the Message back to the client
+          sendMessage(messageFromClient, outputToClient);
         }
       }
 
@@ -178,24 +143,20 @@ public class RelayServer {
 
   /**
    * Send a message to an output stream
+   *
    * @param message the message to serialise and send to the OutputStream
-   * @param out The outputStream to send the message to
+   * @param out     The outputStream to send the message to
    */
-   public void sendMessage(Message message, DataOutputStream out) {
+  public void sendMessage(Message message, DataOutputStream out) {
+    Preconditions.checkNotNull(message, "Message must be present");
 
-     Preconditions.checkNotNull(message, "Message must be present");
-
-     try {
-       // Apply the message to the data output stream
-       TrezorMessageUtils.writeMessage(message, out);
-     } catch (IOException e) {
-       log.warn("I/O error during write. Closing socket.", e);
-
-       // Must have disconnected to be here
-       // TODO send a DEVICE_DISCONNECTED message back to the client
-       //HardwareWalletEvents.fireSystemEvent(SystemMessageType.DEVICE_DISCONNECTED);
-     }
-   }
+    try {
+      // Apply the message to the data output stream
+      TrezorMessageUtils.writeMessage(message, out);
+    } catch (IOException e) {
+      log.warn("I/O error during write. Closing socket.", e);
+    }
+  }
 
   /**
    * Start a RelayServer wrapping a Trezor V1 USB device on the DEFAULT_PORT_NUMBER (3000)

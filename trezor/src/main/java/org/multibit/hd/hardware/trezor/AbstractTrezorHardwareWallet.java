@@ -3,10 +3,9 @@ package org.multibit.hd.hardware.trezor;
 import com.google.common.base.Preconditions;
 import com.google.protobuf.Message;
 import com.satoshilabs.trezor.protobuf.TrezorMessage;
+import org.multibit.hd.hardware.core.HardwareWalletException;
 import org.multibit.hd.hardware.core.HardwareWalletSpecification;
-import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
 import org.multibit.hd.hardware.core.messages.ProtocolMessageType;
-import org.multibit.hd.hardware.core.messages.SystemMessageType;
 import org.multibit.hd.hardware.core.wallets.AbstractHardwareWallet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -207,14 +206,12 @@ public abstract class AbstractTrezorHardwareWallet extends AbstractHardwareWalle
   }
 
   /**
-   * <p>Blocking method to read from the data input stream and fire protocol message events</p>
-   *
-   * @param in The data input stream (must be open)
-   *
-   * @return True if the device is OK, false otherwise
+   * Parse a Trezor protobuf message from a data input stream
+   * @param in The DataInputStream
+   * @return the parsed Message
    */
-  public synchronized boolean adaptProtocolMessageToEvents(DataInputStream in) {
-
+  @Override
+  public synchronized Message parseTrezorMessage(DataInputStream in) throws HardwareWalletException {
     // Very broad try-catch because a lot of things can go wrong here and need to be reported
     try {
 
@@ -244,31 +241,14 @@ public abstract class AbstractTrezorHardwareWallet extends AbstractHardwareWalle
       // Parse the detail into a message
       final Message message = TrezorMessageUtils.parse(headerCode, detail);
       log.debug("< {}", message.getClass().getName());
-
-      if (TrezorMessage.MessageType.MessageType_Failure.equals(trezorMessageType)) {
-        log.error("FAILED: {}", ((TrezorMessage.Failure) message).getMessage());
-      }
-
-      // Fire the generic protocol event
-      HardwareWalletEvents.fireProtocolEvent(messageType, message);
-
-      // Must be OK to be here
-      return true;
-
+      return message;
     } catch (EOFException e) {
-      log.warn("Unexpected EOF from device");
-      HardwareWalletEvents.fireSystemEvent(SystemMessageType.DEVICE_EOF);
+      throw new HardwareWalletException("Unexpected EOF from device", e);
     } catch (IOException e) {
-      log.warn("Unexpected disconnect from device.");
-      HardwareWalletEvents.fireSystemEvent(SystemMessageType.DEVICE_DISCONNECTED);
+      throw new HardwareWalletException("Unexpected disconnect from device", e);
     } catch (Throwable e) {
-      log.error("Unexpected error during read.", e);
-      HardwareWalletEvents.fireSystemEvent(SystemMessageType.DEVICE_FAILURE);
+      throw new HardwareWalletException("Unexpected error during read", e);
     }
-
-    // Must have failed to be here
-    return false;
-
   }
 
   @Override
