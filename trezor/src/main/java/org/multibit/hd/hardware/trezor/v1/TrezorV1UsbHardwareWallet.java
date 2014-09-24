@@ -14,6 +14,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.usb.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
@@ -23,8 +26,6 @@ import java.util.List;
  * <ul>
  * <li>Access to a version 1 production Trezor device over USB</li>
  * </ul>
- *
- * <p>This class uses <code>libusb</code> for each platform</p>
  *
  * @since 0.0.1
  *  
@@ -78,8 +79,8 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet {
    * @param serialNumber The device serial number (default is to accept any)
    */
   public TrezorV1UsbHardwareWallet(Optional<Integer> vendorId,
-                                   Optional<Integer> productId,
-                                   Optional<String> serialNumber) {
+                                 Optional<Integer> productId,
+                                 Optional<String> serialNumber) {
 
     // Initialise the HID library
     if (!ClassPathLibraryLoader.loadNativeHIDLibrary()) {
@@ -251,11 +252,11 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet {
       epr = readEndpoint;
       epw = writeEndpoint;
 
-      log.debug("Verified Trezor device. EPR: {}, EPW: {}.", epr, epw);
+      log.info("Verified Trezor device. EPR: {}, EPW: {}.", epr, epw);
 
       try {
 
-        log.debug("Attempting to force claim...");
+        log.info("Attempting to force claim...");
         iface.claim(new UsbInterfacePolicy() {
           @Override
           public boolean forceClaim(UsbInterface usbInterface) {
@@ -263,7 +264,7 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet {
           }
         });
 
-        log.info("Claimed the Trezor device.");
+        log.info("Claimed the Trezor device");
 
         // Stop looking
         return true;
@@ -280,6 +281,35 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet {
 
     // Must have failed to be here
     return false;
+
+  }
+
+  /**
+   * @param device The HID device to communicate with
+   *
+   * @return True if the device responded to the UART serial initialisation
+   *
+   * @throws IOException If something goes wrong
+   */
+  private boolean attachDevice(UsbDevice device) throws IOException {
+
+    // Create and configure the USB to UART bridge
+//    final CP211xTransport uart = new CP211xTransport(device);
+
+    //   uart.enable(true);
+    //   uart.purge(3);
+
+    // Add unbuffered data streams for easy data manipulation
+    //   out = new DataOutputStream(uart.getOutputStream());
+    //   DataInputStream in = new DataInputStream(uart.getInputStream());
+
+    // Monitor the input stream
+    //   monitorDataInputStream(in);
+
+    // Must have connected to be here
+    HardwareWalletEvents.fireSystemEvent(SystemMessageType.DEVICE_CONNECTED);
+
+    return true;
 
   }
 
@@ -551,6 +581,19 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet {
       ret |= (int) bytes[i] & 0xFF;
     }
     return ret;
+  }
+
+
+  @Override
+  public DataInputStream getDataInputStream() {
+    // TODO - refactor TrezorV1UsbHardwareWallet to expose DataInputStream
+    throw new UnsupportedOperationException("TODO - refactor TrezorV1UsbHardwareWallet to expose DataInputStream");
+  }
+
+  @Override
+  public DataOutputStream getDataOutputStream() {
+    // TODO - refactor TrezorV1UsbHardwareWallet to expose DataOutputStream
+    throw new UnsupportedOperationException("TODO - refactor TrezorV1UsbHardwareWallet to expose DataOutputStream");
   }
 
 }

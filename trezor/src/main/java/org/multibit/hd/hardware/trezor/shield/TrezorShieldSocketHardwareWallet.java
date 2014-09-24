@@ -30,6 +30,7 @@ public class TrezorShieldSocketHardwareWallet extends AbstractTrezorHardwareWall
 
   private Socket socket = null;
   private DataOutputStream out = null;
+  private DataInputStream in = null;
 
   private String host;
   private int port;
@@ -81,7 +82,7 @@ public class TrezorShieldSocketHardwareWallet extends AbstractTrezorHardwareWall
 
       // Add buffered data streams for easy data manipulation
       out = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream(), 1024));
-      DataInputStream in = new DataInputStream(new BufferedInputStream(socket.getInputStream(), 1024));
+      in = new DataInputStream(new BufferedInputStream(socket.getInputStream(), 1024));
 
       // Monitor the input stream
       monitorDataInputStream(in);
@@ -133,5 +134,15 @@ public class TrezorShieldSocketHardwareWallet extends AbstractTrezorHardwareWall
       HardwareWalletEvents.fireSystemEvent(SystemMessageType.DEVICE_DISCONNECTED);
     }
 
+  }
+
+  @Override
+  public DataInputStream getDataInputStream() {
+    return in;
+  }
+
+  @Override
+  public DataOutputStream getDataOutputStream() {
+    return out;
   }
 }

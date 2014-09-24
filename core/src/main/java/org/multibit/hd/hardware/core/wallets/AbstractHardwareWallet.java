@@ -2,8 +2,12 @@ package org.multibit.hd.hardware.core.wallets;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
+import com.google.protobuf.Message;
+import org.multibit.hd.hardware.core.HardwareWalletException;
 import org.multibit.hd.hardware.core.HardwareWalletSpecification;
+import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
 import org.multibit.hd.hardware.core.messages.ProtocolMessageType;
+import org.multibit.hd.hardware.core.messages.SystemMessageType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -88,16 +92,13 @@ public abstract class AbstractHardwareWallet<P> implements HardwareWallet {
         while (true) {
           try {
             // Read protocol messages and fire off events (blocking)
-            boolean deviceOK = adaptProtocolMessageToEvents(in);
+            Message message = parseTrezorMessage(in);
+            log.trace("Received message: '" + message.toString() + "'");
 
-            if (!deviceOK) {
-              // A shutdown is imminent so best to sleep to void multiple messages
-              Thread.sleep(2000);
-            } else {
-              // Provide a small break
-              Thread.sleep(100);
-            }
-
+            Thread.sleep(100);
+          } catch (HardwareWalletException e) {
+              log.warn("Unexpected EOF from device");
+              HardwareWalletEvents.fireSystemEvent(SystemMessageType.DEVICE_FAILURE);
           } catch (InterruptedException e) {
             break;
           }
