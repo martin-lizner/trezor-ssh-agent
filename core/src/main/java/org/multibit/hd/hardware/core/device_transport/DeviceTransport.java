@@ -1,4 +1,4 @@
-package org.multibit.hd.hardware.core.devicetransport;
+package org.multibit.hd.hardware.core.device_transport;
 
 import java.io.IOException;
 

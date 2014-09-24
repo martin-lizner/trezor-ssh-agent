@@ -1,4 +1,4 @@
-package org.multibit.hd.hardware.core.devicetransport;
+package org.multibit.hd.hardware.core.device_transport;
 
 import com.codeminders.hidapi.HIDDevice;
 import com.google.common.base.Preconditions;
@@ -6,22 +6,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 /**
  * <p>USB HID wrapper to provide the following to USB handlers:</p>
  * <ul>
- * <li>Low level read/write operations with an STM 32F205x USB to UART bridge</li>
+ * <li>Low level read/write operations with a CP211x USB to UART bridge</li>
  * <li>Simple stream-based communication via a {@link com.codeminders.hidapi.HIDDevice}</li>
- * <p>This supports a version 1 production Trezor</p>
  * </ul>
+ * <p>This supports a Raspberry Pi emulator running over a USB connection</p>
  */
-public class STM32F205xTransport implements DeviceTransport {
+public class CP211xTransport implements DeviceTransport {
 
   /**
    * Provides logging for this class
    */
-  private static final Logger log = LoggerFactory.getLogger(STM32F205xTransport.class);
+  private static final Logger log = LoggerFactory.getLogger(CP211xTransport.class);
 
   private final HIDDevice device;
   private final HIDInputStream hidInputStream;
@@ -29,10 +28,9 @@ public class STM32F205xTransport implements DeviceTransport {
 
   /**
    * @param device The HID device providing the low-level communications
-   *
    * @throws java.io.IOException If something goes wrong
    */
-  public STM32F205xTransport(HIDDevice device) throws IOException {
+  public CP211xTransport(HIDDevice device) throws IOException {
     this.device = device;
     this.hidInputStream = new HIDInputStream(device);
     this.hidOutputStream = new HIDOutputStream(device);
@@ -43,9 +41,9 @@ public class STM32F205xTransport implements DeviceTransport {
    * <p>Applications will use this to read data from the device, perhaps into a Protcol Buffer parser</p>
    *
    * @return The HID input stream
-   *
    * @throws java.io.IOException If something goes wrong
    */
+  @Override
   public HIDInputStream getInputStream() throws IOException {
     return this.hidInputStream;
   }
@@ -55,94 +53,11 @@ public class STM32F205xTransport implements DeviceTransport {
    * <p>Applications will use this to write data to the device, perhaps from a Protcol Buffer serializer</p>
    *
    * @return The HID input stream
-   *
    * @throws java.io.IOException If something goes wrong
    */
+  @Override
   public HIDOutputStream getOutputStream() throws IOException {
     return this.hidOutputStream;
-
-  }
-
-  /**
-   * <p>Probe the UART looking for any response</p>
-   *
-   * @return The number of bytes sent in the feature report
-   *
-   * @throws java.io.IOException If something goes wrong
-   */
-  public int probe() {
-
-    Preconditions.checkNotNull(device, "Device is not connected");
-
-    System.err.println("Probing...");
-
-    byte[] reportBuffer = new byte[64];
-    reportBuffer[0] = 0x0;
-    //reportBuffer[1]= (byte) 0x81;
-
-    try {
-      log.info("Feature report > {} bytes.", device.write(reportBuffer));
-  byte[] buf = new byte[64];
-  log.info("Feature report < {} bytes.", device.readTimeout(buf, 1000));
-
-} catch (IOException e) {
-  log.error("FAILED. Feature report.");
-}
-    // Send Initialize
-    int msg_id = 0;
-    int msg_size = 0;
-
-    ByteBuffer data = ByteBuffer.allocate(64);
-    data.put((byte) '#');
-    data.put((byte) '#');
-    data.put((byte) ((msg_id >> 8) & 0xFF));
-    data.put((byte) (msg_id & 0xFF));
-    data.put((byte) ((msg_size >> 24) & 0xFF));
-    data.put((byte) ((msg_size >> 16) & 0xFF));
-    data.put((byte) ((msg_size >> 8) & 0xFF));
-    data.put((byte) (msg_size & 0xFF));
-    data.put(new byte[0]);
-
-    try {
-      log.info("Wrote {} bytes.", device.write(data.array()));
-
-      // Provide a big buffer
-      byte[] buf = new byte[32768];
-      int n = device.readTimeout(buf, 1000);
-
-      log.info("Initialise: {} bytes", n);
-    } catch (IOException e) {
-      log.error("FAILED Initialise");
-    }
-
-    // Send Ping
-    msg_id = 1;
-    msg_size = 0;
-
-    data = ByteBuffer.allocate(9);
-    data.put((byte) '#');
-    data.put((byte) '#');
-    data.put((byte) ((msg_id >> 8) & 0xFF));
-    data.put((byte) (msg_id & 0xFF));
-    data.put((byte) ((msg_size >> 24) & 0xFF));
-    data.put((byte) ((msg_size >> 16) & 0xFF));
-    data.put((byte) ((msg_size >> 8) & 0xFF));
-    data.put((byte) (msg_size & 0xFF));
-    data.put(new byte[0]);
-
-    try {
-      log.info("Wrote {} bytes.", device.write(data.array()));
-
-      // Provide a big buffer
-      byte[] buf = new byte[32768];
-      int n = device.readTimeout(buf, 1000);
-
-      log.info("Ping: {} bytes", n);
-    } catch (IOException e) {
-      log.error("FAILED. Ping.");
-    }
-
-    return 0;
 
   }
 
@@ -151,9 +66,9 @@ public class STM32F205xTransport implements DeviceTransport {
    * </p>
    *
    * @return The number of bytes sent in the feature report
-   *
    * @throws java.io.IOException If something goes wrong
    */
+  @Override
   public int reset() throws IOException {
 
     Preconditions.checkNotNull(device, "Device is not connected");
@@ -165,23 +80,30 @@ public class STM32F205xTransport implements DeviceTransport {
     log.debug("> UART Reset: {} '{}'", bytesSent, featureReport);
 
     return bytesSent;
-
   }
 
   /**
    * <p>Enable the UART to form the serial link</p>
    *
    * @param enabled True if the UART is to be enabled
-   *
    * @return The number of bytes sent in the feature report
-   *
    * @throws java.io.IOException If something goes wrong
    */
   public int enable(boolean enabled) throws IOException {
 
     Preconditions.checkNotNull(device, "Device is not connected");
 
-    return 0;
+    byte[] featureReport;
+    if (enabled) {
+      featureReport = new byte[]{0x041, 0x01};
+    } else {
+      featureReport = new byte[]{0x041, 0x00};
+
+    }
+    int bytesSent = device.sendFeatureReport(featureReport);
+    log.debug("> UART Enable: {} '{}'", bytesSent, featureReport);
+
+    return bytesSent;
   }
 
   /**
@@ -197,14 +119,13 @@ public class STM32F205xTransport implements DeviceTransport {
    * <p>Reading the error clears it</p>
    *
    * @return The feature report
-   *
    * @throws java.io.IOException If something goes wrong
    */
   public byte[] status() throws IOException {
 
     Preconditions.checkNotNull(device, "Device is not connected");
 
-    byte[] featureReport = new byte[10];
+    byte[] featureReport = new byte[7];
     featureReport[0] = 0x42;
     int bytesReceived = device.getFeatureReport(featureReport);
     log.debug("< UART Status: {} '{}'", bytesReceived, featureReport);
@@ -216,9 +137,7 @@ public class STM32F205xTransport implements DeviceTransport {
    * <p>Purge the Rx/Tx FIFOs on the UART</p>
    *
    * @param purgeType 1 to purge Tx buffer, 2 to purge Rx buffer, 3 to purge both
-   *
    * @return The number of bytes sent in the feature report
-   *
    * @throws java.io.IOException If something goes wrong
    */
   public int purge(int purgeType) throws IOException {

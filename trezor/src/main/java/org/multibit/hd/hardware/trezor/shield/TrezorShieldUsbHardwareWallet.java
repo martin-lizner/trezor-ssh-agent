@@ -10,7 +10,7 @@ import com.google.protobuf.Message;
 import org.multibit.hd.hardware.core.HardwareWalletSpecification;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
 import org.multibit.hd.hardware.core.messages.SystemMessageType;
-import org.multibit.hd.hardware.core.devicetransport.CP211xTransport;
+import org.multibit.hd.hardware.core.device_transport.CP211xTransport;
 import org.multibit.hd.hardware.trezor.AbstractTrezorHardwareWallet;
 import org.multibit.hd.hardware.trezor.TrezorMessageUtils;
 import org.slf4j.Logger;
