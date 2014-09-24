@@ -295,13 +295,4 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
 
   }
 
-  @Override
-  public DataInputStream getDataInputStream() {
-    return in;
-  }
-
-  @Override
-  public DataOutputStream getDataOutputStream() {
-    return out;
-  }
 }

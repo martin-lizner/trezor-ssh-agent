@@ -2,7 +2,6 @@ package org.multibit.hd.hardware.trezor.relay;
 
 import com.google.common.base.Optional;
 import org.junit.Test;
-import org.multibit.hd.hardware.core.wallets.HardwareWallet;
 import org.multibit.hd.hardware.trezor.v1.TrezorV1UsbHardwareWallet;
 
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -12,7 +11,7 @@ public class RelayServerTest {
   @Test
   public void createRelayServer() throws Exception {
     // Create a Trezor V1 usb client for use by the server
-    HardwareWallet hardwareWallet1 = new TrezorV1UsbHardwareWallet(Optional.<Integer>absent(),
+    TrezorV1UsbHardwareWallet hardwareWallet1 = new TrezorV1UsbHardwareWallet(Optional.<Integer>absent(),
                                           Optional.<Integer>absent(), Optional.<String>absent());
     RelayServer server = new RelayServer(hardwareWallet1, RelayServer.DEFAULT_PORT_NUMBER);
     assertThat(server).isNotNull();

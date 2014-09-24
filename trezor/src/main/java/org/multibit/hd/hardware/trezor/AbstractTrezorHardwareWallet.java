@@ -221,7 +221,9 @@ public abstract class AbstractTrezorHardwareWallet extends AbstractHardwareWalle
 
       // Read the header code and select a suitable parser
       final Short headerCode = in.readShort();
+      log.debug("Seeing a trezor message with headerCode " + headerCode);
       final TrezorMessage.MessageType trezorMessageType = TrezorMessageUtils.getMessageTypeByHeaderCode(headerCode);
+      log.debug("Seeing a trezorMessageType " + trezorMessageType);
 
       Preconditions.checkNotNull(trezorMessageType, "'trezorMessageType' must be present");
       Preconditions.checkState(protocolMessageMap.containsKey(trezorMessageType), "Unmapped protocol message: {}", trezorMessageType.name());

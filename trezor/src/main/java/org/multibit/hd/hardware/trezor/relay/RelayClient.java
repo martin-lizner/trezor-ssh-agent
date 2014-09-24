@@ -3,23 +3,24 @@ package org.multibit.hd.hardware.trezor.relay;
 import com.google.bitcoin.core.Address;
 import com.google.bitcoin.core.Transaction;
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 import com.google.protobuf.Message;
+import com.satoshilabs.trezor.protobuf.TrezorMessage;
 import org.multibit.hd.hardware.core.HardwareWalletClient;
 import org.multibit.hd.hardware.core.events.HardwareWalletProtocolEvent;
 import org.multibit.hd.hardware.core.events.HardwareWalletSystemEvent;
 import org.multibit.hd.hardware.core.messages.ProtocolMessageType;
 import org.multibit.hd.hardware.core.messages.SystemMessageType;
-import org.multibit.hd.hardware.core.wallets.HardwareWallet;
+import org.multibit.hd.hardware.trezor.TrezorMessageUtils;
+import org.multibit.hd.hardware.trezor.v1.TrezorV1UsbHardwareWallet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.concurrent.TimeUnit;
 
 /**
  * <p>Client to provide the following to applications:</p>
@@ -39,12 +40,12 @@ public class RelayClient implements HardwareWalletClient {
   /**
    * The location of the RelayServer (an IP address or server name
    */
-  private final String passThruServerLocation;
+  private final String relayServerLocation;
 
   /**
-   * The port number of the passThruServer
+   * The port number of the RelayServer
    */
-  private final int passThruServerPort;
+  private final int relayServerPort;
 
   /**
    * The socket connection to the server
@@ -54,27 +55,27 @@ public class RelayClient implements HardwareWalletClient {
   /**
    * Output to the server server
    */
-  private PrintWriter out;
+  private DataOutputStream out;
 
   /**
    * Input from the server socket
    */
-  private BufferedReader in;
+  private DataInputStream in;
 
   /**
    * The hardware wallet that is physically present on the RelayServer machine
    */
-  private HardwareWallet hardwareWallet;
+  private TrezorV1UsbHardwareWallet hardwareWallet;
 
   /**
-   * @param hardwareWallet         The hardwareWallet physically present on the RelayServer machine
-   * @param passThruServerLocation The location of the RelayServer
-   * @param passThruServerPort     The port number of the server
+   * @param hardwareWallet      The hardwareWallet physically present on the RelayServer machine
+   * @param relayServerLocation The location of the RelayServer
+   * @param relayServerPort     The port number of the server
    */
-  public RelayClient(HardwareWallet hardwareWallet, String passThruServerLocation, int passThruServerPort) {
+  public RelayClient(TrezorV1UsbHardwareWallet hardwareWallet, String relayServerLocation, int relayServerPort) {
     this.hardwareWallet = hardwareWallet;
-    this.passThruServerLocation = passThruServerLocation;
-    this.passThruServerPort = passThruServerPort;
+    this.relayServerLocation = relayServerLocation;
+    this.relayServerPort = relayServerPort;
   }
 
   /**
@@ -84,26 +85,19 @@ public class RelayClient implements HardwareWalletClient {
    */
   public boolean connectToServer() {
     try {
-      socket = new Socket(passThruServerLocation, passThruServerPort);
-      out = new PrintWriter(socket.getOutputStream(), true);
-      in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-//        BufferedReader stdIn =
-//                new BufferedReader(
-//                        new InputStreamReader(System.in));
-//      String userInput;
-//      while ((userInput = stdIn.readLine()) != null) {
-//        out.println(userInput);
-//        System.out.println("echo: " + in.readLine());
-//      }
+      socket = new Socket(relayServerLocation, relayServerPort);
+      out = new DataOutputStream(socket.getOutputStream());
+      in = new DataInputStream(socket.getInputStream());
+
+      return true;
     } catch (UnknownHostException e) {
-      System.err.println("Do not know about host " + passThruServerLocation);
+      System.err.println("Do not know about host " + relayServerLocation);
       return false;
     } catch (IOException e) {
       System.err.println("Could not get I/O for the connection to " +
-              passThruServerLocation);
+              relayServerLocation);
       return false;
     }
-    return true;
   }
 
 
@@ -117,22 +111,24 @@ public class RelayClient implements HardwareWalletClient {
       in.close();
       out.close();
       socket.close();
+      return true;
     } catch (IOException ioe) {
-      System.err.println("Do not know about host " + passThruServerLocation);
+      System.err.println("Do not know about host " + relayServerLocation);
     }
     return false;
   }
 
   @Override
   public boolean connect() {
-    // Connect to the RelayServer and then connect to the Trezor
-    // TODO Implement this
-    return false;
+    // Connect to the Trezor
+    Message message = TrezorMessage.ResetDevice.getDefaultInstance();
+    sendMessage(message, out);
+    return true;
   }
 
   @Override
   public void disconnect() {
-    // disconnect from the Trezor and then disconnect from the RelayServer
+    // disconnect from the Trezor
   }
 
   @Override
@@ -306,27 +302,20 @@ public class RelayClient implements HardwareWalletClient {
     log.debug("Received event: {}", event.getMessageType().name());
 
   }
+  /**
+    * Send a message to an output stream
+    *
+    * @param message the message to serialise and send to the OutputStream
+    * @param out     The outputStream to send the message to
+    */
+   public void sendMessage(Message message, DataOutputStream out) {
+     Preconditions.checkNotNull(message, "Message must be present");
 
-  private Optional<HardwareWalletProtocolEvent> sendDefaultBlockingMessage(Message messageType) {
-    return sendBlockingMessage(messageType, 1, TimeUnit.SECONDS);
-  }
-
-  private Optional<HardwareWalletProtocolEvent> sendBlockingMessage(Message messageType, int duration, TimeUnit timeUnit) {
-//
-//    Preconditions.checkState(isTrezorValid, "Trezor device is not valid. Try connecting or start a new session after a disconnect.");
-//    Preconditions.checkState(isSessionIdValid, "An old session ID must be discarded. Create a new instance.");
-//
-//    trezor.sendMessage(messageType);
-//
-//    // Wait for a response
-//    try {
-//      return Optional.fromNullable(hardwareWalletEvents.poll(duration, timeUnit));
-//    } catch (InterruptedException e) {
-//      HardwareWalletEvents.fireSystemEvent(SystemMessageType.DEVICE_FAILURE);
-//      return Optional.absent();
-//    }
-//    TODO Implement this
-    return null;
-  }
-
+     try {
+       // Apply the message to the data output stream
+       TrezorMessageUtils.writeMessage(message, out);
+     } catch (IOException e) {
+       log.warn("I/O error during write. Closing socket.", e);
+     }
+   }
 }

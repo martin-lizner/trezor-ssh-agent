@@ -5,7 +5,6 @@ import org.multibit.hd.hardware.core.HardwareWalletException;
 import org.multibit.hd.hardware.core.HardwareWalletSpecification;
 
 import java.io.DataInputStream;
-import java.io.DataOutputStream;
 
 /**
  * <p>Interface to provide the following to applications:</p>
@@ -78,16 +77,5 @@ public interface HardwareWallet {
     * @return the parsed Message
     */
    Message parseTrezorMessage(DataInputStream in) throws HardwareWalletException;
-
-  /**
-   * Get the DataInputStream that the hardware wallet is using to emit data
-   */
-   DataInputStream getDataInputStream();
-
-  /**
-    * Get the DataOutputStream that the hardware wallet is using to receive data
-    */
-   DataOutputStream getDataOutputStream();
-
 
 }

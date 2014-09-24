@@ -14,8 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.usb.*;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -582,18 +580,4 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet {
     }
     return ret;
   }
-
-
-  @Override
-  public DataInputStream getDataInputStream() {
-    // TODO - refactor TrezorV1UsbHardwareWallet to expose DataInputStream
-    throw new UnsupportedOperationException("TODO - refactor TrezorV1UsbHardwareWallet to expose DataInputStream");
-  }
-
-  @Override
-  public DataOutputStream getDataOutputStream() {
-    // TODO - refactor TrezorV1UsbHardwareWallet to expose DataOutputStream
-    throw new UnsupportedOperationException("TODO - refactor TrezorV1UsbHardwareWallet to expose DataOutputStream");
-  }
-
 }
