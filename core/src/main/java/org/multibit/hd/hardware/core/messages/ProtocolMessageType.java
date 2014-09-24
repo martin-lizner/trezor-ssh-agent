@@ -3,8 +3,11 @@ package org.multibit.hd.hardware.core.messages;
 /**
  * <p>Enum to provide the following to application:</p>
  * <ul>
- * <li>Identification of protocol messages and their header codes</li>
+ * <li>Identification of protocol messages</li>
  * </ul>
+ *
+ * <p>These messages are considered to be common across all hardware wallets
+ * supported through MultiBit Hardware.</p>
  *
  * @since 0.0.1
  *  
