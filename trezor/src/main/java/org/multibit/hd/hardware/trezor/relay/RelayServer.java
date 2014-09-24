@@ -1,4 +1,4 @@
-package org.multibit.hd.hardware.trezor.network;
+package org.multibit.hd.hardware.trezor.relay;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -42,6 +42,9 @@ public class RelayServer {
 
   public static int DEFAULT_PORT_NUMBER = 3000;
 
+  // The main thread the server runs on
+  protected final ExecutorService serverExecutorService = Executors.newSingleThreadExecutor();
+
   // Provide a thread for monitoring for specialised cases
   protected final ExecutorService hardwareWalletMonitorService = Executors.newFixedThreadPool(1);
 
@@ -61,7 +64,12 @@ public class RelayServer {
   public RelayServer(HardwareWallet hardwareWallet, int portNumber) throws IOException {
     create(hardwareWallet, portNumber);
 
-    //start();
+    serverExecutorService.submit(new Runnable() {
+       @Override
+       public void run() {
+         start();
+       }
+     });
   }
 
   private void create(HardwareWallet hardwareWallet, int portNumber) {
@@ -84,26 +92,32 @@ public class RelayServer {
    * <p/>
    * Protobuf messages from the hardware wallet are deserialised, logged,  and then sent over the socket to the client
    */
-  private void start() throws IOException {
-    ServerSocket serverSocket = new ServerSocket(portNumber);
-    Socket clientSocket = serverSocket.accept();
+  private void start() {
+    try {
+      log.debug("Starting RelayServer on port " + portNumber + ".");
+      log.debug("To stop the server manually use ctrl-C.");
+      ServerSocket serverSocket = new ServerSocket(portNumber);
+      Socket clientSocket = serverSocket.accept();
 
-    // Get the output and input streams to and from the RelayClient
-    DataOutputStream outputToClient = new DataOutputStream(new BufferedOutputStream(clientSocket.getOutputStream(), 1024));
-    DataInputStream inputFromClient = new DataInputStream(new BufferedInputStream(clientSocket.getInputStream(), 1024));
+      // Get the output and input streams to and from the RelayClient
+      DataOutputStream outputToClient = new DataOutputStream(new BufferedOutputStream(clientSocket.getOutputStream(), 1024));
+      DataInputStream inputFromClient = new DataInputStream(new BufferedInputStream(clientSocket.getInputStream(), 1024));
 
-    // Get the output and input streams to and from the hardwareWallet
-    DataOutputStream outputToHardwareWallet = getHardwareWalletOutputStream();
-    DataInputStream inputFromHardwareWallet = getHardwareWalletInputStream();
+      // Get the output and input streams to and from the hardwareWallet
+      DataOutputStream outputToHardwareWallet = getHardwareWalletOutputStream();
+      DataInputStream inputFromHardwareWallet = getHardwareWalletInputStream();
 
-    Message messageFromClient = parseMessage(inputFromClient);
-    log.debug("Received message from client, relaying to hardware wallet. Message = '" + messageFromClient.toString() + "'");
+      Message messageFromClient = parseMessage(inputFromClient);
+      log.debug("Received message from client, relaying to hardware wallet. Message = '" + messageFromClient.toString() + "'");
 
-    sendMessage(messageFromClient, outputToHardwareWallet);
-    // Send the Message to the trezor (serialising again to protobuf)
+      sendMessage(messageFromClient, outputToHardwareWallet);
+      // Send the Message to the trezor (serialising again to protobuf)
 
-    // Monitor the input stream from the hardware wallet - this is then logged and relayed to the client
-    monitorDataInputStream(inputFromHardwareWallet, outputToClient);
+      // Monitor the input stream from the hardware wallet - this is then logged and relayed to the client
+      monitorDataInputStream(inputFromHardwareWallet, outputToClient);
+    } catch (IOException ioe) {
+      ioe.printStackTrace();
+    }
   }
 
   /**
