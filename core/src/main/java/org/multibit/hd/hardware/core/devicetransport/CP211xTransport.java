@@ -89,7 +89,6 @@ public class CP211xTransport implements DeviceTransport {
    * @return The number of bytes sent in the feature report
    * @throws java.io.IOException If something goes wrong
    */
-  @Override
   public int enable(boolean enabled) throws IOException {
 
     Preconditions.checkNotNull(device, "Device is not connected");
@@ -122,7 +121,6 @@ public class CP211xTransport implements DeviceTransport {
    * @return The feature report
    * @throws java.io.IOException If something goes wrong
    */
-  @Override
   public byte[] status() throws IOException {
 
     Preconditions.checkNotNull(device, "Device is not connected");
@@ -142,7 +140,6 @@ public class CP211xTransport implements DeviceTransport {
    * @return The number of bytes sent in the feature report
    * @throws java.io.IOException If something goes wrong
    */
-  @Override
   public int purge(int purgeType) throws IOException {
 
     Preconditions.checkNotNull(device, "Device is not connected");

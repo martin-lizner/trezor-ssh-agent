@@ -16,7 +16,7 @@ import java.nio.ByteBuffer;
  * <p>This supports a version 1 production Trezor</p>
  * </ul>
  */
-public class STM32F205xTransport {
+public class STM32F205xTransport implements DeviceTransport {
 
   /**
    * Provides logging for this class
