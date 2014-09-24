@@ -15,12 +15,12 @@ import java.io.IOException;
  * </ul>
  * <p>This supports a Raspberry Pi emulator running over a USB connection</p>
  */
-public class CP211xTransport implements DeviceTransport {
+public class CP211xDeviceTransport  {
 
   /**
    * Provides logging for this class
    */
-  private static final Logger log = LoggerFactory.getLogger(CP211xTransport.class);
+  private static final Logger log = LoggerFactory.getLogger(CP211xDeviceTransport.class);
 
   private final HIDDevice device;
   private final HIDInputStream hidInputStream;
@@ -30,7 +30,7 @@ public class CP211xTransport implements DeviceTransport {
    * @param device The HID device providing the low-level communications
    * @throws java.io.IOException If something goes wrong
    */
-  public CP211xTransport(HIDDevice device) throws IOException {
+  public CP211xDeviceTransport(HIDDevice device) throws IOException {
     this.device = device;
     this.hidInputStream = new HIDInputStream(device);
     this.hidOutputStream = new HIDOutputStream(device);
@@ -43,7 +43,6 @@ public class CP211xTransport implements DeviceTransport {
    * @return The HID input stream
    * @throws java.io.IOException If something goes wrong
    */
-  @Override
   public HIDInputStream getInputStream() throws IOException {
     return this.hidInputStream;
   }
@@ -55,7 +54,6 @@ public class CP211xTransport implements DeviceTransport {
    * @return The HID input stream
    * @throws java.io.IOException If something goes wrong
    */
-  @Override
   public HIDOutputStream getOutputStream() throws IOException {
     return this.hidOutputStream;
 
@@ -68,7 +66,6 @@ public class CP211xTransport implements DeviceTransport {
    * @return The number of bytes sent in the feature report
    * @throws java.io.IOException If something goes wrong
    */
-  @Override
   public int reset() throws IOException {
 
     Preconditions.checkNotNull(device, "Device is not connected");

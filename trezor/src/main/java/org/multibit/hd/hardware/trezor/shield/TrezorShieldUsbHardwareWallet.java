@@ -8,9 +8,9 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.protobuf.Message;
 import org.multibit.hd.hardware.core.HardwareWalletSpecification;
+import org.multibit.hd.hardware.core.device_transport.CP211xDeviceTransport;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
 import org.multibit.hd.hardware.core.messages.SystemMessageType;
-import org.multibit.hd.hardware.core.device_transport.CP211xTransport;
 import org.multibit.hd.hardware.trezor.AbstractTrezorHardwareWallet;
 import org.multibit.hd.hardware.trezor.TrezorMessageUtils;
 import org.slf4j.Logger;
@@ -25,6 +25,9 @@ import java.io.IOException;
  * <ul>
  * <li>Access to the Trezor RPi emulation device over USB</li>
  * </ul>
+ *
+ * <p>This class uses <code>hidapi</code> for each platform due to the
+ * custom UART-to-USB present on the RPi Shield hardware.</p>
  *
  * @since 0.0.1
  *  
@@ -142,7 +145,7 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
   private boolean attachDevice(HIDDevice device) throws IOException {
 
     // Create and configure the USB to UART bridge
-    final CP211xTransport uart = new CP211xTransport(device);
+    final CP211xDeviceTransport uart = new CP211xDeviceTransport(device);
 
     uart.enable(true);
     uart.purge(3);

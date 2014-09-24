@@ -19,6 +19,8 @@ import java.net.Socket;
  * <li>Access to a Trezor emulator (such as a Shield on a RPi or Linux VM) communicating over a socket</li>
  * </ul>
  *
+ * <p>This class uses standard sockets but includes HID framing</p>
+
  * @since 0.0.1
  *  
  */
