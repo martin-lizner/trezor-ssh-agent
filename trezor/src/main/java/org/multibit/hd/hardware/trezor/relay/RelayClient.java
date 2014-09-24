@@ -1,4 +1,4 @@
-package org.multibit.hd.hardware.trezor.network;
+package org.multibit.hd.hardware.trezor.relay;
 
 import com.google.bitcoin.core.Address;
 import com.google.bitcoin.core.Transaction;

@@ -1,4 +1,4 @@
-package org.multibit.hd.hardware.trezor.network;
+package org.multibit.hd.hardware.trezor.relay;
 
 import com.google.common.base.Optional;
 import org.junit.Test;
@@ -18,8 +18,8 @@ public class RelayServerTest {
     assertThat(server).isNotNull();
 
     // Create a Trezor V1 usb client for use by the client
-    HardwareWallet hardwareWallet2 = new TrezorV1UsbHardwareWallet(Optional.<Integer>absent(),
-                                          Optional.<Integer>absent(), Optional.<String>absent());
+    //HardwareWallet hardwareWallet2 = new TrezorV1UsbHardwareWallet(Optional.<Integer>absent(),
+    //                                      Optional.<Integer>absent(), Optional.<String>absent());
 
     // Create a RelayClient looking at the RelayServer
     //RelayClient client = new RelayClient(hardwareWallet2, "localhost", RelayServer.DEFAULT_PORT_NUMBER);
