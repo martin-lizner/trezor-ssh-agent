@@ -9,7 +9,7 @@ import org.multibit.hd.hardware.core.events.HardwareWalletProtocolEvent;
 import org.multibit.hd.hardware.core.events.HardwareWalletSystemEvent;
 import org.multibit.hd.hardware.core.messages.SystemMessageType;
 import org.multibit.hd.hardware.core.wallets.HardwareWallets;
-import org.multibit.hd.hardware.trezor.BlockingTrezorClient;
+import org.multibit.hd.hardware.trezor.TrezorHardwareWalletClient;
 import org.multibit.hd.hardware.trezor.shield.TrezorShieldSocketHardwareWallet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,7 +65,7 @@ public class SocketMonitoringExample {
     );
 
     // Create a socket-based default Trezor client with blocking methods (quite limited)
-    BlockingTrezorClient client = new BlockingTrezorClient(wallet);
+    TrezorHardwareWalletClient client = new TrezorHardwareWalletClient(wallet);
 
     // Connect the client
     while (!client.connect()) {

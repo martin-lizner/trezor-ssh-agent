@@ -102,19 +102,19 @@ public class RelayServer {
       // Get the output and input streams to and from the RelayClient
       DataOutputStream outputToClient = new DataOutputStream(new BufferedOutputStream(clientSocket.getOutputStream(), 1024));
       DataInputStream inputFromClient = new DataInputStream(new BufferedInputStream(clientSocket.getInputStream(), 1024));
-
-      // Get the output and input streams to and from the hardwareWallet
-      DataOutputStream outputToHardwareWallet = hardwareWallet.getDataOutputStream();
-      DataInputStream inputFromHardwareWallet = hardwareWallet.getDataInputStream();
-
-      Message messageFromClient = hardwareWallet.parseTrezorMessage(inputFromClient);
-      log.debug("Received message from client, relaying to hardware wallet. Message = '" + messageFromClient.toString() + "'");
+//
+//      // Get the output and input streams to and from the hardwareWallet
+//      DataOutputStream outputToHardwareWallet = hardwareWallet.getDataOutputStream();
+//      DataInputStream inputFromHardwareWallet = hardwareWallet.getDataInputStream();
+//
+//      Message messageFromClient = hardwareWallet.parseTrezorMessage(inputFromClient);
+//      log.debug("Received message from client, relaying to hardware wallet. Message = '" + messageFromClient.toString() + "'");
 
       // Send the Message to the trezor (serialising again to protobuf)
-      sendMessage(messageFromClient, outputToHardwareWallet);
+ //     sendMessage(messageFromClient, outputToHardwareWallet);
 
       // Monitor the input stream from the hardware wallet - this is then logged and relayed back to the client
-      monitorDataInputStream(inputFromHardwareWallet, outputToClient);
+//      monitorDataInputStream(inputFromHardwareWallet, outputToClient);
     } catch (IOException ioe) {
       ioe.printStackTrace();
     }
@@ -131,10 +131,10 @@ public class RelayServer {
       public void run() {
         while (true) {
           // Read protocol message
-          Message messageFromClient = hardwareWallet.parseTrezorMessage(inputFromHardwareWallet);
+         // Message messageFromClient = hardwareWallet.parseTrezorMessage(inputFromHardwareWallet);
 
           // Send the Message back to the client
-          sendMessage(messageFromClient, outputToClient);
+       //   sendMessage(messageFromClient, outputToClient);
         }
       }
 
@@ -152,7 +152,7 @@ public class RelayServer {
 
     try {
       // Apply the message to the data output stream
-      TrezorMessageUtils.writeMessage(message, out);
+      TrezorMessageUtils.writeAsHID(message, out);
     } catch (IOException e) {
       log.warn("I/O error during write. Closing socket.", e);
     }

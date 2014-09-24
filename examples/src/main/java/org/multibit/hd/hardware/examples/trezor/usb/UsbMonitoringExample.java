@@ -7,7 +7,7 @@ import org.multibit.hd.hardware.core.HardwareWalletService;
 import org.multibit.hd.hardware.core.events.HardwareWalletProtocolEvent;
 import org.multibit.hd.hardware.core.events.HardwareWalletSystemEvent;
 import org.multibit.hd.hardware.core.wallets.HardwareWallets;
-import org.multibit.hd.hardware.trezor.BlockingTrezorClient;
+import org.multibit.hd.hardware.trezor.TrezorHardwareWalletClient;
 import org.multibit.hd.hardware.trezor.v1.TrezorV1UsbHardwareWallet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,7 +63,7 @@ public class UsbMonitoringExample {
     );
 
     // Create a blocking Trezor client (good for demonstrations but not practical for wallets)
-    BlockingTrezorClient client = new BlockingTrezorClient(wallet);
+    TrezorHardwareWalletClient client = new TrezorHardwareWalletClient(wallet);
 
     // Block until a client connects or fails
     if (client.connect()) {

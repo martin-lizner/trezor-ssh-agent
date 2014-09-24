@@ -10,13 +10,11 @@ import org.multibit.hd.hardware.core.HardwareWalletSpecification;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
 import org.multibit.hd.hardware.core.messages.SystemMessageType;
 import org.multibit.hd.hardware.trezor.AbstractTrezorHardwareWallet;
+import org.multibit.hd.hardware.trezor.TrezorMessageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.usb.*;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
@@ -79,8 +77,8 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet {
    * @param serialNumber The device serial number (default is to accept any)
    */
   public TrezorV1UsbHardwareWallet(Optional<Integer> vendorId,
-                                 Optional<Integer> productId,
-                                 Optional<String> serialNumber) {
+                                   Optional<Integer> productId,
+                                   Optional<String> serialNumber) {
 
     // Initialise the HID library
     if (!ClassPathLibraryLoader.loadNativeHIDLibrary()) {
@@ -105,6 +103,11 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet {
     this.vendorId = specification.getVendorId();
     this.productId = specification.getProductId();
     this.serialNumber = specification.getSerialNumber();
+
+  }
+
+  @Override
+  public void initialise() {
 
   }
 
@@ -285,35 +288,6 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet {
   }
 
   /**
-   * @param device The HID device to communicate with
-   *
-   * @return True if the device responded to the UART serial initialisation
-   *
-   * @throws IOException If something goes wrong
-   */
-  private boolean attachDevice(UsbDevice device) throws IOException {
-
-    // Create and configure the USB to UART bridge
-//    final CP211xTransport uart = new CP211xTransport(device);
-
-    //   uart.enable(true);
-    //   uart.purge(3);
-
-    // Add unbuffered data streams for easy data manipulation
-    //   out = new DataOutputStream(uart.getOutputStream());
-    //   DataInputStream in = new DataInputStream(uart.getInputStream());
-
-    // Monitor the input stream
-    //   monitorDataInputStream(in);
-
-    // Must have connected to be here
-    HardwareWalletEvents.fireSystemEvent(SystemMessageType.DEVICE_CONNECTED);
-
-    return true;
-
-  }
-
-  /**
    * @return True if device is connected (the HID device is present)
    */
   private boolean isDeviceConnected() {
@@ -325,25 +299,10 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet {
 
     Preconditions.checkState(isDeviceConnected(), "Device is not connected");
 
-    // Attempt to close the connection (also closes the in/out streams)
-//    try {
-    //deviceOptional.get().close();
-
     log.info("Disconnected from Trezor");
 
     // Let everyone know
     HardwareWalletEvents.fireSystemEvent(SystemMessageType.DEVICE_DISCONNECTED);
-  }
-
-  @Override
-  public void sendMessage(Message message) {
-
-    Preconditions.checkNotNull(message, "Message must be present");
-    Preconditions.checkNotNull(deviceOptional, "Device is not connected");
-
-    Message response = messageWrite(message);
-
-    log.info("Response was: '{}'", response);
 
   }
 
@@ -372,79 +331,46 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet {
 
   @Override
   public String toString() {
-    return "USB Trezor (Serial: " + this.serial + ")";
+    return "USB Trezor Version 1 (Serial: " + this.serial + ")";
   }
 
-  private Message messageWrite(Message msg) {
+  @Override
+  public int writeToDevice(byte[] buffer) {
 
-    int msgSize = msg.getSerializedSize();
-    String msgName = msg.getClass().getSimpleName();
-    int msgId = TrezorMessage.MessageType.valueOf("MessageType_" + msgName).getNumber();
+    Preconditions.checkNotNull(buffer, "'buffer' must be present");
+    Preconditions.checkNotNull(deviceOptional, "Device is not connected");
 
-    log.info("Writing message: '{}' ({} bytes)", msgName, msgSize);
-
-    ByteBuffer messageBuffer = ByteBuffer.allocate(32768);
-    messageBuffer.put((byte) '#');
-    messageBuffer.put((byte) '#');
-    messageBuffer.put((byte) ((msgId >> 8) & 0xFF));
-    messageBuffer.put((byte) (msgId & 0xFF));
-    messageBuffer.put((byte) ((msgSize >> 24) & 0xFF));
-    messageBuffer.put((byte) ((msgSize >> 16) & 0xFF));
-    messageBuffer.put((byte) ((msgSize >> 8) & 0xFF));
-    messageBuffer.put((byte) (msgSize & 0xFF));
-    messageBuffer.put(msg.toByteArray());
-    while (messageBuffer.position() % 63 > 0) {
-      messageBuffer.put((byte) 0);
-    }
-
-    UsbPipe outPipe = epw.getUsbPipe();
+    UsbPipe outPipe = null;
     try {
+      outPipe = epw.getUsbPipe();
       outPipe.open();
 
-      int chunks = messageBuffer.position() / 63;
-      log.info("Writing {} chunks", chunks);
-      messageBuffer.rewind();
-
-      // Break the data into 63 byte chunks with length prefix
-      for (int i = 0; i < chunks; i++) {
-
-        byte[] buffer = new byte[64];
-        buffer[0] = (byte) '?';
-        messageBuffer.get(buffer, 1, 63);
-
-        // Describe the chunk
-        String s = "chunk:";
-        for (int j = 0; j < 64; j++) {
-          s += String.format(" %02x", buffer[j]);
-        }
-
-        log.info("> {}", s);
-
-        int sent = outPipe.syncSubmit(buffer);
-        if (sent != buffer.length) {
-          throw new UsbException("Invalid data chunk size sent: " + sent);
-        }
+      int bytesSent = outPipe.syncSubmit(buffer);
+      if (bytesSent != buffer.length) {
+        throw new UsbException("Invalid data chunk size sent. Expected: " + buffer.length + " Actual: " + bytesSent);
       }
+
+      return bytesSent;
+
     } catch (UsbException e) {
-      // TODO Better error handling here
-      e.printStackTrace();
+      log.error("Write endpoint submit data failed.", e);
     } finally {
       try {
-        outPipe.close();
+        if (outPipe != null) {
+          outPipe.close();
+        }
       } catch (UsbException e) {
         // Do nothing
       }
     }
 
-    return messageRead();
-
+    return 0;
   }
 
-  private Message messageRead() {
+  public Message readFromDevice() {
 
     ByteBuffer messageBuffer = ByteBuffer.allocate(32768);
     ByteBuffer headerBuffer = ByteBuffer.allocate(4);
-    byte[] buffer = new byte[64];
 
     TrezorMessage.MessageType type;
     int msgSize;
@@ -456,14 +382,15 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet {
       inPipe.open();
 
       for (; ; ) {
+        byte[] buffer = new byte[64];
+
         received = inPipe.syncSubmit(buffer);
 
-        log.debug("Read chunk: {} bytes", received);
+        log.debug("< Frame: {} bytes", received);
 
         if (received < 9) {
           continue;
         }
-
 
         if (buffer[0] != (byte) '?' || buffer[1] != (byte) '#' || buffer[2] != (byte) '#') {
           continue;
@@ -480,6 +407,7 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet {
 
       while (messageBuffer.position() < msgSize) {
 
+        byte[] buffer = new byte[64];
         received = inPipe.syncSubmit(buffer);
 
         buffer = new byte[64];
@@ -489,10 +417,12 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet {
         messageBuffer.put(buffer, 1, buffer.length - 1);
       }
 
-      return parseMessageFromBytes(type, Arrays.copyOfRange(messageBuffer.array(), 0, msgSize));
+      return TrezorMessageUtils.parse((short) type.getNumber(), Arrays.copyOfRange(messageBuffer.array(), 0, msgSize));
 
     } catch (UsbException e) {
-      log.debug("Opening EPR pipe");
+      log.error("Read endpoint failed", e);
+    } catch (InvalidProtocolBufferException e) {
+      log.error("Read endpoint yielded unknown protobuf message", e);
     } finally {
       try {
         inPipe.close();
@@ -506,74 +436,8 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet {
 
   }
 
-  /**
-   * @param type The message type
-   * @param data The data payload
-   *
-   * @return The message if it could be parsed
-   */
-  private Message parseMessageFromBytes(TrezorMessage.MessageType type, byte[] data) {
 
-    Message msg = null;
-    log.info("Parsing '{}' ({} bytes):", type, data.length);
-
-    String s = "data:";
-    for (byte aData : data) {
-      s += String.format(" %02x", aData);
-    }
-    log.info("Trezor.parseMessageFromBytes()", s);
-
-    try {
-      if (type.getNumber() == TrezorMessage.MessageType.MessageType_Success_VALUE) {
-        msg = TrezorMessage.Success.parseFrom(data);
-      }
-      if (type.getNumber() == TrezorMessage.MessageType.MessageType_Failure_VALUE) {
-        msg = TrezorMessage.Failure.parseFrom(data);
-      }
-      if (type.getNumber() == TrezorMessage.MessageType.MessageType_Entropy_VALUE) {
-        msg = TrezorMessage.Entropy.parseFrom(data);
-      }
-      if (type.getNumber() == TrezorMessage.MessageType.MessageType_PublicKey_VALUE) {
-        msg = TrezorMessage.PublicKey.parseFrom(data);
-      }
-      if (type.getNumber() == TrezorMessage.MessageType.MessageType_Features_VALUE) {
-        msg = TrezorMessage.Features.parseFrom(data);
-      }
-      if (type.getNumber() == TrezorMessage.MessageType.MessageType_PinMatrixRequest_VALUE) {
-        msg = TrezorMessage.PinMatrixRequest.parseFrom(data);
-      }
-      if (type.getNumber() == TrezorMessage.MessageType.MessageType_TxRequest_VALUE) {
-        msg = TrezorMessage.TxRequest.parseFrom(data);
-      }
-      if (type.getNumber() == TrezorMessage.MessageType.MessageType_ButtonRequest_VALUE) {
-        msg = TrezorMessage.ButtonRequest.parseFrom(data);
-      }
-      if (type.getNumber() == TrezorMessage.MessageType.MessageType_Address_VALUE) {
-        msg = TrezorMessage.Address.parseFrom(data);
-      }
-      if (type.getNumber() == TrezorMessage.MessageType.MessageType_EntropyRequest_VALUE) {
-        msg = TrezorMessage.EntropyRequest.parseFrom(data);
-      }
-      if (type.getNumber() == TrezorMessage.MessageType.MessageType_MessageSignature_VALUE) {
-        msg = TrezorMessage.MessageSignature.parseFrom(data);
-      }
-      if (type.getNumber() == TrezorMessage.MessageType.MessageType_PassphraseRequest_VALUE) {
-        msg = TrezorMessage.PassphraseRequest.parseFrom(data);
-      }
-      if (type.getNumber() == TrezorMessage.MessageType.MessageType_TxSize_VALUE) {
-        msg = TrezorMessage.TxSize.parseFrom(data);
-      }
-      if (type.getNumber() == TrezorMessage.MessageType.MessageType_WordRequest_VALUE) {
-        msg = TrezorMessage.WordRequest.parseFrom(data);
-      }
-    } catch (InvalidProtocolBufferException e) {
-      log.error("Could not parse message", e);
-      return null;
-    }
-
-    return msg;
-  }
-
+  // TODO Refactor this into TrezorMessageUtils
   public static int toInt(byte[] bytes) {
     int ret = 0;
     for (int i = 0; i < 4 && i < bytes.length; i++) {
@@ -581,19 +445,6 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet {
       ret |= (int) bytes[i] & 0xFF;
     }
     return ret;
-  }
-
-
-  @Override
-  public DataInputStream getDataInputStream() {
-    // TODO - refactor TrezorV1UsbHardwareWallet to expose DataInputStream
-    throw new UnsupportedOperationException("TODO - refactor TrezorV1UsbHardwareWallet to expose DataInputStream");
-  }
-
-  @Override
-  public DataOutputStream getDataOutputStream() {
-    // TODO - refactor TrezorV1UsbHardwareWallet to expose DataOutputStream
-    throw new UnsupportedOperationException("TODO - refactor TrezorV1UsbHardwareWallet to expose DataOutputStream");
   }
 
 }

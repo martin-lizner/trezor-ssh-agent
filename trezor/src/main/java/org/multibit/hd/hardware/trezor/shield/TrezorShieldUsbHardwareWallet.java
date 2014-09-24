@@ -8,16 +8,12 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.protobuf.Message;
 import org.multibit.hd.hardware.core.HardwareWalletSpecification;
-import org.multibit.hd.hardware.core.device_transport.CP211xDeviceTransport;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
 import org.multibit.hd.hardware.core.messages.SystemMessageType;
 import org.multibit.hd.hardware.trezor.AbstractTrezorHardwareWallet;
-import org.multibit.hd.hardware.trezor.TrezorMessageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 
 /**
@@ -42,9 +38,6 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
   private Optional<Integer> vendorId = Optional.absent();
   private Optional<Integer> productId = Optional.absent();
   private Optional<String> serialNumber = Optional.absent();
-
-  private DataOutputStream out = null;
-  private DataInputStream in = null;
 
   private Optional<HIDDevice> deviceOptional = Optional.absent();
 
@@ -90,6 +83,13 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
     this.vendorId = specification.getVendorId();
     this.productId = specification.getProductId();
     this.serialNumber = specification.getSerialNumber();
+
+  }
+
+  @Override
+  public void initialise() {
+
+    // Do nothing
 
   }
 
@@ -145,18 +145,27 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
    */
   private boolean attachDevice(HIDDevice device) throws IOException {
 
+    byte[] featureReport;
+
     // Create and configure the USB to UART bridge
-    final CP211xDeviceTransport uart = new CP211xDeviceTransport(device);
 
-    uart.enable(true);
-    uart.purge(3);
+    // Reset the device
+    featureReport = new byte[]{0x040, 0x00};
+    int bytesSent = device.sendFeatureReport(featureReport);
+    log.debug("> UART Reset: {} '{}'", bytesSent, featureReport);
 
-    // Add unbuffered data streams for easy data manipulation
-    out = new DataOutputStream(uart.getOutputStream());
-    in = new DataInputStream(uart.getInputStream());
+    // Enable the UART
+    featureReport = new byte[]{0x041, 0x01};
+    bytesSent = device.sendFeatureReport(featureReport);
+    log.debug("> UART Enable: {} '{}'", bytesSent, featureReport);
+
+    // Purge Rx and Tx buffers
+    featureReport = new byte[]{0x043, (byte) 0x03};
+    bytesSent = device.sendFeatureReport(featureReport);
+    log.debug("> Purge RxTx: {} '{}'", bytesSent, featureReport);
 
     // Monitor the input stream
-    monitorDataInputStream(in);
+    //monitorDataInputStream(in);
 
     // Must have connected to be here
     HardwareWalletEvents.fireSystemEvent(SystemMessageType.DEVICE_CONNECTED);
@@ -223,6 +232,11 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
     }
   }
 
+  @Override
+  protected Message readFromDevice() {
+    return null;
+  }
+
   /**
    * @return The HID device info, if present
    *
@@ -278,33 +292,29 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
 
   }
 
+  /**
+   * @param buffer Buffer to write to device
+   *
+   * @return Number of bytes written
+   */
   @Override
-  public void sendMessage(Message message) {
+  public int writeToDevice(byte[] buffer) {
 
-    Preconditions.checkNotNull(message, "Message must be present");
+    Preconditions.checkNotNull(buffer, "'buffer' must be present");
     Preconditions.checkNotNull(deviceOptional, "Device is not connected");
 
-    try {
+    int bytesSent = 0;
 
-      // Apply the message to the data output stream
-      TrezorMessageUtils.writeMessage(message, out);
+    try {
+      bytesSent = deviceOptional.get().write(buffer);
+      if (bytesSent != buffer.length) {
+        log.warn("Invalid data chunk size sent. Expected: " + buffer.length + " Actual: " + bytesSent);
+      }
 
     } catch (IOException e) {
-
-      log.warn("I/O error during write. Closing device.", e);
-      HardwareWalletEvents.fireSystemEvent(SystemMessageType.DEVICE_DISCONNECTED);
-
+      log.error("Write endpoint submit data failed.", e);
     }
 
-  }
-
-  @Override
-  public DataInputStream getDataInputStream() {
-    return in;
-  }
-
-  @Override
-  public DataOutputStream getDataOutputStream() {
-    return out;
+    return bytesSent;
   }
 }

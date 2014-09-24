@@ -7,8 +7,9 @@ import com.satoshilabs.trezor.protobuf.TrezorMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.util.Map;
 
 /**
@@ -27,7 +28,6 @@ public final class TrezorMessageUtils {
   private static final Map<Class<? extends Message>, TrezorMessage.MessageType> trezorMessageMap = Maps.newHashMap();
 
   static {
-
 
     for (TrezorMessage.MessageType trezorMessageType : TrezorMessage.MessageType.values()) {
 
@@ -183,13 +183,80 @@ public final class TrezorMessageUtils {
 
     }
 
-
   }
 
   /**
    * Utilities should not have public constructors
    */
   private TrezorMessageUtils() {
+  }
+
+  /**
+   * @param type The message type
+   * @param data The data payload
+   *
+   * @return The message if it could be parsed
+   */
+  private static Message parseMessageFromBytes(TrezorMessage.MessageType type, byte[] data) {
+
+    Message msg = null;
+    log.info("Parsing '{}' ({} bytes):", type, data.length);
+
+    String s = "data:";
+    for (byte aData : data) {
+      s += String.format(" %02x", aData);
+    }
+    log.info("Trezor.parseMessageFromBytes()", s);
+
+    try {
+      if (type.getNumber() == TrezorMessage.MessageType.MessageType_Success_VALUE) {
+        msg = TrezorMessage.Success.parseFrom(data);
+      }
+      if (type.getNumber() == TrezorMessage.MessageType.MessageType_Failure_VALUE) {
+        msg = TrezorMessage.Failure.parseFrom(data);
+      }
+      if (type.getNumber() == TrezorMessage.MessageType.MessageType_Entropy_VALUE) {
+        msg = TrezorMessage.Entropy.parseFrom(data);
+      }
+      if (type.getNumber() == TrezorMessage.MessageType.MessageType_PublicKey_VALUE) {
+        msg = TrezorMessage.PublicKey.parseFrom(data);
+      }
+      if (type.getNumber() == TrezorMessage.MessageType.MessageType_Features_VALUE) {
+        msg = TrezorMessage.Features.parseFrom(data);
+      }
+      if (type.getNumber() == TrezorMessage.MessageType.MessageType_PinMatrixRequest_VALUE) {
+        msg = TrezorMessage.PinMatrixRequest.parseFrom(data);
+      }
+      if (type.getNumber() == TrezorMessage.MessageType.MessageType_TxRequest_VALUE) {
+        msg = TrezorMessage.TxRequest.parseFrom(data);
+      }
+      if (type.getNumber() == TrezorMessage.MessageType.MessageType_ButtonRequest_VALUE) {
+        msg = TrezorMessage.ButtonRequest.parseFrom(data);
+      }
+      if (type.getNumber() == TrezorMessage.MessageType.MessageType_Address_VALUE) {
+        msg = TrezorMessage.Address.parseFrom(data);
+      }
+      if (type.getNumber() == TrezorMessage.MessageType.MessageType_EntropyRequest_VALUE) {
+        msg = TrezorMessage.EntropyRequest.parseFrom(data);
+      }
+      if (type.getNumber() == TrezorMessage.MessageType.MessageType_MessageSignature_VALUE) {
+        msg = TrezorMessage.MessageSignature.parseFrom(data);
+      }
+      if (type.getNumber() == TrezorMessage.MessageType.MessageType_PassphraseRequest_VALUE) {
+        msg = TrezorMessage.PassphraseRequest.parseFrom(data);
+      }
+      if (type.getNumber() == TrezorMessage.MessageType.MessageType_TxSize_VALUE) {
+        msg = TrezorMessage.TxSize.parseFrom(data);
+      }
+      if (type.getNumber() == TrezorMessage.MessageType.MessageType_WordRequest_VALUE) {
+        msg = TrezorMessage.WordRequest.parseFrom(data);
+      }
+    } catch (InvalidProtocolBufferException e) {
+      log.error("Could not parse message", e);
+      return null;
+    }
+
+    return msg;
   }
 
   /**
@@ -201,31 +268,12 @@ public final class TrezorMessageUtils {
    * @throws java.io.IOException If the device disconnects during IO
    */
 
-  public static void writeMessage(Message message, DataOutputStream out) throws IOException {
+  public static void writeAsHID(Message message, OutputStream out) throws IOException {
 
-    // Require the header code
-    short headerCode = getHeaderCode(message);
+    //
+    ByteBuffer messageBuffer = format(message);
 
-    // Provide some debugging
-    TrezorMessage.MessageType messageType = getMessageTypeByHeaderCode(headerCode);
-    log.debug("> {}", messageType.name());
-
-    // Write magic alignment string (avoiding immediate flush)
-    out.writeBytes("##");
-
-    // Write header following Python's ">HL" syntax
-    // > = Big endian, std size and alignment
-    // H = Unsigned short (2 bytes) for header code
-    // L = Unsigned long (4 bytes) for message length
-
-    // Message type
-    out.writeShort(headerCode);
-
-    // Message length
-    out.writeInt(message.getSerializedSize());
-
-    // Write the detail portion as a protocol buffer message
-    message.writeTo(out);
+    out.write(messageBuffer.array());
 
     // Flush to ensure bytes are available immediately
     out.flush();
@@ -270,7 +318,7 @@ public final class TrezorMessageUtils {
 
   /**
    * @param headerCode The header code (e.g. "0" for INITIALIZE)
-   * @param bytes      The bytes forming the message
+   * @param bytes      The bytes forming a protobuf message
    *
    * @return A protocol buffer Message derived from the bytes
    *
@@ -292,4 +340,46 @@ public final class TrezorMessageUtils {
 
   }
 
+  /**
+   * <p>Format a Trezor protobuf message as a byte buffer filled with HID frames</p>
+   *
+   * @param message The Trezor protobuf message
+   *
+   * @return A byte buffer containing a set of HID frames
+   */
+  public static ByteBuffer format(Message message) {
+
+    int msgSize = message.getSerializedSize();
+    String msgName = message.getClass().getSimpleName();
+    int msgId = TrezorMessage.MessageType.valueOf("MessageType_" + msgName).getNumber();
+
+    log.debug("Formatting message: '{}' ({} bytes)", msgName, msgSize);
+
+    // Create the header
+    ByteBuffer messageBuffer = ByteBuffer.allocate(32768);
+
+    // Marker bytes
+    messageBuffer.put((byte) '#');
+    messageBuffer.put((byte) '#');
+
+    // Header code
+    messageBuffer.put((byte) ((msgId >> 8) & 0xFF));
+    messageBuffer.put((byte) (msgId & 0xFF));
+
+    // Message size
+    messageBuffer.put((byte) ((msgSize >> 24) & 0xFF));
+    messageBuffer.put((byte) ((msgSize >> 16) & 0xFF));
+    messageBuffer.put((byte) ((msgSize >> 8) & 0xFF));
+    messageBuffer.put((byte) (msgSize & 0xFF));
+
+    // Message payload
+    messageBuffer.put(message.toByteArray());
+
+    // Frame padding
+    while (messageBuffer.position() % 63 > 0) {
+      messageBuffer.put((byte) 0);
+    }
+
+    return messageBuffer;
+  }
 }
