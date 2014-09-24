@@ -3,7 +3,6 @@ package org.multibit.hd.hardware.trezor.v1;
 import com.codeminders.hidapi.ClassPathLibraryLoader;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
 import com.satoshilabs.trezor.protobuf.TrezorMessage;
 import org.multibit.hd.hardware.core.HardwareWalletSpecification;
@@ -49,12 +48,12 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet {
   /**
    * Read endpoint
    */
-  private UsbEndpoint epr;
+  private UsbEndpoint readEndpoint;
 
   /**
    * Write endpoint
    */
-  private UsbEndpoint epw;
+  private UsbEndpoint writeEndpoint;
 
   /**
    * Selected device
@@ -166,7 +165,7 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet {
     }
 
     // Check for a connected Trezor
-    if (epr == null || epw == null) {
+    if (readEndpoint == null || writeEndpoint == null) {
       log.error("Device read/write endpoints have not been set.");
       HardwareWalletEvents.fireSystemEvent(SystemMessageType.DEVICE_FAILURE);
       return false;
@@ -204,58 +203,61 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet {
       }
 
       // Temporary endpoints
-      UsbEndpoint readEndpoint = null;
-      UsbEndpoint writeEndpoint = null;
+      UsbEndpoint possibleReadEndpoint = null;
+      UsbEndpoint possibleWriteEndpoint = null;
 
       // Process all endpoints
       for (UsbEndpoint ep : (List<UsbEndpoint>) iface.getUsbEndpoints()) {
 
-        log.debug("Analysing endpoint. Direction: {}, Address: {}", ep.getDirection(), ep.getUsbEndpointDescriptor().bEndpointAddress());
+        log.debug("Analysing endpoint. Direction: {}, Address: {}",
+          String.format("0x%02x", ep.getDirection()),
+          String.format("0x%02x", ep.getUsbEndpointDescriptor().bEndpointAddress())
+        );
 
         // Is this an interface with address 0x81?
-        if (readEndpoint == null && ep.getDirection() == UsbConst.ENDPOINT_DIRECTION_IN && ep.getUsbEndpointDescriptor().bEndpointAddress() == -127) {
-          log.debug("Found EPR");
-          readEndpoint = ep;
+        if (possibleReadEndpoint == null && ep.getDirection() == UsbConst.ENDPOINT_DIRECTION_IN && ep.getUsbEndpointDescriptor().bEndpointAddress() == -127) {
+          log.debug("Found the read endpoint");
+          possibleReadEndpoint = ep;
           // Move to the next interface
           continue;
         }
 
         // Is this an interface with address 0x01?
-        if (writeEndpoint == null && ep.getDirection() == UsbConst.ENDPOINT_DIRECTION_OUT && ep.getUsbEndpointDescriptor().bEndpointAddress() == 1) {
-          log.debug("Found EPW");
-          writeEndpoint = ep;
+        if (possibleWriteEndpoint == null && ep.getDirection() == UsbConst.ENDPOINT_DIRECTION_OUT && ep.getUsbEndpointDescriptor().bEndpointAddress() == 1) {
+          log.debug("Found the write endpoint");
+          possibleWriteEndpoint = ep;
         }
 
-        if (readEndpoint != null && writeEndpoint != null) {
-          log.debug("Found EPR and EPW");
+        if (possibleReadEndpoint != null && possibleWriteEndpoint != null) {
+          log.debug("Found both endpoints");
           break;
         }
       }
 
       // All interfaces explored examine the result
-      if (readEndpoint == null) {
+      if (possibleReadEndpoint == null) {
         log.error("Could not find read endpoint on this interface");
         continue;
       }
-      if (writeEndpoint == null) {
+      if (possibleWriteEndpoint == null) {
         log.error("Could not find write endpoint on this interface");
         continue;
       }
 
-      // Trezor UARTs use 64 byte chunks
-      if (readEndpoint.getUsbEndpointDescriptor().wMaxPacketSize() != 64) {
+      // Trezor uses use 64 byte packet sizes
+      if (possibleReadEndpoint.getUsbEndpointDescriptor().wMaxPacketSize() != 64) {
         log.error("Unexpected packet size for read endpoint on this interface");
         continue;
       }
-      if (writeEndpoint.getUsbEndpointDescriptor().wMaxPacketSize() != 64) {
+      if (possibleWriteEndpoint.getUsbEndpointDescriptor().wMaxPacketSize() != 64) {
         log.error("Unexpected packet size for write endpoint on this interface");
         continue;
       }
 
-      epr = readEndpoint;
-      epw = writeEndpoint;
+      readEndpoint = possibleReadEndpoint;
+      writeEndpoint = possibleWriteEndpoint;
 
-      log.info("Verified Trezor device. EPR: {}, EPW: {}.", epr, epw);
+      log.info("Verified Trezor device.");
 
       try {
 
@@ -342,12 +344,12 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet {
 
     UsbPipe outPipe = null;
     try {
-      outPipe = epw.getUsbPipe();
+      outPipe = writeEndpoint.getUsbPipe();
       outPipe.open();
 
       int bytesSent = outPipe.syncSubmit(buffer);
       if (bytesSent != buffer.length) {
-        throw new UsbException("Invalid data chunk size sent. Expected: " + buffer.length + " Actual: " + bytesSent);
+        throw new UsbException("Invalid packet size sent. Expected: " + buffer.length + " Actual: " + bytesSent);
       }
 
       return bytesSent;
@@ -360,7 +362,7 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet {
           outPipe.close();
         }
       } catch (UsbException e) {
-        // Do nothing
+        log.warn("Failed to close the write endpoint", e);
       }
     }
 
@@ -370,34 +372,41 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet {
   public Message readFromDevice() {
 
     ByteBuffer messageBuffer = ByteBuffer.allocate(32768);
-    ByteBuffer headerBuffer = ByteBuffer.allocate(4);
 
     TrezorMessage.MessageType type;
     int msgSize;
     int received;
 
-    log.debug("Opening EPR pipe");
-    UsbPipe inPipe = epr.getUsbPipe();
+    UsbPipe inPipe = readEndpoint.getUsbPipe();
     try {
+
+      log.debug("Read endpoint open pipe");
       inPipe.open();
 
+      // Keep reading until synchronized on "##"
       for (; ; ) {
         byte[] buffer = new byte[64];
 
         received = inPipe.syncSubmit(buffer);
 
-        log.debug("< Frame: {} bytes", received);
+        log.debug("< {} bytes", received);
+        TrezorMessageUtils.logPacket("<", 0, buffer);
 
         if (received < 9) {
           continue;
         }
 
+        // Synchronize the buffer on start of new message ('?' is ASCII 63)
         if (buffer[0] != (byte) '?' || buffer[1] != (byte) '#' || buffer[2] != (byte) '#') {
+          // Reject packet
           continue;
         }
 
-        type = TrezorMessage.MessageType.valueOf((buffer[3] << 8) + buffer[4]);
-        msgSize = toInt(headerBuffer.put(buffer[5]).put(buffer[6]).put(buffer[7]).put(buffer[8]).array());
+        // Evaluate the header information (short, int)
+        type = TrezorMessage.MessageType.valueOf((buffer[3] << 8 & 0xFF) + buffer[4]);
+        msgSize = ((buffer[5] & 0xFF) << 24) + ((buffer[6] & 0xFF) << 16) + ((buffer[7] & 0xFF) << 8) + (buffer[8] & 0xFF);
+
+        // Treat remainder of packet as the protobuf message payload
         messageBuffer.put(buffer, 9, buffer.length - 9);
 
         break;
@@ -405,46 +414,43 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet {
 
       log.debug("< Type: '{}' Message size: '{}' bytes", type.name(), msgSize);
 
+      int packet = 0;
       while (messageBuffer.position() < msgSize) {
 
         byte[] buffer = new byte[64];
         received = inPipe.syncSubmit(buffer);
+        packet++;
 
-        buffer = new byte[64];
-        log.debug("Read chunk (cont): {} bytes", received);
+        log.debug("< (cont) {} bytes", received);
+        TrezorMessageUtils.logPacket("<", packet, buffer);
 
-        if (buffer[0] != (byte) '?') continue;
+        if (buffer[0] != (byte) '?') {
+          log.warn("< Malformed packet length. Expected: '3f' Actual: '{}'. Ignoring.", String.format("%02x", buffer[0]));
+          continue;
+        }
+
+        // Append the packet payload to the message buffer
         messageBuffer.put(buffer, 1, buffer.length - 1);
       }
 
-      return TrezorMessageUtils.parse((short) type.getNumber(), Arrays.copyOfRange(messageBuffer.array(), 0, msgSize));
+      log.debug("Packet complete");
+
+      // Parse the message
+      return TrezorMessageUtils.parse(type, Arrays.copyOfRange(messageBuffer.array(), 0, msgSize));
 
     } catch (UsbException e) {
       log.error("Read endpoint failed", e);
-    } catch (InvalidProtocolBufferException e) {
-      log.error("Read endpoint yielded unknown protobuf message", e);
     } finally {
       try {
         inPipe.close();
       } catch (UsbException e) {
-        // Do nothing
+        log.warn("Failed to close the read endpoint", e);
       }
     }
 
     // TODO Better error handling here
     return null;
 
-  }
-
-
-  // TODO Refactor this into TrezorMessageUtils
-  public static int toInt(byte[] bytes) {
-    int ret = 0;
-    for (int i = 0; i < 4 && i < bytes.length; i++) {
-      ret <<= 8;
-      ret |= (int) bytes[i] & 0xFF;
-    }
-    return ret;
   }
 
 }

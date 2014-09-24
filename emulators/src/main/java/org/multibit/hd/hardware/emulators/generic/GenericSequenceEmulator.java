@@ -169,7 +169,7 @@ public class GenericSequenceEmulator {
 
             log.debug("Emulating '{}'", message.getProtocolMessage());
 
-            TrezorMessageUtils.writeAsHID(message.getProtocolMessage(), out);
+            TrezorMessageUtils.writeAsHIDPackets(message.getProtocolMessage(), out);
 
           }
 

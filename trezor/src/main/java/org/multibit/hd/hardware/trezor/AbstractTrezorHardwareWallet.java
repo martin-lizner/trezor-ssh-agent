@@ -52,21 +52,21 @@ public abstract class AbstractTrezorHardwareWallet extends AbstractHardwareWalle
   @Override
   public void writeMessage(Message message) {
 
-    ByteBuffer messageBuffer = TrezorMessageUtils.format(message);
+    ByteBuffer messageBuffer = TrezorMessageUtils.formatAsHIDPackets(message);
 
-    int frames = messageBuffer.position() / 63;
-    log.info("Writing {} frames", frames);
+    int packets = messageBuffer.position() / 63;
+    log.info("Writing {} packets", packets);
     messageBuffer.rewind();
 
-    // HID requires 64 byte frames with 63 bytes of payload
-    for (int i = 0; i < frames; i++) {
+    // HID requires 64 byte packets with 63 bytes of payload
+    for (int i = 0; i < packets; i++) {
 
       byte[] buffer = new byte[64];
       buffer[0] = 63; // Length
       messageBuffer.get(buffer, 1, 63); // Payload
 
-      // Describe the frame
-      String s = "Frame [" + i + "]: ";
+      // Describe the packet
+      String s = "Packet [" + i + "]: ";
       for (int j = 0; j < 64; j++) {
         s += String.format(" %02x", buffer[j]);
       }

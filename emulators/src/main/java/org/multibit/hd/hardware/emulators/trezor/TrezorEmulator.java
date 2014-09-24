@@ -162,7 +162,7 @@ public class TrezorEmulator {
 
             log.debug("Emulating '{}'", message.getTrezorMessage());
 
-            TrezorMessageUtils.writeAsHID(message.getTrezorMessage(), out);
+            TrezorMessageUtils.writeAsHIDPackets(message.getTrezorMessage(), out);
 
           }
 
