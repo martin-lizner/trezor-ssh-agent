@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.usb.*;
+import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
@@ -173,18 +174,18 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet {
 
     log.info("Selected trezor OK");
 
-//    try {
-//      log.debug("Selected: '{}' '{}' '{}'",
-//        device.getManufacturerString(),
-//        device.getProductString(),
-//        device.getSerialNumberString()
-//      );
-//
-//    } catch (UsbException | UnsupportedEncodingException e) {
-//      log.error("Failed to connect device due to problem reading device information", e);
-//      HardwareWalletEvents.fireSystemEvent(SystemMessageType.DEVICE_FAILURE);
-//      return false;
-//    }
+    try {
+      log.debug("Selected: '{}' '{}' '{}'",
+        device.getManufacturerString(),
+        device.getProductString(),
+        device.getSerialNumberString()
+      );
+
+    } catch (UsbException | UnsupportedEncodingException e) {
+      log.error("Failed to connect device due to problem reading device information", e);
+      HardwareWalletEvents.fireSystemEvent(SystemMessageType.DEVICE_FAILURE);
+      return false;
+    }
 
     // Must be OK to be here
     return true;
@@ -337,7 +338,7 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet {
   }
 
   @Override
-  public int writeToDevice(byte[] buffer) {
+  protected int writeToDevice(byte[] buffer) {
 
     Preconditions.checkNotNull(buffer, "'buffer' must be present");
     Preconditions.checkNotNull(deviceOptional, "Device is not connected");
@@ -369,7 +370,8 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet {
     return 0;
   }
 
-  public Message readFromDevice() {
+  @Override
+  protected Message readFromDevice() {
 
     ByteBuffer messageBuffer = ByteBuffer.allocate(32768);
 
