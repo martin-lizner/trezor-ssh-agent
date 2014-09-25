@@ -26,8 +26,6 @@ public class TrezorV1FeaturesExample {
 
   private static final Logger log = LoggerFactory.getLogger(TrezorV1FeaturesExample.class);
 
-  private boolean deviceFailed = false;
-
   /**
    * <p>Main entry point to the example</p>
    *
@@ -109,7 +107,6 @@ public class TrezorV1FeaturesExample {
         break;
       case DEVICE_FAILURE:
         log.error("Device has failed (hardware problem)");
-        deviceFailed = true;
         break;
     }
 

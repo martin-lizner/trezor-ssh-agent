@@ -33,9 +33,9 @@ import java.net.UnknownHostException;
  * @since 0.0.1
  *  
  */
-public class RelayClient implements HardwareWalletClient {
+public class TrezorRelayClient implements HardwareWalletClient {
 
-  private static final Logger log = LoggerFactory.getLogger(RelayClient.class);
+  private static final Logger log = LoggerFactory.getLogger(TrezorRelayClient.class);
 
   /**
    * The location of the RelayServer (an IP address or server name
@@ -72,74 +72,64 @@ public class RelayClient implements HardwareWalletClient {
    * @param relayServerLocation The location of the RelayServer
    * @param relayServerPort     The port number of the server
    */
-  public RelayClient(TrezorV1UsbHardwareWallet hardwareWallet, String relayServerLocation, int relayServerPort) {
+  public TrezorRelayClient(TrezorV1UsbHardwareWallet hardwareWallet, String relayServerLocation, int relayServerPort) {
     this.hardwareWallet = hardwareWallet;
     this.relayServerLocation = relayServerLocation;
     this.relayServerPort = relayServerPort;
   }
 
-  /**
-   * Connect to the remote RelayServer
-   *
-   * @return true if connection was successful, false otherwise
-   */
-  public boolean connectToServer() {
+  @Override
+  public boolean connect() {
+
     try {
       socket = new Socket(relayServerLocation, relayServerPort);
       out = new DataOutputStream(socket.getOutputStream());
       in = new DataInputStream(socket.getInputStream());
 
+      log.info("Successful connection to relay server.");
+
       return true;
     } catch (UnknownHostException e) {
-      System.err.println("Do not know about host " + relayServerLocation);
+      log.error("Unknown host '{}'", relayServerLocation, e);
       return false;
     } catch (IOException e) {
-      System.err.println("Could not get I/O for the connection to " +
-              relayServerLocation);
+      log.error("IO problem on host '{}'.", relayServerLocation, e);
       return false;
     }
-  }
 
-
-  /**
-   * Disconnect to the remote RelayServer
-   *
-   * @return true if disconnection was successful, false otherwise
-   */
-  public boolean disconnectFromServer() {
-    try {
-      in.close();
-      out.close();
-      socket.close();
-      return true;
-    } catch (IOException ioe) {
-      System.err.println("Do not know about host " + relayServerLocation);
-    }
-    return false;
-  }
-
-  @Override
-  public boolean connect() {
-    // Connect to the Trezor
-    Message message = TrezorMessage.ResetDevice.getDefaultInstance();
-    sendMessage(message, out);
-    return true;
   }
 
   @Override
   public void disconnect() {
-    // disconnect from the Trezor
+    try {
+      in.close();
+      out.close();
+      socket.close();
+
+      log.info("Successful disconnection from relay server.");
+
+    } catch (IOException ioe) {
+      log.error("Do not know about host " + relayServerLocation);
+    }
   }
 
   @Override
   public Optional<HardwareWalletProtocolEvent> initialize() {
-    // TODO Implement this
+
+    // Connect to the Trezor
+    Message message = TrezorMessage.Initialize.getDefaultInstance();
+    sendMessage(message);
+
     return null;
   }
 
   @Override
   public Optional<HardwareWalletProtocolEvent> ping() {
-    // TODO Implement this
+
+    // Connect to the Trezor
+    Message message = TrezorMessage.Ping.getDefaultInstance();
+    sendMessage(message);
+
     return null;
   }
 
@@ -180,10 +170,10 @@ public class RelayClient implements HardwareWalletClient {
 
   @Override
   public Optional<HardwareWalletProtocolEvent> loadDevice(
-          String language,
-          String seed,
-          String pin,
-          boolean passphraseProtection
+    String language,
+    String seed,
+    String pin,
+    boolean passphraseProtection
   ) {
     // TODO Implement this
     return null;
@@ -191,12 +181,12 @@ public class RelayClient implements HardwareWalletClient {
 
   @Override
   public Optional<HardwareWalletProtocolEvent> resetDevice(
-          String language,
-          String label,
-          boolean displayRandom,
-          boolean passphraseProtection,
-          boolean pinProtection,
-          int strength
+    String language,
+    String label,
+    boolean displayRandom,
+    boolean passphraseProtection,
+    boolean pinProtection,
+    int strength
   ) {
     // TODO Implement this
     return null;
@@ -302,20 +292,20 @@ public class RelayClient implements HardwareWalletClient {
     log.debug("Received event: {}", event.getMessageType().name());
 
   }
-  /**
-    * Send a message to an output stream
-    *
-    * @param message the message to serialise and send to the OutputStream
-    * @param out     The outputStream to send the message to
-    */
-   public void sendMessage(Message message, DataOutputStream out) {
-     Preconditions.checkNotNull(message, "Message must be present");
 
-     try {
-       // Apply the message to the data output stream
-       TrezorMessageUtils.writeAsHIDPackets(message, out);
-     } catch (IOException e) {
-       log.warn("I/O error during write. Closing socket.", e);
-     }
-   }
+  /**
+   * Send a message to an output stream
+   *
+   * @param message the message to serialise and send to the OutputStream
+   */
+  public void sendMessage(Message message) {
+    Preconditions.checkNotNull(message, "Message must be present");
+
+    try {
+      // Apply the message to the data output stream
+      TrezorMessageUtils.writeAsHIDPackets(message, out);
+    } catch (IOException e) {
+      log.warn("I/O error during write. Closing socket.", e);
+    }
+  }
 }

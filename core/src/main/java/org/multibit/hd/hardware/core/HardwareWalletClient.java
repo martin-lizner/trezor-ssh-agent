@@ -166,14 +166,14 @@ import org.multibit.hd.hardware.core.events.HardwareWalletSystemEvent;
 public interface HardwareWalletClient {
 
   /**
-   * <p>Connect to the hardware wallet device. No initialization takes place.</p>
+   * <p>Open a connection to the hardware wallet device. No initialization takes place.</p>
    *
    * @return True if the client connected to the device
    */
   boolean connect();
 
   /**
-   * <p>Disconnect from the hardware wallet device. This client instance can no longer be used.</p>
+   * <p>Close the connection to the hardware wallet device. This client instance can no longer be used.</p>
    */
   void disconnect();
 

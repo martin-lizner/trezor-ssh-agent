@@ -8,6 +8,7 @@ import com.google.common.util.concurrent.Uninterruptibles;
 import com.google.protobuf.Message;
 import org.multibit.hd.hardware.core.HardwareWalletException;
 import org.multibit.hd.hardware.core.HardwareWalletService;
+import org.multibit.hd.hardware.core.concurrent.SafeExecutors;
 import org.multibit.hd.hardware.core.events.HardwareWalletProtocolEvent;
 import org.multibit.hd.hardware.core.events.HardwareWalletSystemEvent;
 import org.multibit.hd.hardware.core.messages.ProtocolMessageType;
@@ -22,7 +23,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -36,9 +36,9 @@ import java.util.concurrent.TimeUnit;
  *  </p>
  *  
  */
-public class RelayServer {
+public class TrezorRelayServer {
 
-  private static final Logger log = LoggerFactory.getLogger(RelayServer.class);
+  private static final Logger log = LoggerFactory.getLogger(TrezorRelayServer.class);
 
   /**
    * The hardware wallet representing the locally connected hardware device
@@ -53,13 +53,13 @@ public class RelayServer {
   public static int DEFAULT_PORT_NUMBER = 3000;
 
   // The main thread the server runs on
-  protected final ExecutorService serverExecutorService = Executors.newSingleThreadExecutor();
+  protected final ExecutorService serverExecutorService = SafeExecutors.newSingleThreadExecutor("relay-server");
 
   // Provide a thread for monitoring the output from the hardware wallet
-  protected final ExecutorService hardwareWalletMonitorService = Executors.newFixedThreadPool(1);
+  protected final ExecutorService hardwareWalletMonitorService = SafeExecutors.newSingleThreadExecutor("server-hardware-wallet");
 
   // Provide a thread for monitoring the output from the client
-  protected final ExecutorService clientMonitorService = Executors.newFixedThreadPool(1);
+  protected final ExecutorService clientMonitorService = SafeExecutors.newSingleThreadExecutor("client-monitor");
 
   /**
    * Keep track of hardware wallet events to allow blocking to occur
@@ -70,17 +70,17 @@ public class RelayServer {
   /**
    * Create a RelayServer, wrapping a Trezor V1 USB device, exposing port 3000
    */
-  public RelayServer() {
+  public TrezorRelayServer() {
     // Create a Trezor V1 usb client
     TrezorV1UsbHardwareWallet hardwareWallet = new TrezorV1UsbHardwareWallet(Optional.<Integer>absent(),
-            Optional.<Integer>absent(), Optional.<String>absent());
+      Optional.<Integer>absent(), Optional.<String>absent());
     create(hardwareWallet, DEFAULT_PORT_NUMBER);
   }
 
   /**
    * Create a RelayServer using a HardwareWallet instance and the specified port
    */
-  public RelayServer(TrezorV1UsbHardwareWallet hardwareWallet, int portNumber) throws IOException {
+  public TrezorRelayServer(TrezorV1UsbHardwareWallet hardwareWallet, int portNumber) throws IOException {
     create(hardwareWallet, portNumber);
   }
 
@@ -123,29 +123,19 @@ public class RelayServer {
       DataOutputStream outputToClient = new DataOutputStream(new BufferedOutputStream(clientSocket.getOutputStream(), 1024));
       DataInputStream inputFromClient = new DataInputStream(new BufferedInputStream(clientSocket.getInputStream(), 1024));
 
+      log.debug("Connecting to the local hardware wallet");
+      hardwareWallet.connect();
+
+      log.debug("Monitoring input from client");
       monitorClient(inputFromClient);
 
-      // Monitor the input stream from the hardware wallet - this is then logged and relayed back to the client
+      log.debug("Monitoring input from hardware wallet");
       monitorHardwareWallet(outputToClient);
 
       // Once the monitoring threads have started the server waits forever
       while (true) {
 
       }
-
-//
-//      // Get the output and input streams to and from the hardwareWallet
-//      DataOutputStream outputToHardwareWallet = hardwareWallet.getDataOutputStream();
-//      DataInputStream inputFromHardwareWallet = hardwareWallet.getDataInputStream();
-//
-//      Message messageFromClient = hardwareWallet.parseTrezorMessage(inputFromClient);
-//      log.debug("Received message from client, relaying to hardware wallet. Message = '" + messageFromClient.toString() + "'");
-
-      // Send the Message to the trezor (serialising again to protobuf)
- //     sendMessage(messageFromClient, outputToHardwareWallet);
-
-      // Monitor the input stream from the hardware wallet - this is then logged and relayed back to the client
-//      monitorDataInputStream(inputFromHardwareWallet, outputToClient);
 
     } catch (IOException ioe) {
       ioe.printStackTrace();
@@ -162,16 +152,11 @@ public class RelayServer {
       @Override
       public void run() {
         while (true) {
-          try {
-            log.debug("Monitoring the events the hardware wallet emits . . .");
-            // Read protocol messages added to the hardwareWalletEvents
-            HardwareWalletProtocolEvent event = hardwareWalletEvents.poll(100, TimeUnit.MILLISECONDS);
+          log.debug("Monitoring the hardware wallet protobuf messages");
+          Message message = hardwareWallet.readMessage();
 
-            // Send the Message back to the client
-            sendMessage(event.getMessage(), outputToClient);
-          } catch (InterruptedException ie) {
-            break;
-          }
+          // Send the Message back to the client
+          sendMessage(message, outputToClient);
         }
       }
 
@@ -190,13 +175,15 @@ public class RelayServer {
         log.debug("Monitoring the messages the client emits . . .");
         while (true) {
           try {
-            Message messageFromClient = hardwareWallet.parseTrezorMessage(inputFromClient); // Bit confusing that this utility is on AbstractHardwareWallet
-            log.debug("Received message from client, relaying to hardware wallet. Message = '" + messageFromClient.toString() + "'");
+            // Blocking read to get the client message (e.g. "Initialize") formatted as HID packets for simplicity
+            Message messageFromClient = TrezorMessageUtils.parseAsHIDPackets(inputFromClient);
 
             // Send the Message to the trezor (serialising again to protobuf)
+            log.debug("Writing message to hardware wallet");
             hardwareWallet.writeMessage(messageFromClient);
 
             Uninterruptibles.sleepUninterruptibly(100, TimeUnit.MILLISECONDS);
+
           } catch (HardwareWalletException hwe) {
             hwe.printStackTrace();
           }
@@ -217,7 +204,6 @@ public class RelayServer {
     Preconditions.checkNotNull(message, "Message must be present");
 
     try {
-      // Apply the message to the data output stream
       TrezorMessageUtils.writeAsHIDPackets(message, out);
     } catch (IOException e) {
       log.warn("I/O error during write. Closing socket.", e);
@@ -250,9 +236,9 @@ public class RelayServer {
    * Start a RelayServer wrapping a Trezor V1 USB device on the DEFAULT_PORT_NUMBER (3000)
    */
   public static void main(String[] args) {
-    RelayServer relayServer = new RelayServer();
+    TrezorRelayServer trezorRelayServer = new TrezorRelayServer();
 
-    log.debug("RelayServer started on port " + relayServer.getPortNumber() + ", wrapping the hardwareWallet '" + relayServer.getHardwareWallet().toString() + "'. Use ctrl-C to stop this server.");
+    log.debug("RelayServer started on port " + trezorRelayServer.getPortNumber() + ", wrapping the hardwareWallet '" + trezorRelayServer.getHardwareWallet().toString() + "'. Use ctrl-C to stop this server.");
     // Keep running forever
     while (true) {
 

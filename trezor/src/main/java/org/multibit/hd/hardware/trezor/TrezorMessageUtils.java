@@ -1,7 +1,5 @@
 package org.multibit.hd.hardware.trezor;
 
-import com.google.common.collect.Maps;
-import com.google.protobuf.Descriptors;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
 import com.satoshilabs.trezor.protobuf.TrezorMessage;
@@ -11,9 +9,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
-import java.util.Map;
+import java.util.Arrays;
 
 /**
  * <p>Utility class to provide the following to applications:</p>
@@ -27,166 +26,6 @@ import java.util.Map;
 public final class TrezorMessageUtils {
 
   private static final Logger log = LoggerFactory.getLogger(TrezorMessageUtils.class);
-
-  private static final Map<Class<? extends Message>, TrezorMessage.MessageType> trezorMessageMap = Maps.newHashMap();
-
-  static {
-
-    for (TrezorMessage.MessageType trezorMessageType : TrezorMessage.MessageType.values()) {
-
-      switch (trezorMessageType) {
-        case MessageType_Initialize:
-          trezorMessageMap.put(TrezorMessage.Initialize.class, trezorMessageType);
-          break;
-        case MessageType_Ping:
-          trezorMessageMap.put(TrezorMessage.Ping.class, trezorMessageType);
-          break;
-        case MessageType_Success:
-          trezorMessageMap.put(TrezorMessage.Success.class, trezorMessageType);
-          break;
-        case MessageType_Failure:
-          trezorMessageMap.put(TrezorMessage.Failure.class, trezorMessageType);
-          break;
-        case MessageType_ChangePin:
-          trezorMessageMap.put(TrezorMessage.ChangePin.class, trezorMessageType);
-          break;
-        case MessageType_WipeDevice:
-          trezorMessageMap.put(TrezorMessage.WipeDevice.class, trezorMessageType);
-          break;
-        case MessageType_FirmwareErase:
-          trezorMessageMap.put(TrezorMessage.FirmwareErase.class, trezorMessageType);
-          break;
-        case MessageType_FirmwareUpload:
-          trezorMessageMap.put(TrezorMessage.FirmwareUpload.class, trezorMessageType);
-          break;
-        case MessageType_GetEntropy:
-          trezorMessageMap.put(TrezorMessage.GetEntropy.class, trezorMessageType);
-          break;
-        case MessageType_Entropy:
-          trezorMessageMap.put(TrezorMessage.Entropy.class, trezorMessageType);
-          break;
-        case MessageType_GetPublicKey:
-          trezorMessageMap.put(TrezorMessage.GetPublicKey.class, trezorMessageType);
-          break;
-        case MessageType_PublicKey:
-          trezorMessageMap.put(TrezorMessage.PublicKey.class, trezorMessageType);
-          break;
-        case MessageType_LoadDevice:
-          trezorMessageMap.put(TrezorMessage.LoadDevice.class, trezorMessageType);
-          break;
-        case MessageType_ResetDevice:
-          trezorMessageMap.put(TrezorMessage.ResetDevice.class, trezorMessageType);
-          break;
-        case MessageType_SignTx:
-          trezorMessageMap.put(TrezorMessage.SignTx.class, trezorMessageType);
-          break;
-        case MessageType_SimpleSignTx:
-          trezorMessageMap.put(TrezorMessage.SimpleSignTx.class, trezorMessageType);
-          break;
-        case MessageType_Features:
-          trezorMessageMap.put(TrezorMessage.Features.class, trezorMessageType);
-          break;
-        case MessageType_PinMatrixRequest:
-          trezorMessageMap.put(TrezorMessage.PinMatrixRequest.class, trezorMessageType);
-          break;
-        case MessageType_PinMatrixAck:
-          trezorMessageMap.put(TrezorMessage.PinMatrixAck.class, trezorMessageType);
-          break;
-        case MessageType_Cancel:
-          trezorMessageMap.put(TrezorMessage.Cancel.class, trezorMessageType);
-          break;
-        case MessageType_TxRequest:
-          trezorMessageMap.put(TrezorMessage.TxRequest.class, trezorMessageType);
-          break;
-        case MessageType_TxAck:
-          trezorMessageMap.put(TrezorMessage.TxAck.class, trezorMessageType);
-          break;
-        case MessageType_CipherKeyValue:
-          trezorMessageMap.put(TrezorMessage.CipherKeyValue.class, trezorMessageType);
-          break;
-        case MessageType_ClearSession:
-          trezorMessageMap.put(TrezorMessage.ClearSession.class, trezorMessageType);
-          break;
-        case MessageType_ApplySettings:
-          trezorMessageMap.put(TrezorMessage.ApplySettings.class, trezorMessageType);
-          break;
-        case MessageType_ButtonRequest:
-          trezorMessageMap.put(TrezorMessage.ButtonRequest.class, trezorMessageType);
-          break;
-        case MessageType_ButtonAck:
-          trezorMessageMap.put(TrezorMessage.ButtonAck.class, trezorMessageType);
-          break;
-        case MessageType_GetAddress:
-          trezorMessageMap.put(TrezorMessage.GetAddress.class, trezorMessageType);
-          break;
-        case MessageType_Address:
-          trezorMessageMap.put(TrezorMessage.Address.class, trezorMessageType);
-          break;
-        case MessageType_EntropyRequest:
-          trezorMessageMap.put(TrezorMessage.EntropyRequest.class, trezorMessageType);
-          break;
-        case MessageType_EntropyAck:
-          trezorMessageMap.put(TrezorMessage.EntropyAck.class, trezorMessageType);
-          break;
-        case MessageType_SignMessage:
-          trezorMessageMap.put(TrezorMessage.SignMessage.class, trezorMessageType);
-          break;
-        case MessageType_VerifyMessage:
-          trezorMessageMap.put(TrezorMessage.VerifyMessage.class, trezorMessageType);
-          break;
-        case MessageType_MessageSignature:
-          trezorMessageMap.put(TrezorMessage.MessageSignature.class, trezorMessageType);
-          break;
-        case MessageType_EncryptMessage:
-          trezorMessageMap.put(TrezorMessage.EncryptMessage.class, trezorMessageType);
-          break;
-        case MessageType_DecryptMessage:
-          trezorMessageMap.put(TrezorMessage.DecryptMessage.class, trezorMessageType);
-          break;
-        case MessageType_PassphraseRequest:
-          trezorMessageMap.put(TrezorMessage.PassphraseRequest.class, trezorMessageType);
-          break;
-        case MessageType_PassphraseAck:
-          trezorMessageMap.put(TrezorMessage.PassphraseAck.class, trezorMessageType);
-          break;
-        case MessageType_EstimateTxSize:
-          trezorMessageMap.put(TrezorMessage.EstimateTxSize.class, trezorMessageType);
-          break;
-        case MessageType_TxSize:
-          trezorMessageMap.put(TrezorMessage.TxSize.class, trezorMessageType);
-          break;
-        case MessageType_RecoveryDevice:
-          trezorMessageMap.put(TrezorMessage.RecoveryDevice.class, trezorMessageType);
-          break;
-        case MessageType_WordRequest:
-          trezorMessageMap.put(TrezorMessage.WordRequest.class, trezorMessageType);
-          break;
-        case MessageType_WordAck:
-          trezorMessageMap.put(TrezorMessage.WordAck.class, trezorMessageType);
-          break;
-        case MessageType_DebugLinkDecision:
-          trezorMessageMap.put(TrezorMessage.DebugLinkDecision.class, trezorMessageType);
-          break;
-        case MessageType_DebugLinkGetState:
-          trezorMessageMap.put(TrezorMessage.DebugLinkGetState.class, trezorMessageType);
-          break;
-        case MessageType_DebugLinkState:
-          trezorMessageMap.put(TrezorMessage.DebugLinkState.class, trezorMessageType);
-          break;
-        case MessageType_DebugLinkStop:
-          trezorMessageMap.put(TrezorMessage.DebugLinkStop.class, trezorMessageType);
-          break;
-        case MessageType_DebugLinkLog:
-          trezorMessageMap.put(TrezorMessage.DebugLinkLog.class, trezorMessageType);
-          break;
-        default:
-          throw new IllegalStateException("Unknown message type: " + trezorMessageType.name());
-
-      }
-
-    }
-
-  }
 
   /**
    * Utilities should not have public constructors
@@ -202,67 +41,179 @@ public final class TrezorMessageUtils {
    */
   public static Message parse(TrezorMessage.MessageType type, byte[] buffer) {
 
-    Message message = null;
     log.info("Parsing '{}' ({} bytes):", type, buffer.length);
 
     logPacket("<>", 0, buffer);
 
     try {
-      if (type.getNumber() == TrezorMessage.MessageType.MessageType_Success_VALUE) {
-        message = TrezorMessage.Success.parseFrom(buffer);
+      Message message;
+
+      switch (type) {
+        case MessageType_Initialize:
+          message = TrezorMessage.Initialize.parseFrom(buffer);
+          break;
+        case MessageType_Ping:
+          message = TrezorMessage.Ping.parseFrom(buffer);
+          break;
+        case MessageType_Success:
+          message = TrezorMessage.Success.parseFrom(buffer);
+          break;
+        case MessageType_Failure:
+          message = TrezorMessage.Failure.parseFrom(buffer);
+          break;
+        case MessageType_ChangePin:
+          message = TrezorMessage.ChangePin.parseFrom(buffer);
+          break;
+        case MessageType_WipeDevice:
+          message = TrezorMessage.WipeDevice.parseFrom(buffer);
+          break;
+        case MessageType_FirmwareErase:
+          message = TrezorMessage.FirmwareErase.parseFrom(buffer);
+          break;
+        case MessageType_FirmwareUpload:
+          message = TrezorMessage.FirmwareUpload.parseFrom(buffer);
+          break;
+        case MessageType_GetEntropy:
+          message = TrezorMessage.GetEntropy.parseFrom(buffer);
+          break;
+        case MessageType_Entropy:
+          message = TrezorMessage.Entropy.parseFrom(buffer);
+          break;
+        case MessageType_GetPublicKey:
+          message = TrezorMessage.GetPublicKey.parseFrom(buffer);
+          break;
+        case MessageType_PublicKey:
+          message = TrezorMessage.PublicKey.parseFrom(buffer);
+          break;
+        case MessageType_LoadDevice:
+          message = TrezorMessage.LoadDevice.parseFrom(buffer);
+          break;
+        case MessageType_ResetDevice:
+          message = TrezorMessage.ResetDevice.parseFrom(buffer);
+          break;
+        case MessageType_SignTx:
+          message = TrezorMessage.SignTx.parseFrom(buffer);
+          break;
+        case MessageType_SimpleSignTx:
+          message = TrezorMessage.SimpleSignTx.parseFrom(buffer);
+          break;
+        case MessageType_Features:
+          message = TrezorMessage.Features.parseFrom(buffer);
+          break;
+        case MessageType_PinMatrixRequest:
+          message = TrezorMessage.PinMatrixRequest.parseFrom(buffer);
+          break;
+        case MessageType_PinMatrixAck:
+          message = TrezorMessage.PinMatrixAck.parseFrom(buffer);
+          break;
+        case MessageType_Cancel:
+          message = TrezorMessage.Cancel.parseFrom(buffer);
+          break;
+        case MessageType_TxRequest:
+          message = TrezorMessage.TxRequest.parseFrom(buffer);
+          break;
+        case MessageType_TxAck:
+          message = TrezorMessage.TxAck.parseFrom(buffer);
+          break;
+        case MessageType_CipherKeyValue:
+          message = TrezorMessage.CipherKeyValue.parseFrom(buffer);
+          break;
+        case MessageType_ClearSession:
+          message = TrezorMessage.ClearSession.parseFrom(buffer);
+          break;
+        case MessageType_ApplySettings:
+          message = TrezorMessage.ApplySettings.parseFrom(buffer);
+          break;
+        case MessageType_ButtonRequest:
+          message = TrezorMessage.ButtonRequest.parseFrom(buffer);
+          break;
+        case MessageType_ButtonAck:
+          message = TrezorMessage.ButtonAck.parseFrom(buffer);
+          break;
+        case MessageType_GetAddress:
+          message = TrezorMessage.GetAddress.parseFrom(buffer);
+          break;
+        case MessageType_Address:
+          message = TrezorMessage.Address.parseFrom(buffer);
+          break;
+        case MessageType_EntropyRequest:
+          message = TrezorMessage.EntropyRequest.parseFrom(buffer);
+          break;
+        case MessageType_EntropyAck:
+          message = TrezorMessage.EntropyAck.parseFrom(buffer);
+          break;
+        case MessageType_SignMessage:
+          message = TrezorMessage.SignMessage.parseFrom(buffer);
+          break;
+        case MessageType_VerifyMessage:
+          message = TrezorMessage.VerifyMessage.parseFrom(buffer);
+          break;
+        case MessageType_MessageSignature:
+          message = TrezorMessage.MessageSignature.parseFrom(buffer);
+          break;
+        case MessageType_EncryptMessage:
+          message = TrezorMessage.EncryptMessage.parseFrom(buffer);
+          break;
+        case MessageType_DecryptMessage:
+          message = TrezorMessage.DecryptMessage.parseFrom(buffer);
+          break;
+        case MessageType_PassphraseRequest:
+          message = TrezorMessage.PassphraseRequest.parseFrom(buffer);
+          break;
+        case MessageType_PassphraseAck:
+          message = TrezorMessage.PassphraseAck.parseFrom(buffer);
+          break;
+        case MessageType_EstimateTxSize:
+          message = TrezorMessage.EstimateTxSize.parseFrom(buffer);
+          break;
+        case MessageType_TxSize:
+          message = TrezorMessage.TxSize.parseFrom(buffer);
+          break;
+        case MessageType_RecoveryDevice:
+          message = TrezorMessage.RecoveryDevice.parseFrom(buffer);
+          break;
+        case MessageType_WordRequest:
+          message = TrezorMessage.WordRequest.parseFrom(buffer);
+          break;
+        case MessageType_WordAck:
+          message = TrezorMessage.WordAck.parseFrom(buffer);
+          break;
+        case MessageType_DebugLinkDecision:
+          message = TrezorMessage.DebugLinkDecision.parseFrom(buffer);
+          break;
+        case MessageType_DebugLinkGetState:
+          message = TrezorMessage.DebugLinkGetState.parseFrom(buffer);
+          break;
+        case MessageType_DebugLinkState:
+          message = TrezorMessage.DebugLinkState.parseFrom(buffer);
+          break;
+        case MessageType_DebugLinkStop:
+          message = TrezorMessage.DebugLinkStop.parseFrom(buffer);
+          break;
+        case MessageType_DebugLinkLog:
+          message = TrezorMessage.DebugLinkLog.parseFrom(buffer);
+          break;
+        default:
+          throw new IllegalStateException("Unknown message type: " + type.name());
       }
-      if (type.getNumber() == TrezorMessage.MessageType.MessageType_Failure_VALUE) {
-        message = TrezorMessage.Failure.parseFrom(buffer);
-      }
-      if (type.getNumber() == TrezorMessage.MessageType.MessageType_Entropy_VALUE) {
-        message = TrezorMessage.Entropy.parseFrom(buffer);
-      }
-      if (type.getNumber() == TrezorMessage.MessageType.MessageType_PublicKey_VALUE) {
-        message = TrezorMessage.PublicKey.parseFrom(buffer);
-      }
-      if (type.getNumber() == TrezorMessage.MessageType.MessageType_Features_VALUE) {
-        message = TrezorMessage.Features.parseFrom(buffer);
-      }
-      if (type.getNumber() == TrezorMessage.MessageType.MessageType_PinMatrixRequest_VALUE) {
-        message = TrezorMessage.PinMatrixRequest.parseFrom(buffer);
-      }
-      if (type.getNumber() == TrezorMessage.MessageType.MessageType_TxRequest_VALUE) {
-        message = TrezorMessage.TxRequest.parseFrom(buffer);
-      }
-      if (type.getNumber() == TrezorMessage.MessageType.MessageType_ButtonRequest_VALUE) {
-        message = TrezorMessage.ButtonRequest.parseFrom(buffer);
-      }
-      if (type.getNumber() == TrezorMessage.MessageType.MessageType_Address_VALUE) {
-        message = TrezorMessage.Address.parseFrom(buffer);
-      }
-      if (type.getNumber() == TrezorMessage.MessageType.MessageType_EntropyRequest_VALUE) {
-        message = TrezorMessage.EntropyRequest.parseFrom(buffer);
-      }
-      if (type.getNumber() == TrezorMessage.MessageType.MessageType_MessageSignature_VALUE) {
-        message = TrezorMessage.MessageSignature.parseFrom(buffer);
-      }
-      if (type.getNumber() == TrezorMessage.MessageType.MessageType_PassphraseRequest_VALUE) {
-        message = TrezorMessage.PassphraseRequest.parseFrom(buffer);
-      }
-      if (type.getNumber() == TrezorMessage.MessageType.MessageType_TxSize_VALUE) {
-        message = TrezorMessage.TxSize.parseFrom(buffer);
-      }
-      if (type.getNumber() == TrezorMessage.MessageType.MessageType_WordRequest_VALUE) {
-        message = TrezorMessage.WordRequest.parseFrom(buffer);
-      }
+
+      // Must be OK to be here
+      log.debug("< Message: {}", ToStringBuilder.reflectionToString(message, ToStringStyle.MULTI_LINE_STYLE));
+
+      return message;
+
     } catch (InvalidProtocolBufferException e) {
       log.error("Could not parse message", e);
-      return null;
     }
 
-    log.debug("Message: {}", ToStringBuilder.reflectionToString(message, ToStringStyle.MULTI_LINE_STYLE));
+    // Must have failed to be here
+    return null;
 
-    return message;
   }
 
   /**
    * @param prefix The logging prefix (usually ">" for write and "<" for read)
-   * @param count The packet count
+   * @param count  The packet count
    * @param buffer The buffer containing the packet to log
    */
   public static void logPacket(String prefix, int count, byte[] buffer) {
@@ -292,89 +243,31 @@ public final class TrezorMessageUtils {
     // The message presented as a collection of HID packets
     ByteBuffer messageBuffer = formatAsHIDPackets(message);
 
-    out.write(messageBuffer.array());
+    int packets = messageBuffer.position() / 63;
+    log.info("Writing {} packets", packets);
+    messageBuffer.rewind();
 
-    // Flush to ensure bytes are available immediately
-    out.flush();
+    // HID requires 64 byte packets with 63 bytes of payload
+    for (int i = 0; i < packets; i++) {
 
-  }
+      byte[] buffer = new byte[64];
+      buffer[0] = 63; // Length
+      messageBuffer.get(buffer, 1, 63); // Payload
 
-  /**
-   * @param headerCode The header code (e.g. "0" for INITIALIZE)
-   *
-   * @return The matching message
-   *
-   * @throws IllegalArgumentException If the header code is not valid
-   */
-  public static TrezorMessage.MessageType getMessageTypeByHeaderCode(short headerCode) {
+      // Describe the packet
+      String s = "Packet [" + i + "]: ";
+      for (int j = 0; j < 64; j++) {
+        s += String.format(" %02x", buffer[j]);
+      }
 
-    return TrezorMessage.MessageType.valueOf(headerCode);
+      log.info("> {}", s);
 
-  }
+      out.write(buffer);
 
-  /**
-   * @param message The protocol buffer message class (e.g. "Initialize")
-   *
-   * @return The header code for use with the Trezor header section
-   *
-   * @throws IllegalArgumentException If the message is not valid
-   */
-  public static short getHeaderCode(Message message) {
-
-    Class clazz = message.getClass();
-
-    TrezorMessage.MessageType messageType = trezorMessageMap.get(clazz);
-
-    if (messageType != null) {
-
-      return (short) messageType.getNumber();
+      // Flush to ensure bytes are available immediately
+      out.flush();
 
     }
-
-    throw new IllegalArgumentException("Message class '" + message.getClass().getName() + "' is not known");
-
-  }
-
-  /**
-   * @param headerCode The header code (e.g. "0" for INITIALIZE)
-   * @param bytes      The bytes forming a protobuf message
-   *
-   * @return A protocol buffer Message derived from the bytes
-   *
-   * @throws InvalidProtocolBufferException If the bytes cannot be merged
-   */
-  public static Message parse(short headerCode, byte[] bytes) throws InvalidProtocolBufferException {
-
-    // Identify the message type from the header code
-    TrezorMessage.MessageType messageType = getMessageTypeByHeaderCode(headerCode);
-
-    log.debug("messageType = " + messageType + "'");
-
-    if (TrezorMessage.MessageType.MessageType_ResetDevice.equals(messageType)) {
-      log.debug("Returning a TrezorMessage.ResetDevice.getDefaultInstance()");
-      return  TrezorMessage.ResetDevice.getDefaultInstance();
-    }
-
-    Descriptors.EnumDescriptor enumDescriptor = messageType.getDescriptorForType();
-    log.debug("enumDescriptor = " + enumDescriptor + "'");
-
-    Message message = enumDescriptor
-           .toProto()
-           .getDefaultInstanceForType()
-           .newBuilderForType()
-           .mergeFrom(bytes)
-           .build();
-
-    // Use a default instance to merge the bytes
-//    Message message = messageType
-//          .getDescriptorForType()
-//          .toProto()
-//          .getDefaultInstanceForType()
-//          .newBuilderForType()
-//          .mergeFrom(bytes)
-//          .build();
-    log.debug("Parsed message = " + message + "'");
-    return message;
 
   }
 
@@ -419,5 +312,87 @@ public final class TrezorMessageUtils {
     }
 
     return messageBuffer;
+  }
+
+  /**
+   * <p>Parse the contents of the input stream into a Trezor protobuf message</p>
+   *
+   * @param in The input stream containing Trezor HID packets
+   *
+   * @return A message
+   */
+  public static Message parseAsHIDPackets(InputStream in) {
+
+    ByteBuffer messageBuffer = ByteBuffer.allocate(32768);
+
+    TrezorMessage.MessageType type;
+    int msgSize;
+    int received;
+
+    try {
+
+      // Keep reading until synchronized on "##"
+      for (; ; ) {
+        byte[] buffer = new byte[64];
+
+        received = in.read(buffer);
+
+        log.debug("< {} bytes", received);
+        TrezorMessageUtils.logPacket("<", 0, buffer);
+
+        if (received < 9) {
+          continue;
+        }
+
+        // Synchronize the buffer on start of new message ('?' is ASCII 63)
+        if (buffer[0] != (byte) '?' || buffer[1] != (byte) '#' || buffer[2] != (byte) '#') {
+          // Reject packet
+          continue;
+        }
+
+        // Evaluate the header information (short, int)
+        type = TrezorMessage.MessageType.valueOf((buffer[3] << 8 & 0xFF) + buffer[4]);
+        msgSize = ((buffer[5] & 0xFF) << 24) + ((buffer[6] & 0xFF) << 16) + ((buffer[7] & 0xFF) << 8) + (buffer[8] & 0xFF);
+
+        // Treat remainder of packet as the protobuf message payload
+        messageBuffer.put(buffer, 9, buffer.length - 9);
+
+        break;
+      }
+
+      log.debug("< Type: '{}' Message size: '{}' bytes", type.name(), msgSize);
+
+      int packet = 0;
+      while (messageBuffer.position() < msgSize) {
+
+        byte[] buffer = new byte[64];
+        received = in.read(buffer);
+        packet++;
+
+        log.debug("< (cont) {} bytes", received);
+        TrezorMessageUtils.logPacket("<", packet, buffer);
+
+        if (buffer[0] != (byte) '?') {
+          log.warn("< Malformed packet length. Expected: '3f' Actual: '{}'. Ignoring.", String.format("%02x", buffer[0]));
+          continue;
+        }
+
+        // Append the packet payload to the message buffer
+        messageBuffer.put(buffer, 1, buffer.length - 1);
+      }
+
+      log.debug("Packet complete");
+
+      // Parse the message
+      return TrezorMessageUtils.parse(type, Arrays.copyOfRange(messageBuffer.array(), 0, msgSize));
+
+    } catch (IOException e) {
+      log.error("Read endpoint failed", e);
+    }
+
+    // TODO Better error handling here
+    return null;
+
+
   }
 }
