@@ -1,4 +1,4 @@
-package org.multibit.hd.hardware.examples.trezor.usb;
+package org.multibit.hd.hardware.examples.trezor.rpi;
 
 import com.google.bitcoin.core.AddressFormatException;
 import com.google.common.base.Optional;
@@ -7,23 +7,27 @@ import org.multibit.hd.hardware.core.HardwareWalletService;
 import org.multibit.hd.hardware.core.events.HardwareWalletProtocolEvent;
 import org.multibit.hd.hardware.core.events.HardwareWalletSystemEvent;
 import org.multibit.hd.hardware.core.wallets.HardwareWallets;
-import org.multibit.hd.hardware.trezor.BlockingTrezorClient;
-import org.multibit.hd.hardware.trezor.v1.TrezorV1UsbHardwareWallet;
+import org.multibit.hd.hardware.trezor.TrezorHardwareWalletClient;
+import org.multibit.hd.hardware.trezor.shield.TrezorShieldUsbHardwareWallet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
 /**
- * <p>Example of communicating with a production Trezor device over a USB HID interface:</p>
- * <p>This is useful as an initial verification of recognising insertion and removal of a Trezor</p>
+ * <p>Example of communicating with a Raspberry Pi emulator over a USB HID interface</p>
+ * <p>This is useful when a production Trezor is not available but USB functionality must be tested</p>
+ *
+ * <p>You will normally have a Raspberry Pi with the Shield hardware and the trezor-emu software running.
+ * The power will be provided by the USB through the Shield socket and the Ethernet cable will be attached.
+ * You can then ssh on to the device and start the emulator software.</p>
  *
  * @since 0.0.1
  *  
  */
-public class UsbMonitoringExample {
+public class TrezorShieldFeaturesExample {
 
-  private static final Logger log = LoggerFactory.getLogger(UsbMonitoringExample.class);
+  private static final Logger log = LoggerFactory.getLogger(TrezorShieldFeaturesExample.class);
 
   private boolean deviceFailed = false;
 
@@ -36,11 +40,8 @@ public class UsbMonitoringExample {
    */
   public static void main(String[] args) throws Exception {
 
-    // TODO Use this to isolate iconv problem
-    //log.info(System.getProperties().toString());
-
     // All the work is done in the class
-    UsbMonitoringExample example = new UsbMonitoringExample();
+    TrezorShieldFeaturesExample example = new TrezorShieldFeaturesExample();
 
     // Subscribe to hardware wallet events
     HardwareWalletService.hardwareEventBus.register(example);
@@ -55,15 +56,17 @@ public class UsbMonitoringExample {
   public void executeExample() throws IOException, InterruptedException, AddressFormatException {
 
     // Use factory to statically bind the device
-    TrezorV1UsbHardwareWallet wallet = HardwareWallets.newUsbInstance(
-      TrezorV1UsbHardwareWallet.class,
+    TrezorShieldUsbHardwareWallet wallet = HardwareWallets.newUsbInstance(
+      TrezorShieldUsbHardwareWallet.class,
       Optional.<Integer>absent(),
       Optional.<Integer>absent(),
       Optional.<String>absent()
     );
 
-    // Create a blocking Trezor client (good for demonstrations but not practical for wallets)
-    BlockingTrezorClient client = new BlockingTrezorClient(wallet);
+    // Create a Trezor hardware wallet client
+    TrezorHardwareWalletClient client = new TrezorHardwareWalletClient(wallet);
+
+    log.info("Attempting to connect to a Raspberry Pi Trezor Shield over USB");
 
     // Block until a client connects or fails
     if (client.connect()) {

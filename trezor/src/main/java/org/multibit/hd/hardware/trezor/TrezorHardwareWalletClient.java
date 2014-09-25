@@ -27,35 +27,17 @@ import java.util.concurrent.TimeUnit;
 /**
  * <p>Client to provide the following to applications:</p>
  * <ul>
- * <li>Simple blocking accessor methods based on common use cases</li>
+ * <li>Provides high level accessor methods based on common use cases</li>
  * </ul>
  * <p>This is intended as a high level API to the Trezor device. Developers who need more control over the
- * responses and events are advised to study the org.multibit.hd.hardware.trezor.examples module.</p>
- * <p>Example:</p>
- * <pre>
- * // Create a socket based Trezor client with blocking methods
- * TODO Fill this in
- * BlockingTrezorClient client = new BlockingTrezorClient(trezorWallet);
- *
- * // Connect the client
- * client.connect();
- *
- * // Send a ping
- * client.ping();
- *
- * // Initialize
- * client.initialize();
- *
- * // Finish
- * client.close();
- * </pre>
+ * responses and events are advised to study the Examples project.</p>
  *
  * @since 0.0.1
  *  
  */
-public class BlockingTrezorClient implements HardwareWalletClient {
+public class TrezorHardwareWalletClient implements HardwareWalletClient {
 
-  private static final Logger log = LoggerFactory.getLogger(BlockingTrezorClient.class);
+  private static final Logger log = LoggerFactory.getLogger(TrezorHardwareWalletClient.class);
 
   private final HardwareWallet trezor;
   private boolean isTrezorValid = false;
@@ -71,7 +53,7 @@ public class BlockingTrezorClient implements HardwareWalletClient {
   /**
    * @param trezor The Trezor device
    */
-  public BlockingTrezorClient(HardwareWallet trezor) {
+  public TrezorHardwareWalletClient(HardwareWallet trezor) {
     this.trezor = trezor;
   }
 
@@ -79,13 +61,8 @@ public class BlockingTrezorClient implements HardwareWalletClient {
   public boolean connect() {
 
     log.debug("Attempting to connect...");
-
-    boolean connected = trezor.connect();
-    isTrezorValid = true;
-
-    log.debug("Connection result: {}", connected);
-
-    return connected;
+    isTrezorValid = trezor.connect();
+    return isTrezorValid;
 
   }
 
@@ -325,12 +302,12 @@ public class BlockingTrezorClient implements HardwareWalletClient {
     return sendBlockingMessage(messageType, 1, TimeUnit.SECONDS);
   }
 
-  private Optional<HardwareWalletProtocolEvent> sendBlockingMessage(Message messageType, int duration, TimeUnit timeUnit) {
+  private Optional<HardwareWalletProtocolEvent> sendBlockingMessage(Message message, int duration, TimeUnit timeUnit) {
 
     Preconditions.checkState(isTrezorValid, "Trezor device is not valid. Try connecting or start a new session after a disconnect.");
     Preconditions.checkState(isSessionIdValid, "An old session ID must be discarded. Create a new instance.");
 
-    trezor.sendMessage(messageType);
+    trezor.writeMessage(message);
 
     // Wait for a response
     try {

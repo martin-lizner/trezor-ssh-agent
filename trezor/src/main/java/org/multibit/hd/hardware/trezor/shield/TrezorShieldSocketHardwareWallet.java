@@ -6,7 +6,6 @@ import org.multibit.hd.hardware.core.HardwareWalletSpecification;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
 import org.multibit.hd.hardware.core.messages.SystemMessageType;
 import org.multibit.hd.hardware.trezor.AbstractTrezorHardwareWallet;
-import org.multibit.hd.hardware.trezor.TrezorMessageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,6 +18,8 @@ import java.net.Socket;
  * <li>Access to a Trezor emulator (such as a Shield on a RPi or Linux VM) communicating over a socket</li>
  * </ul>
  *
+ * <p>This class uses standard sockets but includes HID framing</p>
+
  * @since 0.0.1
  *  
  */
@@ -69,6 +70,11 @@ public class TrezorShieldSocketHardwareWallet extends AbstractTrezorHardwareWall
   }
 
   @Override
+  public void initialise() {
+
+  }
+
+  @Override
   public synchronized boolean connect() {
 
     Preconditions.checkState(socket == null, "Socket is already connected");
@@ -83,7 +89,7 @@ public class TrezorShieldSocketHardwareWallet extends AbstractTrezorHardwareWall
       in = new DataInputStream(new BufferedInputStream(socket.getInputStream(), 1024));
 
       // Monitor the input stream
-      monitorDataInputStream(in);
+   //   monitorDataInputStream(in);
 
       // Must have connected to be here
       HardwareWalletEvents.fireSystemEvent(SystemMessageType.DEVICE_CONNECTED);
@@ -117,14 +123,20 @@ public class TrezorShieldSocketHardwareWallet extends AbstractTrezorHardwareWall
   }
 
   @Override
-  public void sendMessage(Message message) {
+  protected Message readFromDevice() {
+    return null;
+  }
 
-    Preconditions.checkNotNull(message, "Message must be present");
+  @Override
+  protected int writeToDevice(byte[] buffer) {
+
+    Preconditions.checkNotNull(buffer, "'buffer' must be present");
     Preconditions.checkNotNull(out, "Socket has not been connected. Use connect() first.");
 
     try {
       // Apply the message to the data output stream
-      TrezorMessageUtils.writeMessage(message, out);
+      out.write(buffer);
+      return buffer.length;
     } catch (IOException e) {
       log.warn("I/O error during write. Closing socket.", e);
 
@@ -132,6 +144,8 @@ public class TrezorShieldSocketHardwareWallet extends AbstractTrezorHardwareWall
       HardwareWalletEvents.fireSystemEvent(SystemMessageType.DEVICE_DISCONNECTED);
     }
 
+    // Must have failed to be here
+    return -1;
   }
 
 }

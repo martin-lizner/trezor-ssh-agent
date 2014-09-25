@@ -132,6 +132,21 @@ public class RelayServer {
       while (true) {
 
       }
+
+//
+//      // Get the output and input streams to and from the hardwareWallet
+//      DataOutputStream outputToHardwareWallet = hardwareWallet.getDataOutputStream();
+//      DataInputStream inputFromHardwareWallet = hardwareWallet.getDataInputStream();
+//
+//      Message messageFromClient = hardwareWallet.parseTrezorMessage(inputFromClient);
+//      log.debug("Received message from client, relaying to hardware wallet. Message = '" + messageFromClient.toString() + "'");
+
+      // Send the Message to the trezor (serialising again to protobuf)
+ //     sendMessage(messageFromClient, outputToHardwareWallet);
+
+      // Monitor the input stream from the hardware wallet - this is then logged and relayed back to the client
+//      monitorDataInputStream(inputFromHardwareWallet, outputToClient);
+
     } catch (IOException ioe) {
       ioe.printStackTrace();
     }
@@ -179,7 +194,7 @@ public class RelayServer {
             log.debug("Received message from client, relaying to hardware wallet. Message = '" + messageFromClient.toString() + "'");
 
             // Send the Message to the trezor (serialising again to protobuf)
-            hardwareWallet.sendMessage(messageFromClient);
+            hardwareWallet.writeMessage(messageFromClient);
 
             Uninterruptibles.sleepUninterruptibly(100, TimeUnit.MILLISECONDS);
           } catch (HardwareWalletException hwe) {
@@ -203,7 +218,7 @@ public class RelayServer {
 
     try {
       // Apply the message to the data output stream
-      TrezorMessageUtils.writeMessage(message, out);
+      TrezorMessageUtils.writeAsHIDPackets(message, out);
     } catch (IOException e) {
       log.warn("I/O error during write. Closing socket.", e);
     }

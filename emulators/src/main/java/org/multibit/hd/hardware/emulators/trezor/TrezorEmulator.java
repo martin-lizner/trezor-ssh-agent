@@ -3,7 +3,6 @@ package org.multibit.hd.hardware.emulators.trezor;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-import com.google.protobuf.ByteString;
 import com.google.protobuf.Message;
 import com.satoshilabs.trezor.protobuf.TrezorMessage;
 import org.multibit.hd.hardware.trezor.TrezorMessageUtils;
@@ -163,7 +162,7 @@ public class TrezorEmulator {
 
             log.debug("Emulating '{}'", message.getTrezorMessage());
 
-            TrezorMessageUtils.writeMessage(message.getTrezorMessage(), out);
+            TrezorMessageUtils.writeAsHIDPackets(message.getTrezorMessage(), out);
 
           }
 

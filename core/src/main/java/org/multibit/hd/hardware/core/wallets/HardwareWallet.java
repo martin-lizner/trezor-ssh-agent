@@ -1,10 +1,7 @@
 package org.multibit.hd.hardware.core.wallets;
 
 import com.google.protobuf.Message;
-import org.multibit.hd.hardware.core.HardwareWalletException;
 import org.multibit.hd.hardware.core.HardwareWalletSpecification;
-
-import java.io.DataInputStream;
 
 /**
  * <p>Interface to provide the following to applications:</p>
@@ -48,9 +45,9 @@ public interface HardwareWallet {
    *
    * <p>Implementers must ensure the following behaviour:</p>
    * <ul>
-   *   <li>The device is assumed to be connected and discoverable</li>
-   *   <li>Method will return false if USB HID librar</li>
-   *   <li>A HardwareWalletSystemEvent.FAILURE event will be generated if the USB HID communication fails</li>
+   * <li>The device is assumed to be connected and discoverable</li>
+   * <li>Method will return false if USB HID librar</li>
+   * <li>A HardwareWalletSystemEvent.FAILURE event will be generated if the USB HID communication fails</li>
    * </ul>
    *
    * @return True if the connection was successful
@@ -63,19 +60,19 @@ public interface HardwareWallet {
   void disconnect();
 
   /**
-   * <p>Send a message to the device using the generated protocol buffer classes</p>
+   * <p>Read a protobuf message from the hardware wallet</p>
+   * <p>If this call fails the hardware wallet will be closed and a DISCONNECT message will be emitted</p>
+   *
+   * @return The protobuf message read from the hardware wallet
+   */
+  public abstract Message readMessage();
+
+  /**
+   * <p>Send a message to the hardware wallet using the generated protocol buffer classes</p>
    * <p>Any response will be provided through the event bus subscribers</p>
-   * <p>If this call fails the device will be closed and a DISCONNECT message will be emitted</p>
+   * <p>If this call fails the hardware wallet will be closed and a DISCONNECT message will be emitted</p>
    *
    * @param message A generated protocol buffer message (e.g. Message.Initialize)
    */
-  void sendMessage(Message message);
-
-  /**
-    * Parse a Trezor protobuf message from a data input stream
-    * @param in The DataInputStream
-    * @return the parsed Message
-    */
-   Message parseTrezorMessage(DataInputStream in) throws HardwareWalletException;
-
+  public void writeMessage(Message message);
 }

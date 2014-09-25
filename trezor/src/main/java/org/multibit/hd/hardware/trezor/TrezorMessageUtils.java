@@ -5,11 +5,14 @@ import com.google.protobuf.Descriptors;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
 import com.satoshilabs.trezor.protobuf.TrezorMessage;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.util.Map;
 
 /**
@@ -28,7 +31,6 @@ public final class TrezorMessageUtils {
   private static final Map<Class<? extends Message>, TrezorMessage.MessageType> trezorMessageMap = Maps.newHashMap();
 
   static {
-
 
     for (TrezorMessage.MessageType trezorMessageType : TrezorMessage.MessageType.values()) {
 
@@ -184,13 +186,96 @@ public final class TrezorMessageUtils {
 
     }
 
-
   }
 
   /**
    * Utilities should not have public constructors
    */
   private TrezorMessageUtils() {
+  }
+
+  /**
+   * @param type   The message type
+   * @param buffer The buffer containing the protobuf message
+   *
+   * @return The message if it could be parsed
+   */
+  public static Message parse(TrezorMessage.MessageType type, byte[] buffer) {
+
+    Message message = null;
+    log.info("Parsing '{}' ({} bytes):", type, buffer.length);
+
+    logPacket("<>", 0, buffer);
+
+    try {
+      if (type.getNumber() == TrezorMessage.MessageType.MessageType_Success_VALUE) {
+        message = TrezorMessage.Success.parseFrom(buffer);
+      }
+      if (type.getNumber() == TrezorMessage.MessageType.MessageType_Failure_VALUE) {
+        message = TrezorMessage.Failure.parseFrom(buffer);
+      }
+      if (type.getNumber() == TrezorMessage.MessageType.MessageType_Entropy_VALUE) {
+        message = TrezorMessage.Entropy.parseFrom(buffer);
+      }
+      if (type.getNumber() == TrezorMessage.MessageType.MessageType_PublicKey_VALUE) {
+        message = TrezorMessage.PublicKey.parseFrom(buffer);
+      }
+      if (type.getNumber() == TrezorMessage.MessageType.MessageType_Features_VALUE) {
+        message = TrezorMessage.Features.parseFrom(buffer);
+      }
+      if (type.getNumber() == TrezorMessage.MessageType.MessageType_PinMatrixRequest_VALUE) {
+        message = TrezorMessage.PinMatrixRequest.parseFrom(buffer);
+      }
+      if (type.getNumber() == TrezorMessage.MessageType.MessageType_TxRequest_VALUE) {
+        message = TrezorMessage.TxRequest.parseFrom(buffer);
+      }
+      if (type.getNumber() == TrezorMessage.MessageType.MessageType_ButtonRequest_VALUE) {
+        message = TrezorMessage.ButtonRequest.parseFrom(buffer);
+      }
+      if (type.getNumber() == TrezorMessage.MessageType.MessageType_Address_VALUE) {
+        message = TrezorMessage.Address.parseFrom(buffer);
+      }
+      if (type.getNumber() == TrezorMessage.MessageType.MessageType_EntropyRequest_VALUE) {
+        message = TrezorMessage.EntropyRequest.parseFrom(buffer);
+      }
+      if (type.getNumber() == TrezorMessage.MessageType.MessageType_MessageSignature_VALUE) {
+        message = TrezorMessage.MessageSignature.parseFrom(buffer);
+      }
+      if (type.getNumber() == TrezorMessage.MessageType.MessageType_PassphraseRequest_VALUE) {
+        message = TrezorMessage.PassphraseRequest.parseFrom(buffer);
+      }
+      if (type.getNumber() == TrezorMessage.MessageType.MessageType_TxSize_VALUE) {
+        message = TrezorMessage.TxSize.parseFrom(buffer);
+      }
+      if (type.getNumber() == TrezorMessage.MessageType.MessageType_WordRequest_VALUE) {
+        message = TrezorMessage.WordRequest.parseFrom(buffer);
+      }
+    } catch (InvalidProtocolBufferException e) {
+      log.error("Could not parse message", e);
+      return null;
+    }
+
+    log.debug("Message: {}", ToStringBuilder.reflectionToString(message, ToStringStyle.MULTI_LINE_STYLE));
+
+    return message;
+  }
+
+  /**
+   * @param prefix The logging prefix (usually ">" for write and "<" for read)
+   * @param count The packet count
+   * @param buffer The buffer containing the packet to log
+   */
+  public static void logPacket(String prefix, int count, byte[] buffer) {
+
+    // Only do work if required
+    if (log.isDebugEnabled()) {
+      String s = prefix + " Packet [" + count + "]:";
+      for (byte b : buffer) {
+        s += String.format(" %02x", b);
+      }
+      log.debug("{}", s);
+    }
+
   }
 
   /**
@@ -202,31 +287,12 @@ public final class TrezorMessageUtils {
    * @throws java.io.IOException If the device disconnects during IO
    */
 
-  public static void writeMessage(Message message, DataOutputStream out) throws IOException {
+  public static void writeAsHIDPackets(Message message, OutputStream out) throws IOException {
 
-    // Require the header code
-    short headerCode = getHeaderCode(message);
+    // The message presented as a collection of HID packets
+    ByteBuffer messageBuffer = formatAsHIDPackets(message);
 
-    // Provide some debugging
-    TrezorMessage.MessageType messageType = getMessageTypeByHeaderCode(headerCode);
-    log.debug("> {}", messageType.name());
-
-    // Write magic alignment string (avoiding immediate flush)
-    out.writeBytes("##");
-
-    // Write header following Python's ">HL" syntax
-    // > = Big endian, std size and alignment
-    // H = Unsigned short (2 bytes) for header code
-    // L = Unsigned long (4 bytes) for message length
-
-    // Message type
-    out.writeShort(headerCode);
-
-    // Message length
-    out.writeInt(message.getSerializedSize());
-
-    // Write the detail portion as a protocol buffer message
-    message.writeTo(out);
+    out.write(messageBuffer.array());
 
     // Flush to ensure bytes are available immediately
     out.flush();
@@ -271,13 +337,13 @@ public final class TrezorMessageUtils {
 
   /**
    * @param headerCode The header code (e.g. "0" for INITIALIZE)
-   * @param bytes      The bytes forming the message
+   * @param bytes      The bytes forming a protobuf message
    *
    * @return A protocol buffer Message derived from the bytes
    *
    * @throws InvalidProtocolBufferException If the bytes cannot be merged
    */
-  public static Message parse(Short headerCode, byte[] bytes) throws InvalidProtocolBufferException {
+  public static Message parse(short headerCode, byte[] bytes) throws InvalidProtocolBufferException {
 
     // Identify the message type from the header code
     TrezorMessage.MessageType messageType = getMessageTypeByHeaderCode(headerCode);
@@ -312,4 +378,46 @@ public final class TrezorMessageUtils {
 
   }
 
+  /**
+   * <p>Format a Trezor protobuf message as a byte buffer filled with HID packets</p>
+   *
+   * @param message The Trezor protobuf message
+   *
+   * @return A byte buffer containing a set of HID packets
+   */
+  public static ByteBuffer formatAsHIDPackets(Message message) {
+
+    int msgSize = message.getSerializedSize();
+    String msgName = message.getClass().getSimpleName();
+    int msgId = TrezorMessage.MessageType.valueOf("MessageType_" + msgName).getNumber();
+
+    log.debug("Formatting message: '{}' ({} bytes)", msgName, msgSize);
+
+    // Create the header
+    ByteBuffer messageBuffer = ByteBuffer.allocate(32768);
+
+    // Marker bytes
+    messageBuffer.put((byte) '#');
+    messageBuffer.put((byte) '#');
+
+    // Header code
+    messageBuffer.put((byte) ((msgId >> 8) & 0xFF));
+    messageBuffer.put((byte) (msgId & 0xFF));
+
+    // Message size
+    messageBuffer.put((byte) ((msgSize >> 24) & 0xFF));
+    messageBuffer.put((byte) ((msgSize >> 16) & 0xFF));
+    messageBuffer.put((byte) ((msgSize >> 8) & 0xFF));
+    messageBuffer.put((byte) (msgSize & 0xFF));
+
+    // Message payload
+    messageBuffer.put(message.toByteArray());
+
+    // Packet padding
+    while (messageBuffer.position() % 63 > 0) {
+      messageBuffer.put((byte) 0);
+    }
+
+    return messageBuffer;
+  }
 }

@@ -313,7 +313,7 @@ public class RelayClient implements HardwareWalletClient {
 
      try {
        // Apply the message to the data output stream
-       TrezorMessageUtils.writeMessage(message, out);
+       TrezorMessageUtils.writeAsHIDPackets(message, out);
      } catch (IOException e) {
        log.warn("I/O error during write. Closing socket.", e);
      }

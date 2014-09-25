@@ -12,7 +12,7 @@ import org.multibit.hd.hardware.core.events.HardwareWalletSystemEvent;
 import org.multibit.hd.hardware.core.messages.FakeTransactions;
 import org.multibit.hd.hardware.core.messages.SystemMessageType;
 import org.multibit.hd.hardware.core.wallets.HardwareWallets;
-import org.multibit.hd.hardware.trezor.BlockingTrezorClient;
+import org.multibit.hd.hardware.trezor.TrezorHardwareWalletClient;
 import org.multibit.hd.hardware.trezor.v1.TrezorV1UsbHardwareWallet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,7 +73,7 @@ public class UsbSigningExample {
     );
 
     // Create a USB-based default Trezor client with blocking methods (quite limited)
-    BlockingTrezorClient client = new BlockingTrezorClient(wallet);
+    TrezorHardwareWalletClient client = new TrezorHardwareWalletClient(wallet);
 
     // Connect the client
     client.connect();
