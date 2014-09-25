@@ -12,7 +12,6 @@ import org.multibit.hd.hardware.core.events.HardwareWalletSystemEvent;
 import org.multibit.hd.hardware.core.messages.ProtocolMessageType;
 import org.multibit.hd.hardware.core.messages.SystemMessageType;
 import org.multibit.hd.hardware.trezor.TrezorMessageUtils;
-import org.multibit.hd.hardware.trezor.v1.TrezorV1UsbHardwareWallet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,17 +62,10 @@ public class TrezorRelayClient implements HardwareWalletClient {
   private DataInputStream in;
 
   /**
-   * The hardware wallet that is physically present on the RelayServer machine
-   */
-  private TrezorV1UsbHardwareWallet hardwareWallet;
-
-  /**
-   * @param hardwareWallet      The hardwareWallet physically present on the RelayServer machine
    * @param relayServerLocation The location of the RelayServer
    * @param relayServerPort     The port number of the server
    */
-  public TrezorRelayClient(TrezorV1UsbHardwareWallet hardwareWallet, String relayServerLocation, int relayServerPort) {
-    this.hardwareWallet = hardwareWallet;
+  public TrezorRelayClient(String relayServerLocation, int relayServerPort) {
     this.relayServerLocation = relayServerLocation;
     this.relayServerPort = relayServerPort;
   }

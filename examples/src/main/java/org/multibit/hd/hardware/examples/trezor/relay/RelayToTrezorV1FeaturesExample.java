@@ -45,7 +45,7 @@ public class RelayToTrezorV1FeaturesExample {
    * cd project_root
    * mvn clean install
    * cd examples
-   * mvn clean compile exec:java -Dexec.mainClass="org.multibit.hd.hardware.examples.trezor.relay.RelayToTrezorV1Example"
+   * mvn clean compile exec:java -Dexec.mainClass="org.multibit.hd.hardware.examples.trezor.relay.RelayToTrezorV1FeaturesExample"
    * </pre>
    *
    * @param args Use "server", "client" or "both" depending on where this example is being run
@@ -55,6 +55,7 @@ public class RelayToTrezorV1FeaturesExample {
   public static void main(String[] args) throws Exception {
 
     if (args == null || args.length == 0) {
+      log.error("No arguments passed");
       printUsage();
       return;
     }
@@ -62,6 +63,7 @@ public class RelayToTrezorV1FeaturesExample {
     mode = args[0].toLowerCase();
 
     if (!(SERVER_VERB.equals(mode) || CLIENT_VERB.equals(mode) || BOTH_VERB.equals(mode))) {
+      log.error("First argument must be 'server', 'client' or 'both'");
       printUsage();
       return;
     }
@@ -72,6 +74,7 @@ public class RelayToTrezorV1FeaturesExample {
       TrezorV1UsbHardwareWallet hardwareWallet1 = new TrezorV1UsbHardwareWallet(Optional.<Integer>absent(),
         Optional.<Integer>absent(), Optional.<String>absent());
       server = new TrezorRelayServer(hardwareWallet1, TrezorRelayServer.DEFAULT_PORT_NUMBER);
+
     }
 
     // Wait a little while for the server to start
@@ -83,6 +86,7 @@ public class RelayToTrezorV1FeaturesExample {
       if (CLIENT_VERB.equals(mode)) {
         // Check for server location passed in
         if (args.length <= 1 || args[1].length() == 0) {
+          log.error("'client' arguments must include server host name or IP address");
           printUsage();
           return;
         } else {
@@ -93,18 +97,16 @@ public class RelayToTrezorV1FeaturesExample {
         serverLocation = "localhost";
       }
 
-      // Create a Trezor V1 usb client for use by the client
-      TrezorV1UsbHardwareWallet hardwareWallet2 = new TrezorV1UsbHardwareWallet(Optional.<Integer>absent(),
-        Optional.<Integer>absent(), Optional.<String>absent());
-
       // Create a RelayClient looking at the RelayServer
-      client = new TrezorRelayClient(hardwareWallet2, serverLocation, TrezorRelayServer.DEFAULT_PORT_NUMBER);
+      client = new TrezorRelayClient(serverLocation, TrezorRelayServer.DEFAULT_PORT_NUMBER);
 
       // Register to the hardware event bus
       HardwareWalletService.hardwareEventBus.register(new RelayToTrezorV1FeaturesExample());
 
       executeClientExample();
     }
+
+    Uninterruptibles.sleepUninterruptibly(1, TimeUnit.HOURS);
   }
 
   private static void printUsage() {

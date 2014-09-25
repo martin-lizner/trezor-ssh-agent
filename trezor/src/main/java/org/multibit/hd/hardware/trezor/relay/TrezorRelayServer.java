@@ -85,6 +85,7 @@ public class TrezorRelayServer {
   }
 
   private void create(TrezorV1UsbHardwareWallet hardwareWallet, int portNumber) {
+
     this.hardwareWallet = hardwareWallet;
     this.portNumber = portNumber;
 
@@ -115,8 +116,9 @@ public class TrezorRelayServer {
    */
   private void start() {
     try {
-      log.debug("Starting RelayServer on port " + portNumber + ".");
       ServerSocket serverSocket = new ServerSocket(portNumber);
+
+      log.debug("Waiting for TrezorRelayClient connection on port {}", portNumber);
       Socket clientSocket = serverSocket.accept();
 
       // Get the output and input streams to and from the RelayClient
