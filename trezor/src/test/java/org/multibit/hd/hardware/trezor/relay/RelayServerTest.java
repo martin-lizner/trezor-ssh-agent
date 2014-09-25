@@ -1,12 +1,14 @@
 package org.multibit.hd.hardware.trezor.relay;
 
 import com.google.common.base.Optional;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.multibit.hd.hardware.core.wallets.HardwareWallet;
 import org.multibit.hd.hardware.trezor.v1.TrezorV1UsbHardwareWallet;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
+@Ignore
 public class RelayServerTest {
 
   @Test
