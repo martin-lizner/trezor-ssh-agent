@@ -3,9 +3,9 @@ package org.multibit.hd.hardware.examples.trezor.relay;
 import com.google.common.base.Optional;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.Uninterruptibles;
+import org.multibit.hd.hardware.core.HardwareWalletService;
 import org.multibit.hd.hardware.core.events.HardwareWalletProtocolEvent;
 import org.multibit.hd.hardware.core.events.HardwareWalletSystemEvent;
-import org.multibit.hd.hardware.core.wallets.HardwareWallet;
 import org.multibit.hd.hardware.trezor.relay.RelayClient;
 import org.multibit.hd.hardware.trezor.relay.RelayServer;
 import org.multibit.hd.hardware.trezor.v1.TrezorV1UsbHardwareWallet;
@@ -37,6 +37,8 @@ public class RelayToV1TrezorExample {
 
   private static String mode;
 
+  private static String serverLocation = null;
+
   /**
    * <p>Main entry point to the example</p>
    *
@@ -60,7 +62,7 @@ public class RelayToV1TrezorExample {
     // Start a RelayServer
     if (SERVER_VERB.equals(mode) || BOTH_VERB.equals(mode)) {
       // Create a Trezor V1 usb client for use by the server
-      HardwareWallet hardwareWallet1 = new TrezorV1UsbHardwareWallet(Optional.<Integer>absent(),
+      TrezorV1UsbHardwareWallet hardwareWallet1 = new TrezorV1UsbHardwareWallet(Optional.<Integer>absent(),
               Optional.<Integer>absent(), Optional.<String>absent());
       server = new RelayServer(hardwareWallet1, RelayServer.DEFAULT_PORT_NUMBER);
     }
@@ -70,7 +72,6 @@ public class RelayToV1TrezorExample {
 
     // Start a RelayClient
     if (CLIENT_VERB.equals(mode) || BOTH_VERB.equals(mode)) {
-      String serverLocation;
 
       if (CLIENT_VERB.equals(mode)) {
         // Check for server location passed in
@@ -86,11 +87,14 @@ public class RelayToV1TrezorExample {
       }
 
       // Create a Trezor V1 usb client for use by the client
-      HardwareWallet hardwareWallet2 = new TrezorV1UsbHardwareWallet(Optional.<Integer>absent(),
+      TrezorV1UsbHardwareWallet hardwareWallet2 = new TrezorV1UsbHardwareWallet(Optional.<Integer>absent(),
               Optional.<Integer>absent(), Optional.<String>absent());
 
       // Create a RelayClient looking at the RelayServer
       client = new RelayClient(hardwareWallet2, serverLocation, RelayServer.DEFAULT_PORT_NUMBER);
+
+      // Register to the hardware event bus
+      HardwareWalletService.hardwareEventBus.register(new RelayToV1TrezorExample());
 
       executeClientExample();
     }
@@ -108,26 +112,39 @@ public class RelayToV1TrezorExample {
    *
    * @throws java.io.IOException If something goes wrong
    */
-  private static void executeClientExample() throws IOException{
-
-    if (client.connect()) {
-      log.info("Attempting basic Trezor protobuf communication");
-
-      // Initialize
-      client.initialize();
-
-      // Send a ping
-      client.ping();
+  private static void executeClientExample() throws IOException {
+    if (!client.connectToServer()) {
+      log.error("Could not connect to RelayServer at serverLocation '" + serverLocation + "'");
+      return;
     } else {
-      log.info("Device has failed. Aborting.");
+      log.debug("RelayClient has successfully connected to the RelayServer at '" + serverLocation + "'");
     }
+
+    if (!client.connect()) {
+      log.error("Could not connect to device");
+      client.disconnectFromServer();
+      log.info("Disconnected from RelayServer");
+      return;
+    } else {
+      log.debug("RelayClient has sent a connect to the device ok.");
+    }
+
+    log.info("Attempting basic Trezor protobuf communication");
+
+    // Initialize
+    client.initialize();
+
+    // Send a ping
+    client.ping();
 
     log.info("Closing connections");
 
-    // Close the connection
+    // Close the connection to the device
     client.disconnect();
+    log.info("Disconnected from device");
 
-    log.info("Exiting");
+    client.disconnectFromServer();
+    log.info("Disconnected from RelayServer");
 
     // Shutdown
     System.exit(0);

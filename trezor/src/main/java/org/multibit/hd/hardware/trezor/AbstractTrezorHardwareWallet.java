@@ -2,11 +2,13 @@ package org.multibit.hd.hardware.trezor;
 
 import com.google.protobuf.Message;
 import com.satoshilabs.trezor.protobuf.TrezorMessage;
+import org.multibit.hd.hardware.core.HardwareWalletException;
 import org.multibit.hd.hardware.core.HardwareWalletSpecification;
 import org.multibit.hd.hardware.core.wallets.AbstractHardwareWallet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.DataInputStream;
 import java.nio.ByteBuffer;
 
 /**
@@ -49,7 +51,25 @@ public abstract class AbstractTrezorHardwareWallet extends AbstractHardwareWalle
 
   }
 
-  @Override
+  public synchronized Message parseTrezorMessage(DataInputStream in) throws HardwareWalletException {
+//    // Very broad try-catch because a lot of things can go wrong here and need to be reported
+//    try {
+//
+//      // Read and throw away the magic header markers
+//      in.readByte();
+//      in.readByte();
+//
+//      // Read the header code and select a suitable parser
+//      final Short headerCode = in.readShort();
+//      log.debug("Seeing a trezor message with headerCode " + headerCode);
+//      final TrezorMessage.MessageType trezorMessageType = TrezorMessageUtils.getMessageTypeByHeaderCode(headerCode);
+//      log.debug("Seeing a trezorMessageType " + trezorMessageType);
+//    }
+
+    // TODO - Can probably replace with Trezor Utils parse
+    return null;
+  }
+
   public void writeMessage(Message message) {
 
     ByteBuffer messageBuffer = TrezorMessageUtils.formatAsHIDPackets(message);

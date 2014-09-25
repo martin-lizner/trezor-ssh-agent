@@ -3,6 +3,7 @@ package org.multibit.hd.hardware.trezor.v1;
 import com.codeminders.hidapi.ClassPathLibraryLoader;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
 import com.satoshilabs.trezor.protobuf.TrezorMessage;
 import org.multibit.hd.hardware.core.HardwareWalletSpecification;
@@ -455,4 +456,80 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet {
 
   }
 
+  /**
+   * @param type The message type
+   * @param data The data payload
+   *
+   * @return The message if it could be parsed
+   */
+  private Message parseMessageFromBytes(TrezorMessage.MessageType type, byte[] data) {
+
+    Message msg = null;
+    log.info("Parsing '{}' ({} bytes):", type, data.length);
+
+    String s = "data:";
+    for (byte aData : data) {
+      s += String.format(" %02x", aData);
+    }
+    log.info("Trezor.parseMessageFromBytes()", s);
+
+    try {
+      if (type.getNumber() == TrezorMessage.MessageType.MessageType_Success_VALUE) {
+        msg = TrezorMessage.Success.parseFrom(data);
+      }
+      if (type.getNumber() == TrezorMessage.MessageType.MessageType_Failure_VALUE) {
+        msg = TrezorMessage.Failure.parseFrom(data);
+      }
+      if (type.getNumber() == TrezorMessage.MessageType.MessageType_Entropy_VALUE) {
+        msg = TrezorMessage.Entropy.parseFrom(data);
+      }
+      if (type.getNumber() == TrezorMessage.MessageType.MessageType_PublicKey_VALUE) {
+        msg = TrezorMessage.PublicKey.parseFrom(data);
+      }
+      if (type.getNumber() == TrezorMessage.MessageType.MessageType_Features_VALUE) {
+        msg = TrezorMessage.Features.parseFrom(data);
+      }
+      if (type.getNumber() == TrezorMessage.MessageType.MessageType_PinMatrixRequest_VALUE) {
+        msg = TrezorMessage.PinMatrixRequest.parseFrom(data);
+      }
+      if (type.getNumber() == TrezorMessage.MessageType.MessageType_TxRequest_VALUE) {
+        msg = TrezorMessage.TxRequest.parseFrom(data);
+      }
+      if (type.getNumber() == TrezorMessage.MessageType.MessageType_ButtonRequest_VALUE) {
+        msg = TrezorMessage.ButtonRequest.parseFrom(data);
+      }
+      if (type.getNumber() == TrezorMessage.MessageType.MessageType_Address_VALUE) {
+        msg = TrezorMessage.Address.parseFrom(data);
+      }
+      if (type.getNumber() == TrezorMessage.MessageType.MessageType_EntropyRequest_VALUE) {
+        msg = TrezorMessage.EntropyRequest.parseFrom(data);
+      }
+      if (type.getNumber() == TrezorMessage.MessageType.MessageType_MessageSignature_VALUE) {
+        msg = TrezorMessage.MessageSignature.parseFrom(data);
+      }
+      if (type.getNumber() == TrezorMessage.MessageType.MessageType_PassphraseRequest_VALUE) {
+        msg = TrezorMessage.PassphraseRequest.parseFrom(data);
+      }
+      if (type.getNumber() == TrezorMessage.MessageType.MessageType_TxSize_VALUE) {
+        msg = TrezorMessage.TxSize.parseFrom(data);
+      }
+      if (type.getNumber() == TrezorMessage.MessageType.MessageType_WordRequest_VALUE) {
+        msg = TrezorMessage.WordRequest.parseFrom(data);
+      }
+    } catch (InvalidProtocolBufferException e) {
+      log.error("Could not parse message", e);
+      return null;
+    }
+
+    return msg;
+  }
+
+  public static int toInt(byte[] bytes) {
+    int ret = 0;
+    for (int i = 0; i < 4 && i < bytes.length; i++) {
+      ret <<= 8;
+      ret |= (int) bytes[i] & 0xFF;
+    }
+    return ret;
+  }
 }

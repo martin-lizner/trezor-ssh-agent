@@ -1,6 +1,7 @@
 package org.multibit.hd.hardware.trezor;
 
 import com.google.common.collect.Maps;
+import com.google.protobuf.Descriptors;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
 import com.satoshilabs.trezor.protobuf.TrezorMessage;
@@ -347,14 +348,33 @@ public final class TrezorMessageUtils {
     // Identify the message type from the header code
     TrezorMessage.MessageType messageType = getMessageTypeByHeaderCode(headerCode);
 
+    log.debug("messageType = " + messageType + "'");
+
+    if (TrezorMessage.MessageType.MessageType_ResetDevice.equals(messageType)) {
+      log.debug("Returning a TrezorMessage.ResetDevice.getDefaultInstance()");
+      return  TrezorMessage.ResetDevice.getDefaultInstance();
+    }
+
+    Descriptors.EnumDescriptor enumDescriptor = messageType.getDescriptorForType();
+    log.debug("enumDescriptor = " + enumDescriptor + "'");
+
+    Message message = enumDescriptor
+           .toProto()
+           .getDefaultInstanceForType()
+           .newBuilderForType()
+           .mergeFrom(bytes)
+           .build();
+
     // Use a default instance to merge the bytes
-    return messageType
-      .getDescriptorForType()
-      .toProto()
-      .getDefaultInstanceForType()
-      .newBuilderForType()
-      .mergeFrom(bytes)
-      .build();
+//    Message message = messageType
+//          .getDescriptorForType()
+//          .toProto()
+//          .getDefaultInstanceForType()
+//          .newBuilderForType()
+//          .mergeFrom(bytes)
+//          .build();
+    log.debug("Parsed message = " + message + "'");
+    return message;
 
   }
 
