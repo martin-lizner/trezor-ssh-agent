@@ -41,11 +41,20 @@ public class RelayToTrezorV1FeaturesExample {
    * <p>Main entry point to the example</p>
    *
    * <p>From Maven run this using:</p>
+   * <h3>Server side</h3>
    * <pre>
    * cd project_root
    * mvn clean install
    * cd examples
-   * mvn clean compile exec:java -Dexec.mainClass="org.multibit.hd.hardware.examples.trezor.relay.RelayToTrezorV1FeaturesExample"
+   * mvn clean compile exec:java -Dexec.mainClass="org.multibit.hd.hardware.examples.trezor.relay.RelayToTrezorV1FeaturesExample" -Dargs="server"
+   * </pre>
+   *
+   * <h3>Client side</h3>
+   * <pre>
+   * cd project_root
+   * mvn clean install
+   * cd examples
+   * mvn clean compile exec:java -Dexec.mainClass="org.multibit.hd.hardware.examples.trezor.relay.RelayToTrezorV1FeaturesExample" -Dargs="client 192.168.0.1"
    * </pre>
    *
    * @param args Use "server", "client" or "both" depending on where this example is being run
