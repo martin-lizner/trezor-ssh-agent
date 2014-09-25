@@ -15,16 +15,16 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 
 /**
- * <p>Step 1 - Verify Trezor exists on USB</p>
+ * <p>Step 2 - Load device with seed phrase</p>
  * <p>Requires Trezor V1 production device plugged into a USB HID interface.</p>
- * <p>This example demonstrates the initial verification of recognising insertion and removal of a Trezor.</p>
+ * <p>This example demonstrates the message sequence to initialise then load a Trezor device fresh out of the box.</p>
  *
  * @since 0.0.1
  *  
  */
-public class TrezorV1FeaturesExample {
+public class TrezorV1LoadDeviceExample {
 
-  private static final Logger log = LoggerFactory.getLogger(TrezorV1FeaturesExample.class);
+  private static final Logger log = LoggerFactory.getLogger(TrezorV1LoadDeviceExample.class);
 
   private boolean deviceFailed = false;
 
@@ -38,7 +38,7 @@ public class TrezorV1FeaturesExample {
   public static void main(String[] args) throws Exception {
 
     // All the work is done in the class
-    TrezorV1FeaturesExample example = new TrezorV1FeaturesExample();
+    TrezorV1LoadDeviceExample example = new TrezorV1LoadDeviceExample();
 
     // Subscribe to hardware wallet events
     HardwareWalletService.hardwareEventBus.register(example);
@@ -73,8 +73,13 @@ public class TrezorV1FeaturesExample {
       // Initialize
       client.initialize();
 
-      // Send a ping
-      client.ping();
+      // Send a load device
+      client.loadDevice(
+        "english",
+        "beyond neighbor scratch swirl embarrass doll cause also stick softly physical nice",
+        "123456",
+        false
+      );
 
     } else {
 
