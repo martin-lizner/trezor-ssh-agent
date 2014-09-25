@@ -7,14 +7,18 @@ import com.codeminders.hidapi.HIDManager;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.protobuf.Message;
+import com.satoshilabs.trezor.protobuf.TrezorMessage;
 import org.multibit.hd.hardware.core.HardwareWalletSpecification;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
 import org.multibit.hd.hardware.core.messages.SystemMessageType;
 import org.multibit.hd.hardware.trezor.AbstractTrezorHardwareWallet;
+import org.multibit.hd.hardware.trezor.TrezorMessageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 /**
  * <p>Trezor implementation to provide the following to applications:</p>
@@ -30,6 +34,7 @@ import java.io.IOException;
  */
 public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet {
 
+  // Use the Raspberry Pi UART-to-USB bridge identifiers
   private static final Integer RPI_UART_VENDOR_ID = 0x10c4;
   private static final Integer RPI_UART_PRODUCT_ID = 0xea80;
 
@@ -73,7 +78,6 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
     initialise();
 
   }
-
 
   @Override
   public void applySpecification(HardwareWalletSpecification specification) {
@@ -164,9 +168,6 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
     bytesSent = device.sendFeatureReport(featureReport);
     log.debug("> Purge RxTx: {} '{}'", bytesSent, featureReport);
 
-    // Monitor the input stream
-    //monitorDataInputStream(in);
-
     // Must have connected to be here
     HardwareWalletEvents.fireSystemEvent(SystemMessageType.DEVICE_CONNECTED);
 
@@ -198,16 +199,24 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
     HIDManager hidManager = HIDManager.getInstance();
 
     // Attempt to open a serial connection to the USB device
-    return Optional.fromNullable(hidManager.openById(
+    HIDDevice hidDevice = hidManager.openById(
       hidDeviceInfo.getVendor_id(),
       hidDeviceInfo.getProduct_id(),
-      hidDeviceInfo.getSerial_number()
-    ));
+      null
+    );
+
+    if (hidDevice != null) {
+      log.info("Successfully opened device.");
+    } else {
+      log.warn("Failed to open device.");
+    }
+
+    return Optional.fromNullable(hidDevice);
 
   }
 
   /**
-   * @return True if device is connected (the HID device is present)
+   * @return True if device is connected (a HID device is present)
    */
   private boolean isDeviceConnected() {
     return deviceOptional != null;
@@ -234,6 +243,74 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
 
   @Override
   protected Message readFromDevice() {
+
+    ByteBuffer messageBuffer = ByteBuffer.allocate(32768);
+
+    TrezorMessage.MessageType type;
+    int msgSize;
+    int received;
+
+    try {
+
+      // Keep reading until synchronized on "##"
+      for (; ; ) {
+        byte[] buffer = new byte[64];
+
+        received = deviceOptional.get().read(buffer);
+
+        log.debug("< {} bytes", received);
+        TrezorMessageUtils.logPacket("<", 0, buffer);
+
+        if (received < 9) {
+          continue;
+        }
+
+        // Synchronize the buffer on start of new message ('?' is ASCII 63)
+        if (buffer[0] != (byte) '?' || buffer[1] != (byte) '#' || buffer[2] != (byte) '#') {
+          // Reject packet
+          continue;
+        }
+
+        // Evaluate the header information (short, int)
+        type = TrezorMessage.MessageType.valueOf((buffer[3] << 8 & 0xFF) + buffer[4]);
+        msgSize = ((buffer[5] & 0xFF) << 24) + ((buffer[6] & 0xFF) << 16) + ((buffer[7] & 0xFF) << 8) + (buffer[8] & 0xFF);
+
+        // Treat remainder of packet as the protobuf message payload
+        messageBuffer.put(buffer, 9, buffer.length - 9);
+
+        break;
+      }
+
+      log.debug("< Type: '{}' Message size: '{}' bytes", type.name(), msgSize);
+
+      int packet = 0;
+      while (messageBuffer.position() < msgSize) {
+
+        byte[] buffer = new byte[64];
+        received = deviceOptional.get().read(buffer);
+        packet++;
+
+        log.debug("< (cont) {} bytes", received);
+        TrezorMessageUtils.logPacket("<", packet, buffer);
+
+        if (buffer[0] != (byte) '?') {
+          log.warn("< Malformed packet length. Expected: '3f' Actual: '{}'. Ignoring.", String.format("%02x", buffer[0]));
+          continue;
+        }
+
+        // Append the packet payload to the message buffer
+        messageBuffer.put(buffer, 1, buffer.length - 1);
+      }
+
+      log.debug("Packet complete");
+
+      // Parse the message
+      return TrezorMessageUtils.parse(type, Arrays.copyOfRange(messageBuffer.array(), 0, msgSize));
+
+    } catch (IOException e) {
+      log.error("Read endpoint failed", e);
+    }
+
     return null;
   }
 
@@ -252,7 +329,6 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
     try {
       infos = hidManager.listDevices();
     } catch (Error e) {
-      // TODO Create collection of descriptive USB exceptions
       throw new IllegalStateException("Unable to access USB due to 'iconv' library returning -1. Check your locale supports conversion from UTF-8 to your native character set.", e);
     }
     if (infos == null) {
@@ -267,12 +343,12 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
     Optional<HIDDeviceInfo> selectedInfo = Optional.absent();
     for (HIDDeviceInfo info : infos) {
 
-      log.debug("Found device: {}", info);
+      log.debug("Found USB device: {}", info);
 
       if (vendorId.equals(info.getVendor_id()) &&
         productId.equals(info.getProduct_id())) {
 
-        log.debug("Found Trezor: {}", info);
+        log.debug("Verified as a Trezor Shield");
 
         // Allow a wildcard serial number
         if (serialNumber.isPresent()) {

@@ -25,9 +25,9 @@ import java.io.IOException;
  * @since 0.0.1
  *  
  */
-public class TrezorShieldUsbMonitoringExample {
+public class TrezorShieldFeaturesExample {
 
-  private static final Logger log = LoggerFactory.getLogger(TrezorShieldUsbMonitoringExample.class);
+  private static final Logger log = LoggerFactory.getLogger(TrezorShieldFeaturesExample.class);
 
   private boolean deviceFailed = false;
 
@@ -41,7 +41,7 @@ public class TrezorShieldUsbMonitoringExample {
   public static void main(String[] args) throws Exception {
 
     // All the work is done in the class
-    TrezorShieldUsbMonitoringExample example = new TrezorShieldUsbMonitoringExample();
+    TrezorShieldFeaturesExample example = new TrezorShieldFeaturesExample();
 
     // Subscribe to hardware wallet events
     HardwareWalletService.hardwareEventBus.register(example);
@@ -63,28 +63,15 @@ public class TrezorShieldUsbMonitoringExample {
       Optional.<String>absent()
     );
 
-    // Create a blocking Trezor client (good for demonstrations but not practical for wallets)
+    // Create a Trezor hardware wallet client
     TrezorHardwareWalletClient client = new TrezorHardwareWalletClient(wallet);
+
+    log.info("Attempting to connect to a Raspberry Pi Trezor Shield over USB");
 
     // Block until a client connects or fails
     if (client.connect()) {
 
       log.info("Attempting basic Trezor protobuf communication");
-
-      // Wipe
-      client.wipeDevice();
-
-      // Reset
-//      client.resetDevice(
-//        "english",
-//        "Aardvark",
-//        true,
-//        true,
-//        true,
-//        128
-//      );
-
-
 
       // Initialize
       client.initialize();

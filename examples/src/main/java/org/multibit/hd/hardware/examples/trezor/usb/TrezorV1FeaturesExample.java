@@ -15,15 +15,16 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 
 /**
- * <p>Example of communicating with a production Trezor device over a USB HID interface:</p>
- * <p>This is useful as an initial verification of recognising insertion and removal of a Trezor</p>
+ * <p>Example of communicating with a Trezor V1 production device over a USB HID interface.</p>
+ * <p>This is useful as an initial verification of recognising insertion and removal of a Trezor
+ * and to see the initialisation state.</p>
  *
  * @since 0.0.1
  *  
  */
-public class UsbMonitoringExample {
+public class TrezorV1FeaturesExample {
 
-  private static final Logger log = LoggerFactory.getLogger(UsbMonitoringExample.class);
+  private static final Logger log = LoggerFactory.getLogger(TrezorV1FeaturesExample.class);
 
   private boolean deviceFailed = false;
 
@@ -36,11 +37,8 @@ public class UsbMonitoringExample {
    */
   public static void main(String[] args) throws Exception {
 
-    // TODO Use this to isolate iconv problem
-    //log.info(System.getProperties().toString());
-
     // All the work is done in the class
-    UsbMonitoringExample example = new UsbMonitoringExample();
+    TrezorV1FeaturesExample example = new TrezorV1FeaturesExample();
 
     // Subscribe to hardware wallet events
     HardwareWalletService.hardwareEventBus.register(example);
@@ -62,8 +60,10 @@ public class UsbMonitoringExample {
       Optional.<String>absent()
     );
 
-    // Create a blocking Trezor client (good for demonstrations but not practical for wallets)
+    // Create a Trezor hardware wallet client
     TrezorHardwareWalletClient client = new TrezorHardwareWalletClient(wallet);
+
+    log.info("Attempting to connect to a production V1 Trezor over USB");
 
     // Block until a client connects or fails
     if (client.connect()) {
