@@ -379,11 +379,18 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet {
     int msgSize;
     int received;
 
-    UsbPipe inPipe = readEndpoint.getUsbPipe();
+    UsbPipe inPipe = null;
     try {
 
-      log.debug("Read endpoint open pipe");
-      inPipe.open();
+      inPipe = readEndpoint.getUsbPipe();
+      if (inPipe == null) {
+        throw new UsbException("Read endpoint get pipe failed.");
+      }
+
+      if (!inPipe.isOpen()) {
+        log.debug("Read endpoint open pipe");
+        inPipe.open();
+      }
 
       // Keep reading until synchronized on "##"
       for (; ; ) {
@@ -444,7 +451,9 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet {
       log.error("Read endpoint failed", e);
     } finally {
       try {
-        inPipe.close();
+        if (inPipe != null) {
+          inPipe.close();
+        }
       } catch (UsbException e) {
         log.warn("Failed to close the read endpoint", e);
       }
