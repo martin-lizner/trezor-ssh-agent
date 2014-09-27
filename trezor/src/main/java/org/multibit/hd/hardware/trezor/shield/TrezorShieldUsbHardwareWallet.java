@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.Locale;
 
 /**
  * <p>Trezor implementation to provide the following to applications:</p>
@@ -45,6 +46,10 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
   private Optional<String> serialNumber = Optional.absent();
 
   private Optional<HIDDevice> deviceOptional = Optional.absent();
+
+  static {
+    Locale.setDefault(Locale.UK);
+  }
 
   /**
    * Default constructor for use with dynamic binding
@@ -329,7 +334,14 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
     try {
       infos = hidManager.listDevices();
     } catch (Error e) {
-      throw new IllegalStateException("Unable to access USB due to 'iconv' library returning -1. Check your locale supports conversion from UTF-8 to your native character set.", e);
+      // This is a bit bad but helps with error identification
+      if (e.getMessage().contains("iconv_open")) {
+        throw new IllegalStateException("Unable to open 'iconv' library. Check it is installed and at version 1.11+.", e);
+      }
+      if (e.getMessage().contains("iconv")) {
+        throw new IllegalStateException("Unable to convert from UTF-8 using 'iconv' library. Check HID library uses UCS-4LE.", e);
+      }
+      throw new IllegalStateException("Unable to list devices from HID USB driver.", e);
     }
     if (infos == null) {
       throw new IllegalStateException("Unable to access connected device list. Check USB security policy for this account.");
