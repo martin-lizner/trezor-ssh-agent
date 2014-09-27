@@ -1,7 +1,6 @@
 package org.multibit.hd.hardware.trezor;
 
 import com.google.protobuf.Message;
-import com.satoshilabs.trezor.protobuf.TrezorMessage;
 import org.multibit.hd.hardware.core.HardwareWalletSpecification;
 import org.multibit.hd.hardware.core.wallets.AbstractHardwareWallet;
 import org.slf4j.Logger;
@@ -17,7 +16,7 @@ import java.nio.ByteBuffer;
  *
  * <p>The Trezor generally uses USB HID framing and protocol buffer messages</p>
  */
-public abstract class AbstractTrezorHardwareWallet extends AbstractHardwareWallet<TrezorMessage.MessageType> {
+public abstract class AbstractTrezorHardwareWallet extends AbstractHardwareWallet {
 
   private static final Logger log = LoggerFactory.getLogger(AbstractTrezorHardwareWallet.class);
 

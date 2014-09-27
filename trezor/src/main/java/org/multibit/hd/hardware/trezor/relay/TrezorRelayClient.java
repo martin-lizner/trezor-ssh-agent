@@ -126,6 +126,11 @@ public class TrezorRelayClient implements HardwareWalletClient {
   }
 
   @Override
+  public Optional<HardwareWalletProtocolEvent> clearSession() {
+    return null;
+  }
+
+  @Override
   public Optional<HardwareWalletProtocolEvent> changePin(boolean remove) {
     return null;
   }
@@ -203,6 +208,11 @@ public class TrezorRelayClient implements HardwareWalletClient {
   }
 
   @Override
+  public Optional<Transaction> simpleSignTx(Transaction tx) {
+    return null;
+  }
+
+  @Override
   public Optional<HardwareWalletProtocolEvent> pinMatrixAck(byte[] pin) {
     // TODO Implement this
     return null;
@@ -238,14 +248,28 @@ public class TrezorRelayClient implements HardwareWalletClient {
   }
 
   @Override
-  public Optional<HardwareWalletProtocolEvent> signMessage() {
-    // TODO Implement this
+  public Optional<HardwareWalletProtocolEvent> signMessage(byte[] messageToSign) {
     return null;
   }
 
   @Override
   public Optional<HardwareWalletProtocolEvent> verifyMessage(Address address, byte[] signature, String message) {
     // TODO Implement this
+    return null;
+  }
+
+  @Override
+  public Optional<HardwareWalletProtocolEvent> encryptMessage(String message) {
+    return null;
+  }
+
+  @Override
+  public Optional<HardwareWalletProtocolEvent> decryptMessage(String message) {
+    return null;
+  }
+
+  @Override
+  public Optional<HardwareWalletProtocolEvent> cypherKeyValue(byte[] key) {
     return null;
   }
 
