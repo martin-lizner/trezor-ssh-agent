@@ -1,17 +1,14 @@
 package org.multibit.hd.hardware.trezor.relay;
 
-import com.google.bitcoin.core.Address;
-import com.google.bitcoin.core.Transaction;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.protobuf.Message;
-import com.satoshilabs.trezor.protobuf.TrezorMessage;
-import org.multibit.hd.hardware.core.HardwareWalletClient;
 import org.multibit.hd.hardware.core.HardwareWalletException;
 import org.multibit.hd.hardware.core.concurrent.SafeExecutors;
 import org.multibit.hd.hardware.core.events.HardwareWalletProtocolEvent;
 import org.multibit.hd.hardware.core.events.HardwareWalletSystemEvent;
 import org.multibit.hd.hardware.core.messages.ProtocolMessageType;
+import org.multibit.hd.hardware.trezor.AbstractTrezorHardwareWalletClient;
 import org.multibit.hd.hardware.trezor.TrezorMessageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +30,7 @@ import java.util.concurrent.TimeUnit;
  * @since 0.0.1
  *  
  */
-public class TrezorRelayClient implements HardwareWalletClient {
+public class TrezorRelayClient extends AbstractTrezorHardwareWalletClient {
 
   private static final Logger log = LoggerFactory.getLogger(TrezorRelayClient.class);
 
@@ -149,187 +146,6 @@ public class TrezorRelayClient implements HardwareWalletClient {
     });
   }
 
-
-  @Override
-  public Optional<HardwareWalletProtocolEvent> initialize() {
-
-    // Connect to the Trezor
-    Message message = TrezorMessage.Initialize.getDefaultInstance();
-    sendMessage(message);
-
-    return null;
-  }
-
-  @Override
-  public Optional<HardwareWalletProtocolEvent> ping() {
-
-    // Connect to the Trezor
-    Message message = TrezorMessage.Ping.getDefaultInstance();
-    sendMessage(message);
-
-    return null;
-  }
-
-  @Override
-  public Optional<HardwareWalletProtocolEvent> clearSession() {
-    return null;
-  }
-
-  @Override
-  public Optional<HardwareWalletProtocolEvent> changePin(boolean remove) {
-    return null;
-  }
-
-  @Override
-  public Optional<HardwareWalletProtocolEvent> wipeDevice() {
-    // TODO Implement this
-    return null;
-  }
-
-  @Override
-  public Optional<HardwareWalletProtocolEvent> firmwareErase() {
-    // TODO Implement this
-    return null;
-  }
-
-  @Override
-  public Optional<HardwareWalletProtocolEvent> firmwareUpload() {
-    // TODO Implement this
-    return null;
-  }
-
-  @Override
-  public Optional<HardwareWalletProtocolEvent> getEntropy() {
-    // TODO Implement this
-    return null;
-  }
-
-  @Override
-  public Optional<HardwareWalletProtocolEvent> getPublicKey(int index, int value, Optional<String> coinName) {
-    // TODO Implement this
-    return null;
-  }
-
-  @Override
-  public Optional<HardwareWalletProtocolEvent> loadDevice(
-    String language,
-    String seed,
-    String pin,
-    boolean passphraseProtection
-  ) {
-    // TODO Implement this
-    return null;
-  }
-
-  @Override
-  public Optional<HardwareWalletProtocolEvent> resetDevice(
-    String language,
-    String label,
-    boolean displayRandom,
-    boolean passphraseProtection,
-    boolean pinProtection,
-    int strength
-  ) {
-    // TODO Implement this
-    return null;
-  }
-
-  @Override
-  public Optional<HardwareWalletProtocolEvent> recoverDevice(String language, String label, int wordCount, boolean passphraseProtection, boolean pinProtection) {
-    // TODO Implement this
-    return null;
-  }
-
-  @Override
-  public Optional<HardwareWalletProtocolEvent> wordAck(String language, String label, int wordCount, boolean passphraseProtection, boolean pinProtection) {
-    // TODO Implement this
-    return null;
-  }
-
-  @Override
-  public Optional<Transaction> signTx(Transaction tx) {
-    // TODO Implement this
-    return null;
-  }
-
-  @Override
-  public Optional<Transaction> simpleSignTx(Transaction tx) {
-    return null;
-  }
-
-  @Override
-  public Optional<HardwareWalletProtocolEvent> pinMatrixAck(byte[] pin) {
-    // TODO Implement this
-    return null;
-  }
-
-  @Override
-  public Optional<HardwareWalletProtocolEvent> buttonAck() {
-    // TODO Implement this
-    return null;
-  }
-
-  public Optional<HardwareWalletProtocolEvent> cancel() {
-    // TODO Implement this
-    return null;
-  }
-
-  @Override
-  public Optional<HardwareWalletProtocolEvent> getAddress(int index, int value, Optional<String> coinName) {
-    // TODO Implement this
-    return null;
-  }
-
-  @Override
-  public Optional<HardwareWalletProtocolEvent> applySettings(String language, String label) {
-    // TODO Implement this
-    return null;
-  }
-
-  @Override
-  public Optional<HardwareWalletProtocolEvent> entropyAck() {
-    // TODO Implement this
-    return null;
-  }
-
-  @Override
-  public Optional<HardwareWalletProtocolEvent> signMessage(byte[] messageToSign) {
-    return null;
-  }
-
-  @Override
-  public Optional<HardwareWalletProtocolEvent> verifyMessage(Address address, byte[] signature, String message) {
-    // TODO Implement this
-    return null;
-  }
-
-  @Override
-  public Optional<HardwareWalletProtocolEvent> encryptMessage(String message) {
-    return null;
-  }
-
-  @Override
-  public Optional<HardwareWalletProtocolEvent> decryptMessage(String message) {
-    return null;
-  }
-
-  @Override
-  public Optional<HardwareWalletProtocolEvent> cypherKeyValue(byte[] key) {
-    return null;
-  }
-
-  @Override
-  public Optional<HardwareWalletProtocolEvent> passphraseAck() {
-    // TODO Implement this
-    return null;
-  }
-
-  @Override
-  public Optional<HardwareWalletProtocolEvent> estimateTxSize(Transaction tx) {
-    // TODO Implement this
-    return null;
-  }
-
   @Override
   public void onHardwareWalletProtocolEvent(HardwareWalletProtocolEvent event) {
 
@@ -352,7 +168,9 @@ public class TrezorRelayClient implements HardwareWalletClient {
    *
    * @param message the message to serialise and send to the OutputStream
    */
-  public void sendMessage(Message message) {
+  @Override
+  public Optional<HardwareWalletProtocolEvent> sendMessage(Message message) {
+
     Preconditions.checkNotNull(message, "Message must be present");
 
     try {
@@ -362,5 +180,7 @@ public class TrezorRelayClient implements HardwareWalletClient {
     } catch (IOException e) {
       log.warn("I/O error during write. Closing socket.", e);
     }
+
+    return Optional.absent();
   }
 }

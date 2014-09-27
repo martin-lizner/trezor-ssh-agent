@@ -7,6 +7,7 @@ import org.multibit.hd.hardware.core.HardwareWalletService;
 import org.multibit.hd.hardware.core.events.HardwareWalletProtocolEvent;
 import org.multibit.hd.hardware.core.events.HardwareWalletSystemEvent;
 import org.multibit.hd.hardware.core.wallets.HardwareWallets;
+import org.multibit.hd.hardware.trezor.AbstractTrezorHardwareWalletClient;
 import org.multibit.hd.hardware.trezor.TrezorHardwareWalletClient;
 import org.multibit.hd.hardware.trezor.shield.TrezorShieldUsbHardwareWallet;
 import org.slf4j.Logger;
@@ -64,7 +65,7 @@ public class TrezorShieldFeaturesExample {
     );
 
     // Create a Trezor hardware wallet client
-    TrezorHardwareWalletClient client = new TrezorHardwareWalletClient(wallet);
+    AbstractTrezorHardwareWalletClient client = new TrezorHardwareWalletClient(wallet);
 
     log.info("Attempting to connect to a Raspberry Pi Trezor Shield over USB");
 

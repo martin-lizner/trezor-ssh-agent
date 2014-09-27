@@ -216,21 +216,11 @@ public interface HardwareWalletClient {
    * <li>FAILURE if the operation was unsuccessful</li>
    * </ul>
    *
-   * @param language             The language code
-   * @param label                The label to display
-   * @param wordCount            The number of words in the seed
-   * @param passphraseProtection True if the device should use passphrase protection
-   * @param pinProtection        True if the device should use PIN protection
+   * @param word A word from the seed phrase
    *
    * @return The response event if implementation is blocking. Absent if non-blocking or device failure.
    */
-  Optional<HardwareWalletProtocolEvent> wordAck(
-    String language,
-    String label,
-    int wordCount,
-    boolean passphraseProtection,
-    boolean pinProtection
-  );
+  Optional<HardwareWalletProtocolEvent> wordAck(String word);
 
   /**
    * <p>Send the SIGN_TX message to the device. Behind the scenes the device will response with a series of TxRequests
@@ -278,7 +268,7 @@ public interface HardwareWalletClient {
    *
    * @return The response event if implementation is blocking. Absent if non-blocking or device failure.
    */
-  Optional<HardwareWalletProtocolEvent> pinMatrixAck(byte[] pin);
+  Optional<HardwareWalletProtocolEvent> pinMatrixAck(String pin);
 
   /**
    * <p>Send the CANCEL message to the device in response to a BUTTON_REQUEST, PIN_MATRIX_REQUEST or PASSPHRASE_REQUEST. </p>
@@ -325,7 +315,7 @@ public interface HardwareWalletClient {
 
   /**
    * <p>Send the GET_ADDRESS message to the device. The device will respond by providing an address calculated
-   * based on the <a href="https://en.bitcoin.it/wiki/BIP_0032">BIP 0032</a> deterministic wallet approach from
+   * based on the <a href="https://en.bitcoin.it/wiki/BIP_0044">BIP 0044</a> deterministic wallet approach from
    * the master node.</p>
    * <p>Expected response events are:</p>
    * <ul>
@@ -334,13 +324,13 @@ public interface HardwareWalletClient {
    * <li>FAILURE if the operation was unsuccessful</li>
    * </ul>
    *
-   * @param index    The index of the chain node from the master node
-   * @param value    The index of the address from the given chain node
-   * @param coinName The optional coin name with a default of "Bitcoin"
+   * @param index       The index of the chain node from the master node
+   * @param value       The index of the address from the given chain node
+   * @param showDisplay True if the device display should show the address
    *
    * @return The response event if implementation is blocking. Absent if non-blocking or device failure.
    */
-  Optional<HardwareWalletProtocolEvent> getAddress(int index, int value, Optional<String> coinName);
+  Optional<HardwareWalletProtocolEvent> getAddress(int index, int value, boolean showDisplay);
 
   /**
    * <p>Send the GET_PUBLIC_KEY message to the device. The device will respond by providing a public key calculated
@@ -369,9 +359,11 @@ public interface HardwareWalletClient {
    * <li>FAILURE if the operation was unsuccessful</li>
    * </ul>
    *
+   * @param entropy The additional entropy
+   *
    * @return The response event if implementation is blocking. Absent if non-blocking or device failure.
    */
-  Optional<HardwareWalletProtocolEvent> entropyAck();
+  Optional<HardwareWalletProtocolEvent> entropyAck(byte[] entropy);
 
   /**
    * <p>Send the SIGN_MESSAGE message to the device containing a message to sign.</p>
@@ -383,7 +375,7 @@ public interface HardwareWalletClient {
    *
    * @return The response event if implementation is blocking. Absent if non-blocking or device failure.
    */
-  Optional<HardwareWalletProtocolEvent> signMessage(byte[] messageToSign);
+  Optional<HardwareWalletProtocolEvent> signMessage(int index, int value, byte[] message);
 
   /**
    * <p>Send the VERIFY_MESSAGE message to the device containing a signed message to verify.</p>
@@ -399,7 +391,7 @@ public interface HardwareWalletClient {
    *
    * @return The response event if implementation is blocking. Absent if non-blocking or device failure.
    */
-  Optional<HardwareWalletProtocolEvent> verifyMessage(Address address, byte[] signature, String message);
+  Optional<HardwareWalletProtocolEvent> verifyMessage(Address address, byte[] signature, byte[] message);
 
   /**
    * <p>Send the ENCRYPT_MESSAGE message to the device containing a message to encrypt.</p>
@@ -409,11 +401,13 @@ public interface HardwareWalletClient {
    * <li>FAILURE if the operation was unsuccessful</li>
    * </ul>
    *
-   * @param message The message to sign
+   * @param pubKey      The public key to use for encryption
+   * @param message     The message to encrypt
+   * @param displayOnly True if the output is for display only
    *
    * @return The response event if implementation is blocking. Absent if non-blocking or device failure.
    */
-  Optional<HardwareWalletProtocolEvent> encryptMessage(String message);
+  Optional<HardwareWalletProtocolEvent> encryptMessage(byte[] pubKey, byte[] message, boolean displayOnly);
 
   /**
    * <p>Send the DECRYPT_MESSAGE message to the device containing a message to decrypt.</p>
@@ -423,14 +417,16 @@ public interface HardwareWalletClient {
    * <li>FAILURE if the operation was unsuccessful</li>
    * </ul>
    *
-   * @param message The message to sign
+   * @param index   The index of the chain node from the master node
+   * @param value   The index of the address from the given chain node
+   * @param message The message to decrypt
    *
    * @return The response event if implementation is blocking. Absent if non-blocking or device failure.
    */
-  Optional<HardwareWalletProtocolEvent> decryptMessage(String message);
+  Optional<HardwareWalletProtocolEvent> decryptMessage(int index, int value, byte[] message);
 
   /**
-   * <p>Send the CYPHER_KEY_VALUE_MESSAGE message to the device containing a key. The device will encrypt or decrypt the value
+   * <p>Send the CIPHER_KEY_VALUE_MESSAGE message to the device containing a key. The device will encrypt or decrypt the value
    * of the given key.</p>
    * <p>Expected response events are:</p>
    * <ul>
@@ -438,11 +434,17 @@ public interface HardwareWalletClient {
    * <li>FAILURE if the operation was unsuccessful</li>
    * </ul>
    *
-   * @param key The cypher key
+   * @param index        The index of the chain node from the master node
+   * @param value        The index of the address from the given chain node
+   * @param key          The cipher key
+   * @param keyValue     The key value
+   * @param encrypt      True if encrypting
+   * @param askOnDecrypt True if device should ask on decrypting
+   * @param askOnEncrypt True if device should ask on encrypting
    *
    * @return The response event if implementation is blocking. Absent if non-blocking or device failure.
    */
-  Optional<HardwareWalletProtocolEvent> cypherKeyValue(byte[] key);
+  Optional<HardwareWalletProtocolEvent> cipherKeyValue(int index, int value, byte[] key, byte[] keyValue, boolean encrypt, boolean askOnDecrypt, boolean askOnEncrypt);
 
   /**
    * <p>Send the PASSPHRASE_ACK message to the device in response to a PASSPHRASE_REQUEST.</p>
@@ -453,9 +455,11 @@ public interface HardwareWalletClient {
    * <li>FAILURE if the operation was unsuccessful</li>
    * </ul>
    *
+   * @param passphrase The passphrase
+   *
    * @return The response event if implementation is blocking. Absent if non-blocking or device failure.
    */
-  Optional<HardwareWalletProtocolEvent> passphraseAck();
+  Optional<HardwareWalletProtocolEvent> passphraseAck(String passphrase);
 
   /**
    * <p>Send the ESTIMATE_TX_SIZE message to the device to estimate the size of the transaction. This behaves
