@@ -16,9 +16,8 @@ import java.util.concurrent.Executors;
  * <li>Access to common methods and fields</li>
  * </ul>
  *
- * @param <P> The device-specific protocol message type
  */
-public abstract class AbstractHardwareWallet<P> implements HardwareWallet {
+public abstract class AbstractHardwareWallet implements HardwareWallet {
 
   private static final Logger log = LoggerFactory.getLogger(AbstractHardwareWallet.class);
 
