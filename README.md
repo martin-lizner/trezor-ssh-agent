@@ -1,4 +1,4 @@
-Status: [![Build Status](https://travis-ci.org/bitcoin-solutions/mbhd-hardware.png?branch=master)](https://travis-ci.org/bitcoin-solutions/mbhd-hardware)
+Status: [![Build Status](https://travis-ci.org/bitcoin-solutions/multibit-hardware.png?branch=master)](https://travis-ci.org/bitcoin-solutions/multibit-hardware)
 
 ### Project status
 
