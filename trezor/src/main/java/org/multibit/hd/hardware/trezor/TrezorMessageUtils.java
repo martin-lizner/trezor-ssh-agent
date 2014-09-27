@@ -321,7 +321,7 @@ public final class TrezorMessageUtils {
    *
    * @return A message
    */
-  public static Message parseAsHIDPackets(InputStream in) {
+  public static Message parseAsHIDPackets(InputStream in) throws IOException {
 
     ByteBuffer messageBuffer = ByteBuffer.allocate(32768);
 
@@ -329,70 +329,60 @@ public final class TrezorMessageUtils {
     int msgSize;
     int received;
 
-    try {
+    // Keep reading until synchronized on "##"
+    for (; ; ) {
+      byte[] buffer = new byte[64];
 
-      // Keep reading until synchronized on "##"
-      for (; ; ) {
-        byte[] buffer = new byte[64];
+      received = in.read(buffer);
 
-        received = in.read(buffer);
+      log.debug("< {} bytes", received);
+      TrezorMessageUtils.logPacket("<", 0, buffer);
 
-        log.debug("< {} bytes", received);
-        TrezorMessageUtils.logPacket("<", 0, buffer);
-
-        if (received < 9) {
-          continue;
-        }
-
-        // Synchronize the buffer on start of new message ('?' is ASCII 63)
-        if (buffer[0] != (byte) '?' || buffer[1] != (byte) '#' || buffer[2] != (byte) '#') {
-          // Reject packet
-          continue;
-        }
-
-        // Evaluate the header information (short, int)
-        type = TrezorMessage.MessageType.valueOf((buffer[3] << 8 & 0xFF) + buffer[4]);
-        msgSize = ((buffer[5] & 0xFF) << 24) + ((buffer[6] & 0xFF) << 16) + ((buffer[7] & 0xFF) << 8) + (buffer[8] & 0xFF);
-
-        // Treat remainder of packet as the protobuf message payload
-        messageBuffer.put(buffer, 9, buffer.length - 9);
-
-        break;
+      if (received < 9) {
+        continue;
       }
 
-      log.debug("< Type: '{}' Message size: '{}' bytes", type.name(), msgSize);
-
-      int packet = 0;
-      while (messageBuffer.position() < msgSize) {
-
-        byte[] buffer = new byte[64];
-        received = in.read(buffer);
-        packet++;
-
-        log.debug("< (cont) {} bytes", received);
-        TrezorMessageUtils.logPacket("<", packet, buffer);
-
-        if (buffer[0] != (byte) '?') {
-          log.warn("< Malformed packet length. Expected: '3f' Actual: '{}'. Ignoring.", String.format("%02x", buffer[0]));
-          continue;
-        }
-
-        // Append the packet payload to the message buffer
-        messageBuffer.put(buffer, 1, buffer.length - 1);
+      // Synchronize the buffer on start of new message ('?' is ASCII 63)
+      if (buffer[0] != (byte) '?' || buffer[1] != (byte) '#' || buffer[2] != (byte) '#') {
+        // Reject packet
+        continue;
       }
 
-      log.debug("Packet complete");
+      // Evaluate the header information (short, int)
+      type = TrezorMessage.MessageType.valueOf((buffer[3] << 8 & 0xFF) + buffer[4]);
+      msgSize = ((buffer[5] & 0xFF) << 24) + ((buffer[6] & 0xFF) << 16) + ((buffer[7] & 0xFF) << 8) + (buffer[8] & 0xFF);
 
-      // Parse the message
-      return TrezorMessageUtils.parse(type, Arrays.copyOfRange(messageBuffer.array(), 0, msgSize));
+      // Treat remainder of packet as the protobuf message payload
+      messageBuffer.put(buffer, 9, buffer.length - 9);
 
-    } catch (IOException e) {
-      log.error("Read endpoint failed", e);
+      break;
     }
 
-    // TODO Better error handling here
-    return null;
+    log.debug("< Type: '{}' Message size: '{}' bytes", type.name(), msgSize);
 
+    int packet = 0;
+    while (messageBuffer.position() < msgSize) {
+
+      byte[] buffer = new byte[64];
+      received = in.read(buffer);
+      packet++;
+
+      log.debug("< (cont) {} bytes", received);
+      TrezorMessageUtils.logPacket("<", packet, buffer);
+
+      if (buffer[0] != (byte) '?') {
+        log.warn("< Malformed packet length. Expected: '3f' Actual: '{}'. Ignoring.", String.format("%02x", buffer[0]));
+        continue;
+      }
+
+      // Append the packet payload to the message buffer
+      messageBuffer.put(buffer, 1, buffer.length - 1);
+    }
+
+    log.debug("Packet complete");
+
+    // Parse the message
+    return TrezorMessageUtils.parse(type, Arrays.copyOfRange(messageBuffer.array(), 0, msgSize));
 
   }
 }

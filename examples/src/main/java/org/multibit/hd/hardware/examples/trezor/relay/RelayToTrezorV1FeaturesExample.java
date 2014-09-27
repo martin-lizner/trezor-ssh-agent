@@ -54,7 +54,7 @@ public class RelayToTrezorV1FeaturesExample {
    * cd project_root
    * mvn clean install
    * cd examples
-   * mvn clean compile exec:java -Dexec.mainClass="org.multibit.hd.hardware.examples.trezor.relay.RelayToTrezorV1FeaturesExample" -Dargs="client 192.168.0.1"
+   * mvn clean compile exec:java -Dexec.mainClass="org.multibit.hd.hardware.examples.trezor.relay.RelayToTrezorV1FeaturesExample" -Dexec.args="client 192.168.0.1"
    * </pre>
    *
    * @param args Use "server", "client" or "both" depending on where this example is being run
@@ -143,12 +143,7 @@ public class RelayToTrezorV1FeaturesExample {
       // Initialize
       client.initialize();
 
-      Uninterruptibles.sleepUninterruptibly(1, TimeUnit.SECONDS);
-
-      // Send a ping
-      client.ping();
-
-      Uninterruptibles.sleepUninterruptibly(1, TimeUnit.SECONDS);
+      Uninterruptibles.sleepUninterruptibly(5, TimeUnit.SECONDS);
 
     } else {
 

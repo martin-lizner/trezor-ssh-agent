@@ -1,10 +1,8 @@
 package org.multibit.hd.hardware.trezor.relay;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Queues;
 import com.google.common.eventbus.Subscribe;
-import com.google.common.util.concurrent.Uninterruptibles;
 import com.google.protobuf.Message;
 import org.multibit.hd.hardware.core.HardwareWalletException;
 import org.multibit.hd.hardware.core.HardwareWalletService;
@@ -21,9 +19,9 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.ByteBuffer;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
 
 /**
  *  <p>Server to provide the following to RelayClient:<br>
@@ -56,7 +54,7 @@ public class TrezorRelayServer {
   protected final ExecutorService serverExecutorService = SafeExecutors.newSingleThreadExecutor("relay-server");
 
   // Provide a thread for monitoring the output from the hardware wallet
-  protected final ExecutorService hardwareWalletMonitorService = SafeExecutors.newSingleThreadExecutor("server-hardware-wallet");
+  protected final ExecutorService hardwareWalletMonitorService = SafeExecutors.newSingleThreadExecutor("hardware-monitor");
 
   // Provide a thread for monitoring the output from the client
   protected final ExecutorService clientMonitorService = SafeExecutors.newSingleThreadExecutor("client-monitor");
@@ -122,8 +120,8 @@ public class TrezorRelayServer {
       Socket clientSocket = serverSocket.accept();
 
       // Get the output and input streams to and from the RelayClient
-      DataOutputStream outputToClient = new DataOutputStream(new BufferedOutputStream(clientSocket.getOutputStream(), 1024));
-      DataInputStream inputFromClient = new DataInputStream(new BufferedInputStream(clientSocket.getInputStream(), 1024));
+      OutputStream outputToClient = new BufferedOutputStream(clientSocket.getOutputStream(), 1024);
+      InputStream inputFromClient = new BufferedInputStream(clientSocket.getInputStream(), 1024);
 
       log.debug("Connecting to the local hardware wallet");
       hardwareWallet.connect();
@@ -147,18 +145,19 @@ public class TrezorRelayServer {
   /**
    * <p>Create an executor service to poll the hardwareWalletEvents and relay them to the client output</p>
    */
-  private void monitorHardwareWallet(final DataOutputStream outputToClient) {
+  private void monitorHardwareWallet(final OutputStream outputToClient) {
     // Monitor the data input stream
     hardwareWalletMonitorService.submit(new Runnable() {
 
       @Override
       public void run() {
         while (true) {
-          log.debug("Monitoring the hardware wallet protobuf messages");
+          log.debug("Waiting for hardware wallet message...");
           Message message = hardwareWallet.readMessage();
 
           // Send the Message back to the client
-          sendMessage(message, outputToClient);
+          log.debug("Sending hardware message to client");
+          writeMessage(message, outputToClient);
         }
       }
 
@@ -168,26 +167,26 @@ public class TrezorRelayServer {
   /**
    * <p>Create an executor service to poll the client output and relay them to hardware wallet</p>
    */
-  private void monitorClient(final DataInputStream inputFromClient) {
+  private void monitorClient(final InputStream inputFromClient) {
     // Monitor the data input stream
     clientMonitorService.submit(new Runnable() {
 
       @Override
       public void run() {
-        log.debug("Monitoring the messages the client emits . . .");
         while (true) {
           try {
             // Blocking read to get the client message (e.g. "Initialize") formatted as HID packets for simplicity
-            Message messageFromClient = TrezorMessageUtils.parseAsHIDPackets(inputFromClient);
+            log.debug("Waiting for client message...");
+
+              Message messageFromClient = TrezorMessageUtils.parseAsHIDPackets(inputFromClient);
 
             // Send the Message to the trezor (serialising again to protobuf)
             log.debug("Writing message to hardware wallet");
             hardwareWallet.writeMessage(messageFromClient);
 
-            Uninterruptibles.sleepUninterruptibly(100, TimeUnit.MILLISECONDS);
 
-          } catch (HardwareWalletException hwe) {
-            hwe.printStackTrace();
+          } catch (HardwareWalletException | IOException e) {
+            log.error("Failed in hardware wallet/client read", e);
           }
         }
       }
@@ -200,17 +199,41 @@ public class TrezorRelayServer {
    * Send a message to an output stream
    *
    * @param message the message to serialise and send to the OutputStream
-   * @param out     The outputStream to send the message to
    */
-  public void sendMessage(Message message, DataOutputStream out) {
-    Preconditions.checkNotNull(message, "Message must be present");
+  public void writeMessage(Message message, OutputStream out) {
 
-    try {
-      TrezorMessageUtils.writeAsHIDPackets(message, out);
-    } catch (IOException e) {
-      log.warn("I/O error during write. Closing socket.", e);
+    ByteBuffer messageBuffer = TrezorMessageUtils.formatAsHIDPackets(message);
+
+    int packets = messageBuffer.position() / 63;
+    log.debug("Writing {} packets", packets);
+    messageBuffer.rewind();
+
+    // HID requires 64 byte packets with 63 bytes of payload
+    for (int i = 0; i < packets; i++) {
+
+      byte[] buffer = new byte[64];
+      buffer[0] = 63; // Length
+      messageBuffer.get(buffer, 1, 63); // Payload
+
+      // Describe the packet
+      String s = "Packet [" + i + "]: ";
+      for (int j = 0; j < 64; j++) {
+        s += String.format(" %02x", buffer[j]);
+      }
+
+      log.debug("> Client {}", s);
+
+      try {
+        out.write(buffer);
+        out.flush();
+      } catch (IOException e) {
+        log.error("Failed to write to client output stream.", e.getMessage());
+      }
+
     }
+
   }
+
 
   @Subscribe
   public void onHardwareWalletProtocolEvent(HardwareWalletProtocolEvent event) {

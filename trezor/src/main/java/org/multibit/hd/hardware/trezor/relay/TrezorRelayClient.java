@@ -7,19 +7,20 @@ import com.google.common.base.Preconditions;
 import com.google.protobuf.Message;
 import com.satoshilabs.trezor.protobuf.TrezorMessage;
 import org.multibit.hd.hardware.core.HardwareWalletClient;
+import org.multibit.hd.hardware.core.HardwareWalletException;
+import org.multibit.hd.hardware.core.concurrent.SafeExecutors;
 import org.multibit.hd.hardware.core.events.HardwareWalletProtocolEvent;
 import org.multibit.hd.hardware.core.events.HardwareWalletSystemEvent;
 import org.multibit.hd.hardware.core.messages.ProtocolMessageType;
-import org.multibit.hd.hardware.core.messages.SystemMessageType;
 import org.multibit.hd.hardware.trezor.TrezorMessageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>Client to provide the following to applications:</p>
@@ -54,12 +55,16 @@ public class TrezorRelayClient implements HardwareWalletClient {
   /**
    * Output to the server server
    */
-  private DataOutputStream out;
+  private OutputStream outputToServer;
 
   /**
    * Input from the server socket
    */
-  private DataInputStream in;
+  private InputStream inputFromServer;
+
+  // Provide a thread for monitoring the output from the server
+  protected final ExecutorService serverMonitorService = SafeExecutors.newSingleThreadExecutor("server-monitor");
+
 
   /**
    * @param relayServerLocation The location of the RelayServer
@@ -75,10 +80,13 @@ public class TrezorRelayClient implements HardwareWalletClient {
 
     try {
       socket = new Socket(relayServerLocation, relayServerPort);
-      out = new DataOutputStream(socket.getOutputStream());
-      in = new DataInputStream(socket.getInputStream());
+      outputToServer = new BufferedOutputStream(socket.getOutputStream(),1024);
+      inputFromServer = new BufferedInputStream(socket.getInputStream(),1024);
 
       log.info("Successful connection to relay server.");
+
+      // Start the monitoring service
+      monitorServer(inputFromServer);
 
       return true;
     } catch (UnknownHostException e) {
@@ -94,16 +102,53 @@ public class TrezorRelayClient implements HardwareWalletClient {
   @Override
   public void disconnect() {
     try {
-      in.close();
-      out.close();
+
+      // Close the monitoring services
+      log.debug("Closing server monitor service");
+      serverMonitorService.shutdownNow();
+      serverMonitorService.awaitTermination(1, TimeUnit.SECONDS);
+
+      log.debug("Closing server socket streams");
+      inputFromServer.close();
+      outputToServer.close();
       socket.close();
 
       log.info("Successful disconnection from relay server.");
 
     } catch (IOException ioe) {
       log.error("Do not know about host " + relayServerLocation);
+    } catch (InterruptedException e) {
+      log.error("Failed to terminate server monitor service");
     }
   }
+
+  /**
+   * <p>Create an executor service to poll the server output and convert them to hardware wallet events</p>
+   */
+  private void monitorServer(final InputStream inputFromServer) {
+    // Monitor the data input stream
+    serverMonitorService.submit(new Runnable() {
+
+      @Override
+      public void run() {
+        while (true) {
+          try {
+            // Blocking read to get the client message (e.g. "Initialize") formatted as HID packets for simplicity
+            log.debug("Waiting for server message...");
+            Message messageFromServer = TrezorMessageUtils.parseAsHIDPackets(inputFromServer);
+
+            // TODO Convert to hardware wallet event
+
+          } catch (HardwareWalletException | IOException e) {
+            log.error("Failed to read back from server", e);
+            break;
+          }
+        }
+      }
+
+    });
+  }
+
 
   @Override
   public Optional<HardwareWalletProtocolEvent> initialize() {
@@ -300,13 +345,6 @@ public class TrezorRelayClient implements HardwareWalletClient {
   @Override
   public void onHardwareWalletSystemEvent(HardwareWalletSystemEvent event) {
 
-    // Decode into a message type for use with a switch
-    SystemMessageType messageType = event.getMessageType();
-
-    // System message
-
-    log.debug("Received event: {}", event.getMessageType().name());
-
   }
 
   /**
@@ -319,7 +357,8 @@ public class TrezorRelayClient implements HardwareWalletClient {
 
     try {
       // Apply the message to the data output stream
-      TrezorMessageUtils.writeAsHIDPackets(message, out);
+      TrezorMessageUtils.writeAsHIDPackets(message, outputToServer);
+
     } catch (IOException e) {
       log.warn("I/O error during write. Closing socket.", e);
     }

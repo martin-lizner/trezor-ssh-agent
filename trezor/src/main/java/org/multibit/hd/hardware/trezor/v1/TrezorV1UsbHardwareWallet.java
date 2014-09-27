@@ -172,8 +172,6 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet {
       return false;
     }
 
-    log.info("Selected trezor OK");
-
     try {
       log.debug("Selected: '{}' '{}' '{}'",
         device.getManufacturerString(),
@@ -343,35 +341,39 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet {
     Preconditions.checkNotNull(buffer, "'buffer' must be present");
     Preconditions.checkNotNull(deviceOptional, "Device is not connected");
 
-    UsbPipe outPipe = null;
-    try {
-      outPipe = writeEndpoint.getUsbPipe();
-      outPipe.open();
-
-      int bytesSent = outPipe.syncSubmit(buffer);
-      if (bytesSent != buffer.length) {
-        throw new UsbException("Invalid packet size sent. Expected: " + buffer.length + " Actual: " + bytesSent);
-      }
-
-      return bytesSent;
-
-    } catch (UsbException e) {
-      log.error("Write endpoint submit data failed.", e);
-    } finally {
+      UsbPipe outPipe = null;
       try {
-        if (outPipe != null) {
-          outPipe.close();
+        log.debug("Writing buffer to USB pipe...");
+        outPipe = writeEndpoint.getUsbPipe();
+        outPipe.open();
+
+        int bytesSent = outPipe.syncSubmit(buffer);
+        if (bytesSent != buffer.length) {
+          throw new UsbException("Invalid packet size sent. Expected: " + buffer.length + " Actual: " + bytesSent);
         }
+
+        log.debug("Wrote {} bytes to USB pipe.", bytesSent);
+        return bytesSent;
+
       } catch (UsbException e) {
-        log.warn("Failed to close the write endpoint", e);
+        log.error("Write endpoint submit data failed.", e);
+      } finally {
+        try {
+          if (outPipe != null) {
+            outPipe.close();
+          }
+        } catch (UsbException e) {
+          log.warn("Failed to close the write endpoint", e);
+        }
       }
-    }
 
     return 0;
   }
 
   @Override
-  protected Message readFromDevice() {
+  protected synchronized Message readFromDevice() {
+
+    log.debug("Reading from hardware device");
 
     ByteBuffer messageBuffer = ByteBuffer.allocate(32768);
 
@@ -408,6 +410,7 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet {
         // Synchronize the buffer on start of new message ('?' is ASCII 63)
         if (buffer[0] != (byte) '?' || buffer[1] != (byte) '#' || buffer[2] != (byte) '#') {
           // Reject packet
+          log.debug("Rejecting message (not synchronized)");
           continue;
         }
 

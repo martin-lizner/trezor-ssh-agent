@@ -53,7 +53,7 @@ public abstract class AbstractTrezorHardwareWallet extends AbstractHardwareWalle
     ByteBuffer messageBuffer = TrezorMessageUtils.formatAsHIDPackets(message);
 
     int packets = messageBuffer.position() / 63;
-    log.info("Writing {} packets", packets);
+    log.debug("Writing {} packets", packets);
     messageBuffer.rewind();
 
     // HID requires 64 byte packets with 63 bytes of payload
@@ -69,7 +69,7 @@ public abstract class AbstractTrezorHardwareWallet extends AbstractHardwareWalle
         s += String.format(" %02x", buffer[j]);
       }
 
-      log.info("> {}", s);
+      log.debug("> {}", s);
 
       writeToDevice(buffer);
 
