@@ -1,4 +1,4 @@
-package org.multibit.hd.hardware.trezor;
+package org.multibit.hd.hardware.trezor.clients;
 
 import com.google.bitcoin.core.Address;
 import com.google.bitcoin.core.Transaction;

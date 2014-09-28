@@ -8,9 +8,9 @@ import com.google.common.base.Preconditions;
 import org.multibit.hd.hardware.core.HardwareWalletService;
 import org.multibit.hd.hardware.core.wallets.HardwareWallets;
 import org.multibit.hd.hardware.examples.trezor.FakeTransactions;
-import org.multibit.hd.hardware.trezor.AbstractTrezorHardwareWalletClient;
-import org.multibit.hd.hardware.trezor.TrezorHardwareWalletClient;
-import org.multibit.hd.hardware.trezor.shield.TrezorShieldSocketHardwareWallet;
+import org.multibit.hd.hardware.trezor.clients.AbstractTrezorHardwareWalletClient;
+import org.multibit.hd.hardware.trezor.clients.TrezorHardwareWalletClient;
+import org.multibit.hd.hardware.trezor.wallets.shield.TrezorShieldSocketHardwareWallet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

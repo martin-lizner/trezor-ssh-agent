@@ -1,4 +1,4 @@
-package org.multibit.hd.hardware.trezor.shield;
+package org.multibit.hd.hardware.trezor.wallets.shield;
 
 import com.codeminders.hidapi.ClassPathLibraryLoader;
 import com.codeminders.hidapi.HIDDevice;
@@ -11,8 +11,8 @@ import com.satoshilabs.trezor.protobuf.TrezorMessage;
 import org.multibit.hd.hardware.core.HardwareWalletSpecification;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
 import org.multibit.hd.hardware.core.events.HardwareWalletMessageType;
-import org.multibit.hd.hardware.trezor.AbstractTrezorHardwareWallet;
-import org.multibit.hd.hardware.trezor.TrezorMessageUtils;
+import org.multibit.hd.hardware.trezor.utils.TrezorMessageUtils;
+import org.multibit.hd.hardware.trezor.wallets.AbstractTrezorHardwareWallet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

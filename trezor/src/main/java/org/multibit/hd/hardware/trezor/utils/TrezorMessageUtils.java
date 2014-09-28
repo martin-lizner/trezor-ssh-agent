@@ -1,4 +1,4 @@
-package org.multibit.hd.hardware.trezor;
+package org.multibit.hd.hardware.trezor.utils;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;

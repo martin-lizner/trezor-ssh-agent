@@ -1,4 +1,4 @@
-package org.multibit.hd.hardware.trezor;
+package org.multibit.hd.hardware.trezor.clients;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;

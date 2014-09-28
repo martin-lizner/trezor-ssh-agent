@@ -5,7 +5,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.protobuf.Message;
 import org.multibit.hd.hardware.emulators.generic.protobuf.GenericMessage;
-import org.multibit.hd.hardware.trezor.TrezorMessageUtils;
+import org.multibit.hd.hardware.trezor.utils.TrezorMessageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

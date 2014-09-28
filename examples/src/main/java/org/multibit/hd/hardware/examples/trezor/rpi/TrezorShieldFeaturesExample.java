@@ -4,9 +4,9 @@ import com.google.bitcoin.core.AddressFormatException;
 import com.google.common.base.Optional;
 import org.multibit.hd.hardware.core.HardwareWalletService;
 import org.multibit.hd.hardware.core.wallets.HardwareWallets;
-import org.multibit.hd.hardware.trezor.AbstractTrezorHardwareWalletClient;
-import org.multibit.hd.hardware.trezor.TrezorHardwareWalletClient;
-import org.multibit.hd.hardware.trezor.shield.TrezorShieldUsbHardwareWallet;
+import org.multibit.hd.hardware.trezor.clients.AbstractTrezorHardwareWalletClient;
+import org.multibit.hd.hardware.trezor.clients.TrezorHardwareWalletClient;
+import org.multibit.hd.hardware.trezor.wallets.shield.TrezorShieldUsbHardwareWallet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
