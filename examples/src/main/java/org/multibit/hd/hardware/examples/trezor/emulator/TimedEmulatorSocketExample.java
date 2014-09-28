@@ -1,9 +1,5 @@
 package org.multibit.hd.hardware.examples.trezor.emulator;
 
-import com.google.common.eventbus.Subscribe;
-import org.multibit.hd.hardware.core.events.HardwareWalletProtocolEvent;
-import org.multibit.hd.hardware.core.events.HardwareWalletSystemEvent;
-import org.multibit.hd.hardware.core.messages.SystemMessageType;
 import org.multibit.hd.hardware.emulators.trezor.TrezorEmulator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,21 +31,6 @@ public class TimedEmulatorSocketExample {
 
     // Allow time for the emulator to start
     Thread.sleep(100);
-
-  }
-
-  @Subscribe
-  public void onHardwareWalletProtocolEvent(HardwareWalletProtocolEvent event) {
-
-  }
-
-  @Subscribe
-  public void onHardwareWalletSystemEvent(HardwareWalletSystemEvent event) {
-
-    if (SystemMessageType.DEVICE_DISCONNECTED.equals(event.getMessageType())) {
-      log.error("Device is not connected");
-      System.exit(-1);
-    }
 
   }
 

@@ -4,7 +4,7 @@ import com.google.common.base.Preconditions;
 import com.google.protobuf.Message;
 import org.multibit.hd.hardware.core.HardwareWalletSpecification;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
-import org.multibit.hd.hardware.core.messages.SystemMessageType;
+import org.multibit.hd.hardware.core.events.HardwareWalletMessageType;
 import org.multibit.hd.hardware.trezor.AbstractTrezorHardwareWallet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -92,12 +92,12 @@ public class TrezorShieldSocketHardwareWallet extends AbstractTrezorHardwareWall
    //   monitorDataInputStream(in);
 
       // Must have connected to be here
-      HardwareWalletEvents.fireSystemEvent(SystemMessageType.DEVICE_CONNECTED);
+      HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletMessageType.DEVICE_CONNECTED);
 
       return true;
 
     } catch (IOException e) {
-      HardwareWalletEvents.fireSystemEvent(SystemMessageType.DEVICE_FAILURE);
+      HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletMessageType.DEVICE_FAILURE);
     }
 
     // Must have failed to be here
@@ -115,10 +115,10 @@ public class TrezorShieldSocketHardwareWallet extends AbstractTrezorHardwareWall
       log.info("Disconnected from Trezor");
 
       // Must have disconnected to be here
-      HardwareWalletEvents.fireSystemEvent(SystemMessageType.DEVICE_DISCONNECTED);
+      HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletMessageType.DEVICE_DISCONNECTED);
 
     } catch (IOException e) {
-      HardwareWalletEvents.fireSystemEvent(SystemMessageType.DEVICE_FAILURE);
+      HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletMessageType.DEVICE_FAILURE);
     }
   }
 
@@ -141,7 +141,7 @@ public class TrezorShieldSocketHardwareWallet extends AbstractTrezorHardwareWall
       log.warn("I/O error during write. Closing socket.", e);
 
       // Must have disconnected to be here
-      HardwareWalletEvents.fireSystemEvent(SystemMessageType.DEVICE_DISCONNECTED);
+      HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletMessageType.DEVICE_DISCONNECTED);
     }
 
     // Must have failed to be here

@@ -1,8 +1,7 @@
 package org.multibit.hd.hardware.emulators.swing;
 
 import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
-import org.multibit.hd.hardware.core.messages.ProtocolMessageType;
-import org.multibit.hd.hardware.core.messages.SystemMessageType;
+import org.multibit.hd.hardware.core.events.HardwareWalletMessageType;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -29,13 +28,13 @@ public class MessageButtons {
    *
    * @return A new button instance with a suitable action
    */
-  public static JButton newProtocolButton(final ProtocolMessageType type) {
+  public static JButton newProtocolButton(final HardwareWalletMessageType type) {
 
     Action action = new AbstractAction() {
       @Override
       public void actionPerformed(ActionEvent e) {
 
-        HardwareWalletEvents.fireProtocolEvent(type, null);
+        HardwareWalletEvents.fireHardwareWalletEvent(type, null);
 
       }
     };
@@ -52,13 +51,13 @@ public class MessageButtons {
    *
    * @return A new button instance with a suitable action
    */
-  public static JButton newSystemButton(final SystemMessageType type) {
+  public static JButton newSystemButton(final HardwareWalletMessageType type) {
 
     Action action = new AbstractAction() {
       @Override
       public void actionPerformed(ActionEvent e) {
 
-        HardwareWalletEvents.fireSystemEvent(type);
+        HardwareWalletEvents.fireHardwareWalletEvent(type);
 
       }
     };

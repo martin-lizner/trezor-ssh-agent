@@ -1,11 +1,8 @@
 package org.multibit.hd.hardware.examples.trezor.relay;
 
 import com.google.common.base.Optional;
-import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.Uninterruptibles;
 import org.multibit.hd.hardware.core.HardwareWalletService;
-import org.multibit.hd.hardware.core.events.HardwareWalletProtocolEvent;
-import org.multibit.hd.hardware.core.events.HardwareWalletSystemEvent;
 import org.multibit.hd.hardware.trezor.relay.TrezorRelayClient;
 import org.multibit.hd.hardware.trezor.relay.TrezorRelayServer;
 import org.multibit.hd.hardware.trezor.v1.TrezorV1UsbHardwareWallet;
@@ -162,21 +159,4 @@ public class RelayToTrezorV1FeaturesExample {
     System.exit(0);
   }
 
-  @Subscribe
-  public void onHardwareWalletProtocolEvent(HardwareWalletProtocolEvent event) {
-    log.debug("Saw a HardwareWalletProtocolEvent: " + event);
-  }
-
-  @Subscribe
-  public void onHardwareWalletSystemEvent(HardwareWalletSystemEvent event) {
-
-    switch (event.getMessageType()) {
-      case DEVICE_DISCONNECTED:
-        log.error("Device is not connected");
-        break;
-      case DEVICE_FAILURE:
-        log.error("Device has failed (hardware problem)");
-        break;
-    }
-  }
 }

@@ -1,10 +1,9 @@
 package org.multibit.hd.hardware.core.events;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.protobuf.Message;
 import org.multibit.hd.hardware.core.HardwareWalletService;
-import org.multibit.hd.hardware.core.messages.ProtocolMessageType;
-import org.multibit.hd.hardware.core.messages.SystemMessageType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,35 +27,39 @@ public class HardwareWalletEvents {
   }
 
   /**
-   * <p>A system event is one that falls outside of the hardware communications protocol (i.e. a DISCONNECTED or similar)</p>
-   *
-   * @param messageType The message type (e.g. DISCONNECT)
-   */
-  public static void fireSystemEvent(final SystemMessageType messageType) {
-
-    Preconditions.checkNotNull(messageType, "'messageType' must be present");
-
-    log.debug("Firing 'hardware wallet system' event: {}", messageType.name());
-    HardwareWalletService.hardwareEventBus.post(new HardwareWalletSystemEvent(messageType));
-
-  }
-
-  /**
-   * <p>A protocol event is one that falls within the hardware communications protocol (i.e. a PING or similar)</p>
+   * <p>A hardware event can wrap a protocol buffer message</p>
    *
    * @param messageType The message type (e.g. SUCCESS)
    * @param message     The message itself (from protocol buffers)
    */
-  public static void fireProtocolEvent(final ProtocolMessageType messageType, final Message message) {
+  public static void fireHardwareWalletEvent(final HardwareWalletMessageType messageType, final Message message) {
 
     Preconditions.checkNotNull(messageType, "'messageType' must be present");
     Preconditions.checkNotNull(message, "'message' must be present");
 
-    log.debug("Firing 'hardware wallet protocol' event: {}", messageType.name());
-    HardwareWalletService.hardwareEventBus.post(new HardwareWalletProtocolEvent(
+    log.debug("Firing 'hardware wallet' event: {}", messageType.name());
+    HardwareWalletService.hardwareEventBus.post(new HardwareWalletEvent(
       messageType,
-      message
+      Optional.of(message)
     ));
 
   }
+
+  /**
+   * <p>A hardware event without a message is used for communicating system status changes (e.g. DISCONNECT)</p>
+   *
+   * @param messageType The message type (e.g. SUCCESS)
+   */
+  public static void fireHardwareWalletEvent(final HardwareWalletMessageType messageType) {
+
+    Preconditions.checkNotNull(messageType, "'messageType' must be present");
+
+    log.debug("Firing 'hardware wallet' event: {}", messageType.name());
+    HardwareWalletService.hardwareEventBus.post(new HardwareWalletEvent(
+      messageType,
+      Optional.<Message>absent()
+    ));
+
+  }
+
 }

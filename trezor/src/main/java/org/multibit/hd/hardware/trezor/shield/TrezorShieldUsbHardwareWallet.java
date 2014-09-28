@@ -10,7 +10,7 @@ import com.google.protobuf.Message;
 import com.satoshilabs.trezor.protobuf.TrezorMessage;
 import org.multibit.hd.hardware.core.HardwareWalletSpecification;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
-import org.multibit.hd.hardware.core.messages.SystemMessageType;
+import org.multibit.hd.hardware.core.events.HardwareWalletMessageType;
 import org.multibit.hd.hardware.trezor.AbstractTrezorHardwareWallet;
 import org.multibit.hd.hardware.trezor.TrezorMessageUtils;
 import org.slf4j.Logger;
@@ -137,7 +137,7 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
       return attachDevice(device);
     } catch (IOException e) {
       log.error("Failed to attach device due to problem reading UART data stream", e);
-      HardwareWalletEvents.fireSystemEvent(SystemMessageType.DEVICE_FAILURE);
+      HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletMessageType.DEVICE_FAILURE);
     }
 
     // Must have failed to be here
@@ -174,7 +174,7 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
     log.debug("> Purge RxTx: {} '{}'", bytesSent, featureReport);
 
     // Must have connected to be here
-    HardwareWalletEvents.fireSystemEvent(SystemMessageType.DEVICE_CONNECTED);
+    HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletMessageType.DEVICE_CONNECTED);
 
     return true;
 
@@ -194,7 +194,7 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
 
     // No matching device so indicate that it is disconnected
     if (!hidDeviceInfoOptional.isPresent()) {
-      HardwareWalletEvents.fireSystemEvent(SystemMessageType.DEVICE_DISCONNECTED);
+      HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletMessageType.DEVICE_DISCONNECTED);
       return Optional.absent();
     }
 
@@ -239,7 +239,7 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
       log.info("Disconnected from Trezor");
 
       // Let everyone know
-      HardwareWalletEvents.fireSystemEvent(SystemMessageType.DEVICE_DISCONNECTED);
+      HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletMessageType.DEVICE_DISCONNECTED);
 
     } catch (IOException e) {
       throw new IllegalArgumentException(e);

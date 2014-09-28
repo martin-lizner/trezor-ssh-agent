@@ -7,9 +7,8 @@ import com.google.protobuf.Message;
 import org.multibit.hd.hardware.core.HardwareWalletException;
 import org.multibit.hd.hardware.core.HardwareWalletService;
 import org.multibit.hd.hardware.core.concurrent.SafeExecutors;
-import org.multibit.hd.hardware.core.events.HardwareWalletProtocolEvent;
-import org.multibit.hd.hardware.core.events.HardwareWalletSystemEvent;
-import org.multibit.hd.hardware.core.messages.ProtocolMessageType;
+import org.multibit.hd.hardware.core.events.HardwareWalletEvent;
+import org.multibit.hd.hardware.core.events.HardwareWalletMessageType;
 import org.multibit.hd.hardware.core.wallets.HardwareWallet;
 import org.multibit.hd.hardware.trezor.TrezorMessageUtils;
 import org.multibit.hd.hardware.trezor.v1.TrezorV1UsbHardwareWallet;
@@ -62,7 +61,7 @@ public class TrezorRelayServer {
   /**
    * Keep track of hardware wallet events to allow blocking to occur
    */
-  private final BlockingQueue<HardwareWalletProtocolEvent> hardwareWalletEvents = Queues.newArrayBlockingQueue(10);
+  private final BlockingQueue<HardwareWalletEvent> hardwareWalletEvents = Queues.newArrayBlockingQueue(10);
 
 
   /**
@@ -236,10 +235,10 @@ public class TrezorRelayServer {
 
 
   @Subscribe
-  public void onHardwareWalletProtocolEvent(HardwareWalletProtocolEvent event) {
+  public void onHardwareWalletProtocolEvent(HardwareWalletEvent event) {
 
     // Decode into a message type for use with a switch
-    ProtocolMessageType messageType = event.getMessageType();
+    HardwareWalletMessageType messageType = event.getMessageType();
 
     // Protocol message
 
@@ -249,12 +248,6 @@ public class TrezorRelayServer {
     // Add the event to the queue for blocking purposes
     hardwareWalletEvents.add(event);
 
-  }
-
-  @Subscribe
-  public void onHardwareWalletSystemEvent(HardwareWalletSystemEvent event) {
-    // System message
-    log.debug("Received event: {}", event.getMessageType().name());
   }
 
   /**

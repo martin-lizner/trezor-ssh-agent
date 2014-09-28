@@ -1,7 +1,6 @@
 package org.multibit.hd.hardware.emulators.generic;
 
-import org.multibit.hd.hardware.core.messages.ProtocolMessageType;
-import org.multibit.hd.hardware.core.messages.SystemMessageType;
+import org.multibit.hd.hardware.core.events.HardwareWalletMessageType;
 import org.multibit.hd.hardware.emulators.swing.EmulatorPanels;
 import org.multibit.hd.hardware.emulators.swing.MessageButtons;
 import org.multibit.hd.hardware.emulators.utils.TextAreaOutputStream;
@@ -109,13 +108,13 @@ public class GenericEmulatorUI extends JFrame {
 
     // Create the system message panel
     JPanel systemMessagePanel = EmulatorPanels.newButtonPanel();
-    for (SystemMessageType type : SystemMessageType.values()) {
+    for (HardwareWalletMessageType type : HardwareWalletMessageType.values()) {
       systemMessagePanel.add(MessageButtons.newSystemButton(type));
     }
 
     // Create the protocol message panel
     JPanel protocolMessagePanel = EmulatorPanels.newButtonPanel();
-    for (ProtocolMessageType type : ProtocolMessageType.values()) {
+    for (HardwareWalletMessageType type : HardwareWalletMessageType.values()) {
       protocolMessagePanel.add(MessageButtons.newProtocolButton(type));
     }
 

@@ -7,7 +7,7 @@ import com.google.protobuf.Message;
 import com.satoshilabs.trezor.protobuf.TrezorMessage;
 import org.multibit.hd.hardware.core.HardwareWalletSpecification;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
-import org.multibit.hd.hardware.core.messages.SystemMessageType;
+import org.multibit.hd.hardware.core.events.HardwareWalletMessageType;
 import org.multibit.hd.hardware.trezor.AbstractTrezorHardwareWallet;
 import org.multibit.hd.hardware.trezor.TrezorMessageUtils;
 import org.slf4j.Logger;
@@ -152,7 +152,7 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet {
       if (configuration.isActive()) {
         if (!verifyConfiguration(configuration)) {
           log.error("Device not verified or its USB interface could not be claimed.");
-          HardwareWalletEvents.fireSystemEvent(SystemMessageType.DEVICE_FAILURE);
+          HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletMessageType.DEVICE_FAILURE);
           return false;
         } else {
           // Found a suitable Trezor device
@@ -168,7 +168,7 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet {
     // Check for a connected Trezor
     if (readEndpoint == null || writeEndpoint == null) {
       log.error("Device read/write endpoints have not been set.");
-      HardwareWalletEvents.fireSystemEvent(SystemMessageType.DEVICE_FAILURE);
+      HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletMessageType.DEVICE_FAILURE);
       return false;
     }
 
@@ -181,7 +181,7 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet {
 
     } catch (UsbException | UnsupportedEncodingException e) {
       log.error("Failed to connect device due to problem reading device information", e);
-      HardwareWalletEvents.fireSystemEvent(SystemMessageType.DEVICE_FAILURE);
+      HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletMessageType.DEVICE_FAILURE);
       return false;
     }
 
@@ -303,7 +303,7 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet {
     log.info("Disconnected from Trezor");
 
     // Let everyone know
-    HardwareWalletEvents.fireSystemEvent(SystemMessageType.DEVICE_DISCONNECTED);
+    HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletMessageType.DEVICE_DISCONNECTED, null);
 
   }
 

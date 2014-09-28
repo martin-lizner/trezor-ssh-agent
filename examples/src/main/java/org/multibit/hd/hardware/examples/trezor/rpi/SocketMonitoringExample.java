@@ -2,12 +2,8 @@ package org.multibit.hd.hardware.examples.trezor.rpi;
 
 import com.google.bitcoin.core.AddressFormatException;
 import com.google.common.base.Preconditions;
-import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.Uninterruptibles;
 import org.multibit.hd.hardware.core.HardwareWalletService;
-import org.multibit.hd.hardware.core.events.HardwareWalletProtocolEvent;
-import org.multibit.hd.hardware.core.events.HardwareWalletSystemEvent;
-import org.multibit.hd.hardware.core.messages.SystemMessageType;
 import org.multibit.hd.hardware.core.wallets.HardwareWallets;
 import org.multibit.hd.hardware.trezor.AbstractTrezorHardwareWalletClient;
 import org.multibit.hd.hardware.trezor.TrezorHardwareWalletClient;
@@ -90,25 +86,6 @@ public class SocketMonitoringExample {
 
     // Shutdown
     System.exit(0);
-
-  }
-
-  @Subscribe
-  public void onHardwareWalletProtocolEvent(HardwareWalletProtocolEvent event) {
-
-    log.info("Received hardware event: {} {}", event.getMessageType().name(), event.getMessage());
-
-
-  }
-
-  @Subscribe
-  public void onHardwareWalletSystemEvent(HardwareWalletSystemEvent event) {
-
-    if (SystemMessageType.DEVICE_DISCONNECTED.equals(event.getMessageType())) {
-      log.error("Device is not connected");
-      System.exit(-1);
-    }
-
 
   }
 

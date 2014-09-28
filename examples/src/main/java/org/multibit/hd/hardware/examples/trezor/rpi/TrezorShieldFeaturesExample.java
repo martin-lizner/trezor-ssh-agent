@@ -2,10 +2,7 @@ package org.multibit.hd.hardware.examples.trezor.rpi;
 
 import com.google.bitcoin.core.AddressFormatException;
 import com.google.common.base.Optional;
-import com.google.common.eventbus.Subscribe;
 import org.multibit.hd.hardware.core.HardwareWalletService;
-import org.multibit.hd.hardware.core.events.HardwareWalletProtocolEvent;
-import org.multibit.hd.hardware.core.events.HardwareWalletSystemEvent;
 import org.multibit.hd.hardware.core.wallets.HardwareWallets;
 import org.multibit.hd.hardware.trezor.AbstractTrezorHardwareWalletClient;
 import org.multibit.hd.hardware.trezor.TrezorHardwareWalletClient;
@@ -95,27 +92,6 @@ public class TrezorShieldFeaturesExample {
 
     // Shutdown
     System.exit(0);
-
-  }
-
-  @Subscribe
-  public void onHardwareWalletProtocolEvent(HardwareWalletProtocolEvent event) {
-
-
-  }
-
-  @Subscribe
-  public void onHardwareWalletSystemEvent(HardwareWalletSystemEvent event) {
-
-    switch (event.getMessageType()) {
-      case DEVICE_DISCONNECTED:
-        log.error("Device is not connected");
-        break;
-      case DEVICE_FAILURE:
-        log.error("Device has failed (hardware problem)");
-        deviceFailed = true;
-        break;
-    }
 
   }
 

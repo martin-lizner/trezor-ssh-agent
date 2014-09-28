@@ -2,10 +2,7 @@ package org.multibit.hd.hardware.examples.trezor.usb;
 
 import com.google.bitcoin.core.AddressFormatException;
 import com.google.common.base.Optional;
-import com.google.common.eventbus.Subscribe;
 import org.multibit.hd.hardware.core.HardwareWalletService;
-import org.multibit.hd.hardware.core.events.HardwareWalletProtocolEvent;
-import org.multibit.hd.hardware.core.events.HardwareWalletSystemEvent;
 import org.multibit.hd.hardware.core.wallets.HardwareWallets;
 import org.multibit.hd.hardware.trezor.AbstractTrezorHardwareWalletClient;
 import org.multibit.hd.hardware.trezor.TrezorHardwareWalletClient;
@@ -26,8 +23,6 @@ import java.io.IOException;
 public class TrezorV1LoadDeviceExample {
 
   private static final Logger log = LoggerFactory.getLogger(TrezorV1LoadDeviceExample.class);
-
-  private boolean deviceFailed = false;
 
   /**
    * <p>Main entry point to the example</p>
@@ -74,13 +69,28 @@ public class TrezorV1LoadDeviceExample {
       // Initialize
       client.initialize();
 
-      // Send a load device
-      client.loadDevice(
+      // Reset device
+      client.resetDevice(
         "english",
-        "beyond neighbor scratch swirl embarrass doll cause also stick softly physical nice",
-        "123456",
-        false
+        "charlie",
+        true,
+        false,
+        true,
+        128
       );
+
+      // Device will now be showing internal entropy
+      client.buttonAck();
+
+
+
+      // Send a load device
+//      client.loadDevice(
+//        "english",
+//        "beyond neighbor scratch swirl embarrass doll cause also stick softly physical nice",
+//        "123456",
+//        false
+//      );
 
     } else {
 
@@ -97,27 +107,6 @@ public class TrezorV1LoadDeviceExample {
 
     // Shutdown
     System.exit(0);
-
-  }
-
-  @Subscribe
-  public void onHardwareWalletProtocolEvent(HardwareWalletProtocolEvent event) {
-
-
-  }
-
-  @Subscribe
-  public void onHardwareWalletSystemEvent(HardwareWalletSystemEvent event) {
-
-    switch (event.getMessageType()) {
-      case DEVICE_DISCONNECTED:
-        log.error("Device is not connected");
-        break;
-      case DEVICE_FAILURE:
-        log.error("Device has failed (hardware problem)");
-        deviceFailed = true;
-        break;
-    }
 
   }
 

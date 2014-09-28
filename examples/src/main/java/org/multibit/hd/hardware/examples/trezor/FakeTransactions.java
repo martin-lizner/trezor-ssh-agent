@@ -1,4 +1,4 @@
-package org.multibit.hd.hardware.core.messages;
+package org.multibit.hd.hardware.examples.trezor;
 
 import com.google.bitcoin.core.*;
 import com.google.bitcoin.params.MainNetParams;
@@ -15,7 +15,7 @@ import java.util.Map;
  * </ul>
  *
  * @since 0.0.1
- *  
+ *  TODO Move to examples
  */
 public class FakeTransactions {
 

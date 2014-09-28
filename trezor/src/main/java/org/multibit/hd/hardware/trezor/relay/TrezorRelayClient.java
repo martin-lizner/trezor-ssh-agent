@@ -5,9 +5,7 @@ import com.google.common.base.Preconditions;
 import com.google.protobuf.Message;
 import org.multibit.hd.hardware.core.HardwareWalletException;
 import org.multibit.hd.hardware.core.concurrent.SafeExecutors;
-import org.multibit.hd.hardware.core.events.HardwareWalletProtocolEvent;
-import org.multibit.hd.hardware.core.events.HardwareWalletSystemEvent;
-import org.multibit.hd.hardware.core.messages.ProtocolMessageType;
+import org.multibit.hd.hardware.core.events.HardwareWalletEvent;
 import org.multibit.hd.hardware.trezor.AbstractTrezorHardwareWalletClient;
 import org.multibit.hd.hardware.trezor.TrezorMessageUtils;
 import org.slf4j.Logger;
@@ -77,8 +75,8 @@ public class TrezorRelayClient extends AbstractTrezorHardwareWalletClient {
 
     try {
       socket = new Socket(relayServerLocation, relayServerPort);
-      outputToServer = new BufferedOutputStream(socket.getOutputStream(),1024);
-      inputFromServer = new BufferedInputStream(socket.getInputStream(),1024);
+      outputToServer = new BufferedOutputStream(socket.getOutputStream(), 1024);
+      inputFromServer = new BufferedInputStream(socket.getInputStream(), 1024);
 
       log.info("Successful connection to relay server.");
 
@@ -146,30 +144,29 @@ public class TrezorRelayClient extends AbstractTrezorHardwareWalletClient {
     });
   }
 
-  @Override
-  public void onHardwareWalletProtocolEvent(HardwareWalletProtocolEvent event) {
-
-    // Decode into a message type for use with a switch
-    ProtocolMessageType messageType = event.getMessageType();
-
-    // Protocol message
-
-    log.debug("Received event: {}", event.getMessageType().name());
-    log.debug("{}", event.getMessage().toString());
-  }
-
-  @Override
-  public void onHardwareWalletSystemEvent(HardwareWalletSystemEvent event) {
-
-  }
-
   /**
    * Send a message to an output stream
    *
    * @param message the message to serialise and send to the OutputStream
    */
   @Override
-  public Optional<HardwareWalletProtocolEvent> sendMessage(Message message) {
+  public Optional<HardwareWalletEvent> sendMessage(Message message) {
+
+    Preconditions.checkNotNull(message, "Message must be present");
+
+    try {
+      // Apply the message to the data output stream
+      TrezorMessageUtils.writeAsHIDPackets(message, outputToServer);
+
+    } catch (IOException e) {
+      log.warn("I/O error during write. Closing socket.", e);
+    }
+
+    return Optional.absent();
+  }
+
+  @Override
+  public Optional<HardwareWalletEvent> sendMessage(Message message, int duration, TimeUnit timeUnit) {
 
     Preconditions.checkNotNull(message, "Message must be present");
 

@@ -3,9 +3,7 @@ package org.multibit.hd.hardware.core;
 import com.google.bitcoin.core.Address;
 import com.google.bitcoin.core.Transaction;
 import com.google.common.base.Optional;
-import com.google.common.eventbus.Subscribe;
-import org.multibit.hd.hardware.core.events.HardwareWalletProtocolEvent;
-import org.multibit.hd.hardware.core.events.HardwareWalletSystemEvent;
+import org.multibit.hd.hardware.core.events.HardwareWalletEvent;
 
 /**
  * <p>Interface to provide the following to applications:</p>
@@ -42,7 +40,7 @@ public interface HardwareWalletClient {
    *
    * @return The response event if implementation is blocking. Absent if non-blocking or device failure.
    */
-  Optional<HardwareWalletProtocolEvent> initialize();
+  Optional<HardwareWalletEvent> initialize();
 
   /**
    * <p>Send the PING message to the device</p>
@@ -53,7 +51,7 @@ public interface HardwareWalletClient {
    *
    * @return The response event if implementation is blocking. Absent if non-blocking or device failure.
    */
-  Optional<HardwareWalletProtocolEvent> ping();
+  Optional<HardwareWalletEvent> ping();
 
   /**
    * <p>Send the CLEAR_SESSION message to the device.</p>
@@ -65,7 +63,7 @@ public interface HardwareWalletClient {
    *
    * @return The response event if implementation is blocking. Absent if non-blocking or device failure.
    */
-  Optional<HardwareWalletProtocolEvent> clearSession();
+  Optional<HardwareWalletEvent> clearSession();
 
   /**
    * <p>Send the CHANGE_PIN message to the device. This is normally in response to receiving an PinRequest from
@@ -82,7 +80,7 @@ public interface HardwareWalletClient {
    *
    * @return The response event if implementation is blocking. Absent if non-blocking or device failure.
    */
-  Optional<HardwareWalletProtocolEvent> changePin(boolean remove);
+  Optional<HardwareWalletEvent> changePin(boolean remove);
 
   /**
    * <p>Send the WIPE_DEVICE message to the device. The device will respond by cancelling its pending
@@ -95,7 +93,7 @@ public interface HardwareWalletClient {
    *
    * @return The response event if implementation is blocking. Absent if non-blocking or device failure.
    */
-  Optional<HardwareWalletProtocolEvent> wipeDevice();
+  Optional<HardwareWalletEvent> wipeDevice();
 
   /**
    * <p>Send the FIRMWARE_ERASE message to the device.</p>
@@ -106,7 +104,7 @@ public interface HardwareWalletClient {
    *
    * @return The response event if implementation is blocking. Absent if non-blocking or device failure.
    */
-  Optional<HardwareWalletProtocolEvent> firmwareErase();
+  Optional<HardwareWalletEvent> firmwareErase();
 
   /**
    * <p>Send the FIRMWARE_UPLOAD message to the device.</p>
@@ -118,7 +116,7 @@ public interface HardwareWalletClient {
    *
    * @return The response event if implementation is blocking. Absent if non-blocking or device failure.
    */
-  Optional<HardwareWalletProtocolEvent> firmwareUpload();
+  Optional<HardwareWalletEvent> firmwareUpload();
 
   /**
    * <p>Send the ENTROPY message to the device. The device will respond by providing some random
@@ -132,7 +130,7 @@ public interface HardwareWalletClient {
    *
    * @return The response event if implementation is blocking. Absent if non-blocking or device failure.
    */
-  Optional<HardwareWalletProtocolEvent> getEntropy();
+  Optional<HardwareWalletEvent> getEntropy();
 
   /**
    * <p>Send the LOAD_DEVICE message to the device. The device will overwrite any existing private keys and replace
@@ -151,7 +149,7 @@ public interface HardwareWalletClient {
    *
    * @return The response event if implementation is blocking. Absent if non-blocking or device failure.
    */
-  Optional<HardwareWalletProtocolEvent> loadDevice(
+  Optional<HardwareWalletEvent> loadDevice(
     String language,
     String seed,
     String pin,
@@ -175,7 +173,7 @@ public interface HardwareWalletClient {
    *
    * @return The response event if implementation is blocking. Absent if non-blocking or device failure.
    */
-  Optional<HardwareWalletProtocolEvent> resetDevice(
+  Optional<HardwareWalletEvent> resetDevice(
     String language,
     String label,
     boolean displayRandom,
@@ -199,7 +197,7 @@ public interface HardwareWalletClient {
    *
    * @return The response event if implementation is blocking. Absent if non-blocking or device failure.
    */
-  Optional<HardwareWalletProtocolEvent> recoverDevice(
+  Optional<HardwareWalletEvent> recoverDevice(
     String language,
     String label,
     int wordCount,
@@ -220,7 +218,7 @@ public interface HardwareWalletClient {
    *
    * @return The response event if implementation is blocking. Absent if non-blocking or device failure.
    */
-  Optional<HardwareWalletProtocolEvent> wordAck(String word);
+  Optional<HardwareWalletEvent> wordAck(String word);
 
   /**
    * <p>Send the SIGN_TX message to the device. Behind the scenes the device will response with a series of TxRequests
@@ -268,7 +266,7 @@ public interface HardwareWalletClient {
    *
    * @return The response event if implementation is blocking. Absent if non-blocking or device failure.
    */
-  Optional<HardwareWalletProtocolEvent> pinMatrixAck(String pin);
+  Optional<HardwareWalletEvent> pinMatrixAck(String pin);
 
   /**
    * <p>Send the CANCEL message to the device in response to a BUTTON_REQUEST, PIN_MATRIX_REQUEST or PASSPHRASE_REQUEST. </p>
@@ -281,7 +279,7 @@ public interface HardwareWalletClient {
    *
    * @return The response event if implementation is blocking. Absent if non-blocking or device failure.
    */
-  Optional<HardwareWalletProtocolEvent> cancel();
+  Optional<HardwareWalletEvent> cancel();
 
   /**
    * <p>Send the BUTTON_ACK message to the device in response to a BUTTON_REQUEST. The calling software will
@@ -293,7 +291,7 @@ public interface HardwareWalletClient {
    *
    * @return The response event if implementation is blocking. Absent if non-blocking or device failure.
    */
-  Optional<HardwareWalletProtocolEvent> buttonAck();
+  Optional<HardwareWalletEvent> buttonAck();
 
   /**
    * <p>Send the APPLY_SETTINGS message to the device.</p>
@@ -311,7 +309,7 @@ public interface HardwareWalletClient {
    *
    * @return The response event if implementation is blocking. Absent if non-blocking or device failure.
    */
-  Optional<HardwareWalletProtocolEvent> applySettings(String language, String label);
+  Optional<HardwareWalletEvent> applySettings(String language, String label);
 
   /**
    * <p>Send the GET_ADDRESS message to the device. The device will respond by providing an address calculated
@@ -330,7 +328,7 @@ public interface HardwareWalletClient {
    *
    * @return The response event if implementation is blocking. Absent if non-blocking or device failure.
    */
-  Optional<HardwareWalletProtocolEvent> getAddress(int index, int value, boolean showDisplay);
+  Optional<HardwareWalletEvent> getAddress(int index, int value, boolean showDisplay);
 
   /**
    * <p>Send the GET_PUBLIC_KEY message to the device. The device will respond by providing a public key calculated
@@ -348,7 +346,7 @@ public interface HardwareWalletClient {
    *
    * @return The response event if implementation is blocking. Absent if non-blocking or device failure.
    */
-  Optional<HardwareWalletProtocolEvent> getPublicKey(int index, int value, Optional<String> coinName);
+  Optional<HardwareWalletEvent> getPublicKey(int index, int value, Optional<String> coinName);
 
   /**
    * <p>Send the ENTROPY_ACK message to the device in response to an ENTROPY_REQUEST. This allows the device to obtain
@@ -363,7 +361,7 @@ public interface HardwareWalletClient {
    *
    * @return The response event if implementation is blocking. Absent if non-blocking or device failure.
    */
-  Optional<HardwareWalletProtocolEvent> entropyAck(byte[] entropy);
+  Optional<HardwareWalletEvent> entropyAck(byte[] entropy);
 
   /**
    * <p>Send the SIGN_MESSAGE message to the device containing a message to sign.</p>
@@ -375,7 +373,7 @@ public interface HardwareWalletClient {
    *
    * @return The response event if implementation is blocking. Absent if non-blocking or device failure.
    */
-  Optional<HardwareWalletProtocolEvent> signMessage(int index, int value, byte[] message);
+  Optional<HardwareWalletEvent> signMessage(int index, int value, byte[] message);
 
   /**
    * <p>Send the VERIFY_MESSAGE message to the device containing a signed message to verify.</p>
@@ -391,7 +389,7 @@ public interface HardwareWalletClient {
    *
    * @return The response event if implementation is blocking. Absent if non-blocking or device failure.
    */
-  Optional<HardwareWalletProtocolEvent> verifyMessage(Address address, byte[] signature, byte[] message);
+  Optional<HardwareWalletEvent> verifyMessage(Address address, byte[] signature, byte[] message);
 
   /**
    * <p>Send the ENCRYPT_MESSAGE message to the device containing a message to encrypt.</p>
@@ -407,7 +405,7 @@ public interface HardwareWalletClient {
    *
    * @return The response event if implementation is blocking. Absent if non-blocking or device failure.
    */
-  Optional<HardwareWalletProtocolEvent> encryptMessage(byte[] pubKey, byte[] message, boolean displayOnly);
+  Optional<HardwareWalletEvent> encryptMessage(byte[] pubKey, byte[] message, boolean displayOnly);
 
   /**
    * <p>Send the DECRYPT_MESSAGE message to the device containing a message to decrypt.</p>
@@ -423,7 +421,7 @@ public interface HardwareWalletClient {
    *
    * @return The response event if implementation is blocking. Absent if non-blocking or device failure.
    */
-  Optional<HardwareWalletProtocolEvent> decryptMessage(int index, int value, byte[] message);
+  Optional<HardwareWalletEvent> decryptMessage(int index, int value, byte[] message);
 
   /**
    * <p>Send the CIPHER_KEY_VALUE_MESSAGE message to the device containing a key. The device will encrypt or decrypt the value
@@ -444,7 +442,7 @@ public interface HardwareWalletClient {
    *
    * @return The response event if implementation is blocking. Absent if non-blocking or device failure.
    */
-  Optional<HardwareWalletProtocolEvent> cipherKeyValue(int index, int value, byte[] key, byte[] keyValue, boolean encrypt, boolean askOnDecrypt, boolean askOnEncrypt);
+  Optional<HardwareWalletEvent> cipherKeyValue(int index, int value, byte[] key, byte[] keyValue, boolean encrypt, boolean askOnDecrypt, boolean askOnEncrypt);
 
   /**
    * <p>Send the PASSPHRASE_ACK message to the device in response to a PASSPHRASE_REQUEST.</p>
@@ -459,7 +457,7 @@ public interface HardwareWalletClient {
    *
    * @return The response event if implementation is blocking. Absent if non-blocking or device failure.
    */
-  Optional<HardwareWalletProtocolEvent> passphraseAck(String passphrase);
+  Optional<HardwareWalletEvent> passphraseAck(String passphrase);
 
   /**
    * <p>Send the ESTIMATE_TX_SIZE message to the device to estimate the size of the transaction. This behaves
@@ -474,18 +472,6 @@ public interface HardwareWalletClient {
    *
    * @return The response event if implementation is blocking. Absent if non-blocking or device failure.
    */
-  Optional<HardwareWalletProtocolEvent> estimateTxSize(Transaction tx);
-
-  /**
-   * @param event The hardware wallet protocol event
-   */
-  @Subscribe
-  void onHardwareWalletProtocolEvent(HardwareWalletProtocolEvent event);
-
-  /**
-   * @param event The hardware wallet system event
-   */
-  @Subscribe
-  void onHardwareWalletSystemEvent(HardwareWalletSystemEvent event);
+  Optional<HardwareWalletEvent> estimateTxSize(Transaction tx);
 
 }
