@@ -5,7 +5,7 @@ import com.google.common.base.Preconditions;
 import com.google.protobuf.Message;
 import org.multibit.hd.hardware.core.HardwareWalletException;
 import org.multibit.hd.hardware.core.concurrent.SafeExecutors;
-import org.multibit.hd.hardware.core.events.HardwareWalletEvent;
+import org.multibit.hd.hardware.core.events.MessageEvent;
 import org.multibit.hd.hardware.trezor.utils.TrezorMessageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -155,7 +155,7 @@ public class TrezorRelayClient extends AbstractTrezorHardwareWalletClient {
    * @param message the message to serialise and send to the OutputStream
    */
   @Override
-  public Optional<HardwareWalletEvent> sendMessage(Message message) {
+  public Optional<MessageEvent> sendMessage(Message message) {
 
     Preconditions.checkNotNull(message, "Message must be present");
 
@@ -171,7 +171,7 @@ public class TrezorRelayClient extends AbstractTrezorHardwareWalletClient {
   }
 
   @Override
-  public Optional<HardwareWalletEvent> sendMessage(Message message, int duration, TimeUnit timeUnit) {
+  public Optional<MessageEvent> sendMessage(Message message, int duration, TimeUnit timeUnit) {
 
     Preconditions.checkNotNull(message, "Message must be present");
 

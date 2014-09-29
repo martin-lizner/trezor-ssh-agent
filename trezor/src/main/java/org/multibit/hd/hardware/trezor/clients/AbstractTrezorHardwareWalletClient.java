@@ -8,7 +8,7 @@ import com.google.protobuf.Message;
 import com.satoshilabs.trezor.protobuf.TrezorMessage;
 import com.satoshilabs.trezor.protobuf.TrezorType;
 import org.multibit.hd.hardware.core.HardwareWalletClient;
-import org.multibit.hd.hardware.core.events.HardwareWalletEvent;
+import org.multibit.hd.hardware.core.events.MessageEvent;
 
 import java.util.concurrent.TimeUnit;
 
@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
 public abstract class AbstractTrezorHardwareWalletClient implements HardwareWalletClient {
 
   @Override
-  public Optional<HardwareWalletEvent> initialize() {
+  public Optional<MessageEvent> initialize() {
     return sendMessage(
       TrezorMessage.Initialize
         .newBuilder()
@@ -33,7 +33,7 @@ public abstract class AbstractTrezorHardwareWalletClient implements HardwareWall
   }
 
   @Override
-  public Optional<HardwareWalletEvent> ping() {
+  public Optional<MessageEvent> ping() {
     return sendMessage(
       TrezorMessage.Ping
         .newBuilder()
@@ -42,7 +42,7 @@ public abstract class AbstractTrezorHardwareWalletClient implements HardwareWall
   }
 
   @Override
-  public Optional<HardwareWalletEvent> clearSession() {
+  public Optional<MessageEvent> clearSession() {
     return sendMessage(
       TrezorMessage.ClearSession
         .newBuilder()
@@ -51,7 +51,7 @@ public abstract class AbstractTrezorHardwareWalletClient implements HardwareWall
   }
 
   @Override
-  public Optional<HardwareWalletEvent> changePin(boolean remove) {
+  public Optional<MessageEvent> changePin(boolean remove) {
 
     return sendMessage(
       TrezorMessage.ChangePin
@@ -62,7 +62,7 @@ public abstract class AbstractTrezorHardwareWalletClient implements HardwareWall
   }
 
   @Override
-  public Optional<HardwareWalletEvent> wipeDevice() {
+  public Optional<MessageEvent> wipeDevice() {
     return sendMessage(
       TrezorMessage.WipeDevice
         .newBuilder()
@@ -71,17 +71,17 @@ public abstract class AbstractTrezorHardwareWalletClient implements HardwareWall
   }
 
   @Override
-  public Optional<HardwareWalletEvent> firmwareErase() {
+  public Optional<MessageEvent> firmwareErase() {
     throw new UnsupportedOperationException("Use the mytrezor.com website for firmware upgrades.");
   }
 
   @Override
-  public Optional<HardwareWalletEvent> firmwareUpload() {
+  public Optional<MessageEvent> firmwareUpload() {
     throw new UnsupportedOperationException("Use the mytrezor.com website for firmware upgrades.");
   }
 
   @Override
-  public Optional<HardwareWalletEvent> getEntropy() {
+  public Optional<MessageEvent> getEntropy() {
     return sendMessage(
       TrezorMessage.GetEntropy
         .newBuilder()
@@ -90,7 +90,7 @@ public abstract class AbstractTrezorHardwareWalletClient implements HardwareWall
   }
 
   @Override
-  public Optional<HardwareWalletEvent> getPublicKey(int index, int value, Optional<String> coinName) {
+  public Optional<MessageEvent> getPublicKey(int index, int value, Optional<String> coinName) {
 
     // The master public key normally takes up to 10 seconds to complete
     return sendMessage(
@@ -102,7 +102,7 @@ public abstract class AbstractTrezorHardwareWalletClient implements HardwareWall
   }
 
   @Override
-  public Optional<HardwareWalletEvent> loadDevice(
+  public Optional<MessageEvent> loadDevice(
     String language,
     String seed,
     String pin,
@@ -132,7 +132,7 @@ public abstract class AbstractTrezorHardwareWalletClient implements HardwareWall
   }
 
   @Override
-  public Optional<HardwareWalletEvent> resetDevice(
+  public Optional<MessageEvent> resetDevice(
     String language,
     String label,
     boolean displayRandom,
@@ -156,7 +156,7 @@ public abstract class AbstractTrezorHardwareWalletClient implements HardwareWall
   }
 
   @Override
-  public Optional<HardwareWalletEvent> recoverDevice(String language, String label, int wordCount, boolean passphraseProtection, boolean pinProtection) {
+  public Optional<MessageEvent> recoverDevice(String language, String label, int wordCount, boolean passphraseProtection, boolean pinProtection) {
     return sendMessage(
       TrezorMessage.RecoveryDevice
         .newBuilder()
@@ -170,7 +170,7 @@ public abstract class AbstractTrezorHardwareWalletClient implements HardwareWall
   }
 
   @Override
-  public Optional<HardwareWalletEvent> wordAck(String word) {
+  public Optional<MessageEvent> wordAck(String word) {
     return sendMessage(
       TrezorMessage.WordAck
         .newBuilder()
@@ -194,7 +194,7 @@ public abstract class AbstractTrezorHardwareWalletClient implements HardwareWall
   }
 
   @Override
-  public Optional<HardwareWalletEvent> pinMatrixAck(String pin) {
+  public Optional<MessageEvent> pinMatrixAck(String pin) {
     return sendMessage(
       TrezorMessage.PinMatrixAck
         .newBuilder()
@@ -204,7 +204,7 @@ public abstract class AbstractTrezorHardwareWalletClient implements HardwareWall
   }
 
   @Override
-  public Optional<HardwareWalletEvent> buttonAck() {
+  public Optional<MessageEvent> buttonAck() {
     return sendMessage(
       TrezorMessage.ButtonAck
         .newBuilder()
@@ -214,7 +214,7 @@ public abstract class AbstractTrezorHardwareWalletClient implements HardwareWall
     );
   }
 
-  public Optional<HardwareWalletEvent> cancel() {
+  public Optional<MessageEvent> cancel() {
     return sendMessage(
       TrezorMessage.Cancel
         .newBuilder()
@@ -223,7 +223,7 @@ public abstract class AbstractTrezorHardwareWalletClient implements HardwareWall
   }
 
   @Override
-  public Optional<HardwareWalletEvent> getAddress(int index, int value, boolean showDisplay) {
+  public Optional<MessageEvent> getAddress(int index, int value, boolean showDisplay) {
     return sendMessage(
       TrezorMessage.GetAddress
         .newBuilder()
@@ -235,7 +235,7 @@ public abstract class AbstractTrezorHardwareWalletClient implements HardwareWall
   }
 
   @Override
-  public Optional<HardwareWalletEvent> applySettings(String language, String label) {
+  public Optional<MessageEvent> applySettings(String language, String label) {
 
     return sendMessage(
       TrezorMessage.ApplySettings
@@ -247,7 +247,7 @@ public abstract class AbstractTrezorHardwareWalletClient implements HardwareWall
   }
 
   @Override
-  public Optional<HardwareWalletEvent> entropyAck(byte[] entropy) {
+  public Optional<MessageEvent> entropyAck(byte[] entropy) {
     return sendMessage(
       TrezorMessage.EntropyAck
         .newBuilder()
@@ -257,7 +257,7 @@ public abstract class AbstractTrezorHardwareWalletClient implements HardwareWall
   }
 
   @Override
-  public Optional<HardwareWalletEvent> signMessage(int index, int value, byte[] message) {
+  public Optional<MessageEvent> signMessage(int index, int value, byte[] message) {
     return sendMessage(
       TrezorMessage.SignMessage
         .newBuilder()
@@ -269,7 +269,7 @@ public abstract class AbstractTrezorHardwareWalletClient implements HardwareWall
   }
 
   @Override
-  public Optional<HardwareWalletEvent> verifyMessage(Address address, byte[] signature, byte[] message) {
+  public Optional<MessageEvent> verifyMessage(Address address, byte[] signature, byte[] message) {
     return sendMessage(
       TrezorMessage.VerifyMessage
         .newBuilder()
@@ -281,7 +281,7 @@ public abstract class AbstractTrezorHardwareWalletClient implements HardwareWall
   }
 
   @Override
-  public Optional<HardwareWalletEvent> encryptMessage(byte[] pubKey, byte[] message, boolean displayOnly) {
+  public Optional<MessageEvent> encryptMessage(byte[] pubKey, byte[] message, boolean displayOnly) {
     return sendMessage(
       TrezorMessage.EncryptMessage
         .newBuilder()
@@ -293,7 +293,7 @@ public abstract class AbstractTrezorHardwareWalletClient implements HardwareWall
   }
 
   @Override
-  public Optional<HardwareWalletEvent> decryptMessage(int index, int value, byte[] message) {
+  public Optional<MessageEvent> decryptMessage(int index, int value, byte[] message) {
     return sendMessage(
       TrezorMessage.DecryptMessage
         .newBuilder()
@@ -304,7 +304,7 @@ public abstract class AbstractTrezorHardwareWalletClient implements HardwareWall
   }
 
   @Override
-  public Optional<HardwareWalletEvent> cipherKeyValue(int index, int value, byte[] key, byte[] keyValue, boolean encrypt, boolean askOnDecrypt, boolean askOnEncrypt) {
+  public Optional<MessageEvent> cipherKeyValue(int index, int value, byte[] key, byte[] keyValue, boolean encrypt, boolean askOnDecrypt, boolean askOnEncrypt) {
     return sendMessage(
       TrezorMessage.CipherKeyValue
         .newBuilder()
@@ -319,7 +319,7 @@ public abstract class AbstractTrezorHardwareWalletClient implements HardwareWall
   }
 
   @Override
-  public Optional<HardwareWalletEvent> passphraseAck(String passphrase) {
+  public Optional<MessageEvent> passphraseAck(String passphrase) {
     return sendMessage(
       TrezorMessage.PassphraseAck
         .newBuilder()
@@ -329,7 +329,7 @@ public abstract class AbstractTrezorHardwareWalletClient implements HardwareWall
   }
 
   @Override
-  public Optional<HardwareWalletEvent> estimateTxSize(Transaction tx) {
+  public Optional<MessageEvent> estimateTxSize(Transaction tx) {
 
     int inputsCount = tx.getInputs().size();
     int outputsCount = tx.getOutputs().size();
@@ -350,9 +350,9 @@ public abstract class AbstractTrezorHardwareWalletClient implements HardwareWall
    *
    * @param messsage The message to send to the hardware wallet
    *
-   * @return An optional hardware wallet event, present only in blocking implementations
+   * @return An optional low level message event, present only in blocking implementations
    */
-  protected abstract Optional<HardwareWalletEvent> sendMessage(Message messsage);
+  protected abstract Optional<MessageEvent> sendMessage(Message messsage);
 
   /**
    * <p>Send a message to the device with an arbitrary response duration.</p>
@@ -360,8 +360,8 @@ public abstract class AbstractTrezorHardwareWalletClient implements HardwareWall
    *
    * @param messsage The message to send to the hardware wallet
    *
-   * @return An optional hardware wallet event, present only in blocking implementations
+   * @return An optional low level message event, present only in blocking implementations
    */
-  protected abstract Optional<HardwareWalletEvent> sendMessage(Message messsage, int duration, TimeUnit timeUnit);
+  protected abstract Optional<MessageEvent> sendMessage(Message messsage, int duration, TimeUnit timeUnit);
 
 }

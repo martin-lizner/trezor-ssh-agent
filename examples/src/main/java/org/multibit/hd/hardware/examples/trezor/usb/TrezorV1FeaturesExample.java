@@ -72,7 +72,6 @@ public class TrezorV1FeaturesExample {
 
     hardwareWalletService.start();
 
-
   }
 
   /**
@@ -93,6 +92,8 @@ public class TrezorV1FeaturesExample {
       // Can simply wait for another device to be connected again
       return;
     }
+
+    // Must have connected to be here
 
     // Get some information about the device
     Features features = hardwareWalletService.getFeatures();

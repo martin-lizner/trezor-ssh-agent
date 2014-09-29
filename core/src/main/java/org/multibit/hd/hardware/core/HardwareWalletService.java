@@ -65,9 +65,13 @@ public class HardwareWalletService {
       public void run() {
 
         if (!client.verifyEnvironment()) {
-
+          return;
         }
 
+        // Must have a working environment to be here so attempt connection
+        client.connect();
+
+        client.initialize();
 
       }
     });
@@ -116,7 +120,4 @@ public class HardwareWalletService {
     return features;
   }
 
-  public void setFeatures(Features features) {
-    this.features = features;
-  }
 }
