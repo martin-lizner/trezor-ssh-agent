@@ -64,7 +64,7 @@ public class HardwareWalletService {
       @Override
       public void run() {
 
-        if (!client.connect()) {
+        if (!client.verifyEnvironment()) {
 
         }
 

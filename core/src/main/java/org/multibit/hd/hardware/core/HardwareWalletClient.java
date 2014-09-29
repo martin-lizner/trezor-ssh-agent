@@ -15,19 +15,7 @@ import org.multibit.hd.hardware.core.events.HardwareWalletEvent;
  * <p>Blocking implementations will block their thread of execution until a response is received.</p>
  * <p>Hardware wallet clients are tightly coupled to their respective wallet so are typically referenced statically in consuming applications.</p>
  */
-public interface HardwareWalletClient {
-
-  /**
-   * <p>Open a connection to the hardware wallet device. No initialization takes place.</p>
-   *
-   * @return True if the client connected to the device
-   */
-  boolean connect();
-
-  /**
-   * <p>Close the connection to the hardware wallet device. This client instance can no longer be used.</p>
-   */
-  void disconnect();
+public interface HardwareWalletClient extends Connectable {
 
   /**
    * <p>Reset device to default state and ask for device details</p>

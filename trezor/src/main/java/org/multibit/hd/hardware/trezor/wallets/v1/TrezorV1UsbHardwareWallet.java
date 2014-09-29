@@ -95,7 +95,7 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet impl
     this.productId = productId.isPresent() ? productId : Optional.of(TREZOR_V1_PRODUCT_ID);
     this.serialNumber = serialNumber;
 
-    initialise();
+    verifyEnvironment();
 
   }
 
@@ -112,7 +112,7 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet impl
   }
 
   @Override
-  public boolean initialise() {
+  public boolean verifyEnvironment() {
 
     final UsbServices services;
     try {
@@ -311,7 +311,7 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet impl
     log.info("Disconnected from Trezor");
 
     // Let the service know
-    MessageEvents.fireMessageEvent(HardwareWalletMessageType.DEVICE_DISCONNECTED, null);
+    MessageEvents.fireMessageEvent(HardwareWalletMessageType.DEVICE_DISCONNECTED);
 
   }
 

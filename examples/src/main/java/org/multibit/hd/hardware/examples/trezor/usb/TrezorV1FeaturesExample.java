@@ -2,9 +2,12 @@ package org.multibit.hd.hardware.examples.trezor.usb;
 
 import com.google.bitcoin.core.AddressFormatException;
 import com.google.common.base.Optional;
+import com.google.common.eventbus.Subscribe;
+import org.multibit.hd.hardware.core.HardwareWalletClient;
 import org.multibit.hd.hardware.core.HardwareWalletService;
+import org.multibit.hd.hardware.core.api.Features;
+import org.multibit.hd.hardware.core.events.HardwareWalletEvent;
 import org.multibit.hd.hardware.core.wallets.HardwareWallets;
-import org.multibit.hd.hardware.trezor.clients.AbstractTrezorHardwareWalletClient;
 import org.multibit.hd.hardware.trezor.clients.TrezorHardwareWalletClient;
 import org.multibit.hd.hardware.trezor.wallets.v1.TrezorV1UsbHardwareWallet;
 import org.slf4j.Logger;
@@ -23,6 +26,8 @@ import java.io.IOException;
 public class TrezorV1FeaturesExample {
 
   private static final Logger log = LoggerFactory.getLogger(TrezorV1FeaturesExample.class);
+
+  private HardwareWalletService hardwareWalletService;
 
   /**
    * <p>Main entry point to the example</p>
@@ -48,7 +53,7 @@ public class TrezorV1FeaturesExample {
    */
   public void executeExample() throws IOException, InterruptedException, AddressFormatException {
 
-    // Use factory to statically bind the device
+    // Use factory to statically bind the specific hardware wallet
     TrezorV1UsbHardwareWallet wallet = HardwareWallets.newUsbInstance(
       TrezorV1UsbHardwareWallet.class,
       Optional.<Short>absent(),
@@ -56,37 +61,42 @@ public class TrezorV1FeaturesExample {
       Optional.<String>absent()
     );
 
-    // Create a Trezor hardware wallet client
-    AbstractTrezorHardwareWalletClient client = new TrezorHardwareWalletClient(wallet);
+    // Wrap the hardware wallet in a suitable client to simplify message API
+    HardwareWalletClient client = new TrezorHardwareWalletClient(wallet);
 
-    log.info("Attempting to connect to a production V1 Trezor over USB");
+    // Wrap the client in a service for high level API suitable for downstream applications
+    hardwareWalletService = new HardwareWalletService(client);
 
-    // Block until a client connects or fails
-    if (client.connect()) {
+    // Register for the high level hardware wallet events
+    HardwareWalletService.hardwareWalletEventBus.register(this);
 
-      log.info("Attempting basic Trezor protobuf communication");
+    hardwareWalletService.start();
 
-      // Initialize
-      client.initialize();
 
-      // Send a ping
-      client.ping();
+  }
 
-    } else {
+  /**
+   * <p>Downstream consumer applications should respond to hardware wallet events</p>
+   *
+   * @param event The hardware wallet event indicating a state change
+   */
+  @Subscribe
+  public void onHardwareWalletEvent(HardwareWalletEvent event) {
 
-      log.info("Device has failed. Aborting.");
-
+    if (event.isFailed()) {
+      // Treat as end of example
+      System.exit(0);
+      return;
     }
 
-    log.info("Closing connections");
+    if (event.isDisconnected()) {
+      // Can simply wait for another device to be connected again
+      return;
+    }
 
-    // Close the connection
-    client.disconnect();
-
-    log.info("Exiting");
-
-    // Shutdown
-    System.exit(0);
+    // Get some information about the device
+    Features features = hardwareWalletService.getFeatures();
+    log.info("Features: {}", features);
 
   }
 }

@@ -70,6 +70,12 @@ public class TrezorRelayClient extends AbstractTrezorHardwareWalletClient {
   }
 
   @Override
+  public boolean verifyEnvironment() {
+    // The socket library will always work
+    return true;
+  }
+
+  @Override
   public boolean connect() {
 
     try {

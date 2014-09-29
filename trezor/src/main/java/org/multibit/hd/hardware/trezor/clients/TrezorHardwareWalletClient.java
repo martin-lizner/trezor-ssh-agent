@@ -7,7 +7,7 @@ import com.google.protobuf.Message;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvent;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
 import org.multibit.hd.hardware.core.events.HardwareWalletMessageType;
-import org.multibit.hd.hardware.core.wallets.HardwareWallet;
+import org.multibit.hd.hardware.trezor.wallets.AbstractTrezorHardwareWallet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +31,7 @@ public class TrezorHardwareWalletClient extends AbstractTrezorHardwareWalletClie
 
   private static final Logger log = LoggerFactory.getLogger(TrezorHardwareWalletClient.class);
 
-  private final HardwareWallet trezor;
+  private final AbstractTrezorHardwareWallet trezor;
   private boolean isTrezorValid = false;
 
   private ExecutorService trezorEventExecutorService = Executors.newSingleThreadExecutor();
@@ -45,8 +45,16 @@ public class TrezorHardwareWalletClient extends AbstractTrezorHardwareWalletClie
   /**
    * @param trezor The Trezor device
    */
-  public TrezorHardwareWalletClient(HardwareWallet trezor) {
+  public TrezorHardwareWalletClient(AbstractTrezorHardwareWallet trezor) {
     this.trezor = trezor;
+  }
+
+  @Override
+  public boolean verifyEnvironment() {
+    log.debug("Verifying environment...");
+    isTrezorValid = trezor.verifyEnvironment();
+
+    return isTrezorValid;
   }
 
   @Override
@@ -54,6 +62,7 @@ public class TrezorHardwareWalletClient extends AbstractTrezorHardwareWalletClie
 
     log.debug("Attempting to connect...");
     isTrezorValid = trezor.connect();
+
     return isTrezorValid;
 
   }

@@ -80,7 +80,7 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
     this.productId = productId;
     this.serialNumber = serialNumber;
 
-    initialise();
+    verifyEnvironment();
 
   }
 
@@ -96,7 +96,7 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
   }
 
   @Override
-  public boolean initialise() {
+  public boolean verifyEnvironment() {
 
     try {
       deviceOptional = locateDevice();

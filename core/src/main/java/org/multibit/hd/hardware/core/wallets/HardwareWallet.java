@@ -1,6 +1,7 @@
 package org.multibit.hd.hardware.core.wallets;
 
 import com.google.protobuf.Message;
+import org.multibit.hd.hardware.core.Connectable;
 import org.multibit.hd.hardware.core.HardwareWalletSpecification;
 
 /**
@@ -15,7 +16,7 @@ import org.multibit.hd.hardware.core.HardwareWalletSpecification;
  * @since 0.0.1
  *  
  */
-public interface HardwareWallet {
+public interface HardwareWallet extends Connectable {
 
   /**
    * @return The hardware wallet specification in use
@@ -34,34 +35,6 @@ public interface HardwareWallet {
    * @param specification The {@link HardwareWalletSpecification}
    */
   void applySpecification(HardwareWalletSpecification specification);
-
-  /**
-   * <p>Perform any pre-connection initialisation</p>
-   *
-   * <p>Typically this would involve initialising native libraries and verifying their communications</p>
-   *
-   * @return True if the native libraries initialised successfully
-   */
-  boolean initialise();
-
-  /**
-   * <p>Attempt a connection to the device</p>
-   *
-   * <p>Implementers must ensure the following behaviour:</p>
-   * <ul>
-   * <li>The device is assumed to be connected and discoverable</li>
-   * <li>Method will return false if the no matching device is found</li>
-   * <li>A DEVICE_FAILED event will be generated if subsequent USB HID communication fails (i.e. device is broken)</li>
-   * </ul>
-   *
-   * @return True if the connection was successful, false if a failure is permanent (environment failure)
-   */
-  boolean connect();
-
-  /**
-   * <p>Break the connection to the device</p>
-   */
-  void disconnect();
 
   /**
    * <p>Read a protobuf message from the hardware wallet</p>

@@ -55,7 +55,7 @@ public class TrezorShieldSocketHardwareWallet extends AbstractTrezorHardwareWall
     this.host = host;
     this.port = port;
 
-    initialise();
+    verifyEnvironment();
 
   }
 
@@ -70,7 +70,7 @@ public class TrezorShieldSocketHardwareWallet extends AbstractTrezorHardwareWall
   }
 
   @Override
-  public boolean initialise() {
+  public boolean verifyEnvironment() {
 
     // Socket library will work
     return true;
