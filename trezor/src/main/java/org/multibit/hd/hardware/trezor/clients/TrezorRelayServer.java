@@ -86,7 +86,7 @@ public class TrezorRelayServer {
     this.hardwareWallet = hardwareWallet;
     this.portNumber = portNumber;
 
-    HardwareWalletService.hardwareEventBus.register(this);
+    HardwareWalletService.hardwareWalletEventBus.register(this);
 
     serverExecutorService.submit(new Runnable() {
       @Override

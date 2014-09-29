@@ -107,7 +107,7 @@ public class RelayToTrezorV1FeaturesExample {
       client = new TrezorRelayClient(serverLocation, TrezorRelayServer.DEFAULT_PORT_NUMBER);
 
       // Register to the hardware event bus
-      HardwareWalletService.hardwareEventBus.register(new RelayToTrezorV1FeaturesExample());
+      HardwareWalletService.hardwareWalletEventBus.register(new RelayToTrezorV1FeaturesExample());
 
       executeClientExample();
     }

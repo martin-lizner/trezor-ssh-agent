@@ -137,7 +137,7 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
       return attachDevice(device);
     } catch (IOException e) {
       log.error("Failed to attach device due to problem reading UART data stream", e);
-      HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletMessageType.DEVICE_FAILURE);
+      HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletMessageType.DEVICE_FAILED);
     }
 
     // Must have failed to be here

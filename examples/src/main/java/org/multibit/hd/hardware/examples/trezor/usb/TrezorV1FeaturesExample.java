@@ -37,7 +37,7 @@ public class TrezorV1FeaturesExample {
     TrezorV1FeaturesExample example = new TrezorV1FeaturesExample();
 
     // Subscribe to hardware wallet events
-    HardwareWalletService.hardwareEventBus.register(example);
+    HardwareWalletService.hardwareWalletEventBus.register(example);
 
     example.executeExample();
 

@@ -17,7 +17,7 @@ public enum HardwareWalletMessageType {
   /**
    * Device encountered an error not associated with I/O (e.g. thread interrupt due to timeout)
    */
-  DEVICE_FAILURE,
+  DEVICE_FAILED,
 
   /**
    * Received EOF from device (no data in receive buffer after timeout when some is expected)

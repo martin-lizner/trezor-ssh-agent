@@ -2,6 +2,7 @@ package org.multibit.hd.hardware.emulators.swing;
 
 import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
 import org.multibit.hd.hardware.core.events.HardwareWalletMessageType;
+import org.multibit.hd.hardware.core.events.MessageEvents;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -34,7 +35,7 @@ public class MessageButtons {
       @Override
       public void actionPerformed(ActionEvent e) {
 
-        HardwareWalletEvents.fireHardwareWalletEvent(type, null);
+        MessageEvents.fireMessageEvent(type, null);
 
       }
     };

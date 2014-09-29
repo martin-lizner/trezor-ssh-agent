@@ -52,7 +52,7 @@ public class SocketSigningExample {
     SocketSigningExample example = new SocketSigningExample();
 
     // Subscribe to hardware wallet events
-    HardwareWalletService.hardwareEventBus.register(example);
+    HardwareWalletService.hardwareWalletEventBus.register(example);
 
     example.executeExample(args[0], Integer.parseInt(args[1]));
 

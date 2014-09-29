@@ -97,7 +97,7 @@ public class TrezorShieldSocketHardwareWallet extends AbstractTrezorHardwareWall
       return true;
 
     } catch (IOException e) {
-      HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletMessageType.DEVICE_FAILURE);
+      HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletMessageType.DEVICE_FAILED);
     }
 
     // Must have failed to be here
@@ -118,7 +118,7 @@ public class TrezorShieldSocketHardwareWallet extends AbstractTrezorHardwareWall
       HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletMessageType.DEVICE_DISCONNECTED);
 
     } catch (IOException e) {
-      HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletMessageType.DEVICE_FAILURE);
+      HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletMessageType.DEVICE_FAILED);
     }
   }
 

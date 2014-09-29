@@ -41,7 +41,7 @@ public class SocketMonitoringExample {
     SocketMonitoringExample example = new SocketMonitoringExample();
 
     // Subscribe to hardware wallet events
-    HardwareWalletService.hardwareEventBus.register(example);
+    HardwareWalletService.hardwareWalletEventBus.register(example);
 
     example.executeExample(args[0], Integer.parseInt(args[1]));
 

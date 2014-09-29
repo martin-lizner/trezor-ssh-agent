@@ -85,7 +85,7 @@ public class TrezorHardwareWalletClient extends AbstractTrezorHardwareWalletClie
     try {
       return Optional.fromNullable(hardwareWalletEvents.poll(duration, timeUnit));
     } catch (InterruptedException e) {
-      HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletMessageType.DEVICE_FAILURE);
+      HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletMessageType.DEVICE_FAILED);
       return Optional.absent();
     }
 

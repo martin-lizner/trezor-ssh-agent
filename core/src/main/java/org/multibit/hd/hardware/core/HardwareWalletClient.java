@@ -134,7 +134,7 @@ public interface HardwareWalletClient {
 
   /**
    * <p>Send the LOAD_DEVICE message to the device. The device will overwrite any existing private keys and replace
-   * them with based on the seed value provided.</p>
+   * them based on the seed value provided.</p>
    * <p>Expected response events are:</p>
    * <ul>
    * <li>SUCCESS if the operation succeeded (may take up to 10 seconds)</li>
@@ -160,7 +160,7 @@ public interface HardwareWalletClient {
    * and asking the user for new settings (PIN etc). This is typically needed when a device is first un-boxed.</p>
    * <p>Expected response events are:</p>
    * <ul>
-   * <li>ENTROPY_REQUEST if the user should supply additional entropy</li>
+   * <li>ENTROPY_REQUEST if the user should supply additional entropy (recommended)</li>
    * <li>FAILURE if the operation was unsuccessful</li>
    * </ul>
    *

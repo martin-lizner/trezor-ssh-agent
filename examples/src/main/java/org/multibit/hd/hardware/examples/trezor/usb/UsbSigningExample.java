@@ -51,7 +51,7 @@ public class UsbSigningExample {
     UsbSigningExample example = new UsbSigningExample();
 
     // Subscribe to hardware wallet events
-    HardwareWalletService.hardwareEventBus.register(example);
+    HardwareWalletService.hardwareWalletEventBus.register(example);
 
     example.executeExample();
 

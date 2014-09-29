@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 /**
  * <p>Factory to provide the following to application API:</p>
  * <ul>
- * <li>Entry point to broadcast hardware wallet events</li>
+ * <li>Entry point to broadcast high level hardware wallet events to downstream consumers</li>
  * </ul>
  *
  * @since 0.0.1
@@ -38,7 +38,7 @@ public class HardwareWalletEvents {
     Preconditions.checkNotNull(message, "'message' must be present");
 
     log.debug("Firing 'hardware wallet' event: {}", messageType.name());
-    HardwareWalletService.hardwareEventBus.post(new HardwareWalletEvent(
+    HardwareWalletService.hardwareWalletEventBus.post(new HardwareWalletEvent(
       messageType,
       Optional.of(message)
     ));
@@ -55,7 +55,7 @@ public class HardwareWalletEvents {
     Preconditions.checkNotNull(messageType, "'messageType' must be present");
 
     log.debug("Firing 'hardware wallet' event: {}", messageType.name());
-    HardwareWalletService.hardwareEventBus.post(new HardwareWalletEvent(
+    HardwareWalletService.hardwareWalletEventBus.post(new HardwareWalletEvent(
       messageType,
       Optional.<Message>absent()
     ));

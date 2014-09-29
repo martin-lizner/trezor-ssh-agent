@@ -46,11 +46,12 @@ public interface HardwareWallet {
    * <p>Implementers must ensure the following behaviour:</p>
    * <ul>
    * <li>The device is assumed to be connected and discoverable</li>
-   * <li>Method will return false if USB HID librar</li>
-   * <li>A HardwareWalletSystemEvent.FAILURE event will be generated if the USB HID communication fails</li>
+   * <li>Method will return false if the environment fails (e.g. faulty USB HID library)</li>
+   * <li>A DEVICE_DISCONNECTED event will be generated if no matching device is found</li>
+   * <li>A DEVICE_FAILED event will be generated if subsequent USB HID communication fails (i.e. device is broken)</li>
    * </ul>
    *
-   * @return True if the connection was successful
+   * @return True if the connection was successful, false if a failure is permanent (environment failure)
    */
   boolean connect();
 
