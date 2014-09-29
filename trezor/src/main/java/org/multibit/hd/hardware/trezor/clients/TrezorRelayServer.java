@@ -69,8 +69,11 @@ public class TrezorRelayServer {
    */
   public TrezorRelayServer() {
     // Create a Trezor V1 usb client
-    TrezorV1UsbHardwareWallet hardwareWallet = new TrezorV1UsbHardwareWallet(Optional.<Integer>absent(),
-      Optional.<Integer>absent(), Optional.<String>absent());
+    TrezorV1UsbHardwareWallet hardwareWallet = new TrezorV1UsbHardwareWallet(
+      Optional.<Short>absent(),
+      Optional.<Short>absent(),
+      Optional.<String>absent()
+    );
     create(hardwareWallet, DEFAULT_PORT_NUMBER);
   }
 

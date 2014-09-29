@@ -51,8 +51,8 @@ public class TrezorV1FeaturesExample {
     // Use factory to statically bind the device
     TrezorV1UsbHardwareWallet wallet = HardwareWallets.newUsbInstance(
       TrezorV1UsbHardwareWallet.class,
-      Optional.<Integer>absent(),
-      Optional.<Integer>absent(),
+      Optional.<Short>absent(),
+      Optional.<Short>absent(),
       Optional.<String>absent()
     );
 

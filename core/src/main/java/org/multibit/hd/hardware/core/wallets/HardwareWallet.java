@@ -37,8 +37,12 @@ public interface HardwareWallet {
 
   /**
    * <p>Perform any pre-connection initialisation</p>
+   *
+   * <p>Typically this would involve initialising native libraries and verifying their communications</p>
+   *
+   * @return True if the native libraries initialised successfully
    */
-  void initialise();
+  boolean initialise();
 
   /**
    * <p>Attempt a connection to the device</p>
@@ -46,8 +50,7 @@ public interface HardwareWallet {
    * <p>Implementers must ensure the following behaviour:</p>
    * <ul>
    * <li>The device is assumed to be connected and discoverable</li>
-   * <li>Method will return false if the environment fails (e.g. faulty USB HID library)</li>
-   * <li>A DEVICE_DISCONNECTED event will be generated if no matching device is found</li>
+   * <li>Method will return false if the no matching device is found</li>
    * <li>A DEVICE_FAILED event will be generated if subsequent USB HID communication fails (i.e. device is broken)</li>
    * </ul>
    *

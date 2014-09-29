@@ -41,8 +41,8 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
 
   private static final Logger log = LoggerFactory.getLogger(TrezorShieldUsbHardwareWallet.class);
 
-  private Optional<Integer> vendorId = Optional.absent();
-  private Optional<Integer> productId = Optional.absent();
+  private Optional<Short> vendorId = Optional.absent();
+  private Optional<Short> productId = Optional.absent();
   private Optional<String> serialNumber = Optional.absent();
 
   private Optional<HIDDevice> deviceOptional = Optional.absent();
@@ -55,7 +55,7 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
    * Default constructor for use with dynamic binding
    */
   public TrezorShieldUsbHardwareWallet() {
-    this(Optional.<Integer>absent(), Optional.<Integer>absent(), Optional.<String>absent());
+    this(Optional.<Short>absent(), Optional.<Short>absent(), Optional.<String>absent());
 
   }
 
@@ -66,8 +66,8 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
    * @param productId    The product ID (default is 0xea80)
    * @param serialNumber The device serial number (default is to accept any)
    */
-  public TrezorShieldUsbHardwareWallet(Optional<Integer> vendorId,
-                                       Optional<Integer> productId,
+  public TrezorShieldUsbHardwareWallet(Optional<Short> vendorId,
+                                       Optional<Short> productId,
                                        Optional<String> serialNumber) {
 
     // Initialise the HID library
@@ -96,14 +96,7 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
   }
 
   @Override
-  public void initialise() {
-
-    // Do nothing
-
-  }
-
-  @Override
-  public synchronized boolean connect() {
+  public boolean initialise() {
 
     try {
       deviceOptional = locateDevice();
@@ -117,7 +110,15 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
       return false;
     }
 
-    // Must have a present device to be here
+    // Must be OK to be here
+    return true;
+
+  }
+
+  @Override
+  public synchronized boolean connect() {
+
+    // Expect a present device to be here
 
     HIDDevice device = deviceOptional.get();
 

@@ -52,7 +52,7 @@ public class TrezorHardwareWalletClient extends AbstractTrezorHardwareWalletClie
   @Override
   public boolean connect() {
 
-    TrezorHardwareWalletClient.log.debug("Attempting to connect...");
+    log.debug("Attempting to connect...");
     isTrezorValid = trezor.connect();
     return isTrezorValid;
 

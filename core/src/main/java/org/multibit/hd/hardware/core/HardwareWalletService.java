@@ -3,9 +3,13 @@ package org.multibit.hd.hardware.core;
 import com.google.common.base.Preconditions;
 import com.google.common.eventbus.EventBus;
 import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.Uninterruptibles;
+import org.multibit.hd.hardware.core.api.Features;
 import org.multibit.hd.hardware.core.concurrent.SafeExecutors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>Service to provide the following to application:</p>
@@ -39,6 +43,7 @@ public class HardwareWalletService {
   private final HardwareWalletClient client;
 
   private final ListeningExecutorService clientMonitorService = SafeExecutors.newSingleThreadExecutor("monitor-hw-client");
+  private Features features;
 
   /**
    * @param client The hardware wallet client providing the low level messages
@@ -55,10 +60,19 @@ public class HardwareWalletService {
    */
   public void start() {
 
-    client.connect();
+    clientMonitorService.submit(new Runnable() {
+      @Override
+      public void run() {
+
+        if (!client.connect()) {
+
+        }
+
+
+      }
+    });
 
     log.info("Awaiting connection to a hardware wallet");
-
 
   }
 
@@ -72,7 +86,7 @@ public class HardwareWalletService {
   }
 
   /**
-   * <p>Handle the create wallet use case</p>
+   * <p>Initiate the process where the hardware wallet configures itself remotely</p>
    *
    * @param language             The language code (e.g. "en")
    * @param label                The label to display below the logo (e.g "Fred")
@@ -81,7 +95,11 @@ public class HardwareWalletService {
    * @param pinProtection        True if the device should use PIN protection
    * @param strength             The strength of the seed in bits (default is 128)
    */
-  public void createWallet(String language, String label, boolean displayRandom, boolean passphraseProtection, boolean pinProtection, int strength) {
+  public void createWalletOnDevice(String language, String label, boolean displayRandom, boolean passphraseProtection, boolean pinProtection, int strength) {
+
+    client.wipeDevice();
+
+    Uninterruptibles.sleepUninterruptibly(1, TimeUnit.SECONDS);
 
     client.resetDevice(
       language,
@@ -92,6 +110,13 @@ public class HardwareWalletService {
       strength
     );
 
+  }
 
+  public Features getFeatures() {
+    return features;
+  }
+
+  public void setFeatures(Features features) {
+    this.features = features;
   }
 }

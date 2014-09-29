@@ -15,6 +15,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.usb.*;
+import javax.usb.event.UsbDeviceDataEvent;
+import javax.usb.event.UsbDeviceErrorEvent;
+import javax.usb.event.UsbDeviceEvent;
+import javax.usb.event.UsbDeviceListener;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -29,15 +33,15 @@ import java.util.List;
  * @since 0.0.1
  *  
  */
-public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet {
+public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet implements UsbDeviceListener {
 
-  private static final short SATOSHI_LABS_VENDOR_ID = 0x534c;
-  private static final short TREZOR_V1_PRODUCT_ID = 0x01;
+  private static final Short SATOSHI_LABS_VENDOR_ID = (short) 0x534c;
+  private static final Short TREZOR_V1_PRODUCT_ID = 0x01;
 
   private static final Logger log = LoggerFactory.getLogger(TrezorV1UsbHardwareWallet.class);
 
-  private Optional<Integer> vendorId = Optional.absent();
-  private Optional<Integer> productId = Optional.absent();
+  private Optional<Short> vendorId = Optional.absent();
+  private Optional<Short> productId = Optional.absent();
   private Optional<String> serialNumber = Optional.absent();
 
   //	private UsbDevice device;
@@ -66,19 +70,19 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet {
    * Default constructor for use with dynamic binding
    */
   public TrezorV1UsbHardwareWallet() {
-    this(Optional.<Integer>absent(), Optional.<Integer>absent(), Optional.<String>absent());
+    this(Optional.<Short>absent(), Optional.<Short>absent(), Optional.<String>absent());
 
   }
 
   /**
    * <p>Create a new instance of a USB-based Trezor device (standard)</p>
    *
-   * @param vendorId     The vendor ID (default is 0x10c4)
-   * @param productId    The product ID (default is 0xea80)
+   * @param vendorId     The vendor ID (default is 0x534c)
+   * @param productId    The product ID (default is 0x01)
    * @param serialNumber The device serial number (default is to accept any)
    */
-  public TrezorV1UsbHardwareWallet(Optional<Integer> vendorId,
-                                   Optional<Integer> productId,
+  public TrezorV1UsbHardwareWallet(Optional<Short> vendorId,
+                                   Optional<Short> productId,
                                    Optional<String> serialNumber) {
 
     // Initialise the HID library
@@ -87,8 +91,8 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet {
         "Unable to load native USB library. Check class loader permissions/JAR integrity.");
     }
 
-    this.vendorId = vendorId;
-    this.productId = productId;
+    this.vendorId = vendorId.isPresent() ? vendorId : Optional.of(SATOSHI_LABS_VENDOR_ID);
+    this.productId = productId.isPresent() ? productId : Optional.of(TREZOR_V1_PRODUCT_ID);
     this.serialNumber = serialNumber;
 
     initialise();
@@ -108,13 +112,7 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet {
   }
 
   @Override
-  public void initialise() {
-
-  }
-
-  @Override
-  @SuppressWarnings("unchecked")
-  public synchronized boolean connect() {
+  public boolean initialise() {
 
     final UsbServices services;
     try {
@@ -122,16 +120,25 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet {
       // Get the USB services and dump information about them
       services = UsbHostManager.getUsbServices();
 
-      // Explore all attached devices including hubs
+      // Explore all attached devices including hubs to verify USB library is working
+      // and to determine initial state
       locateDevice(services.getRootUsbHub());
+
+      // Must be OK to be here
+      return true;
 
     } catch (UsbException e) {
       log.error("Failed to connect device due to USB problem", e);
       return false;
     }
 
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public synchronized boolean connect() {
+
     if (!deviceOptional.isPresent()) {
-      log.info("Failed to connect device due to unmatched device (assumed disconnected)");
       return false;
     }
 
@@ -316,8 +323,8 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet {
   @SuppressWarnings("unchecked")
   private void locateDevice(final UsbDevice device) {
 
-    if (SATOSHI_LABS_VENDOR_ID == device.getUsbDeviceDescriptor().idVendor() &&
-      TREZOR_V1_PRODUCT_ID == device.getUsbDeviceDescriptor().idProduct()) {
+    if (vendorId.get() == device.getUsbDeviceDescriptor().idVendor() &&
+      productId.get() == device.getUsbDeviceDescriptor().idProduct()) {
       deviceOptional = Optional.of(device);
     }
 
@@ -342,31 +349,31 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet {
     Preconditions.checkNotNull(buffer, "'buffer' must be present");
     Preconditions.checkNotNull(deviceOptional, "Device is not connected");
 
-      UsbPipe outPipe = null;
-      try {
-        log.debug("Writing buffer to USB pipe...");
-        outPipe = writeEndpoint.getUsbPipe();
-        outPipe.open();
+    UsbPipe outPipe = null;
+    try {
+      log.debug("Writing buffer to USB pipe...");
+      outPipe = writeEndpoint.getUsbPipe();
+      outPipe.open();
 
-        int bytesSent = outPipe.syncSubmit(buffer);
-        if (bytesSent != buffer.length) {
-          throw new UsbException("Invalid packet size sent. Expected: " + buffer.length + " Actual: " + bytesSent);
-        }
-
-        log.debug("Wrote {} bytes to USB pipe.", bytesSent);
-        return bytesSent;
-
-      } catch (UsbException e) {
-        log.error("Write endpoint submit data failed.", e);
-      } finally {
-        try {
-          if (outPipe != null) {
-            outPipe.close();
-          }
-        } catch (UsbException e) {
-          log.warn("Failed to close the write endpoint", e);
-        }
+      int bytesSent = outPipe.syncSubmit(buffer);
+      if (bytesSent != buffer.length) {
+        throw new UsbException("Invalid packet size sent. Expected: " + buffer.length + " Actual: " + bytesSent);
       }
+
+      log.debug("Wrote {} bytes to USB pipe.", bytesSent);
+      return bytesSent;
+
+    } catch (UsbException e) {
+      log.error("Write endpoint submit data failed.", e);
+    } finally {
+      try {
+        if (outPipe != null) {
+          outPipe.close();
+        }
+      } catch (UsbException e) {
+        log.warn("Failed to close the write endpoint", e);
+      }
+    }
 
     return 0;
   }
@@ -468,4 +475,36 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet {
 
   }
 
+  @Override
+  public void usbDeviceDetached(UsbDeviceEvent event) {
+
+    UsbDevice disconnectedDevice = event.getUsbDevice();
+
+    // Check if it is our device that was disconnected
+    if (vendorId.get().equals(disconnectedDevice.getUsbDeviceDescriptor().idVendor()) &&
+      productId.get().equals(disconnectedDevice.getUsbDeviceDescriptor().idProduct())) {
+      // Inform others of this event
+      MessageEvents.fireMessageEvent(HardwareWalletMessageType.DEVICE_DISCONNECTED);
+    }
+  }
+
+  @Override
+  public void errorEventOccurred(UsbDeviceErrorEvent event) {
+
+    UsbDevice erroredDevice = event.getUsbDevice();
+
+    // Check if it is our device that was disconnected
+    if (vendorId.get().equals(erroredDevice.getUsbDeviceDescriptor().idVendor()) &&
+      productId.get().equals(erroredDevice.getUsbDeviceDescriptor().idProduct())) {
+      // Inform others of this event
+      MessageEvents.fireMessageEvent(HardwareWalletMessageType.DEVICE_FAILED);
+    }
+  }
+
+  @Override
+  public void dataEventOccurred(UsbDeviceDataEvent event) {
+
+    // Handled elsewhere
+
+  }
 }

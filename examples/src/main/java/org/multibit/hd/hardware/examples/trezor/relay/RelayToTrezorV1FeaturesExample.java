@@ -77,8 +77,11 @@ public class RelayToTrezorV1FeaturesExample {
     // Start a RelayServer
     if (SERVER_VERB.equals(mode) || BOTH_VERB.equals(mode)) {
       // Create a Trezor V1 usb client for use by the server
-      TrezorV1UsbHardwareWallet hardwareWallet1 = new TrezorV1UsbHardwareWallet(Optional.<Integer>absent(),
-        Optional.<Integer>absent(), Optional.<String>absent());
+      TrezorV1UsbHardwareWallet hardwareWallet1 = new TrezorV1UsbHardwareWallet(
+        Optional.<Short>absent(),
+        Optional.<Short>absent(),
+        Optional.<String>absent()
+      );
       server = new TrezorRelayServer(hardwareWallet1, TrezorRelayServer.DEFAULT_PORT_NUMBER);
 
     }

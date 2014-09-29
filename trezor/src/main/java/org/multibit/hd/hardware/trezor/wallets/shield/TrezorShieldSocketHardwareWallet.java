@@ -70,7 +70,10 @@ public class TrezorShieldSocketHardwareWallet extends AbstractTrezorHardwareWall
   }
 
   @Override
-  public void initialise() {
+  public boolean initialise() {
+
+    // Socket library will work
+    return true;
 
   }
 

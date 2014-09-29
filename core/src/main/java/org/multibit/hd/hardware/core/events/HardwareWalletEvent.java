@@ -4,12 +4,13 @@ import com.google.common.base.Optional;
 import com.google.protobuf.Message;
 
 /**
- * <p>Event to provide the following to application API:</p>
+ * <p>High level event to provide the following to downstream consumers:</p>
  * <ul>
- * <li>Notification of a hardware event (system or protocol)</li>
+ * <li>Notification of a hardware wallet state change (connection, completed Tx signing etc)</li>
  * </ul>
- * <p>Messages wrap the raw data from the specific hardware wallet (e.g. initialise, reset etc)</p>
- * <p>If a message is not present then the event wraps the general state of a hardware wallet (e.g. connected, disconnected etc)</p>
+ * <p>Hardware wallet events provide a suitably abstracted view of the wallet to allow downstream consumers to concentrate on
+ * user interface changes as a result of the current state of the hardware wallet. For example, if the device is awaiting a
+ * button press the downstream UI should present a popup dialog indicating that the user should look to their device.</p>
  *
  * @since 0.0.1
  *  

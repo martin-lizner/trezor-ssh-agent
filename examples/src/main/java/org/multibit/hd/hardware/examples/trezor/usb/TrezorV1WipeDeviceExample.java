@@ -4,6 +4,7 @@ import com.google.common.base.Optional;
 import com.google.common.eventbus.Subscribe;
 import org.multibit.hd.hardware.core.HardwareWalletClient;
 import org.multibit.hd.hardware.core.HardwareWalletService;
+import org.multibit.hd.hardware.core.api.Features;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvent;
 import org.multibit.hd.hardware.core.wallets.HardwareWallets;
 import org.multibit.hd.hardware.trezor.clients.TrezorHardwareWalletClient;
@@ -52,8 +53,8 @@ public class TrezorV1WipeDeviceExample {
     // Use factory to statically bind the specific hardware wallet
     TrezorV1UsbHardwareWallet wallet = HardwareWallets.newUsbInstance(
       TrezorV1UsbHardwareWallet.class,
-      Optional.<Integer>absent(),
-      Optional.<Integer>absent(),
+      Optional.<Short>absent(),
+      Optional.<Short>absent(),
       Optional.<String>absent()
     );
 
@@ -62,6 +63,9 @@ public class TrezorV1WipeDeviceExample {
 
     // Wrap the client in a service for high level API suitable for downstream applications
     hardwareWalletService = new HardwareWalletService(client);
+
+    // Register for the high level hardware wallet events
+    HardwareWalletService.hardwareWalletEventBus.register(this);
 
     hardwareWalletService.start();
 
@@ -86,11 +90,17 @@ public class TrezorV1WipeDeviceExample {
       return;
     }
 
+    // Get some information about the device
+    Features features = hardwareWalletService.getFeatures();
+    log.info("Features: {}", features);
+
     // Use the service to make high level decisions
     if (hardwareWalletService.isWalletCreationRequired()) {
 
-      // Initiate a complex UI process to provide a seed phrase
-      hardwareWalletService.createWallet(
+      // ... application performs a complex UI process to provide a seed phrase, PIN, label etc ...
+
+      //
+      hardwareWalletService.createWalletOnDevice(
         "english",
         "charlie",
         true,
