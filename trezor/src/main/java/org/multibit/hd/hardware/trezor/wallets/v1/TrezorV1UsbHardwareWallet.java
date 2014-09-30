@@ -62,6 +62,10 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet impl
    * Selected device
    */
   private Optional<UsbDevice> locatedDevice = Optional.absent();
+
+  /**
+   * The USB services entry point
+   */
   private UsbServices usbServices;
 
   /**
@@ -134,6 +138,11 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet impl
   @Override
   @SuppressWarnings("unchecked")
   public synchronized boolean connect() {
+
+    // Could be triggered by a re-attachment of the device
+    if (usbServices == null) {
+      verifyEnvironment();
+    }
 
     // Check if the verify environment located a Trezor
     if (!locatedDevice.isPresent()) {
@@ -297,7 +306,7 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet impl
         // Stop looking
         return true;
 
-      } catch (UsbException e) {
+      } catch (Exception e) {
         log.warn("Failed to claim device. No communication will be possible.", e);
         return false;
 
@@ -313,17 +322,16 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet impl
 
   }
 
-  /**
-   * @return True if device is connected (the HID device is present)
-   */
-  private boolean isDeviceConnected() {
-    return locatedDevice != null;
-  }
-
   @Override
   public synchronized void internalClose() {
 
-    Preconditions.checkState(isDeviceConnected(), "Device is not connected");
+    if (usbServices != null) {
+      usbServices.removeUsbServicesListener(this);
+      readEndpoint = null;
+      writeEndpoint = null;
+    }
+
+    locatedDevice = Optional.absent();
 
     log.info("Disconnected from Trezor");
 
