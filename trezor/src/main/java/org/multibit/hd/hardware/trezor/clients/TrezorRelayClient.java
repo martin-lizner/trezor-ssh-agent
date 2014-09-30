@@ -135,9 +135,9 @@ public class TrezorRelayClient extends AbstractTrezorHardwareWalletClient {
           try {
             // Blocking read to get the client message (e.g. "Initialize") formatted as HID packets for simplicity
             log.debug("Waiting for server message...");
-            Message messageFromServer = TrezorMessageUtils.parseAsHIDPackets(inputFromServer);
+            MessageEvent messageFromServer = TrezorMessageUtils.parseAsHIDPackets(inputFromServer);
 
-            // TODO Convert to hardware wallet event
+            // TODO Convert to messsage event
 
           } catch (HardwareWalletException | IOException e) {
             log.error("Failed to read back from server", e);

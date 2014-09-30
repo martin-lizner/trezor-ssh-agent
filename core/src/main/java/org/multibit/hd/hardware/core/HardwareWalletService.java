@@ -1,11 +1,14 @@
 package org.multibit.hd.hardware.core;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.eventbus.EventBus;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.Uninterruptibles;
-import org.multibit.hd.hardware.core.api.Features;
 import org.multibit.hd.hardware.core.concurrent.SafeExecutors;
+import org.multibit.hd.hardware.core.events.HardwareWalletMessageType;
+import org.multibit.hd.hardware.core.events.MessageEvent;
+import org.multibit.hd.hardware.core.messages.Features;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,23 +63,25 @@ public class HardwareWalletService {
    */
   public void start() {
 
-    clientMonitorService.submit(new Runnable() {
-      @Override
-      public void run() {
+    if (!client.verifyEnvironment()) {
+      log.warn("Failed to verify environment");
+      return;
+    }
 
-        if (!client.verifyEnvironment()) {
-          return;
-        }
+    // Must have a working environment to be here so attempt connection
+    log.debug("Attempting connection");
+    client.connect();
 
-        // Must have a working environment to be here so attempt connection
-        client.connect();
+    // TODO Move this into the FSM
+    log.debug("Attempting initialization");
+    Optional<MessageEvent> response = client.initialize();
 
-        client.initialize();
+    if (response.isPresent()) {
+      if (response.get().getMessageType().equals(HardwareWalletMessageType.FEATURES)) {
+        features = new Features();
 
       }
-    });
-
-    log.info("Awaiting connection to a hardware wallet");
+    }
 
   }
 

@@ -35,7 +35,7 @@ public class MessageButtons {
       @Override
       public void actionPerformed(ActionEvent e) {
 
-        MessageEvents.fireMessageEvent(type, null);
+        MessageEvents.fireMessageEvent(type);
 
       }
     };

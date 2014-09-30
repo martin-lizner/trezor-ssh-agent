@@ -348,20 +348,19 @@ public abstract class AbstractTrezorHardwareWalletClient implements HardwareWall
    * <p>Send a message to the device that should have a near-immediate (under 1 second) response.</p>
    * <p>If the response times out a FAILURE message should be generated.</p>
    *
-   * @param messsage The message to send to the hardware wallet
+   * @param message The message to send to the hardware wallet
    *
    * @return An optional low level message event, present only in blocking implementations
    */
-  protected abstract Optional<MessageEvent> sendMessage(Message messsage);
+  protected abstract Optional<MessageEvent> sendMessage(Message message);
 
   /**
    * <p>Send a message to the device with an arbitrary response duration.</p>
    * <p>If the response times out a FAILURE message should be generated.</p>
    *
-   * @param messsage The message to send to the hardware wallet
    *
-   * @return An optional low level message event, present only in blocking implementations
+   * @param message@return An optional low level message event, present only in blocking implementations
    */
-  protected abstract Optional<MessageEvent> sendMessage(Message messsage, int duration, TimeUnit timeUnit);
+  protected abstract Optional<MessageEvent> sendMessage(Message message, int duration, TimeUnit timeUnit);
 
 }

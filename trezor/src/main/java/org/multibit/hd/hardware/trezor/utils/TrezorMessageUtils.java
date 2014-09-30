@@ -1,10 +1,14 @@
 package org.multibit.hd.hardware.trezor.utils;
 
+import com.google.common.base.Optional;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
 import com.satoshilabs.trezor.protobuf.TrezorMessage;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.multibit.hd.hardware.core.events.HardwareWalletMessageType;
+import org.multibit.hd.hardware.core.events.MessageEvent;
+import org.multibit.hd.hardware.core.messages.HardwareWalletMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,9 +41,9 @@ public final class TrezorMessageUtils {
    * @param type   The message type
    * @param buffer The buffer containing the protobuf message
    *
-   * @return The message if it could be parsed
+   * @return The low level message event containing the data if it could be parsed and adapted
    */
-  public static Message parse(TrezorMessage.MessageType type, byte[] buffer) {
+  public static MessageEvent parse(TrezorMessage.MessageType type, byte[] buffer) {
 
     log.info("Parsing '{}' ({} bytes):", type, buffer.length);
 
@@ -47,151 +51,202 @@ public final class TrezorMessageUtils {
 
     try {
       Message message;
+      HardwareWalletMessage hardwareWalletMessage = null;
+      HardwareWalletMessageType hardwareWalletMessageType;
 
       switch (type) {
         case MessageType_Initialize:
           message = TrezorMessage.Initialize.parseFrom(buffer);
+          hardwareWalletMessageType = HardwareWalletMessageType.INITALIZE;
           break;
         case MessageType_Ping:
           message = TrezorMessage.Ping.parseFrom(buffer);
+          hardwareWalletMessageType = HardwareWalletMessageType.PING;
           break;
         case MessageType_Success:
           message = TrezorMessage.Success.parseFrom(buffer);
+          hardwareWalletMessageType = HardwareWalletMessageType.SUCCESS;
           break;
         case MessageType_Failure:
           message = TrezorMessage.Failure.parseFrom(buffer);
+          hardwareWalletMessageType = HardwareWalletMessageType.FAILURE;
           break;
         case MessageType_ChangePin:
           message = TrezorMessage.ChangePin.parseFrom(buffer);
+          hardwareWalletMessageType = HardwareWalletMessageType.CHANGE_PIN;
           break;
         case MessageType_WipeDevice:
           message = TrezorMessage.WipeDevice.parseFrom(buffer);
+          hardwareWalletMessageType = HardwareWalletMessageType.WIPE_DEVICE;
           break;
         case MessageType_FirmwareErase:
           message = TrezorMessage.FirmwareErase.parseFrom(buffer);
+          hardwareWalletMessageType = HardwareWalletMessageType.FIRMWARE_ERASE;
           break;
         case MessageType_FirmwareUpload:
           message = TrezorMessage.FirmwareUpload.parseFrom(buffer);
+          hardwareWalletMessageType = HardwareWalletMessageType.FIRMWARE_UPLOAD;
           break;
         case MessageType_GetEntropy:
           message = TrezorMessage.GetEntropy.parseFrom(buffer);
+          hardwareWalletMessageType = HardwareWalletMessageType.GET_ENTROPY;
           break;
         case MessageType_Entropy:
           message = TrezorMessage.Entropy.parseFrom(buffer);
+          hardwareWalletMessageType = HardwareWalletMessageType.ENTROPY;
           break;
         case MessageType_GetPublicKey:
           message = TrezorMessage.GetPublicKey.parseFrom(buffer);
+          hardwareWalletMessageType = HardwareWalletMessageType.GET_PUBLIC_KEY;
           break;
         case MessageType_PublicKey:
           message = TrezorMessage.PublicKey.parseFrom(buffer);
+          hardwareWalletMessageType = HardwareWalletMessageType.PUBLIC_KEY;
           break;
         case MessageType_LoadDevice:
           message = TrezorMessage.LoadDevice.parseFrom(buffer);
+          hardwareWalletMessageType = HardwareWalletMessageType.LOAD_DEVICE;
           break;
         case MessageType_ResetDevice:
           message = TrezorMessage.ResetDevice.parseFrom(buffer);
+          hardwareWalletMessageType = HardwareWalletMessageType.RESET_DEVICE;
           break;
         case MessageType_SignTx:
           message = TrezorMessage.SignTx.parseFrom(buffer);
+          hardwareWalletMessageType = HardwareWalletMessageType.SIGN_TX;
           break;
         case MessageType_SimpleSignTx:
           message = TrezorMessage.SimpleSignTx.parseFrom(buffer);
+          hardwareWalletMessageType = HardwareWalletMessageType.SIMPLE_SIGN_TX;
           break;
         case MessageType_Features:
           message = TrezorMessage.Features.parseFrom(buffer);
+          hardwareWalletMessageType = HardwareWalletMessageType.FEATURES;
+          hardwareWalletMessage = TrezorMessageAdapter.adaptFeatures((TrezorMessage.Features) message);
           break;
         case MessageType_PinMatrixRequest:
           message = TrezorMessage.PinMatrixRequest.parseFrom(buffer);
+          hardwareWalletMessageType = HardwareWalletMessageType.PIN_MATRIX_REQUEST;
           break;
         case MessageType_PinMatrixAck:
           message = TrezorMessage.PinMatrixAck.parseFrom(buffer);
+          hardwareWalletMessageType = HardwareWalletMessageType.PIN_MATRIX_ACK;
           break;
         case MessageType_Cancel:
           message = TrezorMessage.Cancel.parseFrom(buffer);
+          hardwareWalletMessageType = HardwareWalletMessageType.CANCEL;
           break;
         case MessageType_TxRequest:
           message = TrezorMessage.TxRequest.parseFrom(buffer);
+          hardwareWalletMessageType = HardwareWalletMessageType.TX_REQUEST;
           break;
         case MessageType_TxAck:
           message = TrezorMessage.TxAck.parseFrom(buffer);
+          hardwareWalletMessageType = HardwareWalletMessageType.TX_ACK;
           break;
         case MessageType_CipherKeyValue:
           message = TrezorMessage.CipherKeyValue.parseFrom(buffer);
+          hardwareWalletMessageType = HardwareWalletMessageType.CIPHER_KEY_VALUE;
           break;
         case MessageType_ClearSession:
           message = TrezorMessage.ClearSession.parseFrom(buffer);
+          hardwareWalletMessageType = HardwareWalletMessageType.CLEAR_SESSION;
           break;
         case MessageType_ApplySettings:
           message = TrezorMessage.ApplySettings.parseFrom(buffer);
+          hardwareWalletMessageType = HardwareWalletMessageType.APPLY_SETTINGS;
           break;
         case MessageType_ButtonRequest:
           message = TrezorMessage.ButtonRequest.parseFrom(buffer);
+          hardwareWalletMessageType = HardwareWalletMessageType.BUTTON_REQUEST;
           break;
         case MessageType_ButtonAck:
           message = TrezorMessage.ButtonAck.parseFrom(buffer);
+          hardwareWalletMessageType = HardwareWalletMessageType.BUTTON_ACK;
           break;
         case MessageType_GetAddress:
           message = TrezorMessage.GetAddress.parseFrom(buffer);
+          hardwareWalletMessageType = HardwareWalletMessageType.GET_ADDRESS;
           break;
         case MessageType_Address:
           message = TrezorMessage.Address.parseFrom(buffer);
+          hardwareWalletMessageType = HardwareWalletMessageType.ADDRESS;
           break;
         case MessageType_EntropyRequest:
           message = TrezorMessage.EntropyRequest.parseFrom(buffer);
+          hardwareWalletMessageType = HardwareWalletMessageType.ENTROPY_REQUEST;
           break;
         case MessageType_EntropyAck:
           message = TrezorMessage.EntropyAck.parseFrom(buffer);
+          hardwareWalletMessageType = HardwareWalletMessageType.ENTROPY_ACK;
           break;
         case MessageType_SignMessage:
           message = TrezorMessage.SignMessage.parseFrom(buffer);
+          hardwareWalletMessageType = HardwareWalletMessageType.SIGN_MESSAGE;
           break;
         case MessageType_VerifyMessage:
           message = TrezorMessage.VerifyMessage.parseFrom(buffer);
+          hardwareWalletMessageType = HardwareWalletMessageType.VERIFY_MESSAGE;
           break;
         case MessageType_MessageSignature:
           message = TrezorMessage.MessageSignature.parseFrom(buffer);
+          hardwareWalletMessageType = HardwareWalletMessageType.MESSAGE_SIGNATURE;
           break;
         case MessageType_EncryptMessage:
           message = TrezorMessage.EncryptMessage.parseFrom(buffer);
+          hardwareWalletMessageType = HardwareWalletMessageType.ENCRYPT_MESSAGE;
           break;
         case MessageType_DecryptMessage:
           message = TrezorMessage.DecryptMessage.parseFrom(buffer);
+          hardwareWalletMessageType = HardwareWalletMessageType.DECRYPT_MESSAGE;
           break;
         case MessageType_PassphraseRequest:
           message = TrezorMessage.PassphraseRequest.parseFrom(buffer);
+          hardwareWalletMessageType = HardwareWalletMessageType.PASSPHRASE_REQUEST;
           break;
         case MessageType_PassphraseAck:
           message = TrezorMessage.PassphraseAck.parseFrom(buffer);
+          hardwareWalletMessageType = HardwareWalletMessageType.PASSPHRASE_ACK;
           break;
         case MessageType_EstimateTxSize:
           message = TrezorMessage.EstimateTxSize.parseFrom(buffer);
+          hardwareWalletMessageType = HardwareWalletMessageType.ESTIMATE_TX_SIZE;
           break;
         case MessageType_TxSize:
           message = TrezorMessage.TxSize.parseFrom(buffer);
+          hardwareWalletMessageType = HardwareWalletMessageType.TX_SIZE;
           break;
         case MessageType_RecoveryDevice:
           message = TrezorMessage.RecoveryDevice.parseFrom(buffer);
+          hardwareWalletMessageType = HardwareWalletMessageType.RECOVER_DEVICE;
           break;
         case MessageType_WordRequest:
           message = TrezorMessage.WordRequest.parseFrom(buffer);
+          hardwareWalletMessageType = HardwareWalletMessageType.WORD_REQUEST;
           break;
         case MessageType_WordAck:
           message = TrezorMessage.WordAck.parseFrom(buffer);
+          hardwareWalletMessageType = HardwareWalletMessageType.WORD_ACK;
           break;
         case MessageType_DebugLinkDecision:
           message = TrezorMessage.DebugLinkDecision.parseFrom(buffer);
+          hardwareWalletMessageType = HardwareWalletMessageType.DEBUG_LINK_DECISION;
           break;
         case MessageType_DebugLinkGetState:
           message = TrezorMessage.DebugLinkGetState.parseFrom(buffer);
+          hardwareWalletMessageType = HardwareWalletMessageType.DEBUG_LINK_GET_STATE;
           break;
         case MessageType_DebugLinkState:
           message = TrezorMessage.DebugLinkState.parseFrom(buffer);
+          hardwareWalletMessageType = HardwareWalletMessageType.DEBUG_LINK_STATE;
           break;
         case MessageType_DebugLinkStop:
           message = TrezorMessage.DebugLinkStop.parseFrom(buffer);
+          hardwareWalletMessageType = HardwareWalletMessageType.DEBUG_LINK_STOP;
           break;
         case MessageType_DebugLinkLog:
           message = TrezorMessage.DebugLinkLog.parseFrom(buffer);
+          hardwareWalletMessageType = HardwareWalletMessageType.DEBUG_LINK_LOG;
           break;
         default:
           throw new IllegalStateException("Unknown message type: " + type.name());
@@ -200,7 +255,12 @@ public final class TrezorMessageUtils {
       // Must be OK to be here
       log.debug("< Message: {}", ToStringBuilder.reflectionToString(message, ToStringStyle.MULTI_LINE_STYLE));
 
-      return message;
+      if (hardwareWalletMessage == null) {
+        log.warn("Could not adapt message to Core.");
+      }
+
+      // Wrap the type and message into an event
+      return new MessageEvent(hardwareWalletMessageType, Optional.fromNullable(hardwareWalletMessage), Optional.of(message));
 
     } catch (InvalidProtocolBufferException e) {
       log.error("Could not parse message", e);
@@ -319,9 +379,9 @@ public final class TrezorMessageUtils {
    *
    * @param in The input stream containing Trezor HID packets
    *
-   * @return A message
+   * @return The adapted Core message
    */
-  public static Message parseAsHIDPackets(InputStream in) throws IOException {
+  public static MessageEvent parseAsHIDPackets(InputStream in) throws IOException {
 
     ByteBuffer messageBuffer = ByteBuffer.allocate(32768);
 
@@ -334,6 +394,10 @@ public final class TrezorMessageUtils {
       byte[] buffer = new byte[64];
 
       received = in.read(buffer);
+
+      if (received == -1) {
+        throw new IOException("Read buffer is closed");
+      }
 
       log.debug("< {} bytes", received);
       TrezorMessageUtils.logPacket("<", 0, buffer);
@@ -385,4 +449,5 @@ public final class TrezorMessageUtils {
     return TrezorMessageUtils.parse(type, Arrays.copyOfRange(messageBuffer.array(), 0, msgSize));
 
   }
+
 }

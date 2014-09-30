@@ -1,10 +1,10 @@
 package org.multibit.hd.hardware.trezor.wallets.shield;
 
 import com.google.common.base.Preconditions;
-import com.google.protobuf.Message;
 import org.multibit.hd.hardware.core.HardwareWalletSpecification;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
 import org.multibit.hd.hardware.core.events.HardwareWalletMessageType;
+import org.multibit.hd.hardware.core.events.MessageEvent;
 import org.multibit.hd.hardware.trezor.wallets.AbstractTrezorHardwareWallet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -126,7 +126,10 @@ public class TrezorShieldSocketHardwareWallet extends AbstractTrezorHardwareWall
   }
 
   @Override
-  protected Message readFromDevice() {
+  protected MessageEvent readFromDevice() {
+
+    // TODO Implement this using the Trezor V1 as a template
+
     return null;
   }
 

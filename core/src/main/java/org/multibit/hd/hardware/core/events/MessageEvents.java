@@ -4,6 +4,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.protobuf.Message;
 import org.multibit.hd.hardware.core.HardwareWalletService;
+import org.multibit.hd.hardware.core.messages.HardwareWalletMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,21 +28,16 @@ public class MessageEvents {
   }
 
   /**
-   * <p>A message event usually wraps a protobuf message</p>
+   * <p>Convenience method to fire a message event</p>
    *
-   * @param messageType The message type (e.g. SUCCESS)
-   * @param message     The message itself (from protocol buffers)
+   * @param event The event (e.g. DEVICE_CONNECTED)
    */
-  public static void fireMessageEvent(final HardwareWalletMessageType messageType, final Message message) {
+  public static void fireMessageEvent(final MessageEvent event) {
 
-    Preconditions.checkNotNull(messageType, "'messageType' must be present");
-    Preconditions.checkNotNull(message, "'message' must be present");
+    Preconditions.checkNotNull(event, "'messageType' must be present");
 
-    log.debug("Firing 'message' event: {}", messageType.name());
-    HardwareWalletService.messageEventBus.post(new HardwareWalletEvent(
-      messageType,
-      Optional.of(message)
-    ));
+    log.debug("Firing 'message' event: {}", event.getMessageType().name());
+    HardwareWalletService.messageEventBus.post(event);
 
   }
 
@@ -55,8 +51,9 @@ public class MessageEvents {
     Preconditions.checkNotNull(messageType, "'messageType' must be present");
 
     log.debug("Firing 'message' event: {}", messageType.name());
-    HardwareWalletService.messageEventBus.post(new HardwareWalletEvent(
+    HardwareWalletService.messageEventBus.post(new MessageEvent(
       messageType,
+      Optional.<HardwareWalletMessage>absent(),
       Optional.<Message>absent()
     ));
 

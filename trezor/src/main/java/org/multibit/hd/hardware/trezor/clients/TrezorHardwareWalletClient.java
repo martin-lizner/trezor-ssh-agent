@@ -4,9 +4,9 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Queues;
 import com.google.protobuf.Message;
-import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
 import org.multibit.hd.hardware.core.events.HardwareWalletMessageType;
 import org.multibit.hd.hardware.core.events.MessageEvent;
+import org.multibit.hd.hardware.core.events.MessageEvents;
 import org.multibit.hd.hardware.trezor.wallets.AbstractTrezorHardwareWallet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,6 +63,10 @@ public class TrezorHardwareWalletClient extends AbstractTrezorHardwareWalletClie
     log.debug("Attempting to connect...");
     isTrezorValid = trezor.connect();
 
+    if (isTrezorValid) {
+      MessageEvents.fireMessageEvent(HardwareWalletMessageType.DEVICE_CONNECTED);
+    }
+
     return isTrezorValid;
 
   }
@@ -91,13 +95,15 @@ public class TrezorHardwareWalletClient extends AbstractTrezorHardwareWalletClie
     // Write the message
     trezor.writeMessage(message);
 
+    // TODO Remove the blocking call approach
+
     // Wait for a response
-    try {
-      return Optional.fromNullable(messageEvents.poll(duration, timeUnit));
-    } catch (InterruptedException e) {
-      HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletMessageType.DEVICE_FAILED);
-      return Optional.absent();
-    }
+    MessageEvent messageEvent = trezor.readMessage();
+
+    // Fire the event
+    MessageEvents.fireMessageEvent(messageEvent);
+
+    return Optional.of(messageEvent);
 
   }
 

@@ -4,11 +4,11 @@ import com.google.common.base.Optional;
 import com.google.common.collect.Queues;
 import com.google.common.eventbus.Subscribe;
 import com.google.protobuf.Message;
-import org.multibit.hd.hardware.core.HardwareWalletException;
 import org.multibit.hd.hardware.core.HardwareWalletService;
 import org.multibit.hd.hardware.core.concurrent.SafeExecutors;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvent;
 import org.multibit.hd.hardware.core.events.HardwareWalletMessageType;
+import org.multibit.hd.hardware.core.events.MessageEvent;
 import org.multibit.hd.hardware.core.wallets.HardwareWallet;
 import org.multibit.hd.hardware.trezor.utils.TrezorMessageUtils;
 import org.multibit.hd.hardware.trezor.wallets.v1.TrezorV1UsbHardwareWallet;
@@ -125,6 +125,12 @@ public class TrezorRelayServer {
       OutputStream outputToClient = new BufferedOutputStream(clientSocket.getOutputStream(), 1024);
       InputStream inputFromClient = new BufferedInputStream(clientSocket.getInputStream(), 1024);
 
+      log.debug("Verifying the local environment");
+      if (!hardwareWallet.verifyEnvironment()) {
+        log.error("Failed to verify local environment");
+        return;
+      }
+
       log.debug("Connecting to the local hardware wallet");
       hardwareWallet.connect();
 
@@ -136,7 +142,6 @@ public class TrezorRelayServer {
 
       // Once the monitoring threads have started the server waits forever
       while (true) {
-
       }
 
     } catch (IOException ioe) {
@@ -155,11 +160,11 @@ public class TrezorRelayServer {
       public void run() {
         while (true) {
           log.debug("Waiting for hardware wallet message...");
-          Message message = hardwareWallet.readMessage();
+          MessageEvent messageEvent = hardwareWallet.readMessage();
 
           // Send the Message back to the client
-          log.debug("Sending hardware message to client");
-          writeMessage(message, outputToClient);
+          log.debug("Sending raw message to client");
+          writeMessage(messageEvent.getRawMessage().get(), outputToClient);
         }
       }
 
@@ -180,15 +185,15 @@ public class TrezorRelayServer {
             // Blocking read to get the client message (e.g. "Initialize") formatted as HID packets for simplicity
             log.debug("Waiting for client message...");
 
-              Message messageFromClient = TrezorMessageUtils.parseAsHIDPackets(inputFromClient);
+            MessageEvent messageFromClient = TrezorMessageUtils.parseAsHIDPackets(inputFromClient);
 
             // Send the Message to the trezor (serialising again to protobuf)
             log.debug("Writing message to hardware wallet");
-            hardwareWallet.writeMessage(messageFromClient);
+            hardwareWallet.writeMessage(messageFromClient.getRawMessage().get());
 
-
-          } catch (HardwareWalletException | IOException e) {
+          } catch (Exception e) {
             log.error("Failed in hardware wallet/client read", e);
+            break;
           }
         }
       }

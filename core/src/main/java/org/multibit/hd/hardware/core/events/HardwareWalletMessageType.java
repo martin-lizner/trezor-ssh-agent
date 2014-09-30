@@ -110,7 +110,7 @@ public enum HardwareWalletMessageType {
   TX_SIZE,
 
   // Recovery
-  RECOVERY_DEVICE,
+  RECOVER_DEVICE,
 
     // Word
   WORD_REQUEST,

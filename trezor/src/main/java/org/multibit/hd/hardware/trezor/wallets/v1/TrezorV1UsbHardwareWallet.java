@@ -3,11 +3,11 @@ package org.multibit.hd.hardware.trezor.wallets.v1;
 import com.codeminders.hidapi.ClassPathLibraryLoader;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.google.protobuf.Message;
 import com.satoshilabs.trezor.protobuf.TrezorMessage;
 import org.multibit.hd.hardware.core.HardwareWalletSpecification;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
 import org.multibit.hd.hardware.core.events.HardwareWalletMessageType;
+import org.multibit.hd.hardware.core.events.MessageEvent;
 import org.multibit.hd.hardware.core.events.MessageEvents;
 import org.multibit.hd.hardware.trezor.utils.TrezorMessageUtils;
 import org.multibit.hd.hardware.trezor.wallets.AbstractTrezorHardwareWallet;
@@ -95,8 +95,6 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet impl
     this.productId = productId.isPresent() ? productId : Optional.of(TREZOR_V1_PRODUCT_ID);
     this.serialNumber = serialNumber;
 
-    verifyEnvironment();
-
   }
 
 
@@ -105,9 +103,10 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet impl
 
     super.applySpecification(specification);
 
-    this.vendorId = specification.getVendorId();
-    this.productId = specification.getProductId();
-    this.serialNumber = specification.getSerialNumber();
+    // Specification overrides constructor if present
+    this.vendorId = specification.getVendorId().isPresent() ? specification.getVendorId() : this.vendorId;
+    this.productId = specification.getProductId().isPresent() ? specification.getProductId() : this.productId;
+    this.serialNumber = specification.getSerialNumber().isPresent() ? specification.getSerialNumber() : this.serialNumber;
 
   }
 
@@ -347,7 +346,11 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet impl
   protected int writeToDevice(byte[] buffer) {
 
     Preconditions.checkNotNull(buffer, "'buffer' must be present");
-    Preconditions.checkNotNull(deviceOptional, "Device is not connected");
+
+    Preconditions.checkNotNull(deviceOptional, "Device is not located");
+    Preconditions.checkState(deviceOptional.isPresent(), "Device is not connected");
+
+    Preconditions.checkNotNull(writeEndpoint, "Endpoints have not been initialised");
 
     UsbPipe outPipe = null;
     try {
@@ -379,7 +382,7 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet impl
   }
 
   @Override
-  protected synchronized Message readFromDevice() {
+  protected synchronized MessageEvent readFromDevice() {
 
     log.debug("Reading from hardware device");
 

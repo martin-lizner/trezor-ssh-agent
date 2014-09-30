@@ -3,6 +3,7 @@ package org.multibit.hd.hardware.core.wallets;
 import com.google.protobuf.Message;
 import org.multibit.hd.hardware.core.Connectable;
 import org.multibit.hd.hardware.core.HardwareWalletSpecification;
+import org.multibit.hd.hardware.core.events.MessageEvent;
 
 /**
  * <p>Interface to provide the following to applications:</p>
@@ -37,12 +38,15 @@ public interface HardwareWallet extends Connectable {
   void applySpecification(HardwareWalletSpecification specification);
 
   /**
-   * <p>Read a protobuf message from the hardware wallet</p>
-   * <p>If this call fails the hardware wallet will be closed and a DISCONNECT message will be emitted</p>
+   * <p>Read a protobuf message from the hardware wallet and adapt it to a Core message event.</p>
+   * <p>Consumers of this interface should check the returned message event wrapper for failure modes
+   * as appropriate.</p>
    *
-   * @return The protobuf message read from the hardware wallet
+   * <p>Forcing early adaption to a message event eases the implementation in many ways.</p>
+   *
+   * @return The low level message event wrapping the adapted protobuf message read from the hardware wallet
    */
-  public abstract Message readMessage();
+  public MessageEvent readMessage();
 
   /**
    * <p>Send a message to the hardware wallet using the generated protocol buffer classes</p>

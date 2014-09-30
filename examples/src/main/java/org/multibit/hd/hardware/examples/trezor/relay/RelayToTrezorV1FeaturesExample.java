@@ -135,6 +135,8 @@ public class RelayToTrezorV1FeaturesExample {
 
     log.info("Attempting to connect to a production V1 Trezor over relay socket");
 
+    client.verifyEnvironment();
+
     // Block until a client connects or fails
     if (client.connect()) {
 

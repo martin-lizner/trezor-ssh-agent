@@ -2,6 +2,7 @@ package org.multibit.hd.hardware.trezor.wallets;
 
 import com.google.protobuf.Message;
 import org.multibit.hd.hardware.core.HardwareWalletSpecification;
+import org.multibit.hd.hardware.core.events.MessageEvent;
 import org.multibit.hd.hardware.core.wallets.AbstractHardwareWallet;
 import org.multibit.hd.hardware.trezor.utils.TrezorMessageUtils;
 import org.slf4j.Logger;
@@ -43,12 +44,13 @@ public abstract class AbstractTrezorHardwareWallet extends AbstractHardwareWalle
   }
 
   @Override
-  public Message readMessage() {
+  public MessageEvent readMessage() {
 
     return readFromDevice();
 
   }
 
+  @Override
   public void writeMessage(Message message) {
 
     ByteBuffer messageBuffer = TrezorMessageUtils.formatAsHIDPackets(message);
@@ -74,9 +76,6 @@ public abstract class AbstractTrezorHardwareWallet extends AbstractHardwareWalle
 
       writeToDevice(buffer);
 
-      // TODO Debug only
-      readMessage();
-
     }
   }
 
@@ -86,11 +85,11 @@ public abstract class AbstractTrezorHardwareWallet extends AbstractHardwareWalle
   public abstract void internalClose();
 
   /**
-   * <p>Read a complete message buffer from the device and convert it into a protobuf message.</p>
+   * <p>Read a complete message buffer from the device and convert it into a Core message.</p>
    *
-   * @return The protobuf message read from the device
+   * @return The low level message event containing adapted data read from the device
    */
-  protected abstract Message readFromDevice();
+  protected abstract MessageEvent readFromDevice();
 
   /**
    * <p>Write a complete message buffer to the device.</p>

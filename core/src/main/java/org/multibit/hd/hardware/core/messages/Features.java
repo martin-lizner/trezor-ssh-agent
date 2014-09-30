@@ -1,4 +1,4 @@
-package org.multibit.hd.hardware.core.api;
+package org.multibit.hd.hardware.core.messages;
 
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -7,55 +7,30 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import java.util.List;
 
 /**
- * <p>[Pattern] to provide the following to {@link Object}:</p>
+ * <p>Value object to provide the following to downstream API consumers:</p>
  * <ul>
- * <li></li>
+ * <li>Hardware wallet agnostic representation of device features</li>
  * </ul>
- * <p>Example:</p>
- * <pre>
- * </pre>
+ *
+ * <p>This object is typically built from a hardware wallet specific adapter</p>
  *
  * @since 0.0.1
  *  
  */
-public class Features {
+public class Features implements HardwareWalletMessage {
 
   private String vendor;
-
-
   private String version;
-
-
   private boolean bootloaderMode = false;
-
-
   private String deviceId;
-
-
   private boolean pinProtection = false;
-
-
   private boolean passphraseProtection;  //
-
-
   private String language;
-
-
   private String label;
-
-
   private List<String> coins = Lists.newArrayList();
-
-
   private boolean initialized;
-
-
   private byte[] revision;
-
-
   private byte[] bootloaderHash;
-
-
   private boolean imported;
 
   /**
