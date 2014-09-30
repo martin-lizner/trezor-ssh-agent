@@ -17,29 +17,34 @@ import org.multibit.hd.hardware.core.events.MessageEvent;
 public abstract class AbstractHardwareWalletState implements HardwareWalletState {
 
   @Override
+  public void await(HardwareWalletClient client, HardwareWalletContext context) {
+    // Do nothing
+  }
+
+  @Override
   public void transition(HardwareWalletClient client, HardwareWalletContext context, MessageEvent event) {
 
-    // Handle standard message events
+    // Handle low level message events for the device
     switch (event.getMessageType()) {
       case DEVICE_ATTACHED:
-        // Reset internal state to match the event
         context.resetToAttached();
         return;
-      case DEVICE_CONNECTED:
-        // Reset internal state to match the event
-        context.resetToConnected();
-        return;
       case DEVICE_DETACHED:
-        // Reset internal state to match the event
+        context.resetToDetached();
+        return;
+      case DEVICE_CONNECTED:
+      context.resetToConnected();
+      return;
+      case DEVICE_DISCONNECTED:
         context.resetToDisconnected();
         return;
       case DEVICE_FAILED:
-        // Reset internal state to match the event
         context.resetToFailed();
         return;
     }
 
-    // Must be unhandled to be here so rely on specific handler
+    // Must be unhandled to be here so rely on internal handler
+    // provided by implementation
     internalTransition(client, context, event);
 
   }

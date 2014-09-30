@@ -10,14 +10,17 @@ import org.slf4j.LoggerFactory;
  * <ul>
  * <li>State transitions based on low level message events</li>
  * </ul>
- * <p>The "wiped" state is the starting state of a hardware wallet when it contains no seed phrase.</p>
+ * <p>The "initialised" state is the awaiting state of a hardware wallet when the
+ * features have been retrieved.</p>
+ *
+ * <p>The next state depends upon a user providing input based on the features.</p>
  *
  * @since 0.0.1
  *  
  */
-public class WipedState extends AbstractHardwareWalletState {
+public class InitialisedState extends AbstractHardwareWalletState {
 
-  private static final Logger log = LoggerFactory.getLogger(WipedState.class);
+  private static final Logger log = LoggerFactory.getLogger(InitialisedState.class);
 
   @Override
   protected void internalTransition(HardwareWalletClient client, HardwareWalletContext context, MessageEvent event) {

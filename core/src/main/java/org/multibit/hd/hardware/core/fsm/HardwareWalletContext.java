@@ -22,9 +22,21 @@ public class HardwareWalletContext {
   private static final Logger log = LoggerFactory.getLogger(HardwareWalletContext.class);
 
   private Features features;
-  private HardwareWalletState currentState = HardwareWalletStates.newDetachedState();
+
+  /**
+   * The current state should start assuming an attached device and progress from there
+   * to either detached or connected
+   */
+  private HardwareWalletState currentState = HardwareWalletStates.newAttachedState();
 
   public HardwareWalletContext() {
+
+  }
+
+  /**
+   * Entry point to the state machine
+   */
+  public void awaitConnection() {
 
   }
 
@@ -68,6 +80,7 @@ public class HardwareWalletContext {
     currentState = HardwareWalletStates.newDetachedState();
   }
 
+
   /**
    * Reset the context back to an attached state (retain device information but prevent further communication)
    */
@@ -78,7 +91,6 @@ public class HardwareWalletContext {
     // Perform the state change
     currentState = HardwareWalletStates.newAttachedState();
   }
-
 
   /**
    * Reset the context back to a connected state (retain device information and allow further communication)
@@ -101,4 +113,16 @@ public class HardwareWalletContext {
     // Perform the state change
     currentState = HardwareWalletStates.newDisconnectedState();
   }
+
+  /**
+   * Reset the context back to the initialised state (standard awaiting state)
+   */
+  public void resetToInitialised() {
+
+    log.debug("Reset to 'initialised'");
+
+    // Perform the state change
+    currentState = HardwareWalletStates.newInitialisedState();
+  }
+
 }

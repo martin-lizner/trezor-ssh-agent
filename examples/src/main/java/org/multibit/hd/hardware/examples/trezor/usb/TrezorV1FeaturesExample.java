@@ -3,6 +3,7 @@ package org.multibit.hd.hardware.examples.trezor.usb;
 import com.google.bitcoin.core.AddressFormatException;
 import com.google.common.base.Optional;
 import com.google.common.eventbus.Subscribe;
+import com.google.common.util.concurrent.Uninterruptibles;
 import org.multibit.hd.hardware.core.HardwareWalletClient;
 import org.multibit.hd.hardware.core.HardwareWalletService;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvent;
@@ -14,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>Step 1 - Verify Trezor exists on USB</p>
@@ -70,11 +72,12 @@ public class TrezorV1FeaturesExample {
     // Register for the high level hardware wallet events
     HardwareWalletService.hardwareWalletEventBus.register(this);
 
+    // Start the service
     hardwareWalletService.start();
 
-    while(true) {
-
-    }
+    // Simulate the main thread continuing with other unrelated work
+    // We don't terminate main since we're using safe executors
+    Uninterruptibles.sleepUninterruptibly(1, TimeUnit.HOURS);
 
   }
 

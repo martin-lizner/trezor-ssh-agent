@@ -78,6 +78,17 @@ public class HardwareWalletStates {
   }
 
   /**
+   * @return A new initialised state
+   */
+  public static InitialisedState newInitialisedState() {
+
+    log.debug("Transitioning to 'initialised' state");
+
+    return new InitialisedState();
+
+  }
+
+  /**
    * @return A new wiped state
    */
   public static WipedState newWipedState() {

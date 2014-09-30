@@ -66,9 +66,28 @@ public class HardwareWalletService {
    */
   public void start() {
 
-    // Start the state machine
-    client.verifyEnvironment();
+    // Verify the environment
+    if (!client.verifyEnvironment()) {
+      log.warn("Cannot start the service due to a failed environment.");
+      return;
+    }
 
+    // Ensure the service is subscribed to low level message events
+    // from the client
+    messageEventBus.register(this);
+
+    // Start the hardware wallet state machine
+    clientMonitorService.submit(new Runnable() {
+      @Override
+      public void run() {
+        while (true) {
+          context.getState().await(client, context);
+
+          Uninterruptibles.sleepUninterruptibly(500, TimeUnit.MILLISECONDS);
+
+        }
+      }
+    });
   }
 
   /**
@@ -118,8 +137,6 @@ public class HardwareWalletService {
     );
 
   }
-
-
 
   /**
    * @param event The low level message event

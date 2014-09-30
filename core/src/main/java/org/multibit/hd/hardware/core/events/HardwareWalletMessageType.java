@@ -16,7 +16,7 @@ public enum HardwareWalletMessageType {
 
   // Device connectivity and communication
   /**
-   * Notification. Received when a device encountered an error not associated with I/O (e.g. thread interrupt due to timeout)
+   * Notification. Received when a device encountered an error in the environment (e.g. timeout or native library load failure)
    */
   DEVICE_FAILED,
   /**

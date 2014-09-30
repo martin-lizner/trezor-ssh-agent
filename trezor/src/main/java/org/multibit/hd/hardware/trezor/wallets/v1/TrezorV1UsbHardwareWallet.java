@@ -5,7 +5,6 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.satoshilabs.trezor.protobuf.TrezorMessage;
 import org.multibit.hd.hardware.core.HardwareWalletSpecification;
-import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
 import org.multibit.hd.hardware.core.events.HardwareWalletMessageType;
 import org.multibit.hd.hardware.core.events.MessageEvent;
 import org.multibit.hd.hardware.core.events.MessageEvents;
@@ -62,7 +61,8 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet impl
   /**
    * Selected device
    */
-  private Optional<UsbDevice> deviceOptional = Optional.absent();
+  private Optional<UsbDevice> locatedDevice = Optional.absent();
+  private UsbServices usbServices;
 
   /**
    * Default constructor for use with dynamic binding
@@ -111,16 +111,15 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet impl
   @Override
   public boolean verifyEnvironment() {
 
-    final UsbServices services;
     try {
 
       // Get the USB services and dump information about them
-      services = UsbHostManager.getUsbServices();
-      services.addUsbServicesListener(this);
+      usbServices = UsbHostManager.getUsbServices();
+      usbServices.addUsbServicesListener(this);
 
       // Explore all attached devices including hubs to verify USB library is working
       // and to determine initial state
-      locateDevice(services.getRootUsbHub());
+      locateDevice(usbServices.getRootUsbHub());
 
       // Must be OK to be here
       return true;
@@ -136,13 +135,32 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet impl
   @SuppressWarnings("unchecked")
   public synchronized boolean connect() {
 
-    if (!deviceOptional.isPresent()) {
-      return false;
+    // Check if the verify environment located a Trezor
+    if (!locatedDevice.isPresent()) {
+      log.debug("Suspect detached device. Attempting to locate...");
+      try {
+
+        // Explore all attached devices including hubs to verify USB library is working
+        // and to determine initial state
+        locateDevice(usbServices.getRootUsbHub());
+
+        if (!locatedDevice.isPresent()) {
+          log.debug("Failed to locate. Device must be detached.");
+          MessageEvents.fireMessageEvent(HardwareWalletMessageType.DEVICE_DETACHED);
+          return false;
+        }
+
+      } catch (UsbException e) {
+        log.error("Failed to connect device due to USB problem", e);
+        MessageEvents.fireMessageEvent(HardwareWalletMessageType.DEVICE_FAILED);
+        return false;
+      }
+
     }
 
     log.info("Located a Trezor device. Attempting verification...");
 
-    UsbDevice device = deviceOptional.get();
+    UsbDevice device = locatedDevice.get();
 
     // Examine the characteristics to ensure it is a Trezor
 
@@ -158,7 +176,7 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet impl
       if (configuration.isActive()) {
         if (!verifyConfiguration(configuration)) {
           log.error("Device not verified or its USB interface could not be claimed.");
-          HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletMessageType.DEVICE_FAILED);
+          MessageEvents.fireMessageEvent(HardwareWalletMessageType.DEVICE_FAILED);
           return false;
         } else {
           // Found a suitable Trezor device
@@ -174,7 +192,7 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet impl
     // Check for a connected Trezor
     if (readEndpoint == null || writeEndpoint == null) {
       log.error("Device read/write endpoints have not been set.");
-      HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletMessageType.DEVICE_FAILED);
+      MessageEvents.fireMessageEvent(HardwareWalletMessageType.DEVICE_FAILED);
       return false;
     }
 
@@ -187,7 +205,7 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet impl
 
     } catch (UsbException | UnsupportedEncodingException e) {
       log.error("Failed to connect device due to problem reading device information", e);
-      HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletMessageType.DEVICE_FAILED);
+      MessageEvents.fireMessageEvent(HardwareWalletMessageType.DEVICE_FAILED);
       return false;
     }
 
@@ -288,6 +306,7 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet impl
     }
 
     log.warn("All USB interfaces explored and none verify as a Trezor device.");
+    MessageEvents.fireMessageEvent(HardwareWalletMessageType.DEVICE_DETACHED);
 
     // Must have failed to be here
     return false;
@@ -298,7 +317,7 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet impl
    * @return True if device is connected (the HID device is present)
    */
   private boolean isDeviceConnected() {
-    return deviceOptional != null;
+    return locatedDevice != null;
   }
 
   @Override
@@ -309,7 +328,7 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet impl
     log.info("Disconnected from Trezor");
 
     // Let the service know
-    MessageEvents.fireMessageEvent(HardwareWalletMessageType.DEVICE_DETACHED);
+    MessageEvents.fireMessageEvent(HardwareWalletMessageType.DEVICE_DISCONNECTED);
 
   }
 
@@ -323,7 +342,7 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet impl
 
     if (vendorId.get() == device.getUsbDeviceDescriptor().idVendor() &&
       productId.get() == device.getUsbDeviceDescriptor().idProduct()) {
-      deviceOptional = Optional.of(device);
+      locatedDevice = Optional.of(device);
     }
 
     // Dump child devices if device is a hub
@@ -346,8 +365,8 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet impl
 
     Preconditions.checkNotNull(buffer, "'buffer' must be present");
 
-    Preconditions.checkNotNull(deviceOptional, "Device is not located");
-    Preconditions.checkState(deviceOptional.isPresent(), "Device is not connected");
+    Preconditions.checkNotNull(locatedDevice, "Device is not located");
+    Preconditions.checkState(locatedDevice.isPresent(), "Device is not connected");
 
     Preconditions.checkNotNull(writeEndpoint, "Endpoints have not been initialised");
 
