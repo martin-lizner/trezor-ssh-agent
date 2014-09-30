@@ -15,10 +15,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.usb.*;
-import javax.usb.event.UsbDeviceDataEvent;
-import javax.usb.event.UsbDeviceErrorEvent;
-import javax.usb.event.UsbDeviceEvent;
-import javax.usb.event.UsbDeviceListener;
+import javax.usb.event.UsbServicesEvent;
+import javax.usb.event.UsbServicesListener;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -33,7 +31,7 @@ import java.util.List;
  * @since 0.0.1
  *  
  */
-public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet implements UsbDeviceListener {
+public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet implements UsbServicesListener {
 
   private static final Short SATOSHI_LABS_VENDOR_ID = (short) 0x534c;
   private static final Short TREZOR_V1_PRODUCT_ID = 0x01;
@@ -479,35 +477,30 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet impl
   }
 
   @Override
-  public void usbDeviceDetached(UsbDeviceEvent event) {
+  public void usbDeviceAttached(UsbServicesEvent event) {
+    UsbDevice attachedDevice = event.getUsbDevice();
+
+    // Check if it is a device we're interested in that was attached
+    if (vendorId.get().equals(attachedDevice.getUsbDeviceDescriptor().idVendor()) &&
+      productId.get().equals(attachedDevice.getUsbDeviceDescriptor().idProduct())) {
+      // Inform others of this event
+      MessageEvents.fireMessageEvent(HardwareWalletMessageType.DEVICE_ATTACHED);
+    }
+
+  }
+
+  @Override
+  public void usbDeviceDetached(UsbServicesEvent event) {
 
     UsbDevice disconnectedDevice = event.getUsbDevice();
 
-    // Check if it is our device that was disconnected
+    // Check if it is our device that was detached
     if (vendorId.get().equals(disconnectedDevice.getUsbDeviceDescriptor().idVendor()) &&
       productId.get().equals(disconnectedDevice.getUsbDeviceDescriptor().idProduct())) {
       // Inform others of this event
       MessageEvents.fireMessageEvent(HardwareWalletMessageType.DEVICE_DISCONNECTED);
     }
-  }
-
-  @Override
-  public void errorEventOccurred(UsbDeviceErrorEvent event) {
-
-    UsbDevice erroredDevice = event.getUsbDevice();
-
-    // Check if it is our device that was disconnected
-    if (vendorId.get().equals(erroredDevice.getUsbDeviceDescriptor().idVendor()) &&
-      productId.get().equals(erroredDevice.getUsbDeviceDescriptor().idProduct())) {
-      // Inform others of this event
-      MessageEvents.fireMessageEvent(HardwareWalletMessageType.DEVICE_FAILED);
-    }
-  }
-
-  @Override
-  public void dataEventOccurred(UsbDeviceDataEvent event) {
-
-    // Handled elsewhere
 
   }
+
 }

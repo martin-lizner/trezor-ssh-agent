@@ -1,4 +1,4 @@
-package org.multibit.hd.hardware.core;
+package org.multibit.hd.hardware.core.wallets;
 
 /**
  * <p>Utility interface to provide the following to hardware wallet clients and devices:</p>
@@ -25,9 +25,9 @@ public interface Connectable {
    *
    * <p>Implementers must ensure the following behaviour:</p>
    * <ul>
-   * <li>The device is assumed to be connected and discoverable</li>
-   * <li>Method will return false if no matching device is found and further queries are safe to repeat</li>
-   * <li>A DEVICE_FAILED event will be generated if subsequent USB HID communication fails (i.e. device is broken)</li>
+   * <li>The hardware supporting the device is assumed to be physically attached and discoverable (i.e. plugged into USB or network)</li>
+   * <li>Method will return false if no matching device is found and further queries are safe to repeat (polling is permitted)</li>
+   * <li>A DEVICE_FAILED event will be generated if subsequent communication fails (i.e. USB HID fails or device is broken)</li>
    * </ul>
    *
    * @return True if the connection was successful

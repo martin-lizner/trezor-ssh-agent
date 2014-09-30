@@ -1,14 +1,13 @@
 package org.multibit.hd.hardware.core;
 
-import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.Uninterruptibles;
 import org.multibit.hd.hardware.core.concurrent.SafeExecutors;
-import org.multibit.hd.hardware.core.events.HardwareWalletMessageType;
 import org.multibit.hd.hardware.core.events.MessageEvent;
-import org.multibit.hd.hardware.core.messages.Features;
+import org.multibit.hd.hardware.core.fsm.HardwareWalletContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +45,11 @@ public class HardwareWalletService {
   private final HardwareWalletClient client;
 
   private final ListeningExecutorService clientMonitorService = SafeExecutors.newSingleThreadExecutor("monitor-hw-client");
-  private Features features;
+
+  /**
+   * The current hardware wallet context
+   */
+  private final HardwareWalletContext context = new HardwareWalletContext();
 
   /**
    * @param client The hardware wallet client providing the low level messages
@@ -63,25 +66,8 @@ public class HardwareWalletService {
    */
   public void start() {
 
-    if (!client.verifyEnvironment()) {
-      log.warn("Failed to verify environment");
-      return;
-    }
-
-    // Must have a working environment to be here so attempt connection
-    log.debug("Attempting connection");
-    client.connect();
-
-    // TODO Move this into the FSM
-    log.debug("Attempting initialization");
-    Optional<MessageEvent> response = client.initialize();
-
-    if (response.isPresent()) {
-      if (response.get().getMessageType().equals(HardwareWalletMessageType.FEATURES)) {
-        features = new Features();
-
-      }
-    }
+    // Start the state machine
+    context.verifyEnvironment();
 
   }
 
@@ -106,6 +92,18 @@ public class HardwareWalletService {
    */
   public void createWalletOnDevice(String language, String label, boolean displayRandom, boolean passphraseProtection, boolean pinProtection, int strength) {
 
+
+    /*
+    FSM thinking
+    -> connected
+    -> wiping
+    <- button request
+    -> button ack
+    -> wiped
+    -> resetting
+    -> reset
+     */
+
     client.wipeDevice();
 
     Uninterruptibles.sleepUninterruptibly(1, TimeUnit.SECONDS);
@@ -121,8 +119,22 @@ public class HardwareWalletService {
 
   }
 
-  public Features getFeatures() {
-    return features;
+
+
+  /**
+   * @param event The low level message event
+   */
+  @Subscribe
+  public void onMessageEvent(MessageEvent event) {
+
+    context.getState().transition(client, context, event);
+
   }
 
+  /**
+   * @return The hardware wallet context providing access to the current device state
+   */
+  public HardwareWalletContext getContext() {
+    return context;
+  }
 }

@@ -1,12 +1,12 @@
 package org.multibit.hd.hardware.core.fsm;
 
-import org.multibit.hd.hardware.core.HardwareWalletService;
-import org.multibit.hd.hardware.core.events.HardwareWalletEvent;
+import org.multibit.hd.hardware.core.HardwareWalletClient;
+import org.multibit.hd.hardware.core.events.MessageEvent;
 
 /**
- * <p>State to provide the following to hardware wallet clients:</p>
+ * <p>Abstract base class to provide the following to hardware wallet states:</p>
  * <ul>
- * <li>Standard entry points for events and transitions</li>
+ * <li>Access to common methods and fields</li>
  * </ul>
  *
  * <p></p>
@@ -16,50 +16,43 @@ import org.multibit.hd.hardware.core.events.HardwareWalletEvent;
  */
 public abstract class AbstractHardwareWalletState implements HardwareWalletState {
 
-  /**
-   * True if this state can respond to events
-   */
-  private boolean isActive = false;
+  @Override
+  public void transition(HardwareWalletClient client, HardwareWalletContext context, MessageEvent event) {
 
-  public AbstractHardwareWalletState() {
+    // Handle standard message events
+    switch (event.getMessageType()) {
+      case DEVICE_ATTACHED:
+        // Reset internal state to match the event
+        context.resetToAttached();
+        return;
+      case DEVICE_CONNECTED:
+        // Reset internal state to match the event
+        context.resetToConnected();
+        return;
+      case DEVICE_DISCONNECTED:
+        // Reset internal state to match the event
+        context.resetToDisconnected();
+        return;
+      case DEVICE_FAILED:
+        // Reset internal state to match the event
+        context.resetToFailed();
+        return;
+    }
 
-    // Ensure we are subscribed to hardware wallet events
-    HardwareWalletService.hardwareWalletEventBus.register(this);
+    // Must be unhandled to be here so rely on specific handler
+    internalTransition(client, context, event);
 
   }
 
   /**
-   * <p>Provide standard handling of system events before handing over to implementations</p>
+   * <p>Initiate a move to the next state through the given client.</p>
    *
-   * @param hardwareWalletEvent The hardware wallet event
+   * <p>Typically the client is used to move in to or out of a "waiting state" and the context is updated with new data</p>
+   *
+   * @param client  The hardware wallet client for sending messages
+   * @param context The current context providing parameters for decisions
+   * @param event   The event driving the transition
+   *
    */
-  public void onHardwareWalletEvent(HardwareWalletEvent hardwareWalletEvent) {
-
-    // Ignore events if not active
-    if (!isActive) {
-      return;
-    }
-
-    if (hardwareWalletEvent.getMessage().isPresent()) {
-      // Hand over to the dedicated event handler
-      handleEvent(hardwareWalletEvent);
-    } else {
-      // Handle as a "system" event
-      switch (hardwareWalletEvent.getMessageType()) {
-        case DEVICE_CONNECTED:
-          break;
-      }
-    }
-
-  }
-
-  @Override
-  public boolean isActive() {
-    return isActive;
-  }
-
-  @Override
-  public void setActive(boolean isActive) {
-    this.isActive = isActive;
-  }
+  protected abstract void internalTransition(HardwareWalletClient client, HardwareWalletContext context, MessageEvent event);
 }

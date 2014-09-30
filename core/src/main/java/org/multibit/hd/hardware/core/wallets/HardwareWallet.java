@@ -1,7 +1,6 @@
 package org.multibit.hd.hardware.core.wallets;
 
 import com.google.protobuf.Message;
-import org.multibit.hd.hardware.core.Connectable;
 import org.multibit.hd.hardware.core.HardwareWalletSpecification;
 import org.multibit.hd.hardware.core.events.MessageEvent;
 

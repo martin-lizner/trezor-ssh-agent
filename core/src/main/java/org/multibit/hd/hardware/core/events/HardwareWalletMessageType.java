@@ -14,23 +14,21 @@ package org.multibit.hd.hardware.core.events;
  */
 public enum HardwareWalletMessageType {
 
+  // Device connectivity and communication
   /**
-   * Device encountered an error not associated with I/O (e.g. thread interrupt due to timeout)
+   * Notification. Received when a device encountered an error not associated with I/O (e.g. thread interrupt due to timeout)
    */
   DEVICE_FAILED,
-
   /**
-   * Received EOF from device (no data in receive buffer after timeout when some is expected)
+   * Notification. Received when a device is attached at the hardware level (plugged into USB, socket connection established etc)
    */
-  DEVICE_EOF,
-
+  DEVICE_ATTACHED,
   /**
-   * Received on a device connect (communications established at the wire level)
+   * Notification. Received on a device connect (communications established at the wire level)
    */
   DEVICE_CONNECTED,
-
   /**
-   * Received on a device disconnect (no longer able to communicate)
+   * Notification. Received on a device disconnect or detachment (no longer able to communicate)
    */
   DEVICE_DISCONNECTED,
 

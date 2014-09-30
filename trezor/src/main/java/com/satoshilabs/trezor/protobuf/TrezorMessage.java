@@ -7744,7 +7744,8 @@ public final class TrezorMessage {
    * @prev ButtonRequest
    * </pre>
    */
-  public static final class ButtonAck extends
+  public static final class
+    ButtonAck extends
       com.google.protobuf.GeneratedMessage
       implements ButtonAckOrBuilder {
     // Use ButtonAck.newBuilder() to construct.

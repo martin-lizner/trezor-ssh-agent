@@ -96,7 +96,7 @@ public class TrezorV1FeaturesExample {
     // Must have connected to be here
 
     // Get some information about the device
-    Features features = hardwareWalletService.getFeatures();
+    Features features = hardwareWalletService.getContext().getFeatures();
     log.info("Features: {}", features);
 
   }

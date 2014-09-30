@@ -91,7 +91,7 @@ public class TrezorV1WipeDeviceExample {
     }
 
     // Get some information about the device
-    Features features = hardwareWalletService.getFeatures();
+    Features features = hardwareWalletService.getContext().getFeatures();
     log.info("Features: {}", features);
 
     // Use the service to make high level decisions

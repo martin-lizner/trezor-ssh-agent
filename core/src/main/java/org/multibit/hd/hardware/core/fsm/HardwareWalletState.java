@@ -1,29 +1,28 @@
 package org.multibit.hd.hardware.core.fsm;
 
-import org.multibit.hd.hardware.core.events.HardwareWalletEvent;
+import org.multibit.hd.hardware.core.HardwareWalletClient;
+import org.multibit.hd.hardware.core.events.MessageEvent;
 
 /**
- * <p>State to provide the following to hardware wallet finite state machines:</p>
+ * <p>Interface to provide the following to hardware wallet finite state machines:</p>
  * <ul>
- * <li>Standard methods for transitions</li>
+ * <li>Standard methods for managing state transitions from events</li>
  * </ul>
  *
  * @since 0.0.1
  *  
  */
 public interface HardwareWalletState {
-  /**
-   * @param hardwareWalletEvent An event containing the protobuf message
-   */
-  void handleEvent(HardwareWalletEvent hardwareWalletEvent);
 
   /**
-   * @return True if this state is currently active
+   * <p>Initiate a move to the next state through the given client.</p>
+   *
+   * <p>Typically the client is used to move in to or out of a "waiting state" and the context is updated with new data</p>
+   *
+   * @param client  The hardware wallet client for sending messages
+   * @param context The current context providing parameters for decisions
+   * @param event   The event driving the transition
+   *
    */
-  boolean isActive();
-
-  /**
-   * @param isActive True if this state should be active
-   */
-  void setActive(boolean isActive);
+  void transition(HardwareWalletClient client, HardwareWalletContext context, MessageEvent event);
 }

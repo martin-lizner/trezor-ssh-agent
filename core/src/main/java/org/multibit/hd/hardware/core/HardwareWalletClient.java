@@ -4,6 +4,7 @@ import com.google.bitcoin.core.Address;
 import com.google.bitcoin.core.Transaction;
 import com.google.common.base.Optional;
 import org.multibit.hd.hardware.core.events.MessageEvent;
+import org.multibit.hd.hardware.core.wallets.Connectable;
 
 /**
  * <p>Interface to provide the following to applications:</p>
