@@ -60,7 +60,7 @@ public class HardwareWalletEvent {
    * @return True if the device is disconnected
    */
   public boolean isDisconnected() {
-    return HardwareWalletMessageType.DEVICE_DISCONNECTED.equals(messageType);
+    return HardwareWalletMessageType.DEVICE_DETACHED.equals(messageType);
   }
 
 }

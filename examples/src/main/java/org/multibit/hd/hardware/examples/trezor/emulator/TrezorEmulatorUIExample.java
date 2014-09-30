@@ -58,7 +58,7 @@ public class TrezorEmulatorUIExample {
     //  maxfee_kb: 1000000
 
     // 3500        this              close
-    // 4000        trezor            DEVICE_DISCONNECTED
+    // 4000        trezor            DEVICE_DETACHED
 
     // ping reply
     trezorEmulator.addMessage(new TrezorEmulator.EmulatorMessage(

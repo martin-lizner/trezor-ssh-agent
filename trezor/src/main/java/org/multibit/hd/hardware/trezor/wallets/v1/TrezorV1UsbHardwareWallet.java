@@ -116,6 +116,7 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet impl
 
       // Get the USB services and dump information about them
       services = UsbHostManager.getUsbServices();
+      services.addUsbServicesListener(this);
 
       // Explore all attached devices including hubs to verify USB library is working
       // and to determine initial state
@@ -308,7 +309,7 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet impl
     log.info("Disconnected from Trezor");
 
     // Let the service know
-    MessageEvents.fireMessageEvent(HardwareWalletMessageType.DEVICE_DISCONNECTED);
+    MessageEvents.fireMessageEvent(HardwareWalletMessageType.DEVICE_DETACHED);
 
   }
 
@@ -478,6 +479,7 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet impl
 
   @Override
   public void usbDeviceAttached(UsbServicesEvent event) {
+
     UsbDevice attachedDevice = event.getUsbDevice();
 
     // Check if it is a device we're interested in that was attached
@@ -498,7 +500,7 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet impl
     if (vendorId.get().equals(disconnectedDevice.getUsbDeviceDescriptor().idVendor()) &&
       productId.get().equals(disconnectedDevice.getUsbDeviceDescriptor().idProduct())) {
       // Inform others of this event
-      MessageEvents.fireMessageEvent(HardwareWalletMessageType.DEVICE_DISCONNECTED);
+      MessageEvents.fireMessageEvent(HardwareWalletMessageType.DEVICE_DETACHED);
     }
 
   }

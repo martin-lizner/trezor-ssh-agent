@@ -118,7 +118,7 @@ public class TrezorShieldSocketHardwareWallet extends AbstractTrezorHardwareWall
       log.info("Disconnected from Trezor");
 
       // Must have disconnected to be here
-      HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletMessageType.DEVICE_DISCONNECTED);
+      HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletMessageType.DEVICE_DETACHED);
 
     } catch (IOException e) {
       HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletMessageType.DEVICE_FAILED);
@@ -147,7 +147,7 @@ public class TrezorShieldSocketHardwareWallet extends AbstractTrezorHardwareWall
       log.warn("I/O error during write. Closing socket.", e);
 
       // Must have disconnected to be here
-      HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletMessageType.DEVICE_DISCONNECTED);
+      HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletMessageType.DEVICE_DETACHED);
     }
 
     // Must have failed to be here

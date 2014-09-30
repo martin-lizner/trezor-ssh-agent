@@ -1,6 +1,8 @@
 package org.multibit.hd.hardware.core.fsm;
 
 import org.multibit.hd.hardware.core.messages.Features;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>State context to provide the following to hardware wallet finite state machine:</p>
@@ -8,14 +10,16 @@ import org.multibit.hd.hardware.core.messages.Features;
  * <li>Provision of state context and parameters</li>
  * </ul>
  *
- * <p>The finite state machine (FSM) for the hardware wallet requires various input parameters
- * from the user and from the external environment. This context provides a single location to
- * store these values during state transitions.</p>
+ * <p>The finite state machine (FSM) for the hardware wallet requires and tracks various
+ * input parameters from the user and from the external environment. This context provides
+ * a single location to store these values during state transitions.</p>
  *
  * @since 0.0.1
  *  
  */
 public class HardwareWalletContext {
+
+  private static final Logger log = LoggerFactory.getLogger(HardwareWalletContext.class);
 
   private Features features;
   private HardwareWalletState currentState = HardwareWalletStates.newDetachedState();
@@ -43,15 +47,11 @@ public class HardwareWalletContext {
   }
 
   /**
-   * Entry point to the overall state machine
-   */
-  public void verifyEnvironment() {
-  }
-
-  /**
    * Reset the context back to a failed state (retain device information but prevent further communication)
    */
   public void resetToFailed() {
+
+    log.debug("Reset to 'failed'");
 
     // Perform the state change
     currentState = HardwareWalletStates.newFailedState();
@@ -62,6 +62,8 @@ public class HardwareWalletContext {
    */
   public void resetToDetached() {
 
+    log.debug("Reset to 'detached'");
+
     // Perform the state change
     currentState = HardwareWalletStates.newDetachedState();
   }
@@ -70,6 +72,8 @@ public class HardwareWalletContext {
    * Reset the context back to an attached state (retain device information but prevent further communication)
    */
   public void resetToAttached() {
+
+    log.debug("Reset to 'attached'");
 
     // Perform the state change
     currentState = HardwareWalletStates.newAttachedState();
@@ -81,6 +85,8 @@ public class HardwareWalletContext {
    */
   public void resetToConnected() {
 
+    log.debug("Reset to 'connected'");
+
     // Perform the state change
     currentState = HardwareWalletStates.newConnectedState();
   }
@@ -89,6 +95,8 @@ public class HardwareWalletContext {
    * Reset the context back to a disconnected state (device is attached but communication has not been established)
    */
   public void resetToDisconnected() {
+
+    log.debug("Reset to 'disconnected'");
 
     // Perform the state change
     currentState = HardwareWalletStates.newDisconnectedState();

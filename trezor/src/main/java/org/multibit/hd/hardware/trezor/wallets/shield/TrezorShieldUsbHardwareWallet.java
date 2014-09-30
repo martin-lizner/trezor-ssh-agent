@@ -196,7 +196,7 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
 
     // No matching device so indicate that it is disconnected
     if (!hidDeviceInfoOptional.isPresent()) {
-      HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletMessageType.DEVICE_DISCONNECTED);
+      HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletMessageType.DEVICE_DETACHED);
       return Optional.absent();
     }
 
@@ -241,7 +241,7 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
       log.info("Disconnected from Trezor");
 
       // Let everyone know
-      HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletMessageType.DEVICE_DISCONNECTED);
+      HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletMessageType.DEVICE_DETACHED);
 
     } catch (IOException e) {
       throw new IllegalArgumentException(e);

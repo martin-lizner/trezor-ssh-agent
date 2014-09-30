@@ -72,6 +72,10 @@ public class TrezorV1FeaturesExample {
 
     hardwareWalletService.start();
 
+    while(true) {
+
+    }
+
   }
 
   /**

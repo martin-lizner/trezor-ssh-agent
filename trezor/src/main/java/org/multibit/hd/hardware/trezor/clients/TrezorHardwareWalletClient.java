@@ -2,7 +2,6 @@ package org.multibit.hd.hardware.trezor.clients;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Queues;
 import com.google.protobuf.Message;
 import org.multibit.hd.hardware.core.events.HardwareWalletMessageType;
 import org.multibit.hd.hardware.core.events.MessageEvent;
@@ -11,7 +10,6 @@ import org.multibit.hd.hardware.trezor.wallets.AbstractTrezorHardwareWallet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -38,11 +36,6 @@ public class TrezorHardwareWalletClient extends AbstractTrezorHardwareWalletClie
   private boolean isSessionIdValid = true;
 
   /**
-   * Keep track of low level message events to allow blocking to occur
-   */
-  private final BlockingQueue<MessageEvent> messageEvents = Queues.newArrayBlockingQueue(10);
-
-  /**
    * @param trezor The Trezor device
    */
   public TrezorHardwareWalletClient(AbstractTrezorHardwareWallet trezor) {
@@ -51,10 +44,17 @@ public class TrezorHardwareWalletClient extends AbstractTrezorHardwareWalletClie
 
   @Override
   public boolean verifyEnvironment() {
-    log.debug("Verifying environment...");
-    isTrezorValid = trezor.verifyEnvironment();
 
-    return isTrezorValid;
+    log.debug("Verifying environment...");
+
+    if (!trezor.verifyEnvironment()) {
+      log.error("Problems with the hardware environment will prevent communication with the Trezor.");
+      return false;
+    }
+
+    // Must be OK to be here
+    log.debug("Environment OK");
+    return true;
   }
 
   @Override

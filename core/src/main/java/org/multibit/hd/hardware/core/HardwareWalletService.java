@@ -67,7 +67,7 @@ public class HardwareWalletService {
   public void start() {
 
     // Start the state machine
-    context.verifyEnvironment();
+    client.verifyEnvironment();
 
   }
 

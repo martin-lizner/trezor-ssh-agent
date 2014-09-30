@@ -20,15 +20,19 @@ public enum HardwareWalletMessageType {
    */
   DEVICE_FAILED,
   /**
-   * Notification. Received when a device is attached at the hardware level (plugged into USB, socket connection established etc)
+   * Notification. Received when a device is attached (device present but no communications yet attempted at the wire level)
    */
   DEVICE_ATTACHED,
   /**
-   * Notification. Received on a device connect (communications established at the wire level)
+   * Notification. Received when a device is detached (no device present)
+   */
+  DEVICE_DETACHED,
+  /**
+   * Notification. Received on a device connect (device present and communications established at the wire level)
    */
   DEVICE_CONNECTED,
   /**
-   * Notification. Received on a device disconnect or detachment (no longer able to communicate)
+   * Notification. Received on a device disconnect (device present and communications were established at the wire level but they are now blocked)
    */
   DEVICE_DISCONNECTED,
 

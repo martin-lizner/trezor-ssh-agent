@@ -29,7 +29,7 @@ public abstract class AbstractHardwareWalletState implements HardwareWalletState
         // Reset internal state to match the event
         context.resetToConnected();
         return;
-      case DEVICE_DISCONNECTED:
+      case DEVICE_DETACHED:
         // Reset internal state to match the event
         context.resetToDisconnected();
         return;
