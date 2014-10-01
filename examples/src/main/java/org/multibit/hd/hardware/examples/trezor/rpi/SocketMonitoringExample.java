@@ -72,7 +72,7 @@ public class SocketMonitoringExample {
     }
 
     // Initialize
-    client.initialize();
+    client.initialise();
 
     // Send a ping
     client.ping();

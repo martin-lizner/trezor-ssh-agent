@@ -72,7 +72,7 @@ public class TrezorShieldFeaturesExample {
       log.info("Attempting basic Trezor protobuf communication");
 
       // Initialize
-      client.initialize();
+      client.initialise();
 
       // Send a ping
       client.ping();

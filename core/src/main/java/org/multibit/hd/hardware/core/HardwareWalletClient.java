@@ -20,7 +20,7 @@ public interface HardwareWalletClient extends Connectable {
 
   /**
    * <p>Reset device to default state and ask for device details</p>
-   * <p>Send the INITIALIZE message to the device.</p>
+   * <p>Send the INITIALISE message to the device.</p>
    * <p>Expected response events are:</p>
    * <ul>
    * <li>PIN_MATRIX_REQUEST if the PIN is needed</li>
@@ -29,7 +29,7 @@ public interface HardwareWalletClient extends Connectable {
    *
    * @return The response event if implementation is blocking. Absent if non-blocking or device failure.
    */
-  Optional<MessageEvent> initialize();
+  Optional<MessageEvent> initialise();
 
   /**
    * <p>Send the PING message to the device</p>

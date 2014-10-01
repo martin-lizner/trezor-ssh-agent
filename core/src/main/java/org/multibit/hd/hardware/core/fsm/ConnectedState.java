@@ -28,7 +28,7 @@ public class ConnectedState extends AbstractHardwareWalletState {
   public void await(HardwareWalletClient client, HardwareWalletContext context) {
 
     // Trigger a state transition via the response event
-    client.initialize();
+    client.initialise();
 
   }
 

@@ -143,7 +143,7 @@ public class RelayToTrezorV1FeaturesExample {
       log.info("Attempting basic Trezor protobuf communication");
 
       // Initialize
-      client.initialize();
+      client.initialise();
 
       Uninterruptibles.sleepUninterruptibly(5, TimeUnit.SECONDS);
 

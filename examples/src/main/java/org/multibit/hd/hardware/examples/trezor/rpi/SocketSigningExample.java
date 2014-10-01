@@ -79,7 +79,7 @@ public class SocketSigningExample {
     client.connect();
 
     // Initialize
-    client.initialize();
+    client.initialise();
 
     // Send a ping
     client.ping();

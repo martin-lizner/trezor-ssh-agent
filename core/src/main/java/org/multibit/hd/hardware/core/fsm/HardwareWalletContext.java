@@ -1,6 +1,8 @@
 package org.multibit.hd.hardware.core.fsm;
 
 import com.google.common.base.Optional;
+import org.multibit.hd.hardware.core.events.HardwareWalletEventType;
+import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
 import org.multibit.hd.hardware.core.messages.Features;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,6 +70,9 @@ public class HardwareWalletContext {
 
     // Perform the state change
     currentState = HardwareWalletStates.newFailedState();
+
+    // Fire the high level event
+    HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_DEVICE_FAILED);
   }
 
   /**
@@ -79,6 +84,9 @@ public class HardwareWalletContext {
 
     // Perform the state change
     currentState = HardwareWalletStates.newDetachedState();
+
+    // Fire the high level event
+    HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_DEVICE_DETACHED);
   }
 
 
@@ -91,6 +99,8 @@ public class HardwareWalletContext {
 
     // Perform the state change
     currentState = HardwareWalletStates.newAttachedState();
+
+    // No high level event for this state
   }
 
   /**
@@ -102,6 +112,8 @@ public class HardwareWalletContext {
 
     // Perform the state change
     currentState = HardwareWalletStates.newConnectedState();
+
+    // No high level event for this state
   }
 
   /**
@@ -113,6 +125,9 @@ public class HardwareWalletContext {
 
     // Perform the state change
     currentState = HardwareWalletStates.newDisconnectedState();
+
+    // No high level event for this state
+
   }
 
   /**
@@ -124,6 +139,9 @@ public class HardwareWalletContext {
 
     // Perform the state change
     currentState = HardwareWalletStates.newInitialisedState();
+
+    // Fire the high level event
+    HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_DEVICE_READY);
   }
 
   /**

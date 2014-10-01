@@ -104,8 +104,6 @@ public class TrezorHardwareWalletClient extends AbstractTrezorHardwareWalletClie
     // Write the message
     trezor.writeMessage(message);
 
-    // TODO Remove the blocking call approach
-
     // Wait for a response
     MessageEvent messageEvent = trezor.readMessage();
 

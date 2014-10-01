@@ -76,7 +76,7 @@ public class UsbSigningExample {
     client.connect();
 
     // Initialize
-    client.initialize();
+    client.initialise();
 
     Thread.sleep(5000);
 

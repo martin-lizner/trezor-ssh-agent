@@ -24,7 +24,7 @@ import java.util.concurrent.TimeUnit;
 public abstract class AbstractTrezorHardwareWalletClient implements HardwareWalletClient {
 
   @Override
-  public Optional<MessageEvent> initialize() {
+  public Optional<MessageEvent> initialise() {
     return sendMessage(
       TrezorMessage.Initialize
         .newBuilder()

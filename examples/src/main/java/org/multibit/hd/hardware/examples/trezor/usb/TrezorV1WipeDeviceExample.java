@@ -92,6 +92,7 @@ public class TrezorV1WipeDeviceExample {
         if (!hardwareWalletService.isWalletCreationRequired()) {
           // We could choose to bypass the whole wallet creation process
           // but for this example we'll fall through to the forced creation
+          log.debug("Ignoring the wallet creation requirement flag");
         }
 
         // Force creation of the wallet with PIN protection, passphrase protection
