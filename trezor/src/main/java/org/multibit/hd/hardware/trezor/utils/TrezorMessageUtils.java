@@ -129,6 +129,7 @@ public final class TrezorMessageUtils {
         case MessageType_PinMatrixRequest:
           message = TrezorMessage.PinMatrixRequest.parseFrom(buffer);
           messageEventType = MessageEventType.PIN_MATRIX_REQUEST;
+          hardwareWalletMessage = TrezorMessageAdapter.adaptPinMatrixRequest((TrezorMessage.PinMatrixRequest) message);
           break;
         case MessageType_PinMatrixAck:
           message = TrezorMessage.PinMatrixAck.parseFrom(buffer);

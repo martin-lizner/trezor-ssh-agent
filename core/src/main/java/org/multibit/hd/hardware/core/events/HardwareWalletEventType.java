@@ -61,6 +61,12 @@ public enum HardwareWalletEventType {
    */
   SHOW_OPERATION_FAILED,
 
+  /**
+   * An additional source of entropy should be provided that will be combined with that shown on the device to
+   * yield a seed phrase that can be proved to contain both values.
+   */
+  PROVIDE_ENTROPY,
+
   // End of enum
   ;
 

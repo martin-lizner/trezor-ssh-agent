@@ -12,36 +12,30 @@ import org.slf4j.LoggerFactory;
  * <ul>
  * <li>State transitions based on low level message events</li>
  * </ul>
- * <p>The "confirm wipe" state occurs in response to a WIPE message and handles button
- * requests, success and failure messages coming from the device.</p>
+ * <p>The "confirm entropy" state occurs in response to a ENTROPY_REQUEST message and handles
+ * the ongoing button requests, success and failure messages coming from the device as it
+ * shows the words in the generated seed phrase.</p>
  *
  * @since 0.0.1
  *  
  */
-public class ConfirmWipeState extends AbstractHardwareWalletState {
+public class ConfirmEntropyState extends AbstractHardwareWalletState {
 
-  private static final Logger log = LoggerFactory.getLogger(ConfirmWipeState.class);
+  private static final Logger log = LoggerFactory.getLogger(ConfirmEntropyState.class);
 
   @Override
   protected void internalTransition(HardwareWalletClient client, HardwareWalletContext context, MessageEvent event) {
 
     switch (event.getEventType()) {
       case BUTTON_REQUEST:
-        // Device is asking for confirmation to wipe
+        // Device is asking for the user to acknowledge a word display
         HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_BUTTON_PRESS, event.getMessage().get());
         client.buttonAck();
         break;
       case SUCCESS:
-        // Device has successfully wiped
-        if (context.getCreateWalletSpecification().isPresent()) {
-          CreateWalletSpecification specification = context.getCreateWalletSpecification().get();
-          context.setToConfirmResetState();
-
-        } else {
-          // No wallet creation required so we're done
-          HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_OPERATION_SUCCEEDED, event.getMessage().get());
-          context.resetToInitialised();
-        }
+        // Device has completed the operation
+        HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_OPERATION_SUCCEEDED, event.getMessage().get());
+        context.resetToInitialised();
         break;
       case FAILURE:
         // User has cancelled or operation failed

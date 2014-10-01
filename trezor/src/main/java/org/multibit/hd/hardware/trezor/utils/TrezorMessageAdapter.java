@@ -165,5 +165,38 @@ public class TrezorMessageAdapter {
     }
 
   }
+
+  /**
+   * @param source The source message
+   *
+   * @return The adapted Core message
+   */
+  public static HardwareWalletMessage adaptPinMatrixRequest(TrezorMessage.PinMatrixRequest source) {
+
+    PinMatrixRequestType pinMatrixRequestType = adaptPinMatrixRequestType(source.getType());
+
+    return new PinMatrixRequest(pinMatrixRequestType);
+
+  }
+
+  /**
+   * @param source The source message
+   *
+   * @return The adapted Core message
+   */
+  public static PinMatrixRequestType adaptPinMatrixRequestType(TrezorType.PinMatrixRequestType source) {
+
+    switch (source) {
+      case PinMatrixRequestType_Current:
+        return PinMatrixRequestType.CURRENT;
+      case PinMatrixRequestType_NewFirst:
+        return PinMatrixRequestType.NEW_FIRST;
+      case PinMatrixRequestType_NewSecond:
+        return PinMatrixRequestType.NEW_SECOND;
+      default:
+        return null;
+    }
+
+  }
   
 }

@@ -142,7 +142,8 @@ public interface HardwareWalletClient extends Connectable {
     String language,
     String seed,
     String pin,
-    boolean passphraseProtection);
+    boolean passphraseProtection
+  );
 
   /**
    * <p>Send the RESET_DEVICE message to the device. The device will perform a full reset, generating a new seed

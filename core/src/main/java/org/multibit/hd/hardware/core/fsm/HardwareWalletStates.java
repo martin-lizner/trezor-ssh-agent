@@ -100,13 +100,35 @@ public class HardwareWalletStates {
   }
 
   /**
-   * @return A new wiped state
+   * @return A new confirm reset state
    */
-  public static WipedState newWipedState() {
+  public static ConfirmResetState newConfirmResetState() {
 
-    log.debug("Transitioning to 'wiped' state");
+    log.debug("Transitioning to 'confirm reset' state");
 
-    return new WipedState();
+    return new ConfirmResetState();
+
+  }
+
+  /**
+   * @return A new confirm PIN state
+   */
+  public static ConfirmPINState newConfirmPINState() {
+
+    log.debug("Transitioning to 'confirm PIN' state");
+
+    return new ConfirmPINState();
+
+  }
+
+  /**
+   * @return A new confirm entropy state
+   */
+  public static ConfirmEntropyState newConfirmEntropyState() {
+
+    log.debug("Transitioning to 'confirm Entropy' state");
+
+    return new ConfirmEntropyState();
 
   }
 

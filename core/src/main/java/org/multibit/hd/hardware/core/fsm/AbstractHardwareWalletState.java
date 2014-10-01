@@ -2,6 +2,9 @@ package org.multibit.hd.hardware.core.fsm;
 
 import org.multibit.hd.hardware.core.HardwareWalletClient;
 import org.multibit.hd.hardware.core.events.MessageEvent;
+import org.multibit.hd.hardware.core.wallets.AbstractHardwareWallet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>Abstract base class to provide the following to hardware wallet states:</p>
@@ -15,6 +18,8 @@ import org.multibit.hd.hardware.core.events.MessageEvent;
  *  
  */
 public abstract class AbstractHardwareWalletState implements HardwareWalletState {
+
+  private static final Logger log = LoggerFactory.getLogger(AbstractHardwareWallet.class);
 
   @Override
   public void await(HardwareWalletContext context) {

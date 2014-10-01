@@ -5,10 +5,13 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.Uninterruptibles;
 import org.multibit.hd.hardware.core.concurrent.SafeExecutors;
+import org.multibit.hd.hardware.core.fsm.CreateWalletSpecification;
 import org.multibit.hd.hardware.core.fsm.HardwareWalletContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -112,7 +115,7 @@ public class HardwareWalletService {
    * @param pinProtection        True if the device should use PIN protection
    * @param wordCount            The number of words in the seed phrase (12 (default) is 128 bits, 18 is 196 bits, 24 is 256 bits)
    */
-  public void forceCreateWalletOnDevice(
+  public void secureCreateWallet(
     String language,
     String label,
     boolean displayRandom,
@@ -121,8 +124,8 @@ public class HardwareWalletService {
     int wordCount
   ) {
 
-    // Set the FSM context
-    context.beginResetDeviceUseCase(
+    // Create the specification
+    CreateWalletSpecification specification = new CreateWalletSpecification(
       language,
       label,
       displayRandom,
@@ -131,6 +134,30 @@ public class HardwareWalletService {
       wordCount
     );
 
+    // Set the FSM context
+    context.beginCreateWallet(specification);
+
+  }
+
+  /**
+   * @param pin The PIN taken from the user ideally through an obfuscated PIN matrix approach
+   */
+  public void providePIN(String pin) {
+
+    // Set the FSM context
+    context.continueCreateWallet_PIN(pin);
+  }
+
+  /**
+   * <p>Provide additional entropy to the device to reduce risk of hardware compromise</p>
+   *
+   * @param entropy Random bytes provided by a secure random number generator (see {@link #generateEntropy()}
+   */
+  public void provideEntropy(byte[] entropy) {
+
+    // Set the FSM context
+    context.continueCreateWallet_Entropy(entropy);
+
   }
 
   /**
@@ -138,5 +165,26 @@ public class HardwareWalletService {
    */
   public HardwareWalletContext getContext() {
     return context;
+  }
+
+  /**
+   * @return 32 bytes (256 bits) of entropy
+   */
+  public byte[] generateEntropy() {
+
+    // Initialize a secure random number generator using
+    // the OWASP recommended method
+    SecureRandom secureRandom;
+    try {
+      secureRandom = SecureRandom.getInstance("SHA1PRNG");
+    } catch (NoSuchAlgorithmException e) {
+      throw new IllegalArgumentException(e);
+    }
+
+    // Generate random bytes
+    byte[] bytes = new byte[32];
+    secureRandom.nextBytes(bytes);
+
+    return bytes;
   }
 }
