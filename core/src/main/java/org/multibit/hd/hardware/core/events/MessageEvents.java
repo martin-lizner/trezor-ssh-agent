@@ -36,7 +36,7 @@ public class MessageEvents {
 
     Preconditions.checkNotNull(event, "'messageType' must be present");
 
-    log.debug("Firing 'message' event: {}", event.getMessageType().name());
+    log.debug("Firing 'message' event: {}", event.getEventType().name());
     HardwareWalletService.messageEventBus.post(event);
 
   }
@@ -44,15 +44,15 @@ public class MessageEvents {
   /**
    * <p>A message event without a protobuf message is used for communicating system status changes (e.g. DISCONNECT)</p>
    *
-   * @param messageType The message type (e.g. DEVICE_CONNECTED)
+   * @param messageEventType The message type (e.g. DEVICE_CONNECTED)
    */
-  public static void fireMessageEvent(final MessageType messageType) {
+  public static void fireMessageEvent(final MessageEventType messageEventType) {
 
-    Preconditions.checkNotNull(messageType, "'messageType' must be present");
+    Preconditions.checkNotNull(messageEventType, "'messageType' must be present");
 
-    log.debug("Firing 'message' event: {}", messageType.name());
+    log.debug("Firing 'message' event: {}", messageEventType.name());
     HardwareWalletService.messageEventBus.post(new MessageEvent(
-      messageType,
+      messageEventType,
       Optional.<HardwareWalletMessage>absent(),
       Optional.<Message>absent()
     ));

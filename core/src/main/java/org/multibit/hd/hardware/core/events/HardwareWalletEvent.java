@@ -1,7 +1,7 @@
 package org.multibit.hd.hardware.core.events;
 
 import com.google.common.base.Optional;
-import com.google.protobuf.Message;
+import org.multibit.hd.hardware.core.messages.HardwareWalletMessage;
 
 /**
  * <p>High level event to provide the following to downstream consumers:</p>
@@ -17,31 +17,31 @@ import com.google.protobuf.Message;
  */
 public class HardwareWalletEvent {
 
-  private final MessageType messageType;
+  private final HardwareWalletEventType eventType;
 
-  private final Optional<Message> message;
+  private final Optional<HardwareWalletMessage> message;
 
   /**
-   * @param messageType The message type
-   * @param message     The protocol buffer message from the wire
+   * @param eventType The hardware wallet event type
+   * @param message   The hardware wallet message adapted from the wire
    */
-  public HardwareWalletEvent(MessageType messageType, Optional<Message> message) {
+  public HardwareWalletEvent(HardwareWalletEventType eventType, Optional<HardwareWalletMessage> message) {
 
-    this.messageType = messageType;
+    this.eventType = eventType;
     this.message = message;
   }
 
   /**
    * @return The protocol message type
    */
-  public MessageType getMessageType() {
-    return messageType;
+  public HardwareWalletEventType getEventType() {
+    return eventType;
   }
 
   /**
-   * @return The protocol buffer message from the wire if present
+   * @return The hardware wallet message adapted from the wire if present
    */
-  public Optional<Message> getMessage() {
+  public Optional<HardwareWalletMessage> getMessage() {
     return message;
   }
 

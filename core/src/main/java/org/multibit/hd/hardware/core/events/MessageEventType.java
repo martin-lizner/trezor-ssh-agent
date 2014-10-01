@@ -12,7 +12,7 @@ package org.multibit.hd.hardware.core.events;
  * @since 0.0.1
  *  
  */
-public enum MessageType {
+public enum MessageEventType {
 
   // Device connectivity and communication
   /**
@@ -40,7 +40,7 @@ public enum MessageType {
   /**
    * Client request. Initialise the device.
    */
-  INITALIZE,
+  INITALISE,
   /**
    * Device response. Provides features supported by the device.
    */

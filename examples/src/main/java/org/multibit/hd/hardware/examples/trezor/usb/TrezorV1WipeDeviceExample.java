@@ -78,33 +78,36 @@ public class TrezorV1WipeDeviceExample {
   @Subscribe
   public void onHardwareWalletEvent(HardwareWalletEvent event) {
 
-    if (event.isFailed()) {
-      // Treat as end of example
-      System.exit(0);
-      return;
+    log.debug("Received hardware event: '{}'", event.getEventType().name());
+
+    switch (event.getEventType()) {
+      case SHOW_DEVICE_FAILED:
+        // Treat as end of example
+        System.exit(0);
+        break;
+      case SHOW_DEVICE_DETACHED:
+        // Can simply wait for another device to be connected again
+        break;
+      case SHOW_DEVICE_READY:
+        if (!hardwareWalletService.isWalletCreationRequired()) {
+          // We could choose to bypass the whole wallet creation process
+          // but for this example we'll fall through to the forced creation
+        }
+
+        // Force creation of the wallet with PIN protection, passphrase protection
+        // and displaying entropy on the device
+        hardwareWalletService.forceCreateWalletOnDevice(
+          "english",
+          "charlie",
+          true,
+          true,
+          true,
+          12
+        );
+      default:
+        // Ignore
     }
 
-    if (event.isAvailable()) {
-      // Can simply wait for another device to be connected again
-      return;
-    }
-
-    // Use the service to make high level decisions
-    if (hardwareWalletService.isWalletCreationRequired()) {
-
-      // ... application performs a complex UI process to provide a seed phrase, PIN, label etc ...
-
-      //
-      hardwareWalletService.createWalletOnDevice(
-        "english",
-        "charlie",
-        true,
-        false,
-        true,
-        128
-      );
-
-    }
 
   }
 

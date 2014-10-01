@@ -25,7 +25,7 @@ public abstract class AbstractHardwareWalletState implements HardwareWalletState
   public void transition(HardwareWalletClient client, HardwareWalletContext context, MessageEvent event) {
 
     // Handle low level message events for the device
-    switch (event.getMessageType()) {
+    switch (event.getEventType()) {
       case DEVICE_ATTACHED:
         context.resetToAttached();
         return;

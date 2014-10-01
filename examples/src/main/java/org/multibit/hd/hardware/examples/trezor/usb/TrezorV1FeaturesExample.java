@@ -89,22 +89,24 @@ public class TrezorV1FeaturesExample {
   @Subscribe
   public void onHardwareWalletEvent(HardwareWalletEvent event) {
 
-    if (event.isFailed()) {
-      // Treat as end of example
-      System.exit(0);
-      return;
+    log.debug("Received hardware event: '{}'", event.getEventType().name());
+
+    switch (event.getEventType()) {
+      case SHOW_DEVICE_FAILED:
+        // Treat as end of example
+        System.exit(0);
+        break;
+      case SHOW_DEVICE_DETACHED:
+        // Can simply wait for another device to be connected again
+        break;
+      case SHOW_DEVICE_READY:
+        // Get some information about the device
+        Features features = hardwareWalletService.getContext().getFeatures().get();
+        log.info("Features: {}", features);
+
+      default:
+        // Ignore
     }
-
-    if (event.isAvailable()) {
-      // Can simply wait for another device to be connected again
-      return;
-    }
-
-    // Must have connected to be here
-
-    // Get some information about the device
-    Features features = hardwareWalletService.getContext().getFeatures();
-    log.info("Features: {}", features);
 
   }
 }

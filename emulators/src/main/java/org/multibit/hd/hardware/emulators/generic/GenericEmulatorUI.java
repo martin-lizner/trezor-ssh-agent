@@ -1,6 +1,6 @@
 package org.multibit.hd.hardware.emulators.generic;
 
-import org.multibit.hd.hardware.core.events.MessageType;
+import org.multibit.hd.hardware.core.events.MessageEventType;
 import org.multibit.hd.hardware.emulators.swing.EmulatorPanels;
 import org.multibit.hd.hardware.emulators.swing.MessageButtons;
 import org.multibit.hd.hardware.emulators.utils.TextAreaOutputStream;
@@ -108,13 +108,13 @@ public class GenericEmulatorUI extends JFrame {
 
     // Create the system message panel
     JPanel systemMessagePanel = EmulatorPanels.newButtonPanel();
-    for (MessageType type : MessageType.values()) {
+    for (MessageEventType type : MessageEventType.values()) {
       systemMessagePanel.add(MessageButtons.newSystemButton(type));
     }
 
     // Create the protocol message panel
     JPanel protocolMessagePanel = EmulatorPanels.newButtonPanel();
-    for (MessageType type : MessageType.values()) {
+    for (MessageEventType type : MessageEventType.values()) {
       protocolMessagePanel.add(MessageButtons.newProtocolButton(type));
     }
 

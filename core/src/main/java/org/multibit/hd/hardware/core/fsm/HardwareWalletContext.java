@@ -126,4 +126,15 @@ public class HardwareWalletContext {
     currentState = HardwareWalletStates.newInitialisedState();
   }
 
+  /**
+   * Reset the context back to the wiped state ()
+   */
+  public void setToWiped() {
+
+    log.debug("Reset to 'wiped'");
+
+    // Perform the state change
+    currentState = HardwareWalletStates.newWipedState();
+
+  }
 }

@@ -34,10 +34,10 @@ public class AttachedState extends AbstractHardwareWalletState {
   @Override
   protected void internalTransition(HardwareWalletClient client, HardwareWalletContext context, MessageEvent event) {
 
-    switch (event.getMessageType()) {
+    switch (event.getEventType()) {
       // TODO Implement
       default:
-        log.info("Unexpected message event '{}'", event.getMessageType().name());
+        log.info("Unexpected message event '{}'", event.getEventType().name());
         context.resetToConnected();
     }
 

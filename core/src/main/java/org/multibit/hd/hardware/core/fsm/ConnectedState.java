@@ -35,13 +35,13 @@ public class ConnectedState extends AbstractHardwareWalletState {
   @Override
   protected void internalTransition(HardwareWalletClient client, HardwareWalletContext context, MessageEvent event) {
 
-    switch (event.getMessageType()) {
+    switch (event.getEventType()) {
       case FEATURES:
         context.setFeatures((Features) event.getMessage().get());
         context.resetToInitialised();
         break;
       default:
-        log.info("Unexpected message event '{}'", event.getMessageType().name());
+        log.info("Unexpected message event '{}'", event.getEventType().name());
         context.resetToConnected();
     }
 

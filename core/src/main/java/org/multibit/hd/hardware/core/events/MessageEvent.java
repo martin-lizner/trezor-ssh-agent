@@ -18,20 +18,20 @@ import org.multibit.hd.hardware.core.messages.HardwareWalletMessage;
  */
 public class MessageEvent {
 
-  private final MessageType messageType;
+  private final MessageEventType eventType;
 
   private final Optional<HardwareWalletMessage> message;
 
   private final Optional<Message> rawMessage;
 
   /**
-   * @param messageType The message type
-   * @param message     The adapted hardware wallet message
-   * @param rawMessage  The raw protobuf message from the hardware wallet
+   * @param eventType  The message event type (e.g. INITIALISE, PING etc)
+   * @param message    The adapted hardware wallet message
+   * @param rawMessage The raw protobuf message from the hardware wallet
    */
-  public MessageEvent(MessageType messageType, Optional<HardwareWalletMessage> message, Optional<Message> rawMessage) {
+  public MessageEvent(MessageEventType eventType, Optional<HardwareWalletMessage> message, Optional<Message> rawMessage) {
 
-    this.messageType = messageType;
+    this.eventType = eventType;
     this.message = message;
     this.rawMessage = rawMessage;
   }
@@ -39,8 +39,8 @@ public class MessageEvent {
   /**
    * @return The low level message type
    */
-  public MessageType getMessageType() {
-    return messageType;
+  public MessageEventType getEventType() {
+    return eventType;
   }
 
   /**

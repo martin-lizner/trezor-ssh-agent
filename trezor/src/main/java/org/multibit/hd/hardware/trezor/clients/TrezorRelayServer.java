@@ -6,9 +6,8 @@ import com.google.common.eventbus.Subscribe;
 import com.google.protobuf.Message;
 import org.multibit.hd.hardware.core.HardwareWalletService;
 import org.multibit.hd.hardware.core.concurrent.SafeExecutors;
-import org.multibit.hd.hardware.core.events.HardwareWalletEvent;
 import org.multibit.hd.hardware.core.events.MessageEvent;
-import org.multibit.hd.hardware.core.events.MessageType;
+import org.multibit.hd.hardware.core.events.MessageEventType;
 import org.multibit.hd.hardware.core.wallets.HardwareWallet;
 import org.multibit.hd.hardware.trezor.utils.TrezorMessageUtils;
 import org.multibit.hd.hardware.trezor.wallets.v1.TrezorV1UsbHardwareWallet;
@@ -59,9 +58,9 @@ public class TrezorRelayServer {
   protected final ExecutorService clientMonitorService = SafeExecutors.newSingleThreadExecutor("client-monitor");
 
   /**
-   * Keep track of hardware wallet events to allow blocking to occur
+   * Keep track of low level message events to allow blocking to occur
    */
-  private final BlockingQueue<HardwareWalletEvent> hardwareWalletEvents = Queues.newArrayBlockingQueue(10);
+  private final BlockingQueue<MessageEvent> messageEvents = Queues.newArrayBlockingQueue(10);
 
 
   /**
@@ -150,7 +149,7 @@ public class TrezorRelayServer {
   }
 
   /**
-   * <p>Create an executor service to poll the hardwareWalletEvents and relay them to the client output</p>
+   * <p>Create an executor service to poll the messageEvents and relay them to the client output</p>
    */
   private void monitorHardwareWallet(final OutputStream outputToClient) {
     // Monitor the data input stream
@@ -243,18 +242,18 @@ public class TrezorRelayServer {
 
 
   @Subscribe
-  public void onHardwareWalletProtocolEvent(HardwareWalletEvent event) {
+  public void onHardwareWalletProtocolEvent(MessageEvent event) {
 
     // Decode into a message type for use with a switch
-    MessageType messageType = event.getMessageType();
+    MessageEventType eventType = event.getEventType();
 
     // Protocol message
 
-    log.debug("Received event: {}", event.getMessageType().name());
+    log.debug("Received event: {}", eventType.name());
     log.debug("{}", event.getMessage().toString());
 
     // Add the event to the queue for blocking purposes
-    hardwareWalletEvents.add(event);
+    messageEvents.add(event);
 
   }
 

@@ -2,8 +2,8 @@ package org.multibit.hd.hardware.core.events;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.google.protobuf.Message;
 import org.multibit.hd.hardware.core.HardwareWalletService;
+import org.multibit.hd.hardware.core.messages.HardwareWalletMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,37 +27,37 @@ public class HardwareWalletEvents {
   }
 
   /**
-   * <p>A hardware event can wrap a protocol buffer message</p>
+   * <p>A hardware event can wrap a hardware wallet message adapted from a protocol buffer message</p>
    *
-   * @param messageType The message type (e.g. SUCCESS)
-   * @param message     The message itself (from protocol buffers)
+   * @param eventType The event type (e.g. SHOW_DEVICE_READY)
+   * @param message   The message itself (from protocol buffers)
    */
-  public static void fireHardwareWalletEvent(final MessageType messageType, final Message message) {
+  public static void fireHardwareWalletEvent(final HardwareWalletEventType eventType, final HardwareWalletMessage message) {
 
-    Preconditions.checkNotNull(messageType, "'messageType' must be present");
+    Preconditions.checkNotNull(eventType, "'messageType' must be present");
     Preconditions.checkNotNull(message, "'message' must be present");
 
-    log.debug("Firing 'hardware wallet' event: {}", messageType.name());
+    log.debug("Firing 'hardware wallet' event: {}", eventType.name());
     HardwareWalletService.hardwareWalletEventBus.post(new HardwareWalletEvent(
-      messageType,
+      eventType,
       Optional.of(message)
     ));
 
   }
 
   /**
-   * <p>A hardware event without a message is used for communicating system status changes (e.g. DISCONNECT)</p>
+   * <p>A hardware event can have no further information</p>
    *
-   * @param messageType The message type (e.g. SUCCESS)
+   * @param eventType The event type (e.g. SHOW_DEVICE_READY)
    */
-  public static void fireHardwareWalletEvent(final MessageType messageType) {
+  public static void fireHardwareWalletEvent(final HardwareWalletEventType eventType) {
 
-    Preconditions.checkNotNull(messageType, "'messageType' must be present");
+    Preconditions.checkNotNull(eventType, "'eventType' must be present");
 
-    log.debug("Firing 'hardware wallet' event: {}", messageType.name());
+    log.debug("Firing 'hardware wallet' event: {}", eventType.name());
     HardwareWalletService.hardwareWalletEventBus.post(new HardwareWalletEvent(
-      messageType,
-      Optional.<Message>absent()
+      eventType,
+      Optional.<HardwareWalletMessage>absent()
     ));
 
   }

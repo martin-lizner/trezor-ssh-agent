@@ -8,9 +8,9 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.satoshilabs.trezor.protobuf.TrezorMessage;
 import org.multibit.hd.hardware.core.HardwareWalletSpecification;
-import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
 import org.multibit.hd.hardware.core.events.MessageEvent;
-import org.multibit.hd.hardware.core.events.MessageType;
+import org.multibit.hd.hardware.core.events.MessageEventType;
+import org.multibit.hd.hardware.core.events.MessageEvents;
 import org.multibit.hd.hardware.trezor.utils.TrezorMessageUtils;
 import org.multibit.hd.hardware.trezor.wallets.AbstractTrezorHardwareWallet;
 import org.slf4j.Logger;
@@ -29,6 +29,8 @@ import java.util.Locale;
  *
  * <p>This class uses <code>hidapi</code> for each platform due to the
  * custom UART-to-USB present on the RPi Shield hardware.</p>
+ *
+ * <h3>The Trezor Shield is not a primary device any longer so this code is probably out of date</h3>
  *
  * @since 0.0.1
  *  
@@ -139,7 +141,7 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
       return attachDevice(device);
     } catch (IOException e) {
       log.error("Failed to attach device due to problem reading UART data stream", e);
-      HardwareWalletEvents.fireHardwareWalletEvent(MessageType.DEVICE_FAILED);
+      MessageEvents.fireMessageEvent(MessageEventType.DEVICE_FAILED);
     }
 
     // Must have failed to be here
@@ -176,7 +178,7 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
     log.debug("> Purge RxTx: {} '{}'", bytesSent, featureReport);
 
     // Must have connected to be here
-    HardwareWalletEvents.fireHardwareWalletEvent(MessageType.DEVICE_CONNECTED);
+    MessageEvents.fireMessageEvent(MessageEventType.DEVICE_CONNECTED);
 
     return true;
 
@@ -196,7 +198,7 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
 
     // No matching device so indicate that it is disconnected
     if (!hidDeviceInfoOptional.isPresent()) {
-      HardwareWalletEvents.fireHardwareWalletEvent(MessageType.DEVICE_DETACHED);
+      MessageEvents.fireMessageEvent(MessageEventType.DEVICE_DETACHED);
       return Optional.absent();
     }
 
@@ -241,7 +243,7 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
       log.info("Disconnected from Trezor");
 
       // Let everyone know
-      HardwareWalletEvents.fireHardwareWalletEvent(MessageType.DEVICE_DETACHED);
+      MessageEvents.fireMessageEvent(MessageEventType.DEVICE_DETACHED);
 
     } catch (IOException e) {
       throw new IllegalArgumentException(e);
