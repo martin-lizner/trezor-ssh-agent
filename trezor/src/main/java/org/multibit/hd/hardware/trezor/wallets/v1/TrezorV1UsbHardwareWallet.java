@@ -1,6 +1,5 @@
 package org.multibit.hd.hardware.trezor.wallets.v1;
 
-import com.codeminders.hidapi.ClassPathLibraryLoader;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.satoshilabs.trezor.protobuf.TrezorMessage;
@@ -16,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import javax.usb.*;
 import javax.usb.event.UsbServicesEvent;
 import javax.usb.event.UsbServicesListener;
-import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
@@ -66,7 +64,7 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet impl
   /**
    * The USB services entry point
    */
-  private UsbServices usbServices;
+  private final UsbServices usbServices;
 
   /**
    * Default constructor for use with dynamic binding
@@ -87,18 +85,22 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet impl
                                    Optional<Short> productId,
                                    Optional<String> serialNumber) {
 
-    // Initialise the HID library
-    if (!ClassPathLibraryLoader.loadNativeHIDLibrary()) {
-      throw new IllegalStateException(
-        "Unable to load native USB library. Check class loader permissions/JAR integrity.");
-    }
-
     this.vendorId = vendorId.isPresent() ? vendorId : Optional.of(SATOSHI_LABS_VENDOR_ID);
     this.productId = productId.isPresent() ? productId : Optional.of(TREZOR_V1_PRODUCT_ID);
     this.serialNumber = serialNumber;
 
-  }
+    try {
 
+      // Get the USB services and dump information about them
+      usbServices = UsbHostManager.getUsbServices();
+      usbServices.addUsbServicesListener(this);
+
+    } catch (UsbException e) {
+      log.error("Failed to create client due to USB services problem", e);
+      throw new IllegalStateException("Failed to create client due to USB services problem");
+    }
+
+  }
 
   @Override
   public void applySpecification(HardwareWalletSpecification specification) {
@@ -113,13 +115,9 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet impl
   }
 
   @Override
-  public boolean verifyEnvironment() {
+  public boolean attach() {
 
     try {
-
-      // Get the USB services and dump information about them
-      usbServices = UsbHostManager.getUsbServices();
-      usbServices.addUsbServicesListener(this);
 
       // Explore all attached devices including hubs to verify USB library is working
       // and to determine initial state
@@ -129,20 +127,28 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet impl
       return true;
 
     } catch (UsbException e) {
-      log.error("Failed to connect device due to USB problem", e);
+      log.error("Failed to connect device due to USB verification problem", e);
       return false;
     }
 
   }
 
   @Override
+  public synchronized void detach() {
+
+    readEndpoint = null;
+    writeEndpoint = null;
+    log.debug("Reset endpoints");
+
+    locatedDevice = Optional.absent();
+
+    log.info("Detached from Trezor");
+
+  }
+
+  @Override
   @SuppressWarnings("unchecked")
   public synchronized boolean connect() {
-
-    // Could be triggered by a re-attachment of the device
-    if (usbServices == null) {
-      verifyEnvironment();
-    }
 
     // Check if the verify environment located a Trezor
     if (!locatedDevice.isPresent()) {
@@ -212,7 +218,7 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet impl
         device.getSerialNumberString()
       );
 
-    } catch (UsbException | UnsupportedEncodingException e) {
+    } catch (Exception e) {
       log.error("Failed to connect device due to problem reading device information", e);
       MessageEvents.fireMessageEvent(HardwareWalletMessageType.DEVICE_FAILED);
       return false;
@@ -291,25 +297,33 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet impl
 
       log.info("Verified Trezor device.");
 
-      try {
+      // Check for a claimed device
+      if (iface.isClaimed()) {
 
-        log.info("Attempting to force claim...");
-        iface.claim(new UsbInterfacePolicy() {
-          @Override
-          public boolean forceClaim(UsbInterface usbInterface) {
-            return true;
-          }
-        });
-
-        log.info("Claimed the Trezor device");
-
-        // Stop looking
+        log.info("Device is already claimed. Assuming a re-attachment.");
         return true;
+      } else {
 
-      } catch (Exception e) {
-        log.warn("Failed to claim device. No communication will be possible.", e);
-        return false;
+        try {
 
+          log.info("Attempting to force claim...");
+          iface.claim(new UsbInterfacePolicy() {
+            @Override
+            public boolean forceClaim(UsbInterface usbInterface) {
+              return true;
+            }
+          });
+
+          log.info("Claimed the Trezor device");
+
+          // Stop looking
+          return true;
+
+        } catch (Exception e) {
+          log.warn("Failed to claim device. No communication will be possible.", e);
+          return false;
+
+        }
       }
 
     }
@@ -319,24 +333,6 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet impl
 
     // Must have failed to be here
     return false;
-
-  }
-
-  @Override
-  public synchronized void internalClose() {
-
-    if (usbServices != null) {
-      usbServices.removeUsbServicesListener(this);
-      readEndpoint = null;
-      writeEndpoint = null;
-    }
-
-    locatedDevice = Optional.absent();
-
-    log.info("Disconnected from Trezor");
-
-    // Let the service know
-    MessageEvents.fireMessageEvent(HardwareWalletMessageType.DEVICE_DISCONNECTED);
 
   }
 

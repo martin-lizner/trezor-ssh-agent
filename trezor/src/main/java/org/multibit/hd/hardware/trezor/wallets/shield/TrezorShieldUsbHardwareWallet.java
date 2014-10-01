@@ -80,7 +80,7 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
     this.productId = productId;
     this.serialNumber = serialNumber;
 
-    verifyEnvironment();
+    attach();
 
   }
 
@@ -97,7 +97,7 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
   }
 
   @Override
-  public boolean verifyEnvironment() {
+  public boolean attach() {
 
     try {
       deviceOptional = locateDevice();
@@ -230,7 +230,7 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
   }
 
   @Override
-  public synchronized void internalClose() {
+  public synchronized void detach() {
 
     Preconditions.checkState(isDeviceConnected(), "Device is not connected");
 

@@ -70,9 +70,14 @@ public class TrezorRelayClient extends AbstractTrezorHardwareWalletClient {
   }
 
   @Override
-  public boolean verifyEnvironment() {
+  public boolean attach() {
     // The socket library will always work
     return true;
+  }
+
+  @Override
+  public void detach() {
+    // Do nothing
   }
 
   @Override

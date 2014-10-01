@@ -29,8 +29,6 @@ public abstract class AbstractTrezorHardwareWallet extends AbstractHardwareWalle
     HardwareWalletSpecification specification = new HardwareWalletSpecification(this.getClass().getCanonicalName());
     specification.setName("TREZOR The Bitcoin Safe");
     specification.setDescription("The hardware Bitcoin wallet. A step in the evolution of Bitcoin towards a completely safe payment system.");
-    specification.setHost("192.168.0.8");
-    specification.setPort(3000);
 
     return specification;
   }
@@ -38,7 +36,7 @@ public abstract class AbstractTrezorHardwareWallet extends AbstractHardwareWalle
   @Override
   public synchronized void disconnect() {
 
-    internalClose();
+    detach();
     hardwareWalletMonitorService.shutdownNow();
 
   }
@@ -78,11 +76,6 @@ public abstract class AbstractTrezorHardwareWallet extends AbstractHardwareWalle
 
     }
   }
-
-  /**
-   * <p>Implementations should handle their own shutdown before their threads are terminated</p>
-   */
-  public abstract void internalClose();
 
   /**
    * <p>Read a complete message buffer from the device and convert it into a Core message.</p>

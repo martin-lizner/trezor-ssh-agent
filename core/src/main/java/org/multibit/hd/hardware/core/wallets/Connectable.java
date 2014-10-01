@@ -12,13 +12,19 @@ package org.multibit.hd.hardware.core.wallets;
 public interface Connectable {
 
   /**
-   * <p>Verify the supporting environment before attempting a connection</p>
-   *
-   * <p>Typically this would involve initialising native libraries and verifying their communications</p>
+   * <p>Handle device attachment. The transport to the device is new formed (device attached, socket server started etc)</p>
+   * <p>Implementations should verify the supporting environment before attempting a connection. Typically this would involve
+   * initialising native libraries and verifying their communications</p>
    *
    * @return True if the native libraries initialised successfully
    */
-  boolean verifyEnvironment();
+  boolean attach();
+
+  /**
+   * <p>Handle device detachment. The transport to the device is gone (device removed, socket server shut down etc)</p>
+   * <p>Implementations should assume that their thread will be terminated shortly and handle their own shutdown.</p>
+   */
+  void detach();
 
   /**
    * <p>Attempt a connection to the underlying hardware to establish communication only (no higher level messages)</p>

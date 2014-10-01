@@ -43,11 +43,11 @@ public class TrezorHardwareWalletClient extends AbstractTrezorHardwareWalletClie
   }
 
   @Override
-  public boolean verifyEnvironment() {
+  public boolean attach() {
 
     log.debug("Verifying environment...");
 
-    if (!trezor.verifyEnvironment()) {
+    if (!trezor.attach()) {
       log.error("Problems with the hardware environment will prevent communication with the Trezor.");
       return false;
     }
@@ -55,6 +55,15 @@ public class TrezorHardwareWalletClient extends AbstractTrezorHardwareWalletClie
     // Must be OK to be here
     log.debug("Environment OK");
     return true;
+  }
+
+  @Override
+  public void detach() {
+
+    log.debug("Detaching...");
+
+    trezor.detach();
+
   }
 
   @Override

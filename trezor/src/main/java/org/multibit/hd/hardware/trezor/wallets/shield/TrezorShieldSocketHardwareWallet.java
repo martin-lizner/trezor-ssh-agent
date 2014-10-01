@@ -55,7 +55,7 @@ public class TrezorShieldSocketHardwareWallet extends AbstractTrezorHardwareWall
     this.host = host;
     this.port = port;
 
-    verifyEnvironment();
+    attach();
 
   }
 
@@ -70,7 +70,7 @@ public class TrezorShieldSocketHardwareWallet extends AbstractTrezorHardwareWall
   }
 
   @Override
-  public boolean verifyEnvironment() {
+  public boolean attach() {
 
     // Socket library will work
     return true;
@@ -108,7 +108,7 @@ public class TrezorShieldSocketHardwareWallet extends AbstractTrezorHardwareWall
   }
 
   @Override
-  public synchronized void internalClose() {
+  public synchronized void detach() {
 
     Preconditions.checkNotNull(socket, "Socket is not connected. Use connect() first.");
 

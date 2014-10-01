@@ -67,7 +67,7 @@ public class HardwareWalletService {
   public void start() {
 
     // Verify the environment
-    if (!client.verifyEnvironment()) {
+    if (!client.attach()) {
       log.warn("Cannot start the service due to a failed environment.");
       return;
     }

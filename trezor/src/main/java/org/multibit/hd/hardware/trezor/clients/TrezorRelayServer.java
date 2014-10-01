@@ -126,7 +126,7 @@ public class TrezorRelayServer {
       InputStream inputFromClient = new BufferedInputStream(clientSocket.getInputStream(), 1024);
 
       log.debug("Verifying the local environment");
-      if (!hardwareWallet.verifyEnvironment()) {
+      if (!hardwareWallet.attach()) {
         log.error("Failed to verify local environment");
         return;
       }
