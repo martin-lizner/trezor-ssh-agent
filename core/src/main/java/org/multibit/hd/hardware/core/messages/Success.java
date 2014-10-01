@@ -5,7 +5,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 /**
  * <p>Value object to provide the following to downstream API consumers:</p>
  * <ul>
- * <li>Description of why an operation failed</li>
+ * <li>Indication of successful completion of operation</li>
  * </ul>
  *
  * <p>This object is typically built from a hardware wallet specific adapter</p>
@@ -13,25 +13,19 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
  * @since 0.0.1
  *  
  */
-public class Failure implements HardwareWalletMessage {
+public class Success implements HardwareWalletMessage {
 
-  private final FailureType type;
   private final String message;
 
-  public Failure(FailureType type, String message) {
-    this.type = type;
+  /**
+   * @param message The message
+   */
+  public Success(String message) {
     this.message = message;
   }
 
   /**
-   * @return The failure type
-   */
-  public FailureType getType() {
-    return type;
-  }
-
-  /**
-   * @return The failure message providing details
+   * @return The message
    */
   public String getMessage() {
     return message;
@@ -40,7 +34,6 @@ public class Failure implements HardwareWalletMessage {
   @Override
   public String toString() {
     return new ToStringBuilder(this)
-      .append("type", type)
       .append("message", message)
       .toString();
   }

@@ -25,10 +25,10 @@ public class ConnectedState extends AbstractHardwareWalletState {
   private static final Logger log = LoggerFactory.getLogger(ConnectedState.class);
 
   @Override
-  public void await(HardwareWalletClient client, HardwareWalletContext context) {
+  public void await(HardwareWalletContext context) {
 
     // Trigger a state transition via the response event
-    client.initialise();
+    context.getClient().initialise();
 
   }
 
@@ -41,7 +41,7 @@ public class ConnectedState extends AbstractHardwareWalletState {
         context.resetToInitialised();
         break;
       default:
-        log.info("Unexpected message event '{}'", event.getEventType().name());
+        log.warn("Unexpected message event '{}'", event.getEventType().name());
         context.resetToConnected();
     }
 

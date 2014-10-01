@@ -66,6 +66,7 @@ public final class TrezorMessageUtils {
         case MessageType_Success:
           message = TrezorMessage.Success.parseFrom(buffer);
           messageEventType = MessageEventType.SUCCESS;
+          hardwareWalletMessage = TrezorMessageAdapter.adaptSuccess((TrezorMessage.Success) message);
           break;
         case MessageType_Failure:
           message = TrezorMessage.Failure.parseFrom(buffer);
@@ -160,6 +161,7 @@ public final class TrezorMessageUtils {
         case MessageType_ButtonRequest:
           message = TrezorMessage.ButtonRequest.parseFrom(buffer);
           messageEventType = MessageEventType.BUTTON_REQUEST;
+          hardwareWalletMessage = TrezorMessageAdapter.adaptButtonRequest((TrezorMessage.ButtonRequest) message);
           break;
         case MessageType_ButtonAck:
           message = TrezorMessage.ButtonAck.parseFrom(buffer);

@@ -18,16 +18,16 @@ import java.util.concurrent.TimeUnit;
  * <p>Step 2 - Wipe the device to factory defaults and load with known seed phrase</p>
  * <p>Requires Trezor V1 production device plugged into a USB HID interface.</p>
  * <p>This example demonstrates the message sequence to wipe a Trezor device back to its fresh out of the box
- * state.</p>
+ * state and then set it up with a known seed phrase.</p>
  *
  * <h3>Only perform this example on a Trezor that you are using for test and development!</h3>
  *
  * @since 0.0.1
  *  
  */
-public class TrezorV1WipeDeviceExample {
+public class TrezorV1WipeAndCreateWalletExample {
 
-  private static final Logger log = LoggerFactory.getLogger(TrezorV1WipeDeviceExample.class);
+  private static final Logger log = LoggerFactory.getLogger(TrezorV1WipeAndCreateWalletExample.class);
 
   private HardwareWalletService hardwareWalletService;
 
@@ -41,7 +41,7 @@ public class TrezorV1WipeDeviceExample {
   public static void main(String[] args) throws Exception {
 
     // All the work is done in the class
-    TrezorV1WipeDeviceExample example = new TrezorV1WipeDeviceExample();
+    TrezorV1WipeAndCreateWalletExample example = new TrezorV1WipeAndCreateWalletExample();
 
     example.executeExample();
 
@@ -96,10 +96,25 @@ public class TrezorV1WipeDeviceExample {
         // Can simply wait for another device to be connected again
         break;
       case SHOW_DEVICE_READY:
-        // Wipe the device
-        hardwareWalletService.wipeDevice();
+        if (hardwareWalletService.isWalletPresent()) {
+          // We could choose to bypass the whole wallet creation process
+          // but for this example we'll fall through to the forced creation
+          log.debug("Ignoring the wallet is already present flag");
+        }
+
+        // Force creation of the wallet (wipe then reset)
+        // Select the use of PIN protection, passphrase protection
+        // and displaying entropy on the device
+        // This is the most secure way to create a wallet
+        hardwareWalletService.forceCreateWalletOnDevice(
+          "english",
+          "charlie",
+          true,
+          true,
+          true,
+          12
+        );
         break;
-      case SHOW_OPERATION_SUCCEEDED:
       case SHOW_OPERATION_FAILED:
         // Treat as end of example
         System.exit(0);

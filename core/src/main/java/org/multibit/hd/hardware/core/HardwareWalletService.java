@@ -2,11 +2,9 @@ package org.multibit.hd.hardware.core;
 
 import com.google.common.base.Preconditions;
 import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.Uninterruptibles;
 import org.multibit.hd.hardware.core.concurrent.SafeExecutors;
-import org.multibit.hd.hardware.core.events.MessageEvent;
 import org.multibit.hd.hardware.core.fsm.HardwareWalletContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,14 +40,12 @@ public class HardwareWalletService {
    */
   public static final EventBus messageEventBus = new EventBus();
 
-  private final HardwareWalletClient client;
-
   private final ListeningExecutorService clientMonitorService = SafeExecutors.newSingleThreadExecutor("monitor-hw-client");
 
   /**
    * The current hardware wallet context
    */
-  private final HardwareWalletContext context = new HardwareWalletContext();
+  private final HardwareWalletContext context;
 
   /**
    * @param client The hardware wallet client providing the low level messages
@@ -58,7 +54,7 @@ public class HardwareWalletService {
 
     Preconditions.checkNotNull(client, "'client' must be present");
 
-    this.client = client;
+    context = new HardwareWalletContext(client);
   }
 
   /**
@@ -66,22 +62,13 @@ public class HardwareWalletService {
    */
   public void start() {
 
-    // Verify the environment
-    if (!client.attach()) {
-      log.warn("Cannot start the service due to a failed environment.");
-      return;
-    }
-
-    // Ensure the service is subscribed to low level message events
-    // from the client
-    messageEventBus.register(this);
-
     // Start the hardware wallet state machine
     clientMonitorService.submit(new Runnable() {
       @Override
       public void run() {
+
         while (true) {
-          context.getState().await(client, context);
+          context.getState().await(context);
 
           Uninterruptibles.sleepUninterruptibly(500, TimeUnit.MILLISECONDS);
 
@@ -91,31 +78,32 @@ public class HardwareWalletService {
   }
 
   /**
-   * @return True if the hardware wallet has been successfully connected
+   * @return True if the hardware wallet has been initialised with a seed phrase, PIN, passphrase etc.
+   *
+   * @throws IllegalStateException If called when the device is not ready
    */
-  public boolean isWalletConnected() {
+  public boolean isWalletPresent() {
 
-    if (context.getFeatures().isPresent()) {
-
+    if (!context.getFeatures().isPresent()) {
+      throw new IllegalStateException("Device is not ready. Check the hardware wallet events.");
     }
 
-    return true;
+    return context.getFeatures().get().isInitialized();
+
   }
 
   /**
-   * @return True if the hardware wallet is not loaded with a seed phrase, PIN, passphrase etc
+   *
    */
-  public boolean isWalletCreationRequired() {
+  public void wipeDevice() {
 
-    if (context.getFeatures().isPresent()) {
+    context.beginWipeDeviceUseCase();
 
-    }
-
-    return true;
   }
 
   /**
-   * <p>Initiate the process where the hardware wallet configures itself remotely</p>
+   * <p>Initiate the process where the hardware wallet is first wiped then reset using its own entropy</p>
+   * <p>This is the recommended method to use for creating a wallet securely.</p>
    *
    * @param language             The language code (e.g. "en")
    * @param label                The label to display below the logo (e.g "Fred")
@@ -133,29 +121,15 @@ public class HardwareWalletService {
     int wordCount
   ) {
 
-    client.wipeDevice();
-    context.beginWipeDeviceUseCase();
-
-//    Uninterruptibles.sleepUninterruptibly(1, TimeUnit.SECONDS);
-//
-//    client.resetDevice(
-//      language,
-//      label,
-//      displayRandom,
-//      passphraseProtection,
-//      pinProtection,
-//      wordCount
-//    );
-
-  }
-
-  /**
-   * @param event The low level message event
-   */
-  @Subscribe
-  public void onMessageEvent(MessageEvent event) {
-
-    context.getState().transition(client, context, event);
+    // Set the FSM context
+    context.beginResetDeviceUseCase(
+      language,
+      label,
+      displayRandom,
+      passphraseProtection,
+      pinProtection,
+      wordCount
+    );
 
   }
 
@@ -165,5 +139,4 @@ public class HardwareWalletService {
   public HardwareWalletContext getContext() {
     return context;
   }
-
 }

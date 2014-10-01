@@ -17,7 +17,7 @@ import org.multibit.hd.hardware.core.events.MessageEvent;
 public abstract class AbstractHardwareWalletState implements HardwareWalletState {
 
   @Override
-  public void await(HardwareWalletClient client, HardwareWalletContext context) {
+  public void await(HardwareWalletContext context) {
     // Do nothing
   }
 

@@ -25,7 +25,7 @@ public class DetachedState extends AbstractHardwareWalletState {
     switch (event.getEventType()) {
       // TODO Implement
       default:
-        log.info("Unexpected message event '{}'", event.getEventType().name());
+        log.warn("Unexpected message event '{}'", event.getEventType().name());
         context.resetToConnected();
     }
 

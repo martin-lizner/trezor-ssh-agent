@@ -2,10 +2,7 @@ package org.multibit.hd.hardware.trezor.utils;
 
 import com.satoshilabs.trezor.protobuf.TrezorMessage;
 import com.satoshilabs.trezor.protobuf.TrezorType;
-import org.multibit.hd.hardware.core.messages.Failure;
-import org.multibit.hd.hardware.core.messages.FailureType;
-import org.multibit.hd.hardware.core.messages.Features;
-import org.multibit.hd.hardware.core.messages.HardwareWalletMessage;
+import org.multibit.hd.hardware.core.messages.*;
 
 /**
  * <p>Adapter to provide the following to Trezor messages:</p>
@@ -20,6 +17,17 @@ import org.multibit.hd.hardware.core.messages.HardwareWalletMessage;
  *  
  */
 public class TrezorMessageAdapter {
+
+  /**
+   * @param source The source message
+   *
+   * @return The adapted Core message
+   */
+  public static Success adaptSuccess(TrezorMessage.Success source) {
+
+    return new Success(source.getMessage());
+
+  }
 
   /**
    * @param source The source message
@@ -105,6 +113,53 @@ public class TrezorMessageAdapter {
         return FailureType.SYNTAX_ERROR;
       case Failure_UnexpectedMessage:
         return FailureType.UNEXPECTED_MESSAGE;
+      default:
+        return null;
+    }
+
+  }
+
+  /**
+   * @param source The source message
+   *
+   * @return The adapted Core message
+   */
+  public static HardwareWalletMessage adaptButtonRequest(TrezorMessage.ButtonRequest source) {
+
+    ButtonRequestType buttonRequestType = adaptButtonRequestType(source.getCode());
+
+    return new ButtonRequest(buttonRequestType, source.getData());
+
+  }
+
+  /**
+   * @param source The source message
+   *
+   * @return The adapted Core message
+   */
+  public static ButtonRequestType adaptButtonRequestType(TrezorType.ButtonRequestType source) {
+
+    switch (source) {
+      case ButtonRequest_Address:
+        return ButtonRequestType.ADDRESS;
+      case ButtonRequest_ConfirmOutput:
+        return ButtonRequestType.CONFIRM_OUTPUT;
+      case ButtonRequest_ConfirmWord:
+        return ButtonRequestType.CONFIRM_WORD;
+      case ButtonRequest_FeeOverThreshold:
+        return ButtonRequestType.FEE_OVER_THRESHOLD;
+      case ButtonRequest_FirmwareCheck:
+        return ButtonRequestType.FIRMWARE_CHECK;
+      case ButtonRequest_Other:
+        return ButtonRequestType.OTHER;
+      case ButtonRequest_ProtectCall:
+        return ButtonRequestType.PROTECT_CALL;
+      case ButtonRequest_ResetDevice:
+        return ButtonRequestType.RESET_DEVICE;
+      case ButtonRequest_SignTx:
+        return ButtonRequestType.SIGN_TX;
+      case ButtonRequest_WipeDevice:
+        return ButtonRequestType.WIPE_DEVICE;
       default:
         return null;
     }
