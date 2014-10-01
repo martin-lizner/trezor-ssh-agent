@@ -32,7 +32,7 @@ public class HardwareWalletEvents {
    * @param messageType The message type (e.g. SUCCESS)
    * @param message     The message itself (from protocol buffers)
    */
-  public static void fireHardwareWalletEvent(final HardwareWalletMessageType messageType, final Message message) {
+  public static void fireHardwareWalletEvent(final MessageType messageType, final Message message) {
 
     Preconditions.checkNotNull(messageType, "'messageType' must be present");
     Preconditions.checkNotNull(message, "'message' must be present");
@@ -50,7 +50,7 @@ public class HardwareWalletEvents {
    *
    * @param messageType The message type (e.g. SUCCESS)
    */
-  public static void fireHardwareWalletEvent(final HardwareWalletMessageType messageType) {
+  public static void fireHardwareWalletEvent(final MessageType messageType) {
 
     Preconditions.checkNotNull(messageType, "'messageType' must be present");
 

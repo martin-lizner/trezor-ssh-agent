@@ -4,9 +4,9 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.satoshilabs.trezor.protobuf.TrezorMessage;
 import org.multibit.hd.hardware.core.HardwareWalletSpecification;
-import org.multibit.hd.hardware.core.events.HardwareWalletMessageType;
 import org.multibit.hd.hardware.core.events.MessageEvent;
 import org.multibit.hd.hardware.core.events.MessageEvents;
+import org.multibit.hd.hardware.core.events.MessageType;
 import org.multibit.hd.hardware.trezor.utils.TrezorMessageUtils;
 import org.multibit.hd.hardware.trezor.wallets.AbstractTrezorHardwareWallet;
 import org.slf4j.Logger;
@@ -161,13 +161,13 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet impl
 
         if (!locatedDevice.isPresent()) {
           log.debug("Failed to locate. Device must be detached.");
-          MessageEvents.fireMessageEvent(HardwareWalletMessageType.DEVICE_DETACHED);
+          MessageEvents.fireMessageEvent(MessageType.DEVICE_DETACHED);
           return false;
         }
 
       } catch (UsbException e) {
         log.error("Failed to connect device due to USB problem", e);
-        MessageEvents.fireMessageEvent(HardwareWalletMessageType.DEVICE_FAILED);
+        MessageEvents.fireMessageEvent(MessageType.DEVICE_FAILED);
         return false;
       }
 
@@ -191,7 +191,7 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet impl
       if (configuration.isActive()) {
         if (!verifyConfiguration(configuration)) {
           log.error("Device not verified or its USB interface could not be claimed.");
-          MessageEvents.fireMessageEvent(HardwareWalletMessageType.DEVICE_FAILED);
+          MessageEvents.fireMessageEvent(MessageType.DEVICE_FAILED);
           return false;
         } else {
           // Found a suitable Trezor device
@@ -207,7 +207,7 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet impl
     // Check for a connected Trezor
     if (readEndpoint == null || writeEndpoint == null) {
       log.error("Device read/write endpoints have not been set.");
-      MessageEvents.fireMessageEvent(HardwareWalletMessageType.DEVICE_FAILED);
+      MessageEvents.fireMessageEvent(MessageType.DEVICE_FAILED);
       return false;
     }
 
@@ -220,7 +220,7 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet impl
 
     } catch (Exception e) {
       log.error("Failed to connect device due to problem reading device information", e);
-      MessageEvents.fireMessageEvent(HardwareWalletMessageType.DEVICE_FAILED);
+      MessageEvents.fireMessageEvent(MessageType.DEVICE_FAILED);
       return false;
     }
 
@@ -329,7 +329,7 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet impl
     }
 
     log.warn("All USB interfaces explored and none verify as a Trezor device.");
-    MessageEvents.fireMessageEvent(HardwareWalletMessageType.DEVICE_DETACHED);
+    MessageEvents.fireMessageEvent(MessageType.DEVICE_DETACHED);
 
     // Must have failed to be here
     return false;
@@ -509,7 +509,7 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet impl
     if (vendorId.get().equals(attachedDevice.getUsbDeviceDescriptor().idVendor()) &&
       productId.get().equals(attachedDevice.getUsbDeviceDescriptor().idProduct())) {
       // Inform others of this event
-      MessageEvents.fireMessageEvent(HardwareWalletMessageType.DEVICE_ATTACHED);
+      MessageEvents.fireMessageEvent(MessageType.DEVICE_ATTACHED);
     }
 
   }
@@ -523,7 +523,7 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet impl
     if (vendorId.get().equals(disconnectedDevice.getUsbDeviceDescriptor().idVendor()) &&
       productId.get().equals(disconnectedDevice.getUsbDeviceDescriptor().idProduct())) {
       // Inform others of this event
-      MessageEvents.fireMessageEvent(HardwareWalletMessageType.DEVICE_DETACHED);
+      MessageEvents.fireMessageEvent(MessageType.DEVICE_DETACHED);
     }
 
   }

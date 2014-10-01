@@ -9,8 +9,8 @@ import com.google.common.base.Preconditions;
 import com.satoshilabs.trezor.protobuf.TrezorMessage;
 import org.multibit.hd.hardware.core.HardwareWalletSpecification;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
-import org.multibit.hd.hardware.core.events.HardwareWalletMessageType;
 import org.multibit.hd.hardware.core.events.MessageEvent;
+import org.multibit.hd.hardware.core.events.MessageType;
 import org.multibit.hd.hardware.trezor.utils.TrezorMessageUtils;
 import org.multibit.hd.hardware.trezor.wallets.AbstractTrezorHardwareWallet;
 import org.slf4j.Logger;
@@ -139,7 +139,7 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
       return attachDevice(device);
     } catch (IOException e) {
       log.error("Failed to attach device due to problem reading UART data stream", e);
-      HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletMessageType.DEVICE_FAILED);
+      HardwareWalletEvents.fireHardwareWalletEvent(MessageType.DEVICE_FAILED);
     }
 
     // Must have failed to be here
@@ -176,7 +176,7 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
     log.debug("> Purge RxTx: {} '{}'", bytesSent, featureReport);
 
     // Must have connected to be here
-    HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletMessageType.DEVICE_CONNECTED);
+    HardwareWalletEvents.fireHardwareWalletEvent(MessageType.DEVICE_CONNECTED);
 
     return true;
 
@@ -196,7 +196,7 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
 
     // No matching device so indicate that it is disconnected
     if (!hidDeviceInfoOptional.isPresent()) {
-      HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletMessageType.DEVICE_DETACHED);
+      HardwareWalletEvents.fireHardwareWalletEvent(MessageType.DEVICE_DETACHED);
       return Optional.absent();
     }
 
@@ -241,7 +241,7 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
       log.info("Disconnected from Trezor");
 
       // Let everyone know
-      HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletMessageType.DEVICE_DETACHED);
+      HardwareWalletEvents.fireHardwareWalletEvent(MessageType.DEVICE_DETACHED);
 
     } catch (IOException e) {
       throw new IllegalArgumentException(e);

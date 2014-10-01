@@ -3,8 +3,8 @@ package org.multibit.hd.hardware.trezor.wallets.shield;
 import com.google.common.base.Preconditions;
 import org.multibit.hd.hardware.core.HardwareWalletSpecification;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
-import org.multibit.hd.hardware.core.events.HardwareWalletMessageType;
 import org.multibit.hd.hardware.core.events.MessageEvent;
+import org.multibit.hd.hardware.core.events.MessageType;
 import org.multibit.hd.hardware.trezor.wallets.AbstractTrezorHardwareWallet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -95,12 +95,12 @@ public class TrezorShieldSocketHardwareWallet extends AbstractTrezorHardwareWall
    //   monitorDataInputStream(in);
 
       // Must have connected to be here
-      HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletMessageType.DEVICE_CONNECTED);
+      HardwareWalletEvents.fireHardwareWalletEvent(MessageType.DEVICE_CONNECTED);
 
       return true;
 
     } catch (IOException e) {
-      HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletMessageType.DEVICE_FAILED);
+      HardwareWalletEvents.fireHardwareWalletEvent(MessageType.DEVICE_FAILED);
     }
 
     // Must have failed to be here
@@ -118,10 +118,10 @@ public class TrezorShieldSocketHardwareWallet extends AbstractTrezorHardwareWall
       log.info("Disconnected from Trezor");
 
       // Must have disconnected to be here
-      HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletMessageType.DEVICE_DETACHED);
+      HardwareWalletEvents.fireHardwareWalletEvent(MessageType.DEVICE_DETACHED);
 
     } catch (IOException e) {
-      HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletMessageType.DEVICE_FAILED);
+      HardwareWalletEvents.fireHardwareWalletEvent(MessageType.DEVICE_FAILED);
     }
   }
 
@@ -147,7 +147,7 @@ public class TrezorShieldSocketHardwareWallet extends AbstractTrezorHardwareWall
       log.warn("I/O error during write. Closing socket.", e);
 
       // Must have disconnected to be here
-      HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletMessageType.DEVICE_DETACHED);
+      HardwareWalletEvents.fireHardwareWalletEvent(MessageType.DEVICE_DETACHED);
     }
 
     // Must have failed to be here

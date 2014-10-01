@@ -91,11 +91,26 @@ public class HardwareWalletService {
   }
 
   /**
+   * @return True if the hardware wallet has been successfully connected
+   */
+  public boolean isWalletConnected() {
+
+    if (context.getFeatures().isPresent()) {
+
+    }
+
+    return true;
+  }
+
+  /**
    * @return True if the hardware wallet is not loaded with a seed phrase, PIN, passphrase etc
    */
   public boolean isWalletCreationRequired() {
 
-    // TODO Infer this from the current state
+    if (context.getFeatures().isPresent()) {
+
+    }
+
     return true;
   }
 

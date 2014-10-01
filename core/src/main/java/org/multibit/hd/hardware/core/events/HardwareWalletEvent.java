@@ -17,7 +17,7 @@ import com.google.protobuf.Message;
  */
 public class HardwareWalletEvent {
 
-  private final HardwareWalletMessageType messageType;
+  private final MessageType messageType;
 
   private final Optional<Message> message;
 
@@ -25,7 +25,7 @@ public class HardwareWalletEvent {
    * @param messageType The message type
    * @param message     The protocol buffer message from the wire
    */
-  public HardwareWalletEvent(HardwareWalletMessageType messageType, Optional<Message> message) {
+  public HardwareWalletEvent(MessageType messageType, Optional<Message> message) {
 
     this.messageType = messageType;
     this.message = message;
@@ -34,7 +34,7 @@ public class HardwareWalletEvent {
   /**
    * @return The protocol message type
    */
-  public HardwareWalletMessageType getMessageType() {
+  public MessageType getMessageType() {
     return messageType;
   }
 
@@ -43,24 +43,6 @@ public class HardwareWalletEvent {
    */
   public Optional<Message> getMessage() {
     return message;
-  }
-
-  /**
-   * <p>Convenience method to detect a failed device</p>
-   *
-   * @return True if the device has failed to complete an operation or is no longer communicating in a timely manner
-   */
-  public boolean isFailed() {
-    return HardwareWalletMessageType.DEVICE_FAILED.equals(messageType);
-  }
-
-  /**
-   * <p>Convenience method to detect a disconnected device</p>
-   *
-   * @return True if the device is disconnected
-   */
-  public boolean isDisconnected() {
-    return HardwareWalletMessageType.DEVICE_DETACHED.equals(messageType);
   }
 
 }

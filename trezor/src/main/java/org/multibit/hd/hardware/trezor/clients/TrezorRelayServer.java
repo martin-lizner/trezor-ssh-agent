@@ -7,8 +7,8 @@ import com.google.protobuf.Message;
 import org.multibit.hd.hardware.core.HardwareWalletService;
 import org.multibit.hd.hardware.core.concurrent.SafeExecutors;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvent;
-import org.multibit.hd.hardware.core.events.HardwareWalletMessageType;
 import org.multibit.hd.hardware.core.events.MessageEvent;
+import org.multibit.hd.hardware.core.events.MessageType;
 import org.multibit.hd.hardware.core.wallets.HardwareWallet;
 import org.multibit.hd.hardware.trezor.utils.TrezorMessageUtils;
 import org.multibit.hd.hardware.trezor.wallets.v1.TrezorV1UsbHardwareWallet;
@@ -246,7 +246,7 @@ public class TrezorRelayServer {
   public void onHardwareWalletProtocolEvent(HardwareWalletEvent event) {
 
     // Decode into a message type for use with a switch
-    HardwareWalletMessageType messageType = event.getMessageType();
+    MessageType messageType = event.getMessageType();
 
     // Protocol message
 

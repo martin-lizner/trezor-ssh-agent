@@ -5,7 +5,6 @@ import com.google.common.eventbus.Subscribe;
 import org.multibit.hd.hardware.core.HardwareWalletClient;
 import org.multibit.hd.hardware.core.HardwareWalletService;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvent;
-import org.multibit.hd.hardware.core.messages.Features;
 import org.multibit.hd.hardware.core.wallets.HardwareWallets;
 import org.multibit.hd.hardware.trezor.clients.TrezorHardwareWalletClient;
 import org.multibit.hd.hardware.trezor.wallets.v1.TrezorV1UsbHardwareWallet;
@@ -85,14 +84,10 @@ public class TrezorV1WipeDeviceExample {
       return;
     }
 
-    if (event.isDisconnected()) {
+    if (event.isAvailable()) {
       // Can simply wait for another device to be connected again
       return;
     }
-
-    // Get some information about the device
-    Features features = hardwareWalletService.getContext().getFeatures();
-    log.info("Features: {}", features);
 
     // Use the service to make high level decisions
     if (hardwareWalletService.isWalletCreationRequired()) {

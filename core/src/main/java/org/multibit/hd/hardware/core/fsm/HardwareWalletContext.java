@@ -1,5 +1,6 @@
 package org.multibit.hd.hardware.core.fsm;
 
+import com.google.common.base.Optional;
 import org.multibit.hd.hardware.core.messages.Features;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +22,7 @@ public class HardwareWalletContext {
 
   private static final Logger log = LoggerFactory.getLogger(HardwareWalletContext.class);
 
-  private Features features;
+  private Optional<Features> features = Optional.absent();
 
   /**
    * The current state should start assuming an attached device and progress from there
@@ -43,12 +44,12 @@ public class HardwareWalletContext {
   /**
    * @return The wallet features (e.g. PIN required, label etc)
    */
-  public Features getFeatures() {
+  public Optional<Features> getFeatures() {
     return features;
   }
 
   public void setFeatures(Features features) {
-    this.features = features;
+    this.features = Optional.fromNullable(features);
   }
 
   /**

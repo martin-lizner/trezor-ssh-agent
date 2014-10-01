@@ -95,7 +95,7 @@ public class TrezorV1FeaturesExample {
       return;
     }
 
-    if (event.isDisconnected()) {
+    if (event.isAvailable()) {
       // Can simply wait for another device to be connected again
       return;
     }

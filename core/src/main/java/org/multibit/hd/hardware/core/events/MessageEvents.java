@@ -46,7 +46,7 @@ public class MessageEvents {
    *
    * @param messageType The message type (e.g. DEVICE_CONNECTED)
    */
-  public static void fireMessageEvent(final HardwareWalletMessageType messageType) {
+  public static void fireMessageEvent(final MessageType messageType) {
 
     Preconditions.checkNotNull(messageType, "'messageType' must be present");
 
