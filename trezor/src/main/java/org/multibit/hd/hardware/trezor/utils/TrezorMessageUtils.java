@@ -70,6 +70,7 @@ public final class TrezorMessageUtils {
         case MessageType_Failure:
           message = TrezorMessage.Failure.parseFrom(buffer);
           messageEventType = MessageEventType.FAILURE;
+          hardwareWalletMessage = TrezorMessageAdapter.adaptFailure((TrezorMessage.Failure) message);
           break;
         case MessageType_ChangePin:
           message = TrezorMessage.ChangePin.parseFrom(buffer);

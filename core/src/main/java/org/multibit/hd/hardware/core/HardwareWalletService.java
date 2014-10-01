@@ -134,7 +134,7 @@ public class HardwareWalletService {
   ) {
 
     client.wipeDevice();
-    context.setToWiped();
+    context.beginWipeDeviceUseCase();
 
 //    Uninterruptibles.sleepUninterruptibly(1, TimeUnit.SECONDS);
 //

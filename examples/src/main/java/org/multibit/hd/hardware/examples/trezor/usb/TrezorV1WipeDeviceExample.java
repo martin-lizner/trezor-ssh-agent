@@ -2,6 +2,7 @@ package org.multibit.hd.hardware.examples.trezor.usb;
 
 import com.google.common.base.Optional;
 import com.google.common.eventbus.Subscribe;
+import com.google.common.util.concurrent.Uninterruptibles;
 import org.multibit.hd.hardware.core.HardwareWalletClient;
 import org.multibit.hd.hardware.core.HardwareWalletService;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvent;
@@ -10,6 +11,8 @@ import org.multibit.hd.hardware.trezor.clients.TrezorHardwareWalletClient;
 import org.multibit.hd.hardware.trezor.wallets.v1.TrezorV1UsbHardwareWallet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>Step 2 - Wipe the device to factory defaults and load with known seed phrase</p>
@@ -68,6 +71,10 @@ public class TrezorV1WipeDeviceExample {
 
     hardwareWalletService.start();
 
+    // Simulate the main thread continuing with other unrelated work
+    // We don't terminate main since we're using safe executors
+    Uninterruptibles.sleepUninterruptibly(1, TimeUnit.HOURS);
+
   }
 
   /**
@@ -78,7 +85,7 @@ public class TrezorV1WipeDeviceExample {
   @Subscribe
   public void onHardwareWalletEvent(HardwareWalletEvent event) {
 
-    log.debug("Received hardware event: '{}'", event.getEventType().name());
+    log.debug("Received hardware event: '{}'.{}", event.getEventType().name(), event.getMessage());
 
     switch (event.getEventType()) {
       case SHOW_DEVICE_FAILED:
@@ -105,6 +112,11 @@ public class TrezorV1WipeDeviceExample {
           true,
           12
         );
+        break;
+      case SHOW_OPERATION_FAILED:
+        // Treat as end of example
+        System.exit(0);
+        break;
       default:
         // Ignore
     }

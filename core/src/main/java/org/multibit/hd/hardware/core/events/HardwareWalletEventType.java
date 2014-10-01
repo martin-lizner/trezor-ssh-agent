@@ -51,6 +51,11 @@ public enum HardwareWalletEventType {
    */
   SHOW_PIN_ENTRY,
 
+  /**
+   * The UI should show a message telling the user that the operation failed to complete (could be their cancellation etc).
+   */
+  SHOW_OPERATION_FAILED,
+
   // End of enum
   ;
 

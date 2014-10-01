@@ -145,14 +145,14 @@ public class HardwareWalletContext {
   }
 
   /**
-   * Reset the context back to the wiped state ()
+   * Begin the "wipe device" use case
    */
-  public void setToWiped() {
+  public void beginWipeDeviceUseCase() {
 
-    log.debug("Reset to 'wiped'");
+    log.debug("Begin 'wipe device' use case");
 
     // Perform the state change
-    currentState = HardwareWalletStates.newWipedState();
+    currentState = HardwareWalletStates.newConfirmWipeState();
 
   }
 }

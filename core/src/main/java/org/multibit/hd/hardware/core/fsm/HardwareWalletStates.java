@@ -89,6 +89,17 @@ public class HardwareWalletStates {
   }
 
   /**
+   * @return A new confirm wipe state
+   */
+  public static ConfirmWipeState newConfirmWipeState() {
+
+    log.debug("Transitioning to 'confirm wipe' state");
+
+    return new ConfirmWipeState();
+
+  }
+
+  /**
    * @return A new wiped state
    */
   public static WipedState newWipedState() {
