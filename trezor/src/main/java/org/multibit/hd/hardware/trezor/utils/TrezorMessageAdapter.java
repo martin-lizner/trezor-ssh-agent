@@ -198,5 +198,16 @@ public class TrezorMessageAdapter {
     }
 
   }
+
+  /**
+   * @param source The source message
+   *
+   * @return The adapted Core message
+   */
+  public static MainNetAddress adaptAddress(TrezorMessage.Address source) {
+
+    return new MainNetAddress(source.getAddress());
+
+  }
   
 }

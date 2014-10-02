@@ -132,4 +132,14 @@ public class HardwareWalletStates {
 
   }
 
+  /**
+   * @return A new confirm get address state
+   */
+  public static ConfirmGetAddressState newConfirmGetAddressState() {
+
+    log.debug("Transitioning to 'confirm GetAddress' state");
+
+    return new ConfirmGetAddressState();
+
+  }
 }

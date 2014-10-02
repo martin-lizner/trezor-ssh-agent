@@ -245,11 +245,35 @@ public class HardwareWalletContext {
       specification.getLanguage(),
       specification.getLabel(),
       specification.isDisplayRandom(),
-      specification.isPassphraseProtection(),
       specification.isPinProtection(),
       specification.getStrength()
     );
 
+
+  }
+
+  /**
+   * <p>Begin the "get address" use case</p>
+   *
+   * @param index       The index of the chain node from the master node
+   * @param value       The index of the address from the given chain node
+   * @param showDisplay True if the device should display the same address to allow the user to verify no tampering has occurred.
+   */
+  public void beginGetAddressUseCase(int index, int value, boolean showDisplay) {
+
+    log.debug("Begin 'get address' use case");
+
+    // Store the overall context parameters
+
+    // Set the event receiving state
+    currentState = HardwareWalletStates.newConfirmGetAddressState();
+
+    // Issue starting message to elicit the event
+    client.getAddress(
+      index,
+      value,
+      showDisplay
+    );
 
   }
 

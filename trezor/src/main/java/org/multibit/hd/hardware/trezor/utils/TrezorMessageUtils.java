@@ -175,6 +175,7 @@ public final class TrezorMessageUtils {
         case MessageType_Address:
           message = TrezorMessage.Address.parseFrom(buffer);
           messageEventType = MessageEventType.ADDRESS;
+          hardwareWalletMessage = TrezorMessageAdapter.adaptAddress((TrezorMessage.Address) message);
           break;
         case MessageType_EntropyRequest:
           message = TrezorMessage.EntropyRequest.parseFrom(buffer);

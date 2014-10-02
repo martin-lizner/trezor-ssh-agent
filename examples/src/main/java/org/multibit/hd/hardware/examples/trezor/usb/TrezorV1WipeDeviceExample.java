@@ -15,10 +15,10 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.TimeUnit;
 
 /**
- * <p>Step 2 - Wipe the device to factory defaults and load with known seed phrase</p>
+ * <p>Step 2 - Wipe the device to factory defaults</p>
  * <p>Requires Trezor V1 production device plugged into a USB HID interface.</p>
- * <p>This example demonstrates the message sequence to wipe a Trezor device back to its fresh out of the box
- * state.</p>
+ * <p>This example demonstrates the message sequence to wipe a Trezor device back
+ * to its fresh out of the box state.</p>
  *
  * <h3>Only perform this example on a Trezor that you are using for test and development!</h3>
  *

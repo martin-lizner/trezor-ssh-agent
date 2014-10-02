@@ -6,30 +6,30 @@ import com.google.common.util.concurrent.Uninterruptibles;
 import org.multibit.hd.hardware.core.HardwareWalletClient;
 import org.multibit.hd.hardware.core.HardwareWalletService;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvent;
-import org.multibit.hd.hardware.core.messages.PinMatrixRequest;
+import org.multibit.hd.hardware.core.messages.MainNetAddress;
 import org.multibit.hd.hardware.core.wallets.HardwareWallets;
 import org.multibit.hd.hardware.trezor.clients.TrezorHardwareWalletClient;
 import org.multibit.hd.hardware.trezor.wallets.v1.TrezorV1UsbHardwareWallet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
 /**
- * <p>Step 3 - Wipe the device to factory defaults and load with known seed phrase</p>
+ * <p>Step 4 - Get a receiving address</p>
  * <p>Requires Trezor V1 production device plugged into a USB HID interface.</p>
- * <p>This example demonstrates the message sequence to wipe a Trezor device back to its fresh out of the box
- * state and then set it up with a known seed phrase.</p>
+ * <p>This example demonstrates the message sequence to get a receiving address
+ * from a Trezor that has an active wallet.</p>
  *
  * <h3>Only perform this example on a Trezor that you are using for test and development!</h3>
+ * <h3>Do not send funds to the address unless you have a copy of the seed phrase written down!</h3>
  *
  * @since 0.0.1
  *  
  */
-public class TrezorV1WipeAndCreateWalletExample {
+public class TrezorV1GetAddressExample {
 
-  private static final Logger log = LoggerFactory.getLogger(TrezorV1WipeAndCreateWalletExample.class);
+  private static final Logger log = LoggerFactory.getLogger(TrezorV1GetAddressExample.class);
 
   private HardwareWalletService hardwareWalletService;
 
@@ -43,7 +43,7 @@ public class TrezorV1WipeAndCreateWalletExample {
   public static void main(String[] args) throws Exception {
 
     // All the work is done in the class
-    TrezorV1WipeAndCreateWalletExample example = new TrezorV1WipeAndCreateWalletExample();
+    TrezorV1GetAddressExample example = new TrezorV1GetAddressExample();
 
     example.executeExample();
 
@@ -99,52 +99,19 @@ public class TrezorV1WipeAndCreateWalletExample {
         break;
       case SHOW_DEVICE_READY:
         if (hardwareWalletService.isWalletPresent()) {
-          // We could choose to bypass the whole wallet creation process
-          // but for this example we'll fall through to the forced creation
-          log.debug("Ignoring the wallet is already present flag");
+
+          log.debug("Wallet is present. Requesting an address...");
+
+          // Request an address from the device
+          hardwareWalletService.requestAddress(1, 0, true);
+
+        } else {
+          log.info("You need to have created a wallet before running this example");
         }
 
-        // Force creation of the wallet (wipe then reset)
-        // Select the use of PIN protection, passphrase protection
-        // and displaying entropy on the device
-        // This is the most secure way to create a wallet
-        hardwareWalletService.secureCreateWallet(
-          "english",
-          "Aardvark",
-          true,
-          true,
-          128
-        );
         break;
-      case SHOW_PIN_ENTRY:
-        // Determine if this is the first or second PIN entry
-        PinMatrixRequest request = (PinMatrixRequest) event.getMessage().get();
-        Scanner keyboard = new Scanner(System.in);
-        String pin;
-        switch (request.getPinMatrixRequestType()) {
-          case NEW_FIRST:
-            System.err.println("Choose a PIN (e.g. '1' for simplicity).\n" +
-              "Look at the device screen and type in the numerical position of each of the digits\n" +
-              "with 1 being in the bottom left and 9 being in the top right (numeric keypad style) then press ENTER.");
-            pin = keyboard.next();
-            hardwareWalletService.providePIN(pin);
-            break;
-          case NEW_SECOND:
-            System.err.println("Recall your PIN (e.g. '1').\n" +
-              "Look at the device screen once more and type in the numerical position of each of the digits\n" +
-              "with 1 being in the bottom left and 9 being in the top right (numeric keypad style) then press ENTER.");
-            pin = keyboard.next();
-            hardwareWalletService.providePIN(pin);
-            break;
-        }
-        break;
-      case PROVIDE_ENTROPY:
-        // Generate 256 bits of entropy (32 bytes) using the utility method
-        byte[] entropy = hardwareWalletService.generateEntropy();
-        // Provide it to the device
-        hardwareWalletService.provideEntropy(entropy);
-        break;
-      case SHOW_OPERATION_SUCCEEDED:
+      case ADDRESS:
+        log.info("Device provided address: '{}'", ((MainNetAddress) event.getMessage().get()).getAddress().get());
       case SHOW_OPERATION_FAILED:
         // Treat as end of example
         System.exit(0);

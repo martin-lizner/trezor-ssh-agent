@@ -136,7 +136,6 @@ public abstract class AbstractTrezorHardwareWalletClient implements HardwareWall
     String language,
     String label,
     boolean displayRandom,
-    boolean passphraseProtection,
     boolean pinProtection,
     int strength
   ) {
@@ -147,7 +146,6 @@ public abstract class AbstractTrezorHardwareWalletClient implements HardwareWall
         .setLanguage(language)
         .setLabel(label)
         .setDisplayRandom(displayRandom)
-        .setPassphraseProtection(passphraseProtection)
         .setStrength(strength)
         .setPinProtection(pinProtection)
         .build()
@@ -227,7 +225,8 @@ public abstract class AbstractTrezorHardwareWalletClient implements HardwareWall
     return sendMessage(
       TrezorMessage.GetAddress
         .newBuilder()
-        .setAddressN(index, value)
+        .addAddressN(index)
+        .addAddressN(value)
         .setCoinName("Bitcoin")
         .setShowDisplay(showDisplay)
         .build()
