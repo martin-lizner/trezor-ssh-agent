@@ -219,7 +219,7 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet impl
       );
 
     } catch (Exception e) {
-      log.error("Failed to connect device due to problem reading device information", e);
+      log.error("Failed to connect device due to problem reading device information. Re-attach to reset it.", e);
       MessageEvents.fireMessageEvent(MessageEventType.DEVICE_FAILED);
       return false;
     }

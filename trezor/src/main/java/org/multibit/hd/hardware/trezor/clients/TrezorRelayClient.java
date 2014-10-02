@@ -6,6 +6,8 @@ import com.google.protobuf.Message;
 import org.multibit.hd.hardware.core.HardwareWalletException;
 import org.multibit.hd.hardware.core.concurrent.SafeExecutors;
 import org.multibit.hd.hardware.core.events.MessageEvent;
+import org.multibit.hd.hardware.core.events.MessageEventType;
+import org.multibit.hd.hardware.core.events.MessageEvents;
 import org.multibit.hd.hardware.trezor.utils.TrezorMessageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,18 +73,6 @@ public class TrezorRelayClient extends AbstractTrezorHardwareWalletClient {
 
   @Override
   public boolean attach() {
-    // The socket library will always work
-    return true;
-  }
-
-  @Override
-  public void detach() {
-    // Do nothing
-  }
-
-  @Override
-  public boolean connect() {
-
     try {
       socket = new Socket(relayServerLocation, relayServerPort);
       outputToServer = new BufferedOutputStream(socket.getOutputStream(), 1024);
@@ -99,6 +89,50 @@ public class TrezorRelayClient extends AbstractTrezorHardwareWalletClient {
       return false;
     } catch (IOException e) {
       log.error("IO problem on host '{}'.", relayServerLocation, e);
+      return false;
+    }
+  }
+
+  @Override
+  public void detach() {
+
+    try {
+      if (outputToServer != null) {
+        outputToServer.close();
+      }
+    } catch (IOException e) {
+      log.warn("Could not close output stream to server", e);
+    }
+
+    try {
+      if (inputFromServer != null) {
+        inputFromServer.close();
+      }
+    } catch (IOException e) {
+      log.warn("Could not close input stream from server", e);
+    }
+
+    try {
+      if (socket != null) {
+        socket.close();
+      }
+    } catch (IOException e) {
+      log.warn("Could not close socket", e);
+    }
+
+    log.debug("Reset endpoints");
+
+    log.info("Detached from Trezor relay server");
+  }
+
+  @Override
+  public boolean connect() {
+
+    if (socket != null) {
+      MessageEvents.fireMessageEvent(MessageEventType.DEVICE_CONNECTED);
+      return true;
+    } else {
+      MessageEvents.fireMessageEvent(MessageEventType.DEVICE_DISCONNECTED);
       return false;
     }
 
@@ -142,7 +176,7 @@ public class TrezorRelayClient extends AbstractTrezorHardwareWalletClient {
             log.debug("Waiting for server message...");
             MessageEvent messageFromServer = TrezorMessageUtils.parseAsHIDPackets(inputFromServer);
 
-            // TODO Convert to messsage event
+            MessageEvents.fireMessageEvent(messageFromServer);
 
           } catch (HardwareWalletException | IOException e) {
             log.error("Failed to read back from server", e);
