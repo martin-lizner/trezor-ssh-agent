@@ -1,9 +1,6 @@
 package org.multibit.hd.hardware.trezor.clients;
 
-import com.google.bitcoin.core.Address;
-import com.google.bitcoin.core.Transaction;
-import com.google.bitcoin.core.TransactionInput;
-import com.google.bitcoin.core.TransactionOutput;
+import com.google.bitcoin.core.*;
 import com.google.bitcoin.params.MainNetParams;
 import com.google.common.base.Optional;
 import com.google.protobuf.ByteString;
@@ -228,13 +225,13 @@ public abstract class AbstractTrezorHardwareWalletClient implements HardwareWall
     Optional<Transaction> requestedTx = Optional.of(tx);
 
     // Check if the requested transaction is different to the current
-    if (txHash.isPresent()) {
+    if (txHash.isPresent() && txHash.get().length>0) {
       // Need to look up a transaction by hash
       requestedTx = TransactionUtils.getTransactionByHash(tx, txHash.get());
 
       // Check if the transaction was found
       if (!requestedTx.isPresent()) {
-        log.error("Device requested unknown hash: {}", txHash);
+        log.error("Device requested unknown hash: {}", Utils.HEX.encode(txHash.get()));
         throw new IllegalArgumentException("Device requested unknown hash.");
       }
 
@@ -246,14 +243,19 @@ public abstract class AbstractTrezorHardwareWalletClient implements HardwareWall
     switch (txRequest.getTxRequestType()) {
       case TX_META:
 
+        int inputCount = requestedTx.get().getInputs().size();
+        int outputCount = requestedTx.get().getOutputs().size();
+
+        System.err.println("Requested Tx: " + requestedTx.get().getHashAsString());
+
         // Provide details about the requested transaction
         txType = TrezorType.TransactionType
           .newBuilder()
           .setVersion((int) requestedTx.get().getVersion())
           .setLockTime((int) requestedTx.get().getLockTime())
             // No support for binary outputs at the moment
-          .setInputsCnt(requestedTx.get().getInputs().size())
-          .setOutputsCnt(requestedTx.get().getOutputs().size())
+          .setInputsCnt(inputCount)
+          .setOutputsCnt(outputCount)
           .build();
 
         break;
@@ -263,15 +265,9 @@ public abstract class AbstractTrezorHardwareWalletClient implements HardwareWall
         txIndex = txRequest.getTxRequestDetailsType().getIndex();
         TransactionInput input = requestedTx.get().getInput(txIndex);
 
-        // Check for connectivity
-        if (input.getConnectedOutput() == null) {
-          log.error("Input {} does not have a connected output", txIndex);
-          throw new IllegalArgumentException("Input " + txIndex + " does not have a connected output.");
-        }
-
         // Must be OK to be here
-        int prevIndex = input.getConnectedOutput().getIndex();
-        byte[] prevHash = input.getParentTransaction().getHash().getBytes();
+        int prevIndex = (int) input.getOutpoint().getIndex();
+        byte[] prevHash = input.getOutpoint().getHash().getBytes();
 
         // No multisig support in MBHD yet
         TrezorType.InputScriptType inputScriptType = TrezorType.InputScriptType.SPENDADDRESS;
@@ -295,32 +291,52 @@ public abstract class AbstractTrezorHardwareWalletClient implements HardwareWall
       case TX_OUTPUT:
         // Get the transaction output indicated by the request index
         txIndex = txRequest.getTxRequestDetailsType().getIndex();
-        TransactionOutput output = tx.getOutput(txIndex);
+        TransactionOutput output = requestedTx.get().getOutput(txIndex);
 
-        // No P2SH at the moment
-        Address address = output.getAddressFromP2PKHScript(MainNetParams.get());
-        if (address == null) {
-          throw new IllegalArgumentException("TxOutput " + txIndex + " has no address.");
-        }
+        if (txHash.isPresent()) {
+          // Require the script public key
+          byte[] scriptPubKey = output.getScriptPubKey().getPubKey();
 
-        final TrezorType.OutputScriptType outputScriptType;
-        if (address.isP2SHAddress()) {
-          outputScriptType = TrezorType.OutputScriptType.PAYTOSCRIPTHASH;
+          TrezorType.TxOutputBinType txOutputBinType = TrezorType.TxOutputBinType
+            .newBuilder()
+            .setAmount(output.getValue().value)
+            .setScriptPubkey(ByteString.copyFrom(scriptPubKey))
+            .build();
+
+          txType = TrezorType.TransactionType
+            .newBuilder()
+            .addBinOutputs(txOutputBinType)
+            .build();
+
         } else {
-          outputScriptType = TrezorType.OutputScriptType.PAYTOADDRESS;
+          // Require address, value etc
+          // No P2SH at the moment
+          Address address = output.getAddressFromP2PKHScript(MainNetParams.get());
+          if (address == null) {
+            throw new IllegalArgumentException("TxOutput " + txIndex + " has no address.");
+          }
+
+          // Is is pay-to-script-hash or pay-to-address
+          final TrezorType.OutputScriptType outputScriptType;
+          if (address.isP2SHAddress()) {
+            outputScriptType = TrezorType.OutputScriptType.PAYTOSCRIPTHASH;
+          } else {
+            outputScriptType = TrezorType.OutputScriptType.PAYTOADDRESS;
+          }
+
+          TrezorType.TxOutputType txOutputType = TrezorType.TxOutputType
+            .newBuilder()
+            .setAddress(String.valueOf(address))
+            .setAmount(output.getValue().value)
+            .setScriptType(outputScriptType)
+            .build();
+
+          txType = TrezorType.TransactionType
+            .newBuilder()
+            .addOutputs(txOutputType)
+            .build();
         }
 
-        TrezorType.TxOutputType txOutputType = TrezorType.TxOutputType
-          .newBuilder()
-          .setAddress(String.valueOf(address))
-          .setAmount(output.getValue().value)
-          .setScriptType(outputScriptType)
-          .build();
-
-        txType = TrezorType.TransactionType
-          .newBuilder()
-          .addOutputs(txOutputType)
-          .build();
         break;
       case TX_FINISHED:
         // Do not send message

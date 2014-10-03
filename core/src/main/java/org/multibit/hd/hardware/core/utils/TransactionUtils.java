@@ -2,6 +2,7 @@ package org.multibit.hd.hardware.core.utils;
 
 import com.google.bitcoin.core.Transaction;
 import com.google.bitcoin.core.TransactionInput;
+import com.google.bitcoin.core.Utils;
 import com.google.common.base.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,40 +28,52 @@ public class TransactionUtils {
   }
 
   /**
-   * @param tx The transaction to search
+   * @param tx     The transaction to search
    * @param txHash The transaction hash to match on
    *
    * @return The matching transaction if present
    */
   public static Optional<Transaction> getTransactionByHash(Transaction tx, byte[] txHash) {
 
-    // Assume the required transaction is the current (child) one
-    Optional<Transaction> requiredTx = Optional.of(tx);
+    log.debug("Searching for {}", Utils.HEX.encode(txHash));
 
-    if (!Arrays.areEqual(txHash, tx.getHash().getBytes())) {
-
-      log.debug("Searching within tx inputs");
-
-      // The child transaction does not match so look through all inputs
-      for (TransactionInput txInput : tx.getInputs()) {
-        Transaction parentTx = txInput.getParentTransaction();
-        if (parentTx == null) {
-          log.warn("Parent transaction for input {} is null", txInput);
-        } else {
-          if (!Arrays.areEqual(txHash, parentTx.getHash().getBytes())) {
-            // Found matching parent
-            log.debug("Located requested transaction by hash");
-            requiredTx = Optional.of(txInput.getParentTransaction());
-          }
-
-        }
-      }
-    } else {
+    if (Arrays.areEqual(txHash, tx.getHash().getBytes())) {
       log.debug("Requested transaction is current");
+      return Optional.of(tx);
     }
 
-    return requiredTx;
+    // The child transaction does not match so look through all inputs
+
+    Optional<Transaction> requestedTx = Optional.absent();
+    for (TransactionInput txInput : tx.getInputs()) {
+      if (txInput.getOutpoint() == null) {
+        log.warn("Outpoint for input {} is null", txInput);
+        continue;
+      }
+      if (txInput.getOutpoint().getConnectedOutput() == null) {
+        log.warn("Connected output for input {} is null", txInput);
+        continue;
+      }
+
+      if (Arrays.areEqual(txHash, txInput.getOutpoint().getHash().getBytes())) {
+        // Found matching parent
+        log.debug("Located requested transaction.");
+        Transaction parentTx = txInput.getOutpoint().getConnectedOutput().getParentTransaction();
+        if (parentTx == null) {
+          log.warn("Parent transaction for input {} is null", txInput);
+          continue;
+        }
+        requestedTx = Optional.of(parentTx);
+        break;
+      }
+
+      if (!requestedTx.isPresent()) {
+        log.warn("Failed to locate requested transaction.");
+      }
+
+    }
+
+    return requestedTx;
+
   }
-
-
 }

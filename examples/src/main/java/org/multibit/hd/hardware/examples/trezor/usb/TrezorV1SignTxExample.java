@@ -137,16 +137,11 @@ public class TrezorV1SignTxExample {
           // Now we have enough information to build a transaction
           log.debug("Building a fake transaction...");
 
-          Address merchantAddress = FakeTransactions.newMainNetAddress();
-          Coin inputSatoshis = Coin.FIFTY_COINS;
-          Coin outputSatoshis = Coin.COIN;
-
-          Transaction transaction = FakeTransactions.newMainNetFakeTx(
+          Transaction transaction = FakeTransactions.newMainNetFakeTx2(
             ourReceivingAddress,
             ourChangeAddress,
-            merchantAddress,
-            inputSatoshis,
-            outputSatoshis
+            Coin.FIFTY_COINS,
+            Coin.COIN
           );
 
           // Request an address from the device

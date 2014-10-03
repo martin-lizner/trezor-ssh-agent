@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
  * signs the transaction presented.</p>
  *
  * <p>A typical sequence for signing a transaction would be as follows:</p>
- * <p>hash 0 is current, hash 0:0 is hash of current index 0 parent</p>
+ * <p>hash 0 is current, prev hash 0 is hash of parent to input 0</p>
  * <p>addressN is the co-ordinates of a receiving address (e.g. [0,1] as chain, address index)</p>
  * <ol>
  *   <li>> SIGN_TX (input count, output count)</li>
@@ -27,8 +27,8 @@ import org.slf4j.LoggerFactory;
  *   <li>> PIN_ACK (pin)</li>
  *   <li>< TX_REQUEST (current input 0)</li>
  *   <li>> TX_ACK (input 0: addressN, prev hash, prev index, script type</li>
- *   <li>< TX_REQUEST (meta, hash 0)</li>
- *   <li>> TX_ACK (hash 0: lock time, input count, output count)</li>
+ *   <li>< TX_REQUEST (meta, prev hash 0)</li>
+ *   <li>> TX_ACK (prev hash 0: lock time, input count, output count)</li>
  *   <li>< TX_REQUEST (hash 0, input 0)</li>
  *   <li>> TX_ACK (hash 0: input 0: addressN, prev hash, prev index, script type</li>
  *   <li>< TX_REQUEST (request hash 0, output 0)</li>
