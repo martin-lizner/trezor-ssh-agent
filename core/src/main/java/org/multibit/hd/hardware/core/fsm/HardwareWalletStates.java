@@ -142,4 +142,15 @@ public class HardwareWalletStates {
     return new ConfirmGetAddressState();
 
   }
+
+  /**
+   * @return A new confirm get address state
+   */
+  public static ConfirmSignTxState newConfirmSignTxState() {
+
+    log.debug("Transitioning to 'confirm SignTx' state");
+
+    return new ConfirmSignTxState();
+
+  }
 }

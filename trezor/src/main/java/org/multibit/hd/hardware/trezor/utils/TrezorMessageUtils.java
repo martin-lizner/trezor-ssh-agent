@@ -5,7 +5,6 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
 import com.satoshilabs.trezor.protobuf.TrezorMessage;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 import org.multibit.hd.hardware.core.events.MessageEvent;
 import org.multibit.hd.hardware.core.events.MessageEventType;
 import org.multibit.hd.hardware.core.messages.HardwareWalletMessage;
@@ -142,6 +141,7 @@ public final class TrezorMessageUtils {
         case MessageType_TxRequest:
           message = TrezorMessage.TxRequest.parseFrom(buffer);
           messageEventType = MessageEventType.TX_REQUEST;
+          hardwareWalletMessage = TrezorMessageAdapter.adaptTxRequest((TrezorMessage.TxRequest) message);
           break;
         case MessageType_TxAck:
           message = TrezorMessage.TxAck.parseFrom(buffer);
@@ -258,7 +258,7 @@ public final class TrezorMessageUtils {
       }
 
       // Must be OK to be here
-      log.debug("< Message: {}", ToStringBuilder.reflectionToString(message, ToStringStyle.MULTI_LINE_STYLE));
+      log.debug("< Message: {}", ToStringBuilder.reflectionToString(message, new TrezorMessageToStringStyle()));
 
       if (hardwareWalletMessage == null) {
         log.warn("Could not adapt message to Core.");
@@ -349,7 +349,7 @@ public final class TrezorMessageUtils {
     String msgName = message.getClass().getSimpleName();
     int msgId = TrezorMessage.MessageType.valueOf("MessageType_" + msgName).getNumber();
 
-    log.debug("Formatting message: '{}' ({} bytes)", msgName, msgSize);
+    log.debug("> Message: {}, ({} bytes)", ToStringBuilder.reflectionToString(message, new TrezorMessageToStringStyle()), msgSize);
 
     // Create the header
     ByteBuffer messageBuffer = ByteBuffer.allocate(32768);

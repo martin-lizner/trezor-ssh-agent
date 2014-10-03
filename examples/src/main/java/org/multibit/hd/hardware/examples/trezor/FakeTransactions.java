@@ -4,6 +4,8 @@ import com.google.bitcoin.core.*;
 import com.google.bitcoin.params.MainNetParams;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
@@ -15,9 +17,10 @@ import java.util.Map;
  * </ul>
  *
  * @since 0.0.1
- *  TODO Move to examples
  */
 public class FakeTransactions {
+
+  private static final Logger log = LoggerFactory.getLogger(FakeTransactions.class);
 
   private static Map<Integer, Address> receivingAddresses = Maps.newHashMap();
   private static Map<Integer, Address> changeAddresses = Maps.newHashMap();
@@ -101,11 +104,10 @@ public class FakeTransactions {
    * <li>output[1]: us giving us change</li>
    * </ul>
    * <p>See {@link FakeTransactions#newMainNetAddress()} for new Addresses</p>
-   * <p>Note that in Bitcoinj a satoshi is a "nanocoin"</p>
    *
    * @param ourReceivingAddress Our receiving address (present on the input from random1)
    * @param ourChangeAddress    Our change address
-   * @param random2Address      An address that we are paying
+   * @param merchantAddress     An address that we are paying
    * @param inputSatoshis       The amount in satoshis we received (present on the input from from random1)
    * @param outputSatoshis      The amount in satoshis we are paying (will be used in each transaction)
    *
@@ -114,7 +116,7 @@ public class FakeTransactions {
   public static Transaction newMainNetFakeTx(
     Address ourReceivingAddress,
     Address ourChangeAddress,
-    Address random2Address,
+    Address merchantAddress,
     Coin inputSatoshis,
     Coin outputSatoshis) {
 
@@ -122,43 +124,47 @@ public class FakeTransactions {
 
     NetworkParameters params = MainNetParams.get();
 
-    // Create the transaction from random1 (our parent)
-    Transaction random1Tx = new Transaction(params);
+    // Create the parent transaction
+    Transaction parentTx = new Transaction(params);
 
     // Add an output to us
-    TransactionOutput random1Output = new TransactionOutput(
+    TransactionOutput parentOutput = new TransactionOutput(
       params,
-      random1Tx,
+      parentTx,
       inputSatoshis,
       ourReceivingAddress
     );
-    random1Tx.addOutput(random1Output);
+    parentTx.addOutput(parentOutput);
+
+    log.debug("Parent Tx hash: '{}' ({})", parentTx.getHashAsString(), parentTx.getHash().getBytes());
 
     // Create our transaction
-    Transaction ourTx = new Transaction(params);
+    Transaction currentTx = new Transaction(params);
 
     // Add our parent as an input
-    ourTx.addInput(random1Output);
+    currentTx.addInput(parentOutput);
 
-    // Create the output to random2
-    TransactionOutput random2Output = new TransactionOutput(
+    // Create the output to merchant's address
+    TransactionOutput merchantOutput = new TransactionOutput(
       params,
-      ourTx,
+      currentTx,
       outputSatoshis,
-      random2Address
+      merchantAddress
     );
-    ourTx.addOutput(random2Output);
+    currentTx.addOutput(merchantOutput);
 
-    // Create the output to our change
+    // Create the output to our change address
     TransactionOutput ourChangeOutput = new TransactionOutput(
       params,
-      ourTx,
+      currentTx,
       inputSatoshis.subtract(outputSatoshis),
       ourChangeAddress
     );
-    ourTx.addOutput(ourChangeOutput);
+    currentTx.addOutput(ourChangeOutput);
 
-    return ourTx;
+    log.debug("Current Tx hash: '{}' ({})", currentTx.getHashAsString(), currentTx.getHash().getBytes());
+
+    return currentTx;
   }
 
 }

@@ -1,5 +1,6 @@
 package org.multibit.hd.hardware.core;
 
+import com.google.bitcoin.core.Transaction;
 import com.google.common.base.Preconditions;
 import com.google.common.eventbus.EventBus;
 import com.google.common.util.concurrent.ListeningExecutorService;
@@ -81,6 +82,13 @@ public class HardwareWalletService {
   }
 
   /**
+   * @return The hardware wallet context providing access to the current device state
+   */
+  public HardwareWalletContext getContext() {
+    return context;
+  }
+
+  /**
    * @return True if the hardware wallet has been initialised with a seed phrase, PIN, passphrase etc.
    *
    * @throws IllegalStateException If called when the device is not ready
@@ -142,7 +150,11 @@ public class HardwareWalletService {
   public void providePIN(String pin) {
 
     // Set the FSM context
-    context.continueCreateWallet_PIN(pin);
+    if (context.getTransaction().isPresent()) {
+      context.continueSignTx_PIN(pin);
+    } else {
+      context.continueCreateWallet_PIN(pin);
+    }
   }
 
   /**
@@ -158,10 +170,31 @@ public class HardwareWalletService {
   }
 
   /**
-   * @return The hardware wallet context providing access to the current device state
+   * <p>Request an address from the device. The device will respond by providing an address calculated
+   * based on the <a href="https://en.bitcoin.it/wiki/BIP_0044">BIP 0044</a> deterministic wallet approach from
+   * the master node.</p>
+   *
+   * @param index       The index of the chain node from the master node
+   * @param value       The index of the address from the given chain node
+   * @param showDisplay True if the device should display the same address to allow the user to verify no tampering has occurred (recommended).
    */
-  public HardwareWalletContext getContext() {
-    return context;
+  public void requestAddress(int index, int value, boolean showDisplay) {
+
+    // Set the FSM context
+    context.beginGetAddressUseCase(index, value, showDisplay);
+
+  }
+
+  /**
+   * <p>Request that the device signs the given transaction.</p>
+   *
+   * @param transaction The transaction containing all the inputs and outputs
+   */
+  public void signTx(Transaction transaction) {
+
+    // Set the FSM context
+    context.beginSignTxUseCase(transaction);
+
   }
 
   /**
@@ -183,21 +216,5 @@ public class HardwareWalletService {
     secureRandom.nextBytes(bytes);
 
     return bytes;
-  }
-
-  /**
-   * <p>Request an address from the device. The device will respond by providing an address calculated
-   * based on the <a href="https://en.bitcoin.it/wiki/BIP_0044">BIP 0044</a> deterministic wallet approach from
-   * the master node.</p>
-   *
-   * @param index       The index of the chain node from the master node
-   * @param value       The index of the address from the given chain node
-   * @param showDisplay True if the device should display the same address to allow the user to verify no tampering has occurred (recommended).
-   */
-  public void requestAddress(int index, int value, boolean showDisplay) {
-
-    // Set the FSM context
-    context.beginGetAddressUseCase(index, value, showDisplay);
-
   }
 }

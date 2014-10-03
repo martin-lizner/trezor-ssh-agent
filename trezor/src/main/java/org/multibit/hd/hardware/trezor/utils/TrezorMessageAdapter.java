@@ -74,7 +74,7 @@ public class TrezorMessageAdapter {
    * @return The adapted Core message
    */
   public static HardwareWalletMessage adaptFailure(TrezorMessage.Failure source) {
-    
+
     FailureType failureType = adaptFailureType(source.getCode());
 
     return new Failure(failureType, source.getMessage());
@@ -209,5 +209,53 @@ public class TrezorMessageAdapter {
     return new MainNetAddress(source.getAddress());
 
   }
-  
+
+  /**
+   * @param source The source message
+   *
+   * @return The adapted Core message
+   */
+  public static HardwareWalletMessage adaptTxRequest(TrezorMessage.TxRequest source) {
+
+    TxRequestType txRequestType = adaptTxRequestType(source.getRequestType());
+    TxRequestDetailsType txRequestDetailsType = adaptTxRequestDetailsType(source.getDetails());
+
+    return new TxRequest(
+      txRequestType,
+      txRequestDetailsType
+    );
+
+  }
+
+  /**
+   * @param source The source message
+   *
+   * @return The adapted Core message
+   */
+  private static TxRequestType adaptTxRequestType(TrezorType.RequestType source) {
+
+    switch (source.getNumber()) {
+      case 0:
+        return TxRequestType.TX_INPUT;
+      case 1:
+        return TxRequestType.TX_OUTPUT;
+      case 2:
+        return TxRequestType.TX_META;
+      case 3:
+        return TxRequestType.TX_FINISHED;
+      default:
+        return null;
+    }
+  }
+
+  /**
+   * @param source The source message
+   *
+   * @return The adapted Core message
+   */
+  private static TxRequestDetailsType adaptTxRequestDetailsType(TrezorType.TxRequestDetailsType source) {
+    return new TxRequestDetailsType(source.getRequestIndex(), source.getTxHash().toByteArray());
+  }
+
+
 }

@@ -2,6 +2,9 @@ package org.multibit.hd.hardware.trezor.clients;
 
 import com.google.bitcoin.core.Address;
 import com.google.bitcoin.core.Transaction;
+import com.google.bitcoin.core.TransactionInput;
+import com.google.bitcoin.core.TransactionOutput;
+import com.google.bitcoin.params.MainNetParams;
 import com.google.common.base.Optional;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Message;
@@ -9,6 +12,10 @@ import com.satoshilabs.trezor.protobuf.TrezorMessage;
 import com.satoshilabs.trezor.protobuf.TrezorType;
 import org.multibit.hd.hardware.core.HardwareWalletClient;
 import org.multibit.hd.hardware.core.events.MessageEvent;
+import org.multibit.hd.hardware.core.messages.TxRequest;
+import org.multibit.hd.hardware.core.utils.TransactionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.TimeUnit;
 
@@ -22,6 +29,8 @@ import java.util.concurrent.TimeUnit;
  *  
  */
 public abstract class AbstractTrezorHardwareWalletClient implements HardwareWalletClient {
+
+  private static final Logger log = LoggerFactory.getLogger(AbstractTrezorHardwareWalletClient.class);
 
   @Override
   public Optional<MessageEvent> initialise() {
@@ -178,17 +187,157 @@ public abstract class AbstractTrezorHardwareWalletClient implements HardwareWall
   }
 
   @Override
-  public Optional<Transaction> signTx(Transaction tx) {
+  public Optional<MessageEvent> signTx(Transaction tx) {
 
-    // TODO (GR) This is currently unmodified
-    return Optional.of(tx);
+    return sendMessage(
+      TrezorMessage.SignTx
+        .newBuilder()
+        .setCoinName("Bitcoin")
+        .setInputsCount(tx.getInputs().size())
+        .setOutputsCount(tx.getOutputs().size())
+        .build()
+    );
 
   }
 
   @Override
-  public Optional<Transaction> simpleSignTx(Transaction tx) {
-    // TODO (GR) This is currently unmodified
-    return Optional.of(tx);
+  public Optional<MessageEvent> simpleSignTx(Transaction tx) {
+
+    // TODO (GR) Implement the transaction decode
+
+    return sendMessage(
+      TrezorMessage.SimpleSignTx
+        .newBuilder()
+        .setCoinName("Bitcoin")
+        .build()
+    );
+  }
+
+  @Override
+  public Optional<MessageEvent> txAck(TxRequest txRequest, Transaction tx) {
+
+    final TrezorType.TransactionType txType;
+
+    // Get the index
+    int txIndex;
+
+    // Get the transaction hash if present
+    Optional<byte[]> txHash = txRequest.getTxRequestDetailsType().getTxHash();
+
+    // Assume we're working with the current (child) transaction to start with
+    Optional<Transaction> requestedTx = Optional.of(tx);
+
+    // Check if the requested transaction is different to the current
+    if (txHash.isPresent()) {
+      // Need to look up a transaction by hash
+      requestedTx = TransactionUtils.getTransactionByHash(tx, txHash.get());
+
+      // Check if the transaction was found
+      if (!requestedTx.isPresent()) {
+        log.error("Device requested unknown hash: {}", txHash);
+        throw new IllegalArgumentException("Device requested unknown hash.");
+      }
+
+    }
+
+    // Have the required transaction at this point
+
+    // TODO Extract method into utility class TrezorMessageUtils
+    switch (txRequest.getTxRequestType()) {
+      case TX_META:
+
+        // Provide details about the requested transaction
+        txType = TrezorType.TransactionType
+          .newBuilder()
+          .setVersion((int) requestedTx.get().getVersion())
+          .setLockTime((int) requestedTx.get().getLockTime())
+            // No support for binary outputs at the moment
+          .setInputsCnt(requestedTx.get().getInputs().size())
+          .setOutputsCnt(requestedTx.get().getOutputs().size())
+          .build();
+
+        break;
+      case TX_INPUT:
+
+        // Get the transaction input indicated by the request index
+        txIndex = txRequest.getTxRequestDetailsType().getIndex();
+        TransactionInput input = requestedTx.get().getInput(txIndex);
+
+        // Check for connectivity
+        if (input.getConnectedOutput() == null) {
+          log.error("Input {} does not have a connected output", txIndex);
+          throw new IllegalArgumentException("Input " + txIndex + " does not have a connected output.");
+        }
+
+        // Must be OK to be here
+        int prevIndex = input.getConnectedOutput().getIndex();
+        byte[] prevHash = input.getParentTransaction().getHash().getBytes();
+
+        // No multisig support in MBHD yet
+        TrezorType.InputScriptType inputScriptType = TrezorType.InputScriptType.SPENDADDRESS;
+
+        TrezorType.TxInputType txInputType = TrezorType.TxInputType
+          .newBuilder()
+            // TODO Require receiving Address -> index,value co-ordinates adapter
+          .addAddressN(txIndex)
+          .addAddressN(0)
+          .setScriptType(inputScriptType)
+          .setPrevIndex(prevIndex)
+          .setPrevHash(ByteString.copyFrom(prevHash))
+          .build();
+
+        txType = TrezorType.TransactionType
+          .newBuilder()
+          .addInputs(txInputType)
+          .build();
+
+        break;
+      case TX_OUTPUT:
+        // Get the transaction output indicated by the request index
+        txIndex = txRequest.getTxRequestDetailsType().getIndex();
+        TransactionOutput output = tx.getOutput(txIndex);
+
+        // No P2SH at the moment
+        Address address = output.getAddressFromP2PKHScript(MainNetParams.get());
+        if (address == null) {
+          throw new IllegalArgumentException("TxOutput " + txIndex + " has no address.");
+        }
+
+        final TrezorType.OutputScriptType outputScriptType;
+        if (address.isP2SHAddress()) {
+          outputScriptType = TrezorType.OutputScriptType.PAYTOSCRIPTHASH;
+        } else {
+          outputScriptType = TrezorType.OutputScriptType.PAYTOADDRESS;
+        }
+
+        TrezorType.TxOutputType txOutputType = TrezorType.TxOutputType
+          .newBuilder()
+          .setAddress(String.valueOf(address))
+          .setAmount(output.getValue().value)
+          .setScriptType(outputScriptType)
+          .build();
+
+        txType = TrezorType.TransactionType
+          .newBuilder()
+          .addOutputs(txOutputType)
+          .build();
+        break;
+      case TX_FINISHED:
+        // Do not send message
+        log.info("TxSign workflow complete.");
+        return Optional.absent();
+      default:
+        log.error("Unknown TxReturnType: {}", txRequest.getTxRequestType().name());
+        return Optional.absent();
+    }
+
+    return sendMessage(
+      TrezorMessage.TxAck
+        .newBuilder()
+        .setTx(txType)
+        .build()
+    );
+
   }
 
   @Override
@@ -356,7 +505,6 @@ public abstract class AbstractTrezorHardwareWalletClient implements HardwareWall
   /**
    * <p>Send a message to the device with an arbitrary response duration.</p>
    * <p>If the response times out a FAILURE message should be generated.</p>
-   *
    *
    * @param message@return An optional low level message event, present only in blocking implementations
    */

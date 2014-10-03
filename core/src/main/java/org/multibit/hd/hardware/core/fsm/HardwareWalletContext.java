@@ -1,5 +1,6 @@
 package org.multibit.hd.hardware.core.fsm;
 
+import com.google.bitcoin.core.Transaction;
 import com.google.common.base.Optional;
 import com.google.common.eventbus.Subscribe;
 import org.multibit.hd.hardware.core.HardwareWalletClient;
@@ -48,6 +49,11 @@ public class HardwareWalletContext {
   private Optional<CreateWalletSpecification> createWalletSpecification = Optional.absent();
 
   /**
+   * Provide the transaction forming the basis for the "sign transaction" use case
+   */
+  private Optional<Transaction> transaction = Optional.absent();
+
+  /**
    * @param client The hardware wallet client
    */
   public HardwareWalletContext(HardwareWalletClient client) {
@@ -75,6 +81,13 @@ public class HardwareWalletContext {
 
   public void setFeatures(Features features) {
     this.features = Optional.fromNullable(features);
+  }
+
+  /**
+   * @return The transaction for the "sign transaction" use case
+   */
+  public Optional<Transaction> getTransaction() {
+    return transaction;
   }
 
   /**
@@ -118,7 +131,6 @@ public class HardwareWalletContext {
     // Fire the high level event
     HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_DEVICE_DETACHED);
   }
-
 
   /**
    * <p>Reset the context back to an attached state (clear device information and transition to connected)</p>
@@ -304,6 +316,10 @@ public class HardwareWalletContext {
    */
   public void continueCreateWallet_PIN(String pin) {
 
+    log.debug("Continue 'create wallet on device' use case (provide PIN)");
+
+    // Store the overall context parameters
+
     // Set the event receiving state
     currentState = HardwareWalletStates.newConfirmPINState();
 
@@ -319,6 +335,10 @@ public class HardwareWalletContext {
    */
   public void continueCreateWallet_Entropy(byte[] entropy) {
 
+    log.debug("Continue 'create wallet on device' use case (provide entropy)");
+
+    // Store the overall context parameters
+
     // Set the event receiving state
     currentState = HardwareWalletStates.newConfirmEntropyState();
 
@@ -326,4 +346,44 @@ public class HardwareWalletContext {
     client.entropyAck(entropy);
 
   }
+
+  /**
+   * <p>Begin the "sign transaction" use case</p>
+   *
+   * @param transaction The transaction containing the inputs and outputs
+   */
+  public void beginSignTxUseCase(Transaction transaction) {
+
+    log.debug("Begin 'sign transaction' use case");
+
+    // Store the overall context parameters
+    this.transaction = Optional.of(transaction);
+
+    // Set the event receiving state
+    currentState = HardwareWalletStates.newConfirmSignTxState();
+
+    // Issue starting message to elicit the event
+    client.signTx(transaction);
+
+  }
+
+  /**
+   * <p>Continue the "sign transaction" use case with the provision of the current PIN</p>
+   *
+   * @param pin The PIN
+   */
+  public void continueSignTx_PIN(String pin) {
+
+    log.debug("Continue 'sign tx' use case (provide PIN)");
+
+    // Store the overall context parameters
+
+    // Set the event receiving state
+    currentState = HardwareWalletStates.newConfirmSignTxState();
+
+    // Issue starting message to elicit the event
+    client.pinMatrixAck(pin);
+
+  }
+
 }
