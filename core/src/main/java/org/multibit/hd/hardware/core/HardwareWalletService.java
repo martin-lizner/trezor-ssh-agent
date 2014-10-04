@@ -82,6 +82,17 @@ public class HardwareWalletService {
   }
 
   /**
+   * <p>Stop the service</p>
+   */
+  public void stopAndWait() {
+
+    log.debug("Service {} stopping...",this.getClass().getSimpleName());
+
+    clientMonitorService.shutdownNow();
+
+  }
+
+  /**
    * @return The hardware wallet context providing access to the current device state
    */
   public HardwareWalletContext getContext() {
