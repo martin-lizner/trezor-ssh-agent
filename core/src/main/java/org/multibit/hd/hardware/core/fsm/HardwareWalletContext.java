@@ -197,7 +197,7 @@ public class HardwareWalletContext {
     currentState = HardwareWalletStates.newInitialisedState();
 
     // Fire the high level event
-    HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_DEVICE_READY);
+    HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_DEVICE_READY, features.get());
   }
 
   /**
