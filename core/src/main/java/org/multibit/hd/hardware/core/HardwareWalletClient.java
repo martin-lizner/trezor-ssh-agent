@@ -2,6 +2,7 @@ package org.multibit.hd.hardware.core;
 
 import com.google.bitcoin.core.Address;
 import com.google.bitcoin.core.Transaction;
+import com.google.bitcoin.wallet.KeyChain;
 import com.google.common.base.Optional;
 import org.multibit.hd.hardware.core.events.MessageEvent;
 import org.multibit.hd.hardware.core.messages.TxRequest;
@@ -318,7 +319,7 @@ public interface HardwareWalletClient extends Connectable {
 
   /**
    * <p>Send the GET_ADDRESS message to the device. The device will respond by providing an address calculated
-   * based on the <a href="https://en.bitcoin.it/wiki/BIP_0044">BIP 0044</a> deterministic wallet approach from
+   * based on the <a href="https://en.bitcoin.it/wiki/BIP_0044">BIP-44</a> deterministic wallet approach from
    * the master node.</p>
    * <p>Expected response events are:</p>
    * <ul>
@@ -327,13 +328,14 @@ public interface HardwareWalletClient extends Connectable {
    * <li>FAILURE if the operation was unsuccessful</li>
    * </ul>
    *
-   * @param index       The index of the chain node from the master node (account)
-   * @param value       The index of the address from the given chain node (address)
-   * @param showDisplay True if the device display should show the address
+   * @param account     The plain account number (0 gives maximum compatibility)
+   * @param keyPurpose  The key purpose (RECEIVE_FUNDS,CHANGE,REFUND,AUTHENTICATION etc)
+   * @param index       The plain index of the required address
+   * @param showDisplay True if the device should display the same address to allow the user to verify no tampering has occurred (recommended).
    *
    * @return The response event if implementation is blocking. Absent if non-blocking or device failure.
    */
-  Optional<MessageEvent> getAddress(int index, int value, boolean showDisplay);
+  public Optional<MessageEvent> getAddress(int account, KeyChain.KeyPurpose keyPurpose, int index, boolean showDisplay);
 
   /**
    * <p>Send the GET_PUBLIC_KEY message to the device. The device will respond by providing a public key calculated

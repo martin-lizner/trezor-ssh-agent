@@ -1,6 +1,7 @@
 package org.multibit.hd.hardware.core;
 
 import com.google.bitcoin.core.Transaction;
+import com.google.bitcoin.wallet.KeyChain;
 import com.google.common.base.Preconditions;
 import com.google.common.eventbus.EventBus;
 import com.google.common.util.concurrent.ListeningExecutorService;
@@ -86,7 +87,7 @@ public class HardwareWalletService {
    */
   public void stopAndWait() {
 
-    log.debug("Service {} stopping...",this.getClass().getSimpleName());
+    log.debug("Service {} stopping...", this.getClass().getSimpleName());
 
     clientMonitorService.shutdownNow();
 
@@ -182,17 +183,28 @@ public class HardwareWalletService {
 
   /**
    * <p>Request an address from the device. The device will respond by providing an address calculated
-   * based on the <a href="https://en.bitcoin.it/wiki/BIP_0044">BIP 0044</a> deterministic wallet approach from
+   * based on the <a href="https://en.bitcoin.it/wiki/BIP_0044">BIP-44</a> deterministic wallet approach from
    * the master node.</p>
    *
-   * @param index       The index of the chain node from the master node
-   * @param value       The index of the address from the given chain node
+   * <p>The BIP-44 chain code is arranged as follows:</p>
+   * <p><code>M/44'/coin type'/account'/key purpose/index</code></p>
+   * <p>Notes:</p>
+   * <ol>
+   * <li>Coin type is 0' for Bitcoin</li>
+   * <li>Account is 0-based and will be hardened when necessary (e.g. 0x80000000)</li>
+   * <li>Key purpose resolves as 0 for external (receiving), 1 for internal (change) but other values may come later</li>
+   * <li>Index is 0-based and identifies a particular address</li>
+   * </ol>
+   *
+   * @param account     The plain account number (0 gives maximum compatibility)
+   * @param keyPurpose  The key purpose (RECEIVE_FUNDS,CHANGE,REFUND,AUTHENTICATION etc)
+   * @param index       The plain index of the required address
    * @param showDisplay True if the device should display the same address to allow the user to verify no tampering has occurred (recommended).
    */
-  public void requestAddress(int index, int value, boolean showDisplay) {
+  public void requestAddress(int account, KeyChain.KeyPurpose keyPurpose, int index, boolean showDisplay) {
 
     // Set the FSM context
-    context.beginGetAddressUseCase(index, value, showDisplay);
+    context.beginGetAddressUseCase(account, keyPurpose, index, showDisplay);
 
   }
 
@@ -205,6 +217,18 @@ public class HardwareWalletService {
 
     // Set the FSM context
     context.beginSignTxUseCase(transaction);
+
+  }
+
+  /**
+   * <p>Request that the device encrypts the given message.</p>
+   *
+   * @param message The message for signing
+   */
+  public void encryptMessage(byte[] message) {
+
+    // Set the FSM context
+//    context.beginSignTxUseCase(transaction);
 
   }
 

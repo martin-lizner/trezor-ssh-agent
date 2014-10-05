@@ -1,7 +1,9 @@
 package org.multibit.hd.hardware.examples.trezor;
 
 import com.google.bitcoin.core.*;
+import com.google.bitcoin.crypto.TransactionSignature;
 import com.google.bitcoin.params.MainNetParams;
+import com.google.bitcoin.script.Script;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
@@ -33,6 +35,9 @@ public class FakeTransactions {
 
   public static final ECKey merchantKey = asMainNetECKey(MERCHANT_PRIVATE_KEY, MERCHANT_ADDRESS);
   public static final ECKey prevKey = asMainNetECKey(PREV_PRIVATE_KEY, PREV_ADDRESS);
+
+
+
 
   static {
 
@@ -164,10 +169,34 @@ public class FakeTransactions {
     TransactionOutput prevOut = new TransactionOutput(params, prevTx, inputSatoshis, currentReceivingAddress);
     prevTx.addOutput(prevOut);
 
-    prevTx.addInput(feederOut);
+    TransactionInput prevTxIn = prevTx.addInput(feederOut);
 
     // Sign prevTx
-    prevTx.calculateSignature(0, prevKey, prevOut.getScriptBytes(), Transaction.SigHash.ALL, true);
+    Script scriptPubKey = prevTxIn.getConnectedOutput().getScriptPubKey();
+    prevTxIn.setScriptSig(scriptPubKey.createEmptyInputScript(prevKey, prevOut.getScriptPubKey()));
+
+    Script inputScript = prevTxIn.getScriptSig();
+
+    byte[] script =prevOut.getScriptPubKey().getProgram();
+    try {
+      TransactionSignature signature = prevTx.calculateSignature(0, prevKey, script, Transaction.SigHash.ALL, false);
+
+      // at this point we have incomplete inputScript with OP_0 in place of one or more signatures. We already
+      // have calculated the signature using the local key and now need to insert it in the correct place
+      // within inputScript. For pay-to-address and pay-to-key script there is only one signature and it always
+      // goes first in an inputScript (sigIndex = 0). In P2SH input scripts we need to figure out our relative
+      // position relative to other signers.  Since we don't have that information at this point, and since
+      // we always run first, we have to depend on the other signers rearranging the signatures as needed.
+      // Therefore, always place as first signature.
+      int sigIndex = 0;
+      inputScript = scriptPubKey.getScriptSigWithSignature(inputScript, signature.encodeToBitcoin(), sigIndex);
+      prevTxIn.setScriptSig(inputScript);
+
+    } catch (ECKey.KeyIsEncryptedException e) {
+      throw e;
+    } catch (ECKey.MissingPrivateKeyException e) {
+      log.warn("No private key in keypair for input {}", 0);
+    }
 
     // Create the current tx that sends from the previous to the merchant
     Transaction currentTx = new Transaction(params);

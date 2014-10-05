@@ -1,6 +1,7 @@
 package org.multibit.hd.hardware.core.fsm;
 
 import com.google.bitcoin.core.Transaction;
+import com.google.bitcoin.wallet.KeyChain;
 import com.google.common.base.Optional;
 import com.google.common.eventbus.Subscribe;
 import org.multibit.hd.hardware.core.HardwareWalletClient;
@@ -267,11 +268,12 @@ public class HardwareWalletContext {
   /**
    * <p>Begin the "get address" use case</p>
    *
-   * @param index       The index of the chain node from the master node
-   * @param value       The index of the address from the given chain node
-   * @param showDisplay True if the device should display the same address to allow the user to verify no tampering has occurred.
+   * @param account     The plain account number (0 gives maximum compatibility)
+   * @param keyPurpose  The key purpose (RECEIVE_FUNDS,CHANGE,REFUND,AUTHENTICATION etc)
+   * @param index       The plain index of the required address
+   * @param showDisplay True if the device should display the same address to allow the user to verify no tampering has occurred (recommended).
    */
-  public void beginGetAddressUseCase(int index, int value, boolean showDisplay) {
+  public void beginGetAddressUseCase(int account, KeyChain.KeyPurpose keyPurpose, int index, boolean showDisplay) {
 
     log.debug("Begin 'get address' use case");
 
@@ -282,8 +284,9 @@ public class HardwareWalletContext {
 
     // Issue starting message to elicit the event
     client.getAddress(
+      account,
+      keyPurpose,
       index,
-      value,
       showDisplay
     );
 

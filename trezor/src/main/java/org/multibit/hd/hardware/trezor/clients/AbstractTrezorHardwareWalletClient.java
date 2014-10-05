@@ -1,7 +1,9 @@
 package org.multibit.hd.hardware.trezor.clients;
 
 import com.google.bitcoin.core.*;
+import com.google.bitcoin.crypto.ChildNumber;
 import com.google.bitcoin.params.MainNetParams;
+import com.google.bitcoin.wallet.KeyChain;
 import com.google.common.base.Optional;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Message;
@@ -386,12 +388,29 @@ public abstract class AbstractTrezorHardwareWalletClient implements HardwareWall
   }
 
   @Override
-  public Optional<MessageEvent> getAddress(int index, int value, boolean showDisplay) {
+  public Optional<MessageEvent> getAddress(int account, KeyChain.KeyPurpose keyPurpose, int index, boolean showDisplay) {
+
+    int keyPurposeAddressN=0;
+    switch (keyPurpose) {
+      case RECEIVE_FUNDS:
+      case REFUND:
+        keyPurposeAddressN=0;
+        break;
+      case CHANGE:
+      case AUTHENTICATION:
+        keyPurposeAddressN=1;
+        break;
+    }
+
     return sendMessage(
       TrezorMessage.GetAddress
         .newBuilder()
+          // Build the chain code
+        .addAddressN(44 | ChildNumber.HARDENED_BIT)
+        .addAddressN(ChildNumber.HARDENED_BIT)
+        .addAddressN(account | ChildNumber.HARDENED_BIT)
+        .addAddressN(keyPurposeAddressN)
         .addAddressN(index)
-        .addAddressN(value)
         .setCoinName("Bitcoin")
         .setShowDisplay(showDisplay)
         .build()

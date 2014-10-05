@@ -3,6 +3,7 @@ package org.multibit.hd.hardware.examples.trezor.usb;
 import com.google.bitcoin.core.Address;
 import com.google.bitcoin.core.Coin;
 import com.google.bitcoin.core.Transaction;
+import com.google.bitcoin.wallet.KeyChain;
 import com.google.common.base.Optional;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.Uninterruptibles;
@@ -110,7 +111,7 @@ public class TrezorV1SignTxExample {
 
           if (ourReceivingAddress == null) {
             log.debug("Request valid receiving address (chain 0)...");
-            hardwareWalletService.requestAddress(0, 0, false);
+            hardwareWalletService.requestAddress(0, KeyChain.KeyPurpose.RECEIVE_FUNDS, 0, false);
             break;
           }
 
@@ -126,7 +127,7 @@ public class TrezorV1SignTxExample {
 
           // Now we require a valid change address
           log.debug("Request valid change address (chain 1)...");
-          hardwareWalletService.requestAddress(1, 0, false);
+          hardwareWalletService.requestAddress(0, KeyChain.KeyPurpose.CHANGE, 0, false);
           break;
         }
 
