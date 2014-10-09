@@ -87,10 +87,10 @@ At present there is support and examples for the following high level use cases:
 * Request public key using chain code
 * Sign transaction (integrates with [Bitcoinj](http://bitcoinj.org) `Transaction`)
 * Request cipher key (deterministically encrypt/decrypt based on a chain code)
+* Sign message using chain code
 
 TODO
 
-* Sign message using chain code
 * Change PIN
 
 Not supported since it's not on our critical path. If you really want it to be included then please raise an issue stating your case
