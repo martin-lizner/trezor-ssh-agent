@@ -75,6 +75,33 @@ public void onHardwareWalletEvent(HardwareWalletEvent event) {
 
 ### Frequently asked questions (FAQ)
 
+#### What use cases do you support ?
+
+At present there is support and examples for the following high level use cases:
+
+* Attachment/detachment detection
+* Wipe device to factory settings
+* Load wallet with known seed phrase (insecure)
+* Create wallet on device with PIN and external entropy (secure)
+* Request address using chain code
+* Request public key using chain code
+* Sign transaction (integrates with [Bitcoinj](http://bitcoinj.org) `Transaction`)
+* Request cipher key (deterministically encrypt/decrypt based on a chain code)
+
+TODO
+
+* Sign message using chain code
+* Change PIN
+
+Not supported since it's not on our critical path. If you really want it to be included then please raise an issue stating your case
+and perhaps offering a Bitcoin bounty to give us an incentive.
+
+* Recover device (just visit myTrezor.com) 
+* Upload firmware (better to use myTrezor.com to be sure)
+* Verify message using chain code (MultiBit HD already supports this)
+* Encrypt/decrypt based on AES key
+* Sign message
+
 #### Why Google Protocol Buffers ?
 
 We believe that the use of Google Protocol Buffers for "on the wire" data transmission provides the best balance between an efficient
