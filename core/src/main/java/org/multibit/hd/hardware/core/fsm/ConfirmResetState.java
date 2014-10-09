@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
  * <ul>
  * <li>State transitions based on low level message events</li>
  * </ul>
- * <p>The "confirm wipe" state occurs in response to a WIPE message and handles button
+ * <p>The "confirm reset" state occurs in response to a RESET_DEVICE message and handles button
  * requests, success and failure messages coming from the device.</p>
  *
  * @since 0.0.1

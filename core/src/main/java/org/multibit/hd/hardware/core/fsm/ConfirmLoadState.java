@@ -12,40 +12,34 @@ import org.slf4j.LoggerFactory;
  * <ul>
  * <li>State transitions based on low level message events</li>
  * </ul>
- * <p>The "confirm wipe" state occurs in response to a WIPE message and handles button
+ * <p>The "confirm load" state occurs in response to a LOAD_DEVICE message and handles button
  * requests, success and failure messages coming from the device.</p>
  *
  * @since 0.0.1
  *  
  */
-public class ConfirmWipeState extends AbstractHardwareWalletState {
+public class ConfirmLoadState extends AbstractHardwareWalletState {
 
-  private static final Logger log = LoggerFactory.getLogger(ConfirmWipeState.class);
+  private static final Logger log = LoggerFactory.getLogger(ConfirmLoadState.class);
 
   @Override
   protected void internalTransition(HardwareWalletClient client, HardwareWalletContext context, MessageEvent event) {
 
     switch (event.getEventType()) {
       case BUTTON_REQUEST:
-        // Device is asking for confirmation to wipe
+        // Device is asking for button press (entropy display, confirmation of reset etc)
         HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_BUTTON_PRESS, event.getMessage().get());
         client.buttonAck();
         break;
+      case PIN_MATRIX_REQUEST:
+        // Device is asking for a PIN matrix to be displayed (user must read the screen carefully)
+        HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_PIN_ENTRY, event.getMessage().get());
+        // Further state transitions will occur after the user has provided the PIN via the service
+        break;
       case SUCCESS:
-        // Device has successfully wiped
-        switch (context.getCurrentUseCase()) {
-          case CREATE_WALLET:
-            context.setToConfirmResetState();
-            break;
-          case LOAD_WALLET:
-            context.setToConfirmLoadState();
-            break;
-          default:
-            // No wallet creation required so we're done
-            HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_OPERATION_SUCCEEDED, event.getMessage().get());
-            context.resetToInitialised();
-            break;
-        }
+        // Device has completed the operation and is loaded with the given seed
+        HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_OPERATION_SUCCEEDED, event.getMessage().get());
+        context.resetToInitialised();
         break;
       case FAILURE:
         // User has cancelled or operation failed

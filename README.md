@@ -100,7 +100,6 @@ and perhaps offering a Bitcoin bounty to give us an incentive.
 * Upload firmware (better to use myTrezor.com to be sure)
 * Verify message using chain code (MultiBit HD already supports this)
 * Encrypt/decrypt based on AES key
-* Sign message
 
 #### Why Google Protocol Buffers ?
 

@@ -93,10 +93,10 @@ public class SocketSigningExample {
     // Load device (words must be on the internal list - this seed is hard coded to some Electrum addresses))
     String seed = "beyond neighbor scratch swirl embarrass doll cause also stick softly physical nice";
     client.loadDevice(
-      "en",
+      "english",
+      "insecure",
       seed,
-      "1234",
-      false
+      "1234"
     );
 
     // Reset device (optional)

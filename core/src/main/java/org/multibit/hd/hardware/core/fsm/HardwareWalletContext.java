@@ -43,15 +43,25 @@ public class HardwareWalletContext {
   private final HardwareWalletClient client;
 
   /**
-   * The current state should start assuming an attached device and progress from there
+   * The current state should start by assuming an attached device and progress from there
    * to either detached or connected
    */
   private HardwareWalletState currentState = HardwareWalletStates.newAttachedState();
 
   /**
+   * We begin at the start
+   */
+  private ContextUseCase currentUseCase = ContextUseCase.START;
+
+  /**
    * Provide contextual information for the current wallet creation use case
    */
   private Optional<CreateWalletSpecification> createWalletSpecification = Optional.absent();
+
+  /**
+   * Provide contextual information for the current wallet load use case
+   */
+  private Optional<LoadWalletSpecification> loadWalletSpecification = Optional.absent();
 
   /**
    * Provide the transaction forming the basis for the "sign transaction" use case
@@ -153,6 +163,7 @@ public class HardwareWalletContext {
 
     log.debug("Reset to 'attached'");
 
+    // TODO Ensure all context fields are reset here
     // Clear relevant information
     createWalletSpecification = Optional.absent();
     features = Optional.absent();
@@ -221,6 +232,9 @@ public class HardwareWalletContext {
 
     log.debug("Begin 'wipe device' use case");
 
+    // Track the use case
+    currentUseCase = ContextUseCase.WIPE_DEVICE;
+
     // Set the event receiving state
     currentState = HardwareWalletStates.newConfirmWipeState();
 
@@ -240,6 +254,20 @@ public class HardwareWalletContext {
    */
   public Optional<CreateWalletSpecification> getCreateWalletSpecification() {
     return createWalletSpecification;
+  }
+
+  /**
+   * @return The load wallet specification
+   */
+  public Optional<LoadWalletSpecification> getLoadWalletSpecification() {
+    return loadWalletSpecification;
+  }
+
+  /**
+   * @return The current use case
+   */
+  public ContextUseCase getCurrentUseCase() {
+    return currentUseCase;
   }
 
   /**
@@ -275,6 +303,26 @@ public class HardwareWalletContext {
       specification.getStrength()
     );
 
+  }
+
+  /**
+   * Sets to "confirm load" state
+   */
+  public void setToConfirmLoadState() {
+
+    // Set the event receiving state
+    currentState = HardwareWalletStates.newConfirmLoadState();
+
+    // Expect the specification to be in place
+    LoadWalletSpecification specification = loadWalletSpecification.get();
+
+    // Issue starting message to elicit the event
+    client.loadDevice(
+      specification.getLanguage(),
+      specification.getLabel(),
+      specification.getSeedPhrase(),
+      specification.getPin()
+    );
 
   }
 
@@ -289,6 +337,9 @@ public class HardwareWalletContext {
   public void beginGetAddressUseCase(int account, KeyChain.KeyPurpose keyPurpose, int index, boolean showDisplay) {
 
     log.debug("Begin 'get address' use case");
+
+    // Track the use case
+    currentUseCase = ContextUseCase.REQUEST_ADDRESS;
 
     // Store the overall context parameters
 
@@ -315,6 +366,9 @@ public class HardwareWalletContext {
   public void beginGetPublicKeyUseCase(int account, KeyChain.KeyPurpose keyPurpose, int index) {
 
     log.debug("Begin 'get public key' use case");
+
+    // Track the use case
+    currentUseCase = ContextUseCase.REQUEST_PUBLIC_KEY;
 
     // Store the overall context parameters
 
@@ -355,6 +409,9 @@ public class HardwareWalletContext {
 
     log.debug("Begin 'cipher key' use case");
 
+    // Track the use case
+    currentUseCase = ContextUseCase.REQUEST_CIPHER_KEY;
+
     // Store the overall context parameters
 
     // Set the event receiving state
@@ -377,14 +434,17 @@ public class HardwareWalletContext {
   /**
    * <p>Begin the "load wallet" use case</p>
    *
-   * @param createWalletSpecification The specification describing the use of PIN, seed strength etc
+   * @param specification The specification describing the use of PIN, seed strength etc
    */
-  public void beginLoadWallet(CreateWalletSpecification createWalletSpecification) {
+  public void beginLoadWallet(LoadWalletSpecification specification) {
 
     log.debug("Begin 'load wallet' use case");
 
+    // Track the use case
+    currentUseCase = ContextUseCase.LOAD_WALLET;
+
     // Store the overall context parameters
-    this.createWalletSpecification = Optional.fromNullable(createWalletSpecification);
+    this.loadWalletSpecification = Optional.fromNullable(specification);
 
     // Set the event receiving state
     currentState = HardwareWalletStates.newConfirmWipeState();
@@ -413,18 +473,20 @@ public class HardwareWalletContext {
 
   }
 
-
   /**
    * <p>Begin the "create wallet on device" use case</p>
    *
-   * @param createWalletSpecification The specification describing the use of PIN, seed strength etc
+   * @param specification The specification describing the use of PIN, seed strength etc
    */
-  public void beginCreateWallet(CreateWalletSpecification createWalletSpecification) {
+  public void beginCreateWallet(CreateWalletSpecification specification) {
 
     log.debug("Begin 'create wallet on device' use case");
 
+    // Track the use case
+    currentUseCase = ContextUseCase.CREATE_WALLET;
+
     // Store the overall context parameters
-    this.createWalletSpecification = Optional.fromNullable(createWalletSpecification);
+    this.createWalletSpecification = Optional.fromNullable(specification);
 
     // Set the event receiving state
     currentState = HardwareWalletStates.newConfirmWipeState();
@@ -461,6 +523,9 @@ public class HardwareWalletContext {
   public void continueCreateWallet_Entropy(byte[] entropy) {
 
     log.debug("Continue 'create wallet on device' use case (provide entropy)");
+
+    // Track the use case
+    currentUseCase = ContextUseCase.PROVIDE_ENTROPY;
 
     // Store the overall context parameters
 
@@ -500,6 +565,9 @@ public class HardwareWalletContext {
   public void beginSignTxUseCase(Transaction transaction) {
 
     log.debug("Begin 'sign transaction' use case");
+
+    // Track the use case
+    currentUseCase = ContextUseCase.SIGN_TX;
 
     // Store the overall context parameters
     this.transaction = Optional.of(transaction);
@@ -552,6 +620,7 @@ public class HardwareWalletContext {
 
   /**
    * <p>Note: When adding this signature using the builder setScriptSig() you'll need to append the SIGHASH 0x01 byte</p>
+   *
    * @return The map of ECDSA signatures provided by the device during "sign transaction" keyed on the input index
    */
   public Map<Integer, byte[]> getSignatures() {

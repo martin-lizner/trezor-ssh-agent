@@ -6,14 +6,12 @@ import com.google.common.util.concurrent.Uninterruptibles;
 import org.multibit.hd.hardware.core.HardwareWalletClient;
 import org.multibit.hd.hardware.core.HardwareWalletService;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvent;
-import org.multibit.hd.hardware.core.messages.PinMatrixRequest;
 import org.multibit.hd.hardware.core.wallets.HardwareWallets;
 import org.multibit.hd.hardware.trezor.clients.TrezorHardwareWalletClient;
 import org.multibit.hd.hardware.trezor.wallets.v1.TrezorV1UsbHardwareWallet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -99,55 +97,21 @@ public class TrezorV1WipeAndLoadWalletExample {
         // Can simply wait for another device to be connected again
         break;
       case SHOW_DEVICE_READY:
-        if (hardwareWalletService.isWalletPresent()) {
-          // We could choose to bypass the whole wallet creation process
-          // but for this example we'll fall through to the forced creation
-          log.debug("Ignoring the wallet is already present flag");
-        }
+
+        // Set the seed phrase
+        String seedPhrase ="beyond neighbor scratch swirl embarrass doll cause also stick softly physical nice";
 
         // Force loading of the wallet (wipe then load)
         // Specify PIN
         // This method reveals the seed phrase so is not secure
         hardwareWalletService.loadWallet(
           "english",
-          "Aardvark",
-          true,
-          true,
-          128
+          "Insecure",
+          seedPhrase,
+          "1"
         );
         break;
-      case SHOW_PIN_ENTRY:
-        // Determine if this is the first or second PIN entry
-        PinMatrixRequest request = (PinMatrixRequest) event.getMessage().get();
-        Scanner keyboard = new Scanner(System.in);
-        String pin;
-        switch (request.getPinMatrixRequestType()) {
-          case NEW_FIRST:
-            System.err.println(
-              "Choose a PIN (e.g. '1' for simplicity).\n" +
-                "Look at the device screen and type in the numerical position of each of the digits\n" +
-                "with 1 being in the bottom left and 9 being in the top right (numeric keypad style) then press ENTER."
-            );
-            pin = keyboard.next();
-            hardwareWalletService.providePIN(pin);
-            break;
-          case NEW_SECOND:
-            System.err.println(
-              "Recall your PIN (e.g. '1').\n" +
-                "Look at the device screen once more and type in the numerical position of each of the digits\n" +
-                "with 1 being in the bottom left and 9 being in the top right (numeric keypad style) then press ENTER."
-            );
-            pin = keyboard.next();
-            hardwareWalletService.providePIN(pin);
-            break;
-        }
-        break;
-      case PROVIDE_ENTROPY:
-        // Generate 256 bits of entropy (32 bytes) using the utility method
-        byte[] entropy = hardwareWalletService.generateEntropy();
-        // Provide it to the device
-        hardwareWalletService.provideEntropy(entropy);
-        break;
+
       case SHOW_OPERATION_SUCCEEDED:
         // Treat as end of example
         System.exit(0);

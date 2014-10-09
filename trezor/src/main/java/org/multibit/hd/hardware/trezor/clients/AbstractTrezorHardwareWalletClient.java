@@ -102,9 +102,9 @@ public abstract class AbstractTrezorHardwareWalletClient implements HardwareWall
   @Override
   public Optional<MessageEvent> loadDevice(
     String language,
-    String seed,
-    String pin,
-    boolean passphraseProtection
+    String label,
+    String seedPhrase,
+    String pin
   ) {
 
     // Define the node
@@ -120,11 +120,11 @@ public abstract class AbstractTrezorHardwareWalletClient implements HardwareWall
     return sendMessage(
       TrezorMessage.LoadDevice
         .newBuilder()
-        .setMnemonic(seed)
         .setLanguage(language)
-        .setNode(nodeType)
+        .setLabel(label)
+        .setMnemonic(seedPhrase)
+//        .setNode(nodeType)
         .setPin(pin)
-        .setPassphraseProtection(passphraseProtection)
         .build()
     );
 

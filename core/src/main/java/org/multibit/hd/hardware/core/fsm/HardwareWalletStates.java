@@ -111,6 +111,17 @@ public class HardwareWalletStates {
   }
 
   /**
+   * @return A new confirm load state
+   */
+  public static ConfirmLoadState newConfirmLoadState() {
+
+    log.debug("Transitioning to 'confirm load' state");
+
+    return new ConfirmLoadState();
+
+  }
+
+  /**
    * @return A new confirm PIN state
    */
   public static ConfirmPINState newConfirmPINState() {
