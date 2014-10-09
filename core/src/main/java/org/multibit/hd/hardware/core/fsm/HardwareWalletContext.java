@@ -327,6 +327,47 @@ public class HardwareWalletContext {
   }
 
   /**
+   * <p>Change or remove the device PIN.</p>
+   *
+   * @param remove True if an existing PIN should be removed
+   */
+  public void beginChangePIN(boolean remove) {
+
+    log.debug("Begin 'change PIN' use case");
+
+    // Track the use case
+    currentUseCase = ContextUseCase.CHANGE_PIN;
+
+    // Store the overall context parameters
+
+    // Set the event receiving state
+    currentState = HardwareWalletStates.newConfirmChangePINState();
+
+    // Issue starting message to elicit the event
+    client.changePIN(remove);
+  }
+
+  /**
+   * <p>Continue the "change PIN" use case with the provision of the current PIN</p>
+   *
+   * @param pin The PIN
+   */
+  public void continueChangePIN_PIN(String pin) {
+
+    log.debug("Continue 'change PIN' use case (provide PIN)");
+
+    // Store the overall context parameters
+
+    // Set the event receiving state
+    currentState = HardwareWalletStates.newConfirmChangePINState();
+
+    // Issue starting message to elicit the event
+    client.pinMatrixAck(pin);
+
+  }
+
+
+  /**
    * <p>Begin the "get address" use case</p>
    *
    * @param account     The plain account number (0 gives maximum compatibility)
@@ -418,6 +459,7 @@ public class HardwareWalletContext {
     );
   }
 
+
   /**
    * <p>Continue the "sign message" use case with the provision of the current PIN</p>
    *
@@ -436,7 +478,6 @@ public class HardwareWalletContext {
     client.pinMatrixAck(pin);
 
   }
-
 
   /**
    * <p>Begin the "cipher key" use case</p>

@@ -57,9 +57,8 @@ public interface HardwareWalletClient extends Connectable {
   Optional<MessageEvent> clearSession();
 
   /**
-   * <p>Send the CHANGE_PIN message to the device. This is normally in response to receiving an PinRequest from
-   * the device. Client software is expected to ask the user for their PIN in a secure manner
-   * and securely erase the user input.</p>
+   * <p>Send the CHANGE_PIN message to the device. The device will respond by showing a secure PIN selection
+   * screen and asking the user to verify accordingly.</p>
    * <p>Expected response events are:</p>
    * <ul>
    * <li>BUTTON_REQUEST if a button press is needed</li>
@@ -71,7 +70,7 @@ public interface HardwareWalletClient extends Connectable {
    *
    * @return The response event if implementation is blocking. Absent if non-blocking or device failure.
    */
-  Optional<MessageEvent> changePin(boolean remove);
+  Optional<MessageEvent> changePIN(boolean remove);
 
   /**
    * <p>Send the WIPE_DEVICE message to the device. The device will respond by cancelling its pending

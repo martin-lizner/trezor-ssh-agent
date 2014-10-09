@@ -2,7 +2,7 @@ Status: [![Build Status](https://travis-ci.org/bitcoin-solutions/multibit-hardwa
 
 ### Project status
 
-Late-alpha: Expect bugs and API changes. Not suitable for production, but developers should get on board.
+Early-Beta: Expect bugs and minimal API changes. Not suitable for production, but developers should start integrating.
 
 ### MultiBit Hardware
 
@@ -88,9 +88,6 @@ At present there is support and examples for the following high level use cases:
 * Sign transaction (integrates with [Bitcoinj](http://bitcoinj.org) `Transaction`)
 * Request cipher key (deterministically encrypt/decrypt based on a chain code)
 * Sign message using chain code
-
-TODO
-
 * Change PIN
 
 Not supported since it's not on our critical path. If you really want it to be included then please raise an issue stating your case

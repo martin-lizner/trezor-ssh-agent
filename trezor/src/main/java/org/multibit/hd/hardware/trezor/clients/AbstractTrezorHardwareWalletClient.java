@@ -61,7 +61,7 @@ public abstract class AbstractTrezorHardwareWalletClient implements HardwareWall
   }
 
   @Override
-  public Optional<MessageEvent> changePin(boolean remove) {
+  public Optional<MessageEvent> changePIN(boolean remove) {
 
     return sendMessage(
       TrezorMessage.ChangePin

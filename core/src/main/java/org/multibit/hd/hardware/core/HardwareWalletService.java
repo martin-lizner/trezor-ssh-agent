@@ -129,6 +129,17 @@ public class HardwareWalletService {
   }
 
   /**
+   * <p>Change or remove the device PIN.</p>
+   *
+   * @param remove True if an existing PIN should be removed
+   */
+  public void changePIN(boolean remove) {
+
+    // Set the FSM context
+    context.beginChangePIN(remove);
+  }
+
+  /**
    * <p>Initiate the process where the hardware wallet is first wiped then reset using its own entropy</p>
    * <p>This is the recommended method to use for creating a wallet securely.</p>
    *
@@ -214,6 +225,9 @@ public class HardwareWalletService {
         break;
       case SIGN_MESSAGE:
         context.continueSignMessage_PIN(pin);
+        break;
+        case CHANGE_PIN:
+          context.continueChangePIN_PIN(pin);
         break;
       default:
         log.warn("Unknown PIN request use case: {}", context.getCurrentUseCase().name());
@@ -348,10 +362,10 @@ public class HardwareWalletService {
    * <li>Index is 0-based and identifies a particular address</li>
    * </ol>
    *
-   * @param account      The plain account number (0 gives maximum compatibility)
-   * @param keyPurpose   The key purpose (RECEIVE_FUNDS,CHANGE,REFUND,AUTHENTICATION etc)
-   * @param index        The plain index of the required address
-   * @param message      The message for signing
+   * @param account    The plain account number (0 gives maximum compatibility)
+   * @param keyPurpose The key purpose (RECEIVE_FUNDS,CHANGE,REFUND,AUTHENTICATION etc)
+   * @param index      The plain index of the required address
+   * @param message    The message for signing
    */
   public void signMessage(int account, KeyChain.KeyPurpose keyPurpose, int index, byte[] message) {
 

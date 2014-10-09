@@ -197,4 +197,16 @@ public class HardwareWalletStates {
     return new ConfirmSignMessageState();
 
   }
+
+  /**
+   * @return A new change PIN state
+   */
+  public static ConfirmChangePINState newConfirmChangePINState() {
+
+    log.debug("Transitioning to 'confirm change PIN' state");
+
+    return new ConfirmChangePINState();
+
+  }
+
 }
