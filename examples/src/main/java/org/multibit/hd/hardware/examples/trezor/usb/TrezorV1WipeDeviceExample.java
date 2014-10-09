@@ -100,9 +100,12 @@ public class TrezorV1WipeDeviceExample {
         hardwareWalletService.wipeDevice();
         break;
       case SHOW_OPERATION_SUCCEEDED:
-      case SHOW_OPERATION_FAILED:
         // Treat as end of example
         System.exit(0);
+        break;
+      case SHOW_OPERATION_FAILED:
+        // Treat as end of example
+        System.exit(-1);
         break;
       default:
         // Ignore

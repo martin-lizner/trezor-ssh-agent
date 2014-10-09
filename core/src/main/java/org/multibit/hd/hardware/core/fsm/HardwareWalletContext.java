@@ -375,9 +375,49 @@ public class HardwareWalletContext {
   }
 
   /**
+   * <p>Begin the "load wallet" use case</p>
+   *
+   * @param createWalletSpecification The specification describing the use of PIN, seed strength etc
+   */
+  public void beginLoadWallet(CreateWalletSpecification createWalletSpecification) {
+
+    log.debug("Begin 'load wallet' use case");
+
+    // Store the overall context parameters
+    this.createWalletSpecification = Optional.fromNullable(createWalletSpecification);
+
+    // Set the event receiving state
+    currentState = HardwareWalletStates.newConfirmWipeState();
+
+    // Issue starting message to elicit the event
+    client.wipeDevice();
+
+  }
+
+  /**
+   * <p>Continue the "load wallet" use case with the provision of a PIN (either first or second)</p>
+   *
+   * @param pin The PIN
+   */
+  public void continueLoadWallet_PIN(String pin) {
+
+    log.debug("Continue 'create wallet on device' use case (provide PIN)");
+
+    // Store the overall context parameters
+
+    // Set the event receiving state
+    currentState = HardwareWalletStates.newConfirmPINState();
+
+    // Issue starting message to elicit the event
+    client.pinMatrixAck(pin);
+
+  }
+
+
+  /**
    * <p>Begin the "create wallet on device" use case</p>
    *
-   * @param createWalletSpecification The specification describing the use of PIN, passphrase, seed strength etc
+   * @param createWalletSpecification The specification describing the use of PIN, seed strength etc
    */
   public void beginCreateWallet(CreateWalletSpecification createWalletSpecification) {
 
