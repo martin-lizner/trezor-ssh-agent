@@ -2,7 +2,7 @@ Status: [![Build Status](https://travis-ci.org/bitcoin-solutions/multibit-hardwa
 
 ### Project status
 
-Alpha: Expect bugs and API changes. Not suitable for production, but early adopter developers should get on board.
+Late-alpha: Expect bugs and API changes. Not suitable for production, but developers should get on board.
 
 ### MultiBit Hardware
 
@@ -19,6 +19,59 @@ One example of a supported hardware wallet is the Trezor and full examples and d
 * [Google Protocol Buffers](https://code.google.com/p/protobuf/) (protobuf) - for the most efficient and flexible wire protocol
 * [Google Guava](https://code.google.com/p/guava-libraries/wiki/GuavaExplained) - for excellent Java support features
 * Java 7+ - to remove dependencies on JVMs that have reached end of life
+
+### Code example
+
+Configure and start the hardware wallet service as follows:
+
+```java
+// Use factory to statically bind the specific hardware wallet
+TrezorV1UsbHardwareWallet wallet = HardwareWallets.newUsbInstance(
+  TrezorV1UsbHardwareWallet.class,
+  Optional.<Short>absent(),
+  Optional.<Short>absent(),
+  Optional.<String>absent()
+);
+
+// Wrap the hardware wallet in a suitable client to simplify message API
+HardwareWalletClient client = new TrezorHardwareWalletClient(wallet);
+
+// Wrap the client in a service for high level API suitable for downstream applications
+hardwareWalletService = new HardwareWalletService(client);
+
+// Register for the high level hardware wallet events
+HardwareWalletService.hardwareWalletEventBus.register(this);
+
+// Start the service
+hardwareWalletService.start();
+
+```
+
+Subscribe to Guava events coming from the Trezor client as follows:
+
+```java
+@Subscribe
+public void onHardwareWalletEvent(HardwareWalletEvent event) {
+
+  switch (event.getEventType()) {
+    case SHOW_DEVICE_DETACHED:
+      // Wait for device to be connected
+      break;
+    case SHOW_DEVICE_READY:
+      // Get some information about the device
+      Features features = hardwareWalletService.getContext().getFeatures().get();
+      log.info("Features: {}", features);
+      // Treat as end of example
+      System.exit(0);
+      break;
+    case SHOW_DEVICE_FAILED:
+      // Treat as end of example
+      System.exit(-1);
+      break;
+  }
+
+}
+```
 
 ### Frequently asked questions (FAQ)
 
@@ -64,7 +117,7 @@ $ cd <project directory>
 $ mvn clean install
 ```
 
-and you're good to go.
+and you're good to go. Your next step is to explore the examples.
 
 #### Collaborators and the protobuf files
 
@@ -204,7 +257,9 @@ Make the content of this file as below:
 ATTRS{idProduct}=="0001", ATTRS{idVendor}=="534c", MODE="0660", GROUP="plugdev"
 ```
 
-Save and exit from root, then unplug and replug your production Trezor. The rules should take effect immediately. If they're still not running it may that you're not a member of the `plugdev` group. You can fix this as follows (assuming that `plugdev` is not present on your system):
+Save and exit from root, then unplug and replug your production Trezor. The rules should take effect immediately. If they're still not 
+running it may that you're not a member of the `plugdev` group. You can fix this as follows (assuming that `plugdev` is not present on 
+your system):
 
 ```
 $ sudo addgroup plugdev
@@ -213,11 +268,13 @@ $ sudo addgroup yourusername plugdev
 
 #### When running the examples I get errors indicating `iconv` is missing or broken
 
-The `iconv` library is used to map character sets and is usually provided as part of the operating system. MultiBit Hardware will work with version 1.11+. We have seen problems with running the code through an IDE where `iconv` responds with a failure code of -1.
+The `iconv` library is used to map character sets and is usually provided as part of the operating system. MultiBit Hardware will work 
+with version 1.11+. We have seen problems with running the code through an IDE where `iconv` responds with a failure code of -1.
 
 #### My production Trezor doesn't work on Mac OS X
 
-Correct. After 4 days of trying everything we could think of we just could not get the HID interface to a production Trezor to work on Mac OS X Mavericks. Our conclusion was the following:
+Correct. After 4 days of trying everything we could think of we just could not get the HID interface to a production Trezor to work on 
+Mac OS X Mavericks. Our conclusion was the following:
 
 * A device declaring itself as USB HID is claimed by Mac OS X and is not released to anything using `libusb` so usb4java is ineffective
 * A signed kernel extension (kext) can be used to trick OS X into releasing this claim removing the "Access denied" message but this cannot be part of the MultiBit Hardware project because it's really the responsibility of the device manufacturers to provide
