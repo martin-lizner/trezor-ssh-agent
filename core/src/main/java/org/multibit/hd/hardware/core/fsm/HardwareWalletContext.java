@@ -3,6 +3,7 @@ package org.multibit.hd.hardware.core.fsm;
 import com.google.bitcoin.core.Transaction;
 import com.google.bitcoin.wallet.KeyChain;
 import com.google.common.base.Optional;
+import com.google.common.collect.Maps;
 import com.google.common.eventbus.Subscribe;
 import org.multibit.hd.hardware.core.HardwareWalletClient;
 import org.multibit.hd.hardware.core.HardwareWalletService;
@@ -12,6 +13,9 @@ import org.multibit.hd.hardware.core.events.MessageEvent;
 import org.multibit.hd.hardware.core.messages.Features;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.ByteArrayOutputStream;
+import java.util.Map;
 
 /**
  * <p>State context to provide the following to hardware wallet finite state machine:</p>
@@ -53,6 +57,15 @@ public class HardwareWalletContext {
    * Provide the transaction forming the basis for the "sign transaction" use case
    */
   private Optional<Transaction> transaction = Optional.absent();
+  /**
+   * Keep track of all the signatures for the "sign transaction" use case
+   */
+  private Map<Integer, byte[]> signatures = Maps.newHashMap();
+
+  /**
+   * Keep track of any transaction serialization bytes coming back from the device
+   */
+  private ByteArrayOutputStream serializedTx = new ByteArrayOutputStream();
 
   /**
    * @param client The hardware wallet client
@@ -293,6 +306,75 @@ public class HardwareWalletContext {
   }
 
   /**
+   * <p>Begin the "get public key" use case</p>
+   *
+   * @param account    The plain account number (0 gives maximum compatibility)
+   * @param keyPurpose The key purpose (RECEIVE_FUNDS,CHANGE,REFUND,AUTHENTICATION etc)
+   * @param index      The plain index of the required address
+   */
+  public void beginGetPublicKeyUseCase(int account, KeyChain.KeyPurpose keyPurpose, int index) {
+
+    log.debug("Begin 'get public key' use case");
+
+    // Store the overall context parameters
+
+    // Set the event receiving state
+    currentState = HardwareWalletStates.newConfirmGetPublicKeyState();
+
+    // Issue starting message to elicit the event
+    client.getPublicKey(
+      account,
+      keyPurpose,
+      index
+    );
+
+  }
+
+  /**
+   * <p>Begin the "cipher key" use case</p>
+   *
+   * @param account      The plain account number (0 gives maximum compatibility)
+   * @param keyPurpose   The key purpose (RECEIVE_FUNDS,CHANGE,REFUND,AUTHENTICATION etc)
+   * @param index        The plain index of the required address
+   * @param key          The cipher key (e.g. "Some text")
+   * @param keyValue     The key value (e.g. "[16 bytes of random data]")
+   * @param isEncrypting True if encrypting
+   * @param askOnDecrypt True if device should ask on decrypting
+   * @param askOnEncrypt True if device should ask on encrypting
+   */
+  public void beginCipherKeyUseCase(
+    int account,
+    KeyChain.KeyPurpose keyPurpose,
+    int index,
+    byte[] key,
+    byte[] keyValue,
+    boolean isEncrypting,
+    boolean askOnDecrypt,
+    boolean askOnEncrypt
+  ) {
+
+    log.debug("Begin 'cipher key' use case");
+
+    // Store the overall context parameters
+
+    // Set the event receiving state
+    currentState = HardwareWalletStates.newConfirmCipherKeyState();
+
+    // Issue starting message to elicit the event
+    client.cipherKeyValue(
+      account,
+      keyPurpose,
+      index,
+      key,
+      keyValue,
+      isEncrypting,
+      askOnDecrypt,
+      askOnEncrypt
+    );
+
+  }
+
+  /**
    * <p>Begin the "create wallet on device" use case</p>
    *
    * @param createWalletSpecification The specification describing the use of PIN, passphrase, seed strength etc
@@ -351,6 +433,26 @@ public class HardwareWalletContext {
   }
 
   /**
+   * <p>Begin the "simple sign transaction" use case</p>
+   *
+   * @param transaction The transaction containing the inputs and outputs
+   */
+  public void beginSimpleSignTxUseCase(Transaction transaction) {
+
+    log.debug("Begin 'simple sign transaction' use case");
+
+    // Store the overall context parameters
+    this.transaction = Optional.of(transaction);
+
+    // Set the event receiving state
+    currentState = HardwareWalletStates.newConfirmSignTxState();
+
+    // Issue starting message to elicit the event
+    client.simpleSignTx(transaction);
+
+  }
+
+  /**
    * <p>Begin the "sign transaction" use case</p>
    *
    * @param transaction The transaction containing the inputs and outputs
@@ -387,6 +489,43 @@ public class HardwareWalletContext {
     // Issue starting message to elicit the event
     client.pinMatrixAck(pin);
 
+  }
+
+  /**
+   * <p>Continue the "cipher key" use case with the provision of the current PIN</p>
+   *
+   * @param pin The PIN
+   */
+  public void continueCipherKey_PIN(String pin) {
+
+    log.debug("Continue 'cipher key' use case (provide PIN)");
+
+    // Store the overall context parameters
+
+    // Set the event receiving state
+    currentState = HardwareWalletStates.newConfirmCipherKeyState();
+
+    // Issue starting message to elicit the event
+    client.pinMatrixAck(pin);
+
+  }
+
+  /**
+   * <p>Note: When adding this signature using the builder setScriptSig() you'll need to append the SIGHASH 0x01 byte</p>
+   * @return The map of ECDSA signatures provided by the device during "sign transaction" keyed on the input index
+   */
+  public Map<Integer, byte[]> getSignatures() {
+    return signatures;
+  }
+
+  /**
+   * This value cannot be considered complete until the "SHOW_OPERATION_SUCCESSFUL" message has been received
+   * since it can be built up over several incoming messages
+   *
+   * @return The serialized transaction provided by the device during "sign transaction"
+   */
+  public ByteArrayOutputStream getSerializedTx() {
+    return serializedTx;
   }
 
 }

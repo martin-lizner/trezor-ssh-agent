@@ -48,9 +48,33 @@ public class HardwareWalletService {
   private final ListeningExecutorService clientMonitorService = SafeExecutors.newSingleThreadExecutor("monitor-hw-client");
 
   /**
+   * Keep track of the context use case
+   */
+  private ContextUseCase contextUseCase = ContextUseCase.DETACHED;
+
+  /**
    * The current hardware wallet context
    */
   private final HardwareWalletContext context;
+
+  private enum ContextUseCase {
+    DETACHED,
+    WIPE_DEVICE,
+    PROVIDE_ENTROPY,
+    CREATE_WALLET,
+    REQUEST_ADDRESS,
+    REQUEST_PUBLIC_KEY,
+    SIMPLE_SIGN_TX,
+    SIGN_TX,
+    REQUEST_CIPHER_KEY,
+    ENCRYPT_MESSAGE,
+    DECRYPT_MESSAGE,
+    SIGN_MESSAGE,
+    VERIFY_MESSAGE
+
+    // End of enum
+    ;
+  }
 
   /**
    * @param client The hardware wallet client providing the low level messages
@@ -68,18 +92,20 @@ public class HardwareWalletService {
   public void start() {
 
     // Start the hardware wallet state machine
-    clientMonitorService.submit(new Runnable() {
-      @Override
-      public void run() {
+    clientMonitorService.submit(
+      new Runnable() {
+        @Override
+        public void run() {
 
-        while (true) {
-          context.getState().await(context);
+          while (true) {
+            context.getState().await(context);
 
-          Uninterruptibles.sleepUninterruptibly(500, TimeUnit.MILLISECONDS);
+            Uninterruptibles.sleepUninterruptibly(500, TimeUnit.MILLISECONDS);
 
+          }
         }
       }
-    });
+    );
   }
 
   /**
@@ -120,6 +146,10 @@ public class HardwareWalletService {
    */
   public void wipeDevice() {
 
+    // Track the use case
+    contextUseCase = ContextUseCase.WIPE_DEVICE;
+
+    // Set the FSM context
     context.beginWipeDeviceUseCase();
 
   }
@@ -151,6 +181,9 @@ public class HardwareWalletService {
       wordCount
     );
 
+    // Track the use case
+    contextUseCase = ContextUseCase.CREATE_WALLET;
+
     // Set the FSM context
     context.beginCreateWallet(specification);
 
@@ -161,11 +194,21 @@ public class HardwareWalletService {
    */
   public void providePIN(String pin) {
 
-    // Set the FSM context
-    if (context.getTransaction().isPresent()) {
-      context.continueSignTx_PIN(pin);
-    } else {
-      context.continueCreateWallet_PIN(pin);
+    // Use the FSM context to decide the appropriate continuation point
+    switch (contextUseCase) {
+      case DETACHED:
+        break;
+      case CREATE_WALLET:
+        context.continueCreateWallet_PIN(pin);
+        break;
+      case SIMPLE_SIGN_TX:
+        context.continueSignTx_PIN(pin);
+        break;
+      case SIGN_TX:
+        context.continueSignTx_PIN(pin);
+        break;
+      case REQUEST_CIPHER_KEY:
+        context.continueCipherKey_PIN(pin);
     }
   }
 
@@ -175,6 +218,9 @@ public class HardwareWalletService {
    * @param entropy Random bytes provided by a secure random number generator (see {@link #generateEntropy()}
    */
   public void provideEntropy(byte[] entropy) {
+
+    // Track the use case
+    contextUseCase = ContextUseCase.PROVIDE_ENTROPY;
 
     // Set the FSM context
     context.continueCreateWallet_Entropy(entropy);
@@ -203,17 +249,118 @@ public class HardwareWalletService {
    */
   public void requestAddress(int account, KeyChain.KeyPurpose keyPurpose, int index, boolean showDisplay) {
 
+    // Track the use case
+    contextUseCase = ContextUseCase.REQUEST_ADDRESS;
+
     // Set the FSM context
     context.beginGetAddressUseCase(account, keyPurpose, index, showDisplay);
 
   }
 
   /**
-   * <p>Request that the device signs the given transaction.</p>
+   * <p>Request a public key from the device. The device will respond by providing the public key calculated
+   * based on the <a href="https://en.bitcoin.it/wiki/BIP_0044">BIP-44</a> deterministic wallet approach from
+   * the master node.</p>
+   *
+   * <p>The BIP-44 chain code is arranged as follows:</p>
+   * <p><code>M/44'/coin type'/account'/key purpose/index</code></p>
+   * <p>Notes:</p>
+   * <ol>
+   * <li>Coin type is 0' for Bitcoin</li>
+   * <li>Account is 0-based and will be hardened when necessary (e.g. 0x80000000)</li>
+   * <li>Key purpose resolves as 0 for external (receiving), 1 for internal (change) but other values may come later</li>
+   * <li>Index is 0-based and identifies a particular address</li>
+   * </ol>
+   *
+   * @param account    The plain account number (0 gives maximum compatibility)
+   * @param keyPurpose The key purpose (RECEIVE_FUNDS,CHANGE,REFUND,AUTHENTICATION etc)
+   * @param index      The plain index of the required address
+   */
+  public void requestPublicKey(int account, KeyChain.KeyPurpose keyPurpose, int index) {
+
+    // Track the use case
+    contextUseCase = ContextUseCase.REQUEST_PUBLIC_KEY;
+
+    // Set the FSM context
+    context.beginGetPublicKeyUseCase(account, keyPurpose, index);
+
+  }
+
+  /**
+   * <p>Request some data to be encrypted or decrypted using an address key from the device. The device will respond by providing
+   * the encrypted/decrypted data based on the key derived using the <a href="https://en.bitcoin.it/wiki/BIP_0044">BIP-44</a> deterministic
+   * wallet approach from the master node. <b>This data is unique to the seed phrase and is deterministic</b>.</p>
+   *
+   * <p>The BIP-44 chain code is arranged as follows:</p>
+   * <p><code>M/44'/coin type'/account'/key purpose/index</code></p>
+   * <p>Notes:</p>
+   * <ol>
+   * <li>Coin type is 0' for Bitcoin</li>
+   * <li>Account is 0-based and will be hardened when necessary (e.g. 0x80000000)</li>
+   * <li>Key purpose resolves as 0 for external (receiving), 1 for internal (change) but other values may come later</li>
+   * <li>Index is 0-based and identifies a particular address</li>
+   * </ol>
+   *
+   * @param account      The plain account number (0 gives maximum compatibility)
+   * @param keyPurpose   The key purpose (RECEIVE_FUNDS,CHANGE,REFUND,AUTHENTICATION etc)
+   * @param index        The plain index of the required address
+   * @param displayText          The cipher key shown to the user (e.g. "User message")
+   * @param keyValue     The key value (e.g. "[16 bytes of random data]")
+   * @param isEncrypting True if encrypting
+   * @param askOnDecrypt True if device should ask on decrypting
+   * @param askOnEncrypt True if device should ask on encrypting
+   */
+  public void requestCipherKey(
+    int account,
+    KeyChain.KeyPurpose keyPurpose,
+    int index,
+    byte[] displayText,
+    byte[] keyValue,
+    boolean isEncrypting,
+    boolean askOnDecrypt,
+    boolean askOnEncrypt
+  ) {
+
+    // Track the use case
+    contextUseCase = ContextUseCase.REQUEST_CIPHER_KEY;
+
+    // Set the FSM context
+    context.beginCipherKeyUseCase(
+      account,
+      keyPurpose,
+      index,
+      displayText,
+      keyValue,
+      isEncrypting,
+      askOnDecrypt,
+      askOnEncrypt
+    );
+  }
+
+  /**
+   * <p>Request that the device signs the given transaction (limited number of inputs/outputs).</p>
+   *
+   * @param transaction The transaction containing all the inputs and outputs
+   */
+  public void simpleSignTx(Transaction transaction) {
+
+    // Track the use case
+    contextUseCase = ContextUseCase.SIMPLE_SIGN_TX;
+
+    // Set the FSM context
+    context.beginSignTxUseCase(transaction);
+
+  }
+
+  /**
+   * <p>Request that the device signs the given transaction (unlimited number of inputs/outputs).</p>
    *
    * @param transaction The transaction containing all the inputs and outputs
    */
   public void signTx(Transaction transaction) {
+
+    // Track the use case
+    contextUseCase = ContextUseCase.SIGN_TX;
 
     // Set the FSM context
     context.beginSignTxUseCase(transaction);
@@ -226,6 +373,9 @@ public class HardwareWalletService {
    * @param message The message for signing
    */
   public void encryptMessage(byte[] message) {
+
+    // Track the use case
+    contextUseCase = ContextUseCase.ENCRYPT_MESSAGE;
 
     // Set the FSM context
 //    context.beginSignTxUseCase(transaction);

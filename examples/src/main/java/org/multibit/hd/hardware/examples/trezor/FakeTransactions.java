@@ -1,9 +1,7 @@
 package org.multibit.hd.hardware.examples.trezor;
 
 import com.google.bitcoin.core.*;
-import com.google.bitcoin.crypto.TransactionSignature;
 import com.google.bitcoin.params.MainNetParams;
-import com.google.bitcoin.script.Script;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
@@ -26,18 +24,6 @@ public class FakeTransactions {
 
   private static Map<Integer, Address> receivingAddresses = Maps.newHashMap();
   private static Map<Integer, Address> changeAddresses = Maps.newHashMap();
-
-  public static final String MERCHANT_PRIVATE_KEY = "Kwbs5ibVcoLTNLDQey382v7PAs5gQPWTrqi3qMxNHReSSLr3BSFf";
-  public static final String MERCHANT_ADDRESS = "189azcVcq5EDhXhRjAB9bt17g64KeXqidW";
-
-  public static final String PREV_PRIVATE_KEY = "L3Jcdi3MuYwu5Vwcude5FBPAQPBT7LUhwA5rZFo4d7BqWsWmi8bD";
-  public static final String PREV_ADDRESS = "1EQ8kwmubETKbQxEVfMbLffYRenyuvFXGW";
-
-  public static final ECKey merchantKey = asMainNetECKey(MERCHANT_PRIVATE_KEY, MERCHANT_ADDRESS);
-  public static final ECKey prevKey = asMainNetECKey(PREV_PRIVATE_KEY, PREV_ADDRESS);
-
-
-
 
   static {
 
@@ -134,93 +120,48 @@ public class FakeTransactions {
 
   /**
    * <p>Create a "MainNet" fake transaction consisting of:</p>
-   * <ul>
-   * <li>input[0]: random1 giving us bitcoins</li>
-   * <li>output[0]: us giving random2 bitcoins</li>
-   * <li>output[1]: us giving us change</li>
-   * </ul>
-   * <p>See {@link FakeTransactions#newMainNetAddress()} for new Addresses</p>
    *
-   * @param currentReceivingAddress Our receiving address (present on the input from random1)
-   * @param currentChangeAddress    Our change address
-   * @param inputSatoshis           The amount in satoshis we received (present on the input from from random1)
-   * @param outputSatoshis          The amount in satoshis we are paying (will be used in each transaction)
-   *
-   * @return The transaction
+   * @return A feeder, prev and current transaction
    */
-  public static Transaction newMainNetFakeTx2(
-    Address currentReceivingAddress,
-    Address currentChangeAddress,
-    Coin inputSatoshis,
-    Coin outputSatoshis) {
+  public static Transaction[] bip44DevWalletTransactions() {
 
     MainNetParams params = MainNetParams.get();
 
-    Address prevAddress = new Address(MainNetParams.get(), prevKey.getPubKeyHash());
-    Address merchantAddress = new Address(MainNetParams.get(), merchantKey.getPubKeyHash());
-
-    // Create the feeder tx providing the previous tx with funds
-    Transaction feederTx = new Transaction(params);
-    TransactionOutput feederOut = new TransactionOutput(params, feederTx, inputSatoshis, prevAddress);
-    feederTx.addOutput(feederOut);
-
-    // Create the previous tx that sends from the feeder to the current
-    Transaction prevTx = new Transaction(params);
-    TransactionOutput prevOut = new TransactionOutput(params, prevTx, inputSatoshis, currentReceivingAddress);
-    prevTx.addOutput(prevOut);
-
-    TransactionInput prevTxIn = prevTx.addInput(feederOut);
-
-    // Sign prevTx
-    Script scriptPubKey = prevTxIn.getConnectedOutput().getScriptPubKey();
-    prevTxIn.setScriptSig(scriptPubKey.createEmptyInputScript(prevKey, prevOut.getScriptPubKey()));
-
-    Script inputScript = prevTxIn.getScriptSig();
-
-    byte[] script =prevOut.getScriptPubKey().getProgram();
+    Address currentChangeAddress;
+    Address merchantAddress;
     try {
-      TransactionSignature signature = prevTx.calculateSignature(0, prevKey, script, Transaction.SigHash.ALL, false);
-
-      // at this point we have incomplete inputScript with OP_0 in place of one or more signatures. We already
-      // have calculated the signature using the local key and now need to insert it in the correct place
-      // within inputScript. For pay-to-address and pay-to-key script there is only one signature and it always
-      // goes first in an inputScript (sigIndex = 0). In P2SH input scripts we need to figure out our relative
-      // position relative to other signers.  Since we don't have that information at this point, and since
-      // we always run first, we have to depend on the other signers rearranging the signatures as needed.
-      // Therefore, always place as first signature.
-      int sigIndex = 0;
-      inputScript = scriptPubKey.getScriptSigWithSignature(inputScript, signature.encodeToBitcoin(), sigIndex);
-      prevTxIn.setScriptSig(inputScript);
-
-    } catch (ECKey.KeyIsEncryptedException e) {
-      throw e;
-    } catch (ECKey.MissingPrivateKeyException e) {
-      log.warn("No private key in keypair for input {}", 0);
+      merchantAddress = new Address(MainNetParams.get(), "189azcVcq5EDhXhRjAB9bt17g64KeXqidW");
+      currentChangeAddress = new Address(MainNetParams.get(), "13pTZ2yZr6uY4Hw5mtvczLzvAbvhFkQAAc"); // 1/0
+    } catch (AddressFormatException e) {
+      log.error("Could not create address", e);
+      return null;
     }
 
-    // Create the current tx that sends from the previous to the merchant
+    // Deserialize a previous tx that spends to the Trezor receiving address
+    byte[] prevTxBytes = Utils.HEX.decode
+      ("01000000013ea3e61ae21fbfd8f6fdae08156a87bd7b985fe1e380e088d54aeb72fa0024ec010000006b483045022100dcaf9241a813699c584b664587d80219ea30ad0b847cec7c6b77aededb743f170220234d646304388ca13a9bebda84413b9e95218b73ceb3bd72a0f5a7d94ff29ef2012102f846445ee80fd95492ee3357257f588815ae8e077f6733e77b83d7d97dac3588ffffffff0240420f00000000001976a9149fb230929fcf2d4ed5fabd80cc33b5ef521bb89788acf91a5913000000001976a9143b0d3dc843fcce054271a7498d63f555548b16af88ac00000000");
+    Transaction prevTx = new Transaction(params, prevTxBytes);
+    TransactionOutput prevOut0 = prevTx.getOutput(0);
+
+    // Create the current tx that spends to the merchant
+    // Input 10mBTC               = 1_000_000sat
+    // Outputs 1mBTC   (merchant) =   100_000sat
+    //         0.1mBTC (fee)      =    10_000sat
+    //         9mBTC   (change)   =   890_000sat
     Transaction currentTx = new Transaction(params);
-    TransactionOutput currentMerchantOut = new TransactionOutput(params, currentTx, outputSatoshis, merchantAddress);
+    TransactionOutput currentMerchantOut = new TransactionOutput(params, currentTx, Coin.valueOf(100_000), merchantAddress);
     currentTx.addOutput(currentMerchantOut);
 
-    TransactionOutput currentChangeOut = new TransactionOutput(params, currentTx, inputSatoshis.subtract(outputSatoshis), currentChangeAddress);
+    // Allow a small fee to facilitate the transaction going through
+    TransactionOutput currentChangeOut = new TransactionOutput(params, currentTx, Coin.valueOf(890_000), currentChangeAddress);
     currentTx.addOutput(currentChangeOut);
-
-    currentTx.addInput(prevOut);
-
-    // Roundtrip the tx so that they are just like they would be from the wire
-//    Transaction[] txs= new Transaction[]{
-//      FakeTxBuilder.roundTripTransaction(params, prevTx),
-//      FakeTxBuilder.roundTripTransaction(params, currentTx)
-//    };
+    currentTx.addInput(prevOut0);
 
     // Log characteristics
-    log.debug("Feeder tx: {}", feederTx.getHashAsString());
     log.debug("Prev tx: {}", prevTx.getHashAsString());
     log.debug("Current tx: {}", currentTx.getHashAsString());
 
-    // Return the roundtripped current tx
-    return currentTx;
+    return new Transaction[]{prevTx, currentTx};
   }
 
   /**

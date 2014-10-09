@@ -17,11 +17,13 @@ public class TxRequest implements HardwareWalletMessage {
 
   private final TxRequestType txRequestType;
   private final TxRequestDetailsType txRequestDetailsType;
+  private final TxRequestSerializedType txRequestSerializedType;
 
-  public TxRequest(TxRequestType txRequestType, TxRequestDetailsType txRequestDetailsType) {
+  public TxRequest(TxRequestType txRequestType, TxRequestDetailsType txRequestDetailsType, TxRequestSerializedType txRequestSerializedType) {
 
     this.txRequestType = txRequestType;
     this.txRequestDetailsType = txRequestDetailsType;
+    this.txRequestSerializedType = txRequestSerializedType;
   }
 
   public TxRequestType getTxRequestType() {
@@ -32,11 +34,16 @@ public class TxRequest implements HardwareWalletMessage {
     return txRequestDetailsType;
   }
 
+  public TxRequestSerializedType getTxRequestSerializedType() {
+    return txRequestSerializedType;
+  }
+
   @Override
   public String toString() {
     return new ToStringBuilder(this)
       .append("txRequestType", txRequestType)
       .append("txRequestDetailsType", txRequestDetailsType)
+      .append("txRequestSerializedType", txRequestSerializedType)
       .toString();
   }
 }

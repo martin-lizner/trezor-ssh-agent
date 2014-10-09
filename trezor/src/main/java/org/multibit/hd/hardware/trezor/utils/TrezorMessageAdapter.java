@@ -25,7 +25,7 @@ public class TrezorMessageAdapter {
    */
   public static Success adaptSuccess(TrezorMessage.Success source) {
 
-    return new Success(source.getMessage());
+    return new Success(source.getMessage(), source.getPayload().toByteArray());
 
   }
 
@@ -215,14 +215,62 @@ public class TrezorMessageAdapter {
    *
    * @return The adapted Core message
    */
+  public static PublicKey adaptPublicKey(TrezorMessage.PublicKey source) {
+
+    HDNodeType hdNodeType = null;
+    if (source.hasNode()) {
+      hdNodeType = adaptHDNodeType(source.getNode());
+    }
+
+    return new PublicKey(
+      source.hasXpub(),
+      source.getXpub(),
+      source.getXpubBytes().toByteArray(),
+      source.hasNode(),
+      hdNodeType
+    );
+
+  }
+
+  /**
+   * @param source The source message
+   *
+   * @return The adapted Core message
+   */
+  public static HDNodeType adaptHDNodeType(TrezorType.HDNodeType source) {
+
+    return new HDNodeType(
+      source.hasPublicKey(),
+      source.getPublicKey().toByteArray(),
+      source.hasPrivateKey(),
+      source.getPrivateKey().toByteArray(),
+      source.hasChainCode(),
+      source.getChainCode().toByteArray(),
+      source.hasChildNum(),
+      source.getChildNum(),
+      source.hasDepth(),
+      source.getDepth(),
+      source.hasFingerprint(),
+      source.getFingerprint()
+    );
+
+  }
+
+  /**
+   * @param source The source message
+   *
+   * @return The adapted Core message
+   */
   public static HardwareWalletMessage adaptTxRequest(TrezorMessage.TxRequest source) {
 
     TxRequestType txRequestType = adaptTxRequestType(source.getRequestType());
     TxRequestDetailsType txRequestDetailsType = adaptTxRequestDetailsType(source.getDetails());
+    TxRequestSerializedType txRequestSerializedType = adaptTxRequestSerializedType(source.getSerialized());
 
     return new TxRequest(
       txRequestType,
-      txRequestDetailsType
+      txRequestDetailsType,
+      txRequestSerializedType
     );
 
   }
@@ -254,8 +302,28 @@ public class TrezorMessageAdapter {
    * @return The adapted Core message
    */
   private static TxRequestDetailsType adaptTxRequestDetailsType(TrezorType.TxRequestDetailsType source) {
-    return new TxRequestDetailsType(source.getRequestIndex(), source.getTxHash().toByteArray());
+    return new TxRequestDetailsType(
+      source.hasRequestIndex(),
+      source.getRequestIndex(),
+      source.hasTxHash(),
+      source.getTxHash().toByteArray()
+    );
   }
 
+  /**
+   * @param source The source message
+   *
+   * @return The adapted Core message
+   */
+  private static TxRequestSerializedType adaptTxRequestSerializedType(TrezorType.TxRequestSerializedType source) {
+    return new TxRequestSerializedType(
+      source.hasSerializedTx(),
+      source.getSerializedTx().toByteArray(),
+      source.hasSignatureIndex(),
+      source.getSignatureIndex(),
+      source.hasSignature(),
+      source.getSignature().toByteArray()
+    );
+  }
 
 }

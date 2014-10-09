@@ -144,6 +144,25 @@ public class HardwareWalletStates {
   }
 
   /**
+   * @return A new confirm get public key state
+   */
+  public static ConfirmGetPublicKeyState newConfirmGetPublicKeyState() {
+
+    log.debug("Transitioning to 'confirm GetPublicKey' state");
+
+    return new ConfirmGetPublicKeyState();
+
+  }
+
+  public static HardwareWalletState newConfirmCipherKeyState() {
+
+    log.debug("Transitioning to 'confirm CipherKey' state");
+
+    return new ConfirmCipherKeyState();
+
+  }
+
+  /**
    * @return A new confirm get address state
    */
   public static ConfirmSignTxState newConfirmSignTxState() {

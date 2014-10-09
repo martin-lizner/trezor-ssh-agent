@@ -103,6 +103,7 @@ public final class TrezorMessageUtils {
         case MessageType_PublicKey:
           message = TrezorMessage.PublicKey.parseFrom(buffer);
           messageEventType = MessageEventType.PUBLIC_KEY;
+          hardwareWalletMessage = TrezorMessageAdapter.adaptPublicKey((TrezorMessage.PublicKey) message);
           break;
         case MessageType_LoadDevice:
           message = TrezorMessage.LoadDevice.parseFrom(buffer);

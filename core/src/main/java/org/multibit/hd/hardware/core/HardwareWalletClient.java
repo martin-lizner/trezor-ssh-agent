@@ -339,7 +339,7 @@ public interface HardwareWalletClient extends Connectable {
 
   /**
    * <p>Send the GET_PUBLIC_KEY message to the device. The device will respond by providing a public key calculated
-   * based on the <a href="https://en.bitcoin.it/wiki/BIP_0044">BIP 0044</a> deterministic wallet approach from
+   * based on the <a href="https://en.bitcoin.it/wiki/BIP_0044">BIP-44</a> deterministic wallet approach from
    * the master node.</p>
    * <p>Expected response events are:</p>
    * <ul>
@@ -347,13 +347,13 @@ public interface HardwareWalletClient extends Connectable {
    * <li>FAILURE if the operation was unsuccessful</li>
    * </ul>
    *
-   * @param index    The index of the chain node from the master node
-   * @param value    The index of the address from the given chain node
-   * @param coinName The optional coin name with a default of "Bitcoin"
+   * @param account    The plain account number (0 gives maximum compatibility)
+   * @param keyPurpose The key purpose (RECEIVE_FUNDS,CHANGE,REFUND,AUTHENTICATION etc)
+   * @param index      The plain index of the required address
    *
    * @return The response event if implementation is blocking. Absent if non-blocking or device failure.
    */
-  Optional<MessageEvent> getPublicKey(int index, int value, Optional<String> coinName);
+  Optional<MessageEvent> getPublicKey(int account, KeyChain.KeyPurpose keyPurpose, int index);
 
   /**
    * <p>Send the ENTROPY_ACK message to the device in response to an ENTROPY_REQUEST. This allows the device to obtain
@@ -380,7 +380,7 @@ public interface HardwareWalletClient extends Connectable {
    *
    * @return The response event if implementation is blocking. Absent if non-blocking or device failure.
    */
-  Optional<MessageEvent> signMessage(int index, int value, byte[] message);
+  Optional<MessageEvent> signMessage(int account, KeyChain.KeyPurpose keyPurpose, int index, byte[] message);
 
   /**
    * <p>Send the VERIFY_MESSAGE message to the device containing a signed message to verify.</p>
@@ -422,13 +422,14 @@ public interface HardwareWalletClient extends Connectable {
    * <li>FAILURE if the operation was unsuccessful</li>
    * </ul>
    *
-   * @param index   The index of the chain node from the master node
-   * @param value   The index of the address from the given chain node
-   * @param message The message to decrypt
+   * @param account    The plain account number (0 gives maximum compatibility)
+   * @param keyPurpose The key purpose (RECEIVE_FUNDS,CHANGE,REFUND,AUTHENTICATION etc)
+   * @param index      The plain index of the required address
+   * @param message    The message to decrypt
    *
    * @return The response event if implementation is blocking. Absent if non-blocking or device failure.
    */
-  Optional<MessageEvent> decryptMessage(int index, int value, byte[] message);
+  Optional<MessageEvent> decryptMessage(int account, KeyChain.KeyPurpose keyPurpose, int index, byte[] message);
 
   /**
    * <p>Send the CIPHER_KEY_VALUE_MESSAGE message to the device containing a key. The device will encrypt or decrypt the value
@@ -439,32 +440,18 @@ public interface HardwareWalletClient extends Connectable {
    * <li>FAILURE if the operation was unsuccessful</li>
    * </ul>
    *
-   * @param index        The index of the chain node from the master node
-   * @param value        The index of the address from the given chain node
-   * @param key          The cipher key
-   * @param keyValue     The key value
-   * @param encrypt      True if encrypting
+   * @param account      The plain account number (0 gives maximum compatibility)
+   * @param keyPurpose   The key purpose (RECEIVE_FUNDS,CHANGE,REFUND,AUTHENTICATION etc)
+   * @param index        The plain index of the required address
+   * @param key          The cipher key (e.g. "Some text")
+   * @param keyValue     The key value (e.g. "[16 bytes of random data]")
+   * @param isEncrypting True if encrypting
    * @param askOnDecrypt True if device should ask on decrypting
    * @param askOnEncrypt True if device should ask on encrypting
    *
    * @return The response event if implementation is blocking. Absent if non-blocking or device failure.
    */
-  Optional<MessageEvent> cipherKeyValue(int index, int value, byte[] key, byte[] keyValue, boolean encrypt, boolean askOnDecrypt, boolean askOnEncrypt);
-
-  /**
-   * <p>Send the PASSPHRASE_ACK message to the device in response to a PASSPHRASE_REQUEST.</p>
-   * <p>Expected response events are:</p>
-   * <ul>
-   * <li>SUCCESS if the operation succeeded</li>
-   * <li>PIN_MATRIX_REQUEST if the PIN is needed</li>
-   * <li>FAILURE if the operation was unsuccessful</li>
-   * </ul>
-   *
-   * @param passphrase The passphrase
-   *
-   * @return The response event if implementation is blocking. Absent if non-blocking or device failure.
-   */
-  Optional<MessageEvent> passphraseAck(String passphrase);
+  Optional<MessageEvent> cipherKeyValue(int account, KeyChain.KeyPurpose keyPurpose, int index, byte[] key, byte[] keyValue, boolean isEncrypting, boolean askOnDecrypt, boolean askOnEncrypt);
 
   /**
    * <p>Send the ESTIMATE_TX_SIZE message to the device to estimate the size of the transaction. This behaves

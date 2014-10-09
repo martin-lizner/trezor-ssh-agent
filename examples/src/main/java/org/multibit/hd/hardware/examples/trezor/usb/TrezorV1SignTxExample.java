@@ -1,8 +1,10 @@
 package org.multibit.hd.hardware.examples.trezor.usb;
 
 import com.google.bitcoin.core.Address;
-import com.google.bitcoin.core.Coin;
+import com.google.bitcoin.core.ECKey;
 import com.google.bitcoin.core.Transaction;
+import com.google.bitcoin.core.Utils;
+import com.google.bitcoin.params.MainNetParams;
 import com.google.bitcoin.wallet.KeyChain;
 import com.google.common.base.Optional;
 import com.google.common.eventbus.Subscribe;
@@ -10,8 +12,10 @@ import com.google.common.util.concurrent.Uninterruptibles;
 import org.multibit.hd.hardware.core.HardwareWalletClient;
 import org.multibit.hd.hardware.core.HardwareWalletService;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvent;
+import org.multibit.hd.hardware.core.messages.HDNodeType;
 import org.multibit.hd.hardware.core.messages.MainNetAddress;
 import org.multibit.hd.hardware.core.messages.PinMatrixRequest;
+import org.multibit.hd.hardware.core.messages.PublicKey;
 import org.multibit.hd.hardware.core.wallets.HardwareWallets;
 import org.multibit.hd.hardware.examples.trezor.FakeTransactions;
 import org.multibit.hd.hardware.trezor.clients.TrezorHardwareWalletClient;
@@ -23,12 +27,22 @@ import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
 /**
- * <p>Step 5 - Sign a fake transaction</p>
+ * <p>Step 5 - Sign a transaction</p>
  * <p>Requires Trezor V1 production device plugged into a USB HID interface.</p>
  * <p>This example demonstrates the message sequence to sign a transaction.</p>
  *
  * <h3>Only perform this example on a Trezor that you are using for test and development!</h3>
- * <h3>The signed tx will not be spendable so there is no point broadcasting it.</h3>
+ * <h3>The signed tx will not be spendable unless you own the receiving key so there is no point broadcasting it.</h3>
+ *
+ * <h3>Preparation if verifying using your own wallet</h3>
+ * <ol>
+ * <li>Ensure your Trezor is loaded with a seed phrase</li>
+ * <li>Use the GetAddress example to obtain the first receiving address (0/0) and a change address (1/0)</li>
+ * <li>Use a separate wallet to create a transaction that spends to the receiving address</li>
+ * <li>Get the serialized form of the Tx (begins with 0x01...) and use that in the FakeTransactions code</li>
+ * <li>Construct a suitable onward spend to an address you control with change and a fee of 0.1mBTC</li>
+ * <li>Run the example</li>
+ * </ol>
  *
  * @since 0.0.1
  *  
@@ -39,8 +53,10 @@ public class TrezorV1SignTxExample {
 
   private HardwareWalletService hardwareWalletService;
 
-  private Address ourReceivingAddress = null;
-  private Address ourChangeAddress = null;
+  private Transaction[] fakeTxs;
+
+  private Address receivingAddress = null;
+  private Address changeAddress = null;
 
   /**
    * <p>Main entry point to the example</p>
@@ -109,7 +125,7 @@ public class TrezorV1SignTxExample {
       case SHOW_DEVICE_READY:
         if (hardwareWalletService.isWalletPresent()) {
 
-          if (ourReceivingAddress == null) {
+          if (receivingAddress == null) {
             log.debug("Request valid receiving address (chain 0)...");
             hardwareWalletService.requestAddress(0, KeyChain.KeyPurpose.RECEIVE_FUNDS, 0, false);
             break;
@@ -121,36 +137,54 @@ public class TrezorV1SignTxExample {
 
         break;
       case ADDRESS:
-        if (ourReceivingAddress == null) {
-          ourReceivingAddress = ((MainNetAddress) event.getMessage().get()).getAddress().get();
-          log.info("Device provided receiving address: '{}'", ourReceivingAddress);
+        if (receivingAddress == null) {
+          receivingAddress = ((MainNetAddress) event.getMessage().get()).getAddress().get();
+          log.info("Device provided receiving address (0/0): '{}'", receivingAddress);
 
-          // Now we require a valid change address
-          log.debug("Request valid change address (chain 1)...");
-          hardwareWalletService.requestAddress(0, KeyChain.KeyPurpose.CHANGE, 0, false);
+          // Now we need the corresponding public key to build the script signature
+          log.debug("Request public key for receiving address (0/0)...");
+          hardwareWalletService.requestPublicKey(0, KeyChain.KeyPurpose.RECEIVE_FUNDS, 0);
+
           break;
         }
 
-        if (ourChangeAddress == null) {
-          ourChangeAddress = ((MainNetAddress) event.getMessage().get()).getAddress().get();
-          log.info("Device provided change address: '{}'", ourChangeAddress);
+        if (changeAddress == null) {
+          changeAddress = ((MainNetAddress) event.getMessage().get()).getAddress().get();
+          log.info("Device provided change address (1/0): '{}'", changeAddress);
 
           // Now we have enough information to build a transaction
           log.debug("Building a fake transaction...");
 
-          Transaction transaction = FakeTransactions.newMainNetFakeTx2(
-            ourReceivingAddress,
-            ourChangeAddress,
-            Coin.FIFTY_COINS,
-            Coin.COIN
-          );
+          // Keep track of all transactions
+          fakeTxs = FakeTransactions.bip44DevWalletTransactions();
+
+          // Set the current transaction
+          Transaction currentTx = fakeTxs[1];
 
           // Request an address from the device
-          hardwareWalletService.signTx(transaction);
+          hardwareWalletService.signTx(currentTx);
 
         }
 
         break;
+      case PUBLIC_KEY:
+
+        Optional<HDNodeType> hdNodeType = ((PublicKey) event.getMessage().get()).getHdNodeType();
+        if (hdNodeType.isPresent()) {
+          byte[] receivingPubKey = hdNodeType.get().getPublicKey().get();
+
+          // Decode it into an address for easy verification
+          ECKey key = ECKey.fromPublicOnly(receivingPubKey);
+          Address actualAddress = new Address(MainNetParams.get(), key.getPubKeyHash());
+          log.info("Device provided receiving address public key (0/0):\n'{}'\n'{}'", actualAddress, Utils.HEX.encode(receivingPubKey));
+        }
+
+        // Now we require a valid change address (so back to ADDRESS...)
+        log.debug("Request valid change address (1/0)...");
+        hardwareWalletService.requestAddress(0, KeyChain.KeyPurpose.CHANGE, 0, false);
+
+        break;
+
       case SHOW_PIN_ENTRY:
         // Device requires the current PIN to proceed
         PinMatrixRequest request = (PinMatrixRequest) event.getMessage().get();
@@ -158,18 +192,42 @@ public class TrezorV1SignTxExample {
         String pin;
         switch (request.getPinMatrixRequestType()) {
           case CURRENT:
-            System.err.println("Recall your PIN (e.g. '1').\n" +
-              "Look at the device screen and type in the numerical position of each of the digits\n" +
-              "with 1 being in the bottom left and 9 being in the top right (numeric keypad style) then press ENTER.");
+            System.err.println(
+              "Recall your PIN (e.g. '1').\n" +
+                "Look at the device screen and type in the numerical position of each of the digits\n" +
+                "with 1 being in the bottom left and 9 being in the top right (numeric keypad style) then press ENTER."
+            );
             pin = keyboard.next();
             hardwareWalletService.providePIN(pin);
             break;
         }
         break;
+      case SHOW_OPERATION_SUCCEEDED:
+        // Successful signature
+        log.info("prevTx:\n{}", fakeTxs[0].toString());
+
+        // Trezor will provide a signed serialized transaction
+        byte[] deviceTxPayload = hardwareWalletService.getContext().getSerializedTx().toByteArray();
+
+        try {
+          log.info("DeviceTx payload:\n{}", Utils.HEX.encode(deviceTxPayload));
+
+          // Load deviceTx
+          Transaction deviceTx = new Transaction(MainNetParams.get(), deviceTxPayload);
+
+          log.info("deviceTx:\n{}", deviceTx.toString());
+
+        } catch (Exception e) {
+          log.error("deviceTx FAILED.", e);
+        }
+
+        // Treat as end of example
+        System.exit(0);
+        break;
 
       case SHOW_OPERATION_FAILED:
         // Treat as end of example
-        System.exit(0);
+        System.exit(-1);
         break;
       default:
         // Ignore

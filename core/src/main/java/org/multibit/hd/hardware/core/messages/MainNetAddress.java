@@ -1,5 +1,6 @@
 package org.multibit.hd.hardware.core.messages;
 
+import com.google.bitcoin.core.Address;
 import com.google.bitcoin.core.AddressFormatException;
 import com.google.bitcoin.params.MainNetParams;
 import com.google.common.base.Optional;
@@ -30,7 +31,7 @@ public class MainNetAddress implements HardwareWalletMessage {
   public MainNetAddress(String rawAddress) {
 
     try {
-      this.address = Optional.of(new com.google.bitcoin.core.Address(MainNetParams.get(), rawAddress));
+      this.address = Optional.of(new Address(MainNetParams.get(), rawAddress));
     } catch (AddressFormatException e) {
       log.warn("Invalid MainNet address. Ignoring.");
     }

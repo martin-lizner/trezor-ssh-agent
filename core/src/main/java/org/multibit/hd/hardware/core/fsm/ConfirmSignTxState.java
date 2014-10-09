@@ -6,8 +6,11 @@ import org.multibit.hd.hardware.core.events.HardwareWalletEventType;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
 import org.multibit.hd.hardware.core.events.MessageEvent;
 import org.multibit.hd.hardware.core.messages.TxRequest;
+import org.multibit.hd.hardware.core.messages.TxRequestSerializedType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
 
 /**
  * <p>State to provide the following to hardware wallet clients:</p>
@@ -56,7 +59,38 @@ public class ConfirmSignTxState extends AbstractHardwareWalletState {
         // Device is requesting a transaction input or output
         Transaction transaction = context.getTransaction().get();
         TxRequest txRequest = ((TxRequest) event.getMessage().get());
+
+        // Check if we are being given a signature
+        TxRequestSerializedType serializedType = txRequest.getTxRequestSerializedType();
+        if (serializedType.getSignatureIndex().isPresent()) {
+          log.debug("Received signature index");
+          int signedInputIndex = serializedType.getSignatureIndex().get();
+          byte[] signature = serializedType.getSignature().get();
+          context.getSignatures().put(signedInputIndex, signature);
+        }
+        if (serializedType.getSerializedTx().isPresent()) {
+          log.debug("Received serialized Tx - could be partial");
+          byte[] serializedTx = serializedType.getSerializedTx().get();
+          try {
+            context.getSerializedTx().write(serializedTx);
+          } catch (IOException e) {
+            // Ignore
+          }
+        }
+
+        switch (txRequest.getTxRequestType()) {
+          case TX_FINISHED:
+            HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_OPERATION_SUCCEEDED, event.getMessage().get());
+            break;
+          case TX_OUTPUT:
+            break;
+        }
         client.txAck(txRequest, transaction);
+        break;
+      case BUTTON_REQUEST:
+        // Device is requesting a button press
+        HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_BUTTON_PRESS, event.getMessage().get());
+        client.buttonAck();
         break;
       case FAILURE:
         // User has cancelled or operation failed

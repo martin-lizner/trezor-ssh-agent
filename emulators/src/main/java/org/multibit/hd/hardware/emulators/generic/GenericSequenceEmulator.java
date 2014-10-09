@@ -4,7 +4,6 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.protobuf.Message;
-import org.multibit.hd.hardware.emulators.generic.protobuf.GenericMessage;
 import org.multibit.hd.hardware.trezor.utils.TrezorMessageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,14 +83,8 @@ public class GenericSequenceEmulator {
 
   public static void addSuccessMessage(GenericSequenceEmulator trezorEmulator, int duration, TimeUnit timeUnit) {
 
-    trezorEmulator.addMessage(new EmulatorProtocolMessage(
-      GenericMessage.Success
-        .newBuilder()
-        .setMessage("Hello")
-        .build(),
-      duration,
-      timeUnit
-    ));
+    // TODO Replace with Core API
+
   }
 
   /**

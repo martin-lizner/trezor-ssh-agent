@@ -16,12 +16,15 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 public class Success implements HardwareWalletMessage {
 
   private final String message;
+  private final byte[] payload;
 
   /**
    * @param message The message
+   * @param payload The payload (e.g. a cipher key value)
    */
-  public Success(String message) {
+  public Success(String message, byte[] payload) {
     this.message = message;
+    this.payload = payload;
   }
 
   /**
@@ -31,10 +34,18 @@ public class Success implements HardwareWalletMessage {
     return message;
   }
 
+  /**
+   * @return The payload
+   */
+  public byte[] getPayload() {
+    return payload;
+  }
+
   @Override
   public String toString() {
     return new ToStringBuilder(this)
       .append("message", message)
+      .append("payload", payload)
       .toString();
   }
 }

@@ -6,25 +6,40 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 /**
  * <p>Value object to provide the following to high level messages:</p>
  * <ul>
- * <li>Transaction request details (index position, transaction hash etc)</li>
+ * <li>Transaction request details (requestIndex, txHash)</li>
  * </ul>
+ * <p>This provides meta information regarding how transactions should be located and inputs/outputs explored</p>
  *
  * @since 0.0.1
  *  
  */
 public class TxRequestDetailsType {
 
-  private final int index;
+  private final Optional<Integer> requestIndex;
   private final Optional<byte[]> txHash;
 
-  public TxRequestDetailsType(int requestIndex, byte[] txHash) {
+  public TxRequestDetailsType(
+    boolean hasRequestIndex,
+    int requestIndex,
+    boolean hasTxHash,
+    byte[] txHash
+  ) {
 
-    index = requestIndex;
-    this.txHash = Optional.fromNullable(txHash);
+    // Drive presence/absence from the flags rather than content
+    if (hasRequestIndex) {
+      this.requestIndex = Optional.of(requestIndex);
+    } else {
+      this.requestIndex = Optional.absent();
+    }
+    if (hasTxHash) {
+      this.txHash = Optional.of(txHash);
+    } else {
+      this.txHash = Optional.absent();
+    }
   }
 
-  public int getIndex() {
-    return index;
+  public Optional<Integer> getRequestIndex() {
+    return requestIndex;
   }
 
   public Optional<byte[]> getTxHash() {
@@ -34,7 +49,7 @@ public class TxRequestDetailsType {
   @Override
   public String toString() {
     return new ToStringBuilder(this)
-      .append("index", index)
+      .append("requestIndex", requestIndex)
       .append("txHash", txHash)
       .toString();
   }
