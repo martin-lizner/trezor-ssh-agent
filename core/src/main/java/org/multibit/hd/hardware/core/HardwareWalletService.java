@@ -212,6 +212,9 @@ public class HardwareWalletService {
       case REQUEST_CIPHER_KEY:
         context.continueCipherKey_PIN(pin);
         break;
+      case SIGN_MESSAGE:
+        context.continueSignMessage_PIN(pin);
+        break;
       default:
         log.warn("Unknown PIN request use case: {}", context.getCurrentUseCase().name());
     }
@@ -327,6 +330,37 @@ public class HardwareWalletService {
       isEncrypting,
       askOnDecrypt,
       askOnEncrypt
+    );
+  }
+
+  /**
+   * <p>Request some data to be signed using an address key from the device. The device will respond by providing
+   * the signed data based on the key derived using the <a href="https://en.bitcoin.it/wiki/BIP_0044">BIP-44</a> deterministic
+   * wallet approach from the master node.</p>
+   *
+   * <p>The BIP-44 chain code is arranged as follows:</p>
+   * <p><code>M/44'/coin type'/account'/key purpose/index</code></p>
+   * <p>Notes:</p>
+   * <ol>
+   * <li>Coin type is 0' for Bitcoin</li>
+   * <li>Account is 0-based and will be hardened when necessary (e.g. 0x80000000)</li>
+   * <li>Key purpose resolves as 0 for external (receiving), 1 for internal (change) but other values may come later</li>
+   * <li>Index is 0-based and identifies a particular address</li>
+   * </ol>
+   *
+   * @param account      The plain account number (0 gives maximum compatibility)
+   * @param keyPurpose   The key purpose (RECEIVE_FUNDS,CHANGE,REFUND,AUTHENTICATION etc)
+   * @param index        The plain index of the required address
+   * @param message      The message for signing
+   */
+  public void signMessage(int account, KeyChain.KeyPurpose keyPurpose, int index, byte[] message) {
+
+    // Set the FSM context
+    context.beginSignMessageUseCase(
+      account,
+      keyPurpose,
+      index,
+      message
     );
   }
 

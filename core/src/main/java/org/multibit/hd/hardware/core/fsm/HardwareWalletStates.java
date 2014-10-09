@@ -165,6 +165,9 @@ public class HardwareWalletStates {
 
   }
 
+  /**
+   * @return A new confirm cipher key state
+   */
   public static HardwareWalletState newConfirmCipherKeyState() {
 
     log.debug("Transitioning to 'confirm CipherKey' state");
@@ -174,13 +177,24 @@ public class HardwareWalletStates {
   }
 
   /**
-   * @return A new confirm get address state
+   * @return A new confirm sign tx state
    */
   public static ConfirmSignTxState newConfirmSignTxState() {
 
     log.debug("Transitioning to 'confirm SignTx' state");
 
     return new ConfirmSignTxState();
+
+  }
+
+  /**
+   * @return A new confirm sign message state
+   */
+  public static ConfirmSignMessageState newConfirmSignMessageState() {
+
+    log.debug("Transitioning to 'confirm SignMessage' state");
+
+    return new ConfirmSignMessageState();
 
   }
 }

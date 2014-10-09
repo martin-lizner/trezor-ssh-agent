@@ -1,6 +1,8 @@
 package org.multibit.hd.hardware.core.fsm;
 
 import org.multibit.hd.hardware.core.HardwareWalletClient;
+import org.multibit.hd.hardware.core.events.HardwareWalletEventType;
+import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
 import org.multibit.hd.hardware.core.events.MessageEvent;
 import org.multibit.hd.hardware.core.messages.Features;
 import org.slf4j.Logger;
@@ -38,6 +40,10 @@ public class ConnectedState extends AbstractHardwareWalletState {
     switch (event.getEventType()) {
       case FEATURES:
         context.setFeatures((Features) event.getMessage().get());
+        context.resetToInitialised();
+        break;
+      case FAILURE:
+        HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_OPERATION_FAILED, event.getMessage().get());
         context.resetToInitialised();
         break;
       default:

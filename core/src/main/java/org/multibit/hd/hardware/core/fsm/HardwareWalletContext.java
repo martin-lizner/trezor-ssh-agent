@@ -385,6 +385,60 @@ public class HardwareWalletContext {
   }
 
   /**
+   * <p>Begin the "sign message key use case</p>
+   *
+   * @param account    The plain account number (0 gives maximum compatibility)
+   * @param keyPurpose The key purpose (RECEIVE_FUNDS,CHANGE,REFUND,AUTHENTICATION etc)
+   * @param index      The plain index of the required address
+   * @param message    The message for signing
+   */
+  public void beginSignMessageUseCase(
+    int account,
+    KeyChain.KeyPurpose keyPurpose,
+    int index,
+    byte[] message
+  ) {
+
+    log.debug("Begin 'sign message' use case");
+
+    // Track the use case
+    currentUseCase = ContextUseCase.SIGN_MESSAGE;
+
+    // Store the overall context parameters
+
+    // Set the event receiving state
+    currentState = HardwareWalletStates.newConfirmSignMessageState();
+
+    // Issue starting message to elicit the event
+    client.signMessage(
+      account,
+      keyPurpose,
+      index,
+      message
+    );
+  }
+
+  /**
+   * <p>Continue the "sign message" use case with the provision of the current PIN</p>
+   *
+   * @param pin The PIN
+   */
+  public void continueSignMessage_PIN(String pin) {
+
+    log.debug("Continue 'sign message' use case (provide PIN)");
+
+    // Store the overall context parameters
+
+    // Set the event receiving state
+    currentState = HardwareWalletStates.newConfirmSignMessageState();
+
+    // Issue starting message to elicit the event
+    client.pinMatrixAck(pin);
+
+  }
+
+
+  /**
    * <p>Begin the "cipher key" use case</p>
    *
    * @param account      The plain account number (0 gives maximum compatibility)
@@ -636,5 +690,4 @@ public class HardwareWalletContext {
   public ByteArrayOutputStream getSerializedTx() {
     return serializedTx;
   }
-
 }

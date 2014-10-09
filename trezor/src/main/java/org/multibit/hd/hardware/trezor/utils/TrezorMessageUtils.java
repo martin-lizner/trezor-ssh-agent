@@ -197,6 +197,7 @@ public final class TrezorMessageUtils {
         case MessageType_MessageSignature:
           message = TrezorMessage.MessageSignature.parseFrom(buffer);
           messageEventType = MessageEventType.MESSAGE_SIGNATURE;
+          hardwareWalletMessage = TrezorMessageAdapter.adaptMessageSignature((TrezorMessage.MessageSignature) message);
           break;
         case MessageType_EncryptMessage:
           message = TrezorMessage.EncryptMessage.parseFrom(buffer);

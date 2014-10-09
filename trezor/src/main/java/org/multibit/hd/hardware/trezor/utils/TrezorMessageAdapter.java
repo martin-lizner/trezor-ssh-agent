@@ -326,4 +326,19 @@ public class TrezorMessageAdapter {
     );
   }
 
+
+  /**
+   * @param source The source message
+   *
+   * @return The adapted Core message
+   */
+  public static HardwareWalletMessage adaptMessageSignature(TrezorMessage.MessageSignature source) {
+
+    return new MessageSignature(
+      source.getAddress(),
+      source.getSignature().toByteArray()
+    );
+
+  }
+
 }
