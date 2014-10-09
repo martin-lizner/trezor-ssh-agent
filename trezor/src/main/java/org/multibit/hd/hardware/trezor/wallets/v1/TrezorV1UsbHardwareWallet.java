@@ -211,19 +211,6 @@ public class TrezorV1UsbHardwareWallet extends AbstractTrezorHardwareWallet impl
       return false;
     }
 
-    try {
-      log.debug("Selected: '{}' '{}' '{}'",
-        device.getManufacturerString(),
-        device.getProductString(),
-        device.getSerialNumberString()
-      );
-
-    } catch (Exception e) {
-      log.error("Failed to connect device due to problem reading device information. Re-attach to reset it.", e);
-      MessageEvents.fireMessageEvent(MessageEventType.DEVICE_FAILED);
-      return false;
-    }
-
     // Must be OK to be here
     return true;
 
