@@ -15,7 +15,7 @@ One example of a supported hardware wallet is the Trezor and full examples and d
 
 ### Technologies
 
-* [Java HID API](https://code.google.com/p/javahidapi/) - Java library providing USB Human Interface Device (HID) native interface
+* [usb4java](http://usb4java.org/) - Java library providing native libusb access (Windows and Linux provide HID at this level)
 * [Google Protocol Buffers](https://code.google.com/p/protobuf/) (protobuf) - for the most efficient and flexible wire protocol
 * [Google Guava](https://code.google.com/p/guava-libraries/wiki/GuavaExplained) - for excellent Java support features
 * Java 7+ - to remove dependencies on JVMs that have reached end of life
