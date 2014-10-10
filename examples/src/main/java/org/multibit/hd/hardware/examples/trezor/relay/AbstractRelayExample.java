@@ -142,6 +142,7 @@ public class AbstractRelayExample {
           log.error("'client' arguments must include server host name or IP address");
           return false;
         }
+        serverHost = args[1];
         break;
       case BOTH:
         // Running both server and client locally
