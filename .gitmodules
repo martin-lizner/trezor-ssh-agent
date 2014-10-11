@@ -1,3 +1,6 @@
 [submodule "trezor-common"]
 	path = trezor/src/main/trezor-common
 	url = https://github.com/trezor/trezor-common.git
+[submodule "hid4java/src/main/cpp/hidapi"]
+	path = hid4java/src/main/cpp/hidapi
+	url = https://github.com/signal11/hidapi

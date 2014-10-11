@@ -49,7 +49,7 @@
       <version>0.0.1-SNAPSHOT</version>
     </dependency>
 
-    <!-- SLF$J Simple for logging in the Examples project
+    <!-- SLF4J Simple for logging in the Examples project
 
          Your project is expected to provide its own SLF4J adapters
          such as logback, slf4j-log4j12, slf4j-jcl and so on

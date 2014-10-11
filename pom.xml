@@ -108,6 +108,7 @@
     <module>core</module>
     <module>trezor</module>
     <module>emulators</module>
+    <module>hid4java</module>
   </modules>
 
   <profiles>
