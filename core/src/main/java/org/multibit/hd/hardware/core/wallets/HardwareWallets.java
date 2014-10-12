@@ -88,8 +88,8 @@ public class HardwareWallets {
    */
   public static <T extends HardwareWallet> T newUsbInstance(
     Class<T> hardwareWalletClass,
-    Optional<Short> vendorId,
-    Optional<Short> productId,
+    Optional<Integer> vendorId,
+    Optional<Integer> productId,
     Optional<String> serialNumber
   ) {
 
@@ -119,8 +119,8 @@ public class HardwareWallets {
    */
   public static HardwareWallet newUsbInstance(
     String className,
-    Optional<Short> vendorId,
-    Optional<Short> productId,
+    Optional<Integer> vendorId,
+    Optional<Integer> productId,
     Optional<String> serialNumber
   ) {
 

@@ -262,23 +262,17 @@
       <artifactId>slf4j-api</artifactId>
     </dependency>
 
-    <!-- Java HID API for UART-USB on Raspberry Pi -->
-    <dependency>
-      <groupId>com.codeminders</groupId>
-      <artifactId>hidapi</artifactId>
-    </dependency>
-
-    <!-- USB 4 Java for HID USB on Windows and Linux (no OSX) -->
-    <dependency>
-      <groupId>org.usb4java</groupId>
-      <artifactId>usb4java-javax</artifactId>
-      <version>1.2.0</version>
-    </dependency>
-
     <!-- Bitcoinj for Bitcoin operations -->
     <dependency>
       <groupId>com.google</groupId>
       <artifactId>bitcoinj</artifactId>
+    </dependency>
+
+    <!-- Apache Commons for utilities not in Guava -->
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>3.1</version>
     </dependency>
 
     <!-- Testing -->

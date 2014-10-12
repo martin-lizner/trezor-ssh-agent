@@ -30,9 +30,9 @@ public class HardwareWalletSpecification {
 
   private boolean isUsb = false;
 
-  private Optional<Short> vendorId;
+  private Optional<Integer> vendorId;
 
-  private Optional<Short> productId;
+  private Optional<Integer> productId;
 
   private Optional<String> serialNumber;
 
@@ -94,8 +94,8 @@ public class HardwareWalletSpecification {
    */
   public static HardwareWalletSpecification newUsbSpecification(
     String className,
-    Optional<Short> vendorId,
-    Optional<Short> productId,
+    Optional<Integer> vendorId,
+    Optional<Integer> productId,
     Optional<String> serialNumber
   ) {
 
@@ -121,8 +121,8 @@ public class HardwareWalletSpecification {
    */
   public static <T extends HardwareWallet> HardwareWalletSpecification newUsbSpecification(
     Class<T> hardwareWalletClass,
-    Optional<Short> vendorId,
-    Optional<Short> productId,
+    Optional<Integer> vendorId,
+    Optional<Integer> productId,
     Optional<String> serialNumber
   ) {
 
@@ -192,28 +192,28 @@ public class HardwareWalletSpecification {
   /**
    * @return The optional USB vendor ID
    */
-  public Optional<Short> getVendorId() {
+  public Optional<Integer> getVendorId() {
     return vendorId;
   }
 
   /**
    * @param vendorId The USB vendor ID. If absent then the device-specific default is used.
    */
-  public void setVendorId(Optional<Short> vendorId) {
+  public void setVendorId(Optional<Integer> vendorId) {
     this.vendorId = vendorId;
   }
 
   /**
    * @return The optional USB product ID
    */
-  public Optional<Short> getProductId() {
+  public Optional<Integer> getProductId() {
     return productId;
   }
 
   /**
    * @param productId The USB product ID. If absent then the device-specific default is used.
    */
-  public void setProductId(Optional<Short> productId) {
+  public void setProductId(Optional<Integer> productId) {
     this.productId = productId;
   }
 

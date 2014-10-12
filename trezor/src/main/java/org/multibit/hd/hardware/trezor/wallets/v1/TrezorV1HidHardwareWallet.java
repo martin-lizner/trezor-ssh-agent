@@ -3,22 +3,17 @@ package org.multibit.hd.hardware.trezor.wallets.v1;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.satoshilabs.trezor.protobuf.TrezorMessage;
+import org.hid4java.*;
+import org.hid4java.event.HidServicesEvent;
 import org.multibit.hd.hardware.core.HardwareWalletSpecification;
 import org.multibit.hd.hardware.core.events.MessageEvent;
 import org.multibit.hd.hardware.core.events.MessageEventType;
 import org.multibit.hd.hardware.core.events.MessageEvents;
 import org.multibit.hd.hardware.trezor.utils.TrezorMessageUtils;
 import org.multibit.hd.hardware.trezor.wallets.AbstractTrezorHardwareWallet;
-import org.multibit.hid4java.UsbHid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.usb.UsbDevice;
-import javax.usb.UsbException;
-import javax.usb.UsbHostManager;
-import javax.usb.UsbServices;
-import javax.usb.event.UsbServicesEvent;
-import javax.usb.event.UsbServicesListener;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
@@ -32,36 +27,33 @@ import java.util.Arrays;
  * @since 0.0.1
  *  
  */
-public class TrezorV1HidHardwareWallet extends AbstractTrezorHardwareWallet implements UsbServicesListener {
+public class TrezorV1HidHardwareWallet extends AbstractTrezorHardwareWallet implements HidServicesListener {
 
-  private static final Short SATOSHI_LABS_VENDOR_ID = (short) 0x534c;
-  private static final Short TREZOR_V1_PRODUCT_ID = 0x01;
+  private static final Integer SATOSHI_LABS_VENDOR_ID = 0x534c;
+  private static final Integer TREZOR_V1_PRODUCT_ID = 0x01;
   private static final int PACKET_LENGTH = 64;
 
   private static final Logger log = LoggerFactory.getLogger(TrezorV1HidHardwareWallet.class);
 
-  private Optional<Short> vendorId = Optional.absent();
-  private Optional<Short> productId = Optional.absent();
+  private Optional<Integer> vendorId = Optional.absent();
+  private Optional<Integer> productId = Optional.absent();
   private Optional<String> serialNumber = Optional.absent();
 
-  private Optional<UsbHid.HidDevice> locatedDevice = Optional.absent();
-
   /**
-   * Device serial number
+   * The located device
    */
-  private String serial;
+  private Optional<HidDevice> locatedDevice = Optional.absent();
 
   /**
    * The USB HID entry point
    */
-  private final UsbHid usbHid;
+  private final HidServices hidServices;
 
   /**
    * Default constructor for use with dynamic binding
    */
   public TrezorV1HidHardwareWallet() {
-    this(Optional.<Short>absent(), Optional.<Short>absent(), Optional.<String>absent());
-
+    this(Optional.<Integer>absent(), Optional.<Integer>absent(), Optional.<String>absent());
   }
 
   /**
@@ -72,8 +64,8 @@ public class TrezorV1HidHardwareWallet extends AbstractTrezorHardwareWallet impl
    * @param serialNumber The device serial number (default is to accept any)
    */
   public TrezorV1HidHardwareWallet(
-    Optional<Short> vendorId,
-    Optional<Short> productId,
+    Optional<Integer> vendorId,
+    Optional<Integer> productId,
     Optional<String> serialNumber) {
 
     this.vendorId = vendorId.isPresent() ? vendorId : Optional.of(SATOSHI_LABS_VENDOR_ID);
@@ -83,19 +75,12 @@ public class TrezorV1HidHardwareWallet extends AbstractTrezorHardwareWallet impl
     try {
 
       // Get the USB services and dump information about them
-      /*
-    TODO Deprecate this and use our own polling thread?
-    The USB services entry point
-   */
-      UsbServices usbServices = UsbHostManager.getUsbServices();
-      usbServices.addUsbServicesListener(this);
+      hidServices = HidManager.getHidServices();
+      hidServices.addUsbServicesListener(this);
 
-      // Get the USB HID which will do all the work
-      usbHid = new UsbHid();
-
-    } catch (UsbException e) {
+    } catch (HidException e) {
       log.error("Failed to create client due to USB services problem", e);
-      throw new IllegalStateException("Failed to create client due to USB services problem");
+      throw new IllegalStateException("Failed to create client due to USB services problem",e);
     }
 
   }
@@ -120,10 +105,9 @@ public class TrezorV1HidHardwareWallet extends AbstractTrezorHardwareWallet impl
       detach();
     }
 
-    // Explore all attached devices including hubs to verify USB library is working
-    // and to determine initial state
+    // Explore all attached HID devices
     locatedDevice = Optional.fromNullable(
-      usbHid.open(
+      hidServices.getHidDevice(
         vendorId.get(),
         productId.get(),
         serialNumber.orNull()
@@ -131,8 +115,7 @@ public class TrezorV1HidHardwareWallet extends AbstractTrezorHardwareWallet impl
     );
 
     if (!locatedDevice.isPresent()) {
-      log.error("Failed to connect device due to USB verification problem");
-      return false;
+      log.warn("Device not attached");
     }
 
     // Must be OK to be here
@@ -145,7 +128,7 @@ public class TrezorV1HidHardwareWallet extends AbstractTrezorHardwareWallet impl
 
     log.debug("Reset endpoints");
     if (locatedDevice.isPresent()) {
-      usbHid.close(locatedDevice.get());
+      locatedDevice.get().close();
     }
 
     locatedDevice = Optional.absent();
@@ -183,7 +166,10 @@ public class TrezorV1HidHardwareWallet extends AbstractTrezorHardwareWallet impl
 
   @Override
   public String toString() {
-    return "USB Trezor Version 1 (Serial: " + this.serial + ")";
+    if (locatedDevice.isPresent()) {
+      return "USB Trezor Version 1: " + locatedDevice.get().getId();
+    }
+    return "Not attached";
   }
 
   @Override
@@ -196,8 +182,7 @@ public class TrezorV1HidHardwareWallet extends AbstractTrezorHardwareWallet impl
 
     log.debug("Writing buffer to HID pipe...");
 
-    int bytesSent = usbHid.write(
-      locatedDevice.get(),
+    int bytesSent = locatedDevice.get().write(
       buffer,
       PACKET_LENGTH,
       (byte) 0x00
@@ -227,7 +212,7 @@ public class TrezorV1HidHardwareWallet extends AbstractTrezorHardwareWallet impl
     for (; ; ) {
       byte[] buffer = new byte[PACKET_LENGTH];
 
-      received = usbHid.read(locatedDevice.get(), buffer);
+      received = locatedDevice.get().read(buffer);
 
       log.debug("< {} bytes", received);
       TrezorMessageUtils.logPacket("<", 0, buffer);
@@ -259,10 +244,7 @@ public class TrezorV1HidHardwareWallet extends AbstractTrezorHardwareWallet impl
     while (messageBuffer.position() < msgSize) {
 
       byte[] buffer = new byte[PACKET_LENGTH];
-      received = usbHid.read(
-        locatedDevice.get(),
-        buffer
-      );
+      received = locatedDevice.get().read(buffer);
       packet++;
 
       log.debug("< (cont) {} bytes", received);
@@ -285,13 +267,13 @@ public class TrezorV1HidHardwareWallet extends AbstractTrezorHardwareWallet impl
   }
 
   @Override
-  public void usbDeviceAttached(UsbServicesEvent event) {
+  public void hidDeviceAttached(HidServicesEvent event) {
 
-    UsbDevice attachedDevice = event.getUsbDevice();
+    HidDeviceInfo attachedDevice = event.getHidDeviceInfo();
 
     // Check if it is a device we're interested in that was attached
-    if (vendorId.get().equals(attachedDevice.getUsbDeviceDescriptor().idVendor()) &&
-      productId.get().equals(attachedDevice.getUsbDeviceDescriptor().idProduct())) {
+    if (vendorId.get().equals(attachedDevice.getVendorId()) &&
+      productId.get().equals(attachedDevice.getProductId())) {
       // Inform others of this event
       MessageEvents.fireMessageEvent(MessageEventType.DEVICE_ATTACHED);
     }
@@ -299,17 +281,23 @@ public class TrezorV1HidHardwareWallet extends AbstractTrezorHardwareWallet impl
   }
 
   @Override
-  public void usbDeviceDetached(UsbServicesEvent event) {
+  public void hidDeviceDetached(HidServicesEvent event) {
 
-    UsbDevice disconnectedDevice = event.getUsbDevice();
+    HidDeviceInfo attachedDevice = event.getHidDeviceInfo();
 
-    // Check if it is our device that was detached
-    if (vendorId.get().equals(disconnectedDevice.getUsbDeviceDescriptor().idVendor()) &&
-      productId.get().equals(disconnectedDevice.getUsbDeviceDescriptor().idProduct())) {
+    // Check if it is a device we're interested in that was attached
+    if (vendorId.get().equals(attachedDevice.getVendorId()) &&
+      productId.get().equals(attachedDevice.getProductId())) {
       // Inform others of this event
       MessageEvents.fireMessageEvent(MessageEventType.DEVICE_DETACHED);
     }
 
   }
 
+  @Override
+  public void hidFailure(HidServicesEvent event) {
+
+    MessageEvents.fireMessageEvent(MessageEventType.DEVICE_FAILED);
+
+  }
 }

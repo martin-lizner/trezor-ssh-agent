@@ -58,8 +58,8 @@ public class TrezorV1CipherKeyExample {
     // Use factory to statically bind the specific hardware wallet
     TrezorV1HidHardwareWallet wallet = HardwareWallets.newUsbInstance(
             TrezorV1HidHardwareWallet.class,
-      Optional.<Short>absent(),
-      Optional.<Short>absent(),
+      Optional.<Integer>absent(),
+      Optional.<Integer>absent(),
       Optional.<String>absent()
     );
 

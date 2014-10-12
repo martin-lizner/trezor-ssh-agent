@@ -4,7 +4,7 @@ import com.google.common.base.Optional;
 import com.google.common.util.concurrent.Uninterruptibles;
 import org.multibit.hd.hardware.trezor.clients.TrezorRelayClient;
 import org.multibit.hd.hardware.trezor.clients.TrezorRelayServer;
-import org.multibit.hd.hardware.trezor.wallets.v1.TrezorV1UsbHardwareWallet;
+import org.multibit.hd.hardware.trezor.wallets.v1.TrezorV1HidHardwareWallet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -108,9 +108,9 @@ public class AbstractRelayExample {
       case SERVER:
       case BOTH:
         // Create a Trezor V1 USB client for use by the server
-        TrezorV1UsbHardwareWallet hardwareWallet = new TrezorV1UsbHardwareWallet(
-          Optional.<Short>absent(),
-          Optional.<Short>absent(),
+        TrezorV1HidHardwareWallet hardwareWallet = new TrezorV1HidHardwareWallet(
+          Optional.<Integer>absent(),
+          Optional.<Integer>absent(),
           Optional.<String>absent()
         );
         try {

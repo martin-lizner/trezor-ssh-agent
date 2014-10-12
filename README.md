@@ -15,7 +15,7 @@ One example of a supported hardware wallet is the Trezor and full examples and d
 
 ### Technologies
 
-* [usb4java](http://usb4java.org/) - Java library providing native libusb access (Windows and Linux provide HID at this level)
+* [hid4java](https://github.com/gary-rowe/hid4java) - Java library wrapping hidapi using JNA
 * [Google Protocol Buffers](https://code.google.com/p/protobuf/) (protobuf) - for the most efficient and flexible wire protocol
 * [Google Guava](https://code.google.com/p/guava-libraries/wiki/GuavaExplained) - for excellent Java support features
 * Java 7+ - to remove dependencies on JVMs that have reached end of life
@@ -26,10 +26,10 @@ Configure and start the hardware wallet service as follows:
 
 ```java
 // Use factory to statically bind the specific hardware wallet
-TrezorV1UsbHardwareWallet wallet = HardwareWallets.newUsbInstance(
-  TrezorV1UsbHardwareWallet.class,
-  Optional.<Short>absent(),
-  Optional.<Short>absent(),
+TrezorV1HidHardwareWallet wallet = HardwareWallets.newUsbInstance(
+  TrezorV1HidHardwareWallet.class,
+  Optional.<Integer>absent(),
+  Optional.<Integer>absent(),
   Optional.<String>absent()
 );
 
@@ -294,20 +294,8 @@ $ sudo addgroup yourusername plugdev
 The `iconv` library is used to map character sets and is usually provided as part of the operating system. MultiBit Hardware will work 
 with version 1.11+. We have seen problems with running the code through an IDE where `iconv` responds with a failure code of -1.
 
-#### My production Trezor doesn't work on Mac OS X
-
-Correct. After 4 days of trying everything we could think of we just could not get the HID interface to a production Trezor to work on 
-Mac OS X Mavericks. Our conclusion was the following:
-
-* A device declaring itself as USB HID is claimed by Mac OS X and is not released to anything using `libusb` so usb4java is ineffective
-* A signed kernel extension (kext) can be used to trick OS X into releasing this claim removing the "Access denied" message but this cannot be part of the MultiBit Hardware project because it's really the responsibility of the device manufacturers to provide
-* it could be that an update to the `javahidapi` wrapper for the Signal 11 `hidapi` library would work but to go down that road would  mean the MultiBit Hardware project forking `javahidapi` and that's just too much effort for us to maintain
- 
-Possible workarounds are:
- 
-* buy a cheap Windows laptop and use that for your Trezor 
-* use a Raspberry Pi as a "bridge" between the production Trezor and an Ethernet socket connection 
-* invest time and money into getting Mac OS X support integrated into MultiBit Hardware (donations and pull requests accepted)
+This often indicates that an older version of the `hidapi` library is present on your system and probably needs to be updated to match that
+provided by the `hid4java` project.
 
 ### Closing notes
 

@@ -10,7 +10,7 @@ import org.multibit.hd.hardware.core.events.MessageEvent;
 import org.multibit.hd.hardware.core.events.MessageEventType;
 import org.multibit.hd.hardware.core.wallets.HardwareWallet;
 import org.multibit.hd.hardware.trezor.utils.TrezorMessageUtils;
-import org.multibit.hd.hardware.trezor.wallets.v1.TrezorV1UsbHardwareWallet;
+import org.multibit.hd.hardware.trezor.wallets.v1.TrezorV1HidHardwareWallet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +39,7 @@ public class TrezorRelayServer {
   /**
    * The hardware wallet representing the locally connected hardware device
    */
-  private TrezorV1UsbHardwareWallet hardwareWallet;
+  private TrezorV1HidHardwareWallet hardwareWallet;
 
   /**
    * The port number to use for the server socket. A RelayClient will connect to this port
@@ -64,13 +64,13 @@ public class TrezorRelayServer {
 
 
   /**
-   * Create a RelayServer, wrapping a Trezor V1 USB device, exposing port 3000
+   * Create a RelayServer, wrapping a Trezor V1 HID device, exposing port 3000
    */
   public TrezorRelayServer() {
-    // Create a Trezor V1 usb client
-    TrezorV1UsbHardwareWallet hardwareWallet = new TrezorV1UsbHardwareWallet(
-      Optional.<Short>absent(),
-      Optional.<Short>absent(),
+    // Create a Trezor V1 HID client
+    TrezorV1HidHardwareWallet hardwareWallet = new TrezorV1HidHardwareWallet(
+      Optional.<Integer>absent(),
+      Optional.<Integer>absent(),
       Optional.<String>absent()
     );
     create(hardwareWallet, DEFAULT_PORT_NUMBER);
@@ -79,11 +79,11 @@ public class TrezorRelayServer {
   /**
    * Create a RelayServer using a HardwareWallet instance and the specified port
    */
-  public TrezorRelayServer(TrezorV1UsbHardwareWallet hardwareWallet, int portNumber) throws IOException {
+  public TrezorRelayServer(TrezorV1HidHardwareWallet hardwareWallet, int portNumber) throws IOException {
     create(hardwareWallet, portNumber);
   }
 
-  private void create(TrezorV1UsbHardwareWallet hardwareWallet, int portNumber) {
+  private void create(TrezorV1HidHardwareWallet hardwareWallet, int portNumber) {
 
     this.hardwareWallet = hardwareWallet;
     this.portNumber = portNumber;
