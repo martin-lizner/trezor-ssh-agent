@@ -10,7 +10,7 @@ import org.multibit.hd.hardware.core.events.HardwareWalletEvent;
 import org.multibit.hd.hardware.core.messages.MainNetAddress;
 import org.multibit.hd.hardware.core.wallets.HardwareWallets;
 import org.multibit.hd.hardware.trezor.clients.TrezorHardwareWalletClient;
-import org.multibit.hd.hardware.trezor.wallets.v1.TrezorV1UsbHardwareWallet;
+import org.multibit.hd.hardware.trezor.wallets.v1.TrezorV1HidHardwareWallet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,8 +56,8 @@ public class TrezorV1GetAddressExample {
   public void executeExample() {
 
     // Use factory to statically bind the specific hardware wallet
-    TrezorV1UsbHardwareWallet wallet = HardwareWallets.newUsbInstance(
-      TrezorV1UsbHardwareWallet.class,
+    TrezorV1HidHardwareWallet wallet = HardwareWallets.newUsbInstance(
+            TrezorV1HidHardwareWallet.class,
       Optional.<Short>absent(),
       Optional.<Short>absent(),
       Optional.<String>absent()
