@@ -80,7 +80,7 @@ public class TrezorV1HidHardwareWallet extends AbstractTrezorHardwareWallet impl
 
     } catch (HidException e) {
       log.error("Failed to create client due to USB services problem", e);
-      throw new IllegalStateException("Failed to create client due to HID services problem",e);
+      throw new IllegalStateException("Failed to create client due to HID services problem", e);
     }
 
   }
@@ -271,9 +271,12 @@ public class TrezorV1HidHardwareWallet extends AbstractTrezorHardwareWallet impl
 
     HidDeviceInfo attachedDevice = event.getHidDeviceInfo();
 
+    int attachedVendorId = (int) attachedDevice.getVendorId();
+    int attachedProductId = (int) attachedDevice.getProductId();
+
     // Check if it is a device we're interested in that was attached
-    if (vendorId.get().equals(attachedDevice.getVendorId()) &&
-      productId.get().equals(attachedDevice.getProductId())) {
+    if (vendorId.get().equals(attachedVendorId) &&
+      productId.get().equals(attachedProductId)) {
       // Inform others of this event
       MessageEvents.fireMessageEvent(MessageEventType.DEVICE_ATTACHED);
     }
@@ -285,9 +288,12 @@ public class TrezorV1HidHardwareWallet extends AbstractTrezorHardwareWallet impl
 
     HidDeviceInfo attachedDevice = event.getHidDeviceInfo();
 
-    // Check if it is a device we're interested in that was attached
-    if (vendorId.get().equals(attachedDevice.getVendorId()) &&
-      productId.get().equals(attachedDevice.getProductId())) {
+    int detachedVendorId = (int) attachedDevice.getVendorId();
+    int detachedProductId = (int) attachedDevice.getProductId();
+
+    // Check if it is a device we're interested in that was detached
+    if (vendorId.get().equals(detachedVendorId) &&
+      productId.get().equals(detachedProductId)) {
       // Inform others of this event
       MessageEvents.fireMessageEvent(MessageEventType.DEVICE_DETACHED);
     }
