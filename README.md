@@ -2,7 +2,7 @@ Status: [![Build Status](https://travis-ci.org/bitcoin-solutions/multibit-hardwa
 
 ### Project status
 
-Early-Beta: Expect bugs and minimal API changes. Not suitable for production, but developers should start integrating.
+Late-Beta: Expect minimal API changes. Suitable for production and developers should start integrating.
 
 ### MultiBit Hardware
 
@@ -15,7 +15,7 @@ One example of a supported hardware wallet is the Trezor and full examples and d
 
 ### Technologies
 
-* [hid4java](https://github.com/gary-rowe/hid4java) - Java library wrapping hidapi using JNA
+* [hid4java](https://github.com/gary-rowe/hid4java) - Java library wrapping `hidapi` using JNA
 * [Google Protocol Buffers](https://code.google.com/p/protobuf/) (protobuf) - for the most efficient and flexible wire protocol
 * [Google Guava](https://code.google.com/p/guava-libraries/wiki/GuavaExplained) - for excellent Java support features
 * Java 7+ - to remove dependencies on JVMs that have reached end of life
