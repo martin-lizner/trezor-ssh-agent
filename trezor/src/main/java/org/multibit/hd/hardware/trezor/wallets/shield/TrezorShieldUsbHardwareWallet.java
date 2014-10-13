@@ -87,11 +87,11 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
 
       // Get the USB services and dump information about them
       hidServices = HidManager.getHidServices();
-      hidServices.addUsbServicesListener(this);
+      hidServices.addHidServicesListener(this);
 
     } catch (HidException e) {
       log.error("Failed to create client due to USB services problem", e);
-      throw new IllegalStateException("Failed to create client due to USB services problem", e);
+      throw new IllegalStateException("Failed to create client due to HID services problem", e);
     }
   }
 

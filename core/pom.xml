@@ -14,14 +14,4 @@
   <name>Core</name>
   <description>Provides the core functionality that all implementations of hardware wallet compatible with MultiBit HD must adhere to</description>
 
-  <dependencies>
-
-    <!-- hid4java provides cross-platform USB HID support -->
-    <dependency>
-      <groupId>org.multibit</groupId>
-      <artifactId>hid4java</artifactId>
-      <version>0.0.1-SNAPSHOT</version>
-    </dependency>
-
-  </dependencies>
 </project>
