@@ -1,6 +1,6 @@
 package org.multibit.hd.hardware.core.fsm;
 
-import com.google.bitcoin.core.Transaction;
+import org.bitcoinj.core.Transaction;
 import org.multibit.hd.hardware.core.HardwareWalletClient;
 import org.multibit.hd.hardware.core.events.HardwareWalletEventType;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvents;

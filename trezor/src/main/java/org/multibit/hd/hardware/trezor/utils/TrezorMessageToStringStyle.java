@@ -1,6 +1,6 @@
 package org.multibit.hd.hardware.trezor.utils;
 
-import com.google.bitcoin.core.Utils;
+import org.bitcoinj.core.Utils;
 import com.google.protobuf.ByteString;
 import com.satoshilabs.trezor.protobuf.TrezorType;
 import org.apache.commons.lang3.SystemUtils;

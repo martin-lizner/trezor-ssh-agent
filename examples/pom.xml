@@ -7,7 +7,7 @@
 
   <groupId>org.multibit.hd.hardware</groupId>
   <artifactId>examples</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>develop-SNAPSHOT</version>
 
   <name>Examples</name>
   <description>Provides a set of standalone examples that demonstrate how to access various devices and emulators in client applications</description>
@@ -39,14 +39,14 @@
     <dependency>
       <groupId>org.multibit.hd.hardware</groupId>
       <artifactId>emulators</artifactId>
-      <version>0.0.1-SNAPSHOT</version>
+      <version>develop-SNAPSHOT</version>
     </dependency>
 
     <!-- Trezor (brings in most dependencies transitively) -->
     <dependency>
       <groupId>org.multibit.hd.hardware</groupId>
       <artifactId>trezor</artifactId>
-      <version>0.0.1-SNAPSHOT</version>
+      <version>develop-SNAPSHOT</version>
     </dependency>
 
     <!-- SLF4J Simple for logging in the Examples project

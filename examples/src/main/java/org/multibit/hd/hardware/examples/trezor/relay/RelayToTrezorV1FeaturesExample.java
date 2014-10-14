@@ -1,6 +1,6 @@
 package org.multibit.hd.hardware.examples.trezor.relay;
 
-import com.google.bitcoin.core.AddressFormatException;
+import org.bitcoinj.core.AddressFormatException;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.Uninterruptibles;
 import org.multibit.hd.hardware.core.HardwareWalletService;

@@ -5,7 +5,7 @@
 
   <groupId>org.multibit.hd.hardware</groupId>
   <artifactId>parent</artifactId>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>develop-SNAPSHOT</version>
 
   <packaging>pom</packaging>
 
@@ -220,18 +220,18 @@
         <version>${slf4j.version}</version>
       </dependency>
 
-      <!-- Java HID API for USB -->
+      <!-- hid4java for HID USB -->
       <dependency>
-        <groupId>com.codeminders</groupId>
-        <artifactId>hidapi</artifactId>
-        <version>1.1</version>
+        <groupId>org.hid4java</groupId>
+        <artifactId>hid4java</artifactId>
+        <version>0.1.0</version>
       </dependency>
 
-      <!-- Bitcoinj for Bitcoin operations -->
+      <!-- Bitcoinj for Bitcoin operations (alice is custom fork with BIP44) -->
       <dependency>
-        <groupId>com.google</groupId>
-        <artifactId>bitcoinj</artifactId>
-        <version>0.12-SNAPSHOT</version>
+        <groupId>org.bitcoinj</groupId>
+        <artifactId>bitcoinj-core</artifactId>
+        <version>0.12-alice</version>
       </dependency>
 
       <!-- Testing -->
@@ -274,8 +274,8 @@
 
     <!-- Bitcoinj for Bitcoin operations -->
     <dependency>
-      <groupId>com.google</groupId>
-      <artifactId>bitcoinj</artifactId>
+      <groupId>org.bitcoinj</groupId>
+      <artifactId>bitcoinj-core</artifactId>
     </dependency>
 
     <!-- Apache Commons for utilities not in Guava -->

@@ -1,7 +1,7 @@
 package org.multibit.hd.hardware.core.fsm;
 
-import com.google.bitcoin.core.Transaction;
-import com.google.bitcoin.wallet.KeyChain;
+import org.bitcoinj.core.Transaction;
+import org.bitcoinj.wallet.KeyChain;
 import com.google.common.base.Optional;
 import com.google.common.collect.Maps;
 import com.google.common.eventbus.Subscribe;

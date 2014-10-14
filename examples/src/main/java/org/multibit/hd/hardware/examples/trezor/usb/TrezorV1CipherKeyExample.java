@@ -1,7 +1,7 @@
 package org.multibit.hd.hardware.examples.trezor.usb;
 
-import com.google.bitcoin.core.Utils;
-import com.google.bitcoin.wallet.KeyChain;
+import org.bitcoinj.core.Utils;
+import org.bitcoinj.wallet.KeyChain;
 import com.google.common.base.Optional;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.Uninterruptibles;
@@ -143,7 +143,14 @@ public class TrezorV1CipherKeyExample {
       case SHOW_OPERATION_SUCCEEDED:
         byte[] payload = ((Success) event.getMessage().get()).getPayload();
         String message = ((Success) event.getMessage().get()).getMessage();
-        log.info("Message:'{}'\nPayload: {} (Deterministic: {})", message, Utils.HEX.encode(payload), Utils.HEX.encode(payload).equals("be3c43189407284bb3fd1ac0040db1e0"));
+
+        // Requires the MultiBit Dev wallet to resolve as deterministic
+        log.info(
+          "Message:'{}'\nPayload: {} (Deterministic: {})",
+          message,
+          Utils.HEX.encode(payload),
+          Utils.HEX.encode(payload).equals("be3c43189407284bb3fd1ac0040db1e0")
+        );
         // Treat as end of example
         System.exit(0);
         break;

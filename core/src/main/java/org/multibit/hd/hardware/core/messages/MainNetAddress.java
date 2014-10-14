@@ -1,8 +1,8 @@
 package org.multibit.hd.hardware.core.messages;
 
-import com.google.bitcoin.core.Address;
-import com.google.bitcoin.core.AddressFormatException;
-import com.google.bitcoin.params.MainNetParams;
+import org.bitcoinj.core.Address;
+import org.bitcoinj.core.AddressFormatException;
+import org.bitcoinj.params.MainNetParams;
 import com.google.common.base.Optional;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.slf4j.Logger;
@@ -23,7 +23,7 @@ public class MainNetAddress implements HardwareWalletMessage {
 
   private static final Logger log = LoggerFactory.getLogger(MainNetAddress.class);
 
-  private Optional<com.google.bitcoin.core.Address> address=Optional.absent();
+  private Optional<org.bitcoinj.core.Address> address=Optional.absent();
 
   /**
    * @param rawAddress The raw address as provided by the device
@@ -42,7 +42,7 @@ public class MainNetAddress implements HardwareWalletMessage {
    *
    * @return The address. Absent if not verified as a MainNet address.
    */
-  public Optional<com.google.bitcoin.core.Address> getAddress() {
+  public Optional<org.bitcoinj.core.Address> getAddress() {
     return address;
   }
 

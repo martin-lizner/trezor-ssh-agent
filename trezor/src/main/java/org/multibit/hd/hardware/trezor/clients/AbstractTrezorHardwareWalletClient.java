@@ -1,9 +1,9 @@
 package org.multibit.hd.hardware.trezor.clients;
 
-import com.google.bitcoin.core.*;
-import com.google.bitcoin.crypto.ChildNumber;
-import com.google.bitcoin.params.MainNetParams;
-import com.google.bitcoin.wallet.KeyChain;
+import org.bitcoinj.core.*;
+import org.bitcoinj.crypto.ChildNumber;
+import org.bitcoinj.params.MainNetParams;
+import org.bitcoinj.wallet.KeyChain;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.protobuf.ByteString;

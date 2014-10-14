@@ -1,6 +1,6 @@
 package org.multibit.hd.hardware.examples.trezor.rpi;
 
-import com.google.bitcoin.core.AddressFormatException;
+import org.bitcoinj.core.AddressFormatException;
 import com.google.common.base.Optional;
 import org.multibit.hd.hardware.core.HardwareWalletService;
 import org.multibit.hd.hardware.core.wallets.HardwareWallets;

@@ -1,7 +1,7 @@
 package org.multibit.hd.hardware.core;
 
-import com.google.bitcoin.core.Transaction;
-import com.google.bitcoin.wallet.KeyChain;
+import org.bitcoinj.core.Transaction;
+import org.bitcoinj.wallet.KeyChain;
 import com.google.common.base.Preconditions;
 import com.google.common.eventbus.EventBus;
 import com.google.common.util.concurrent.ListeningExecutorService;

@@ -1,6 +1,6 @@
 package org.multibit.hd.hardware.examples.trezor.usb;
 
-import com.google.bitcoin.wallet.KeyChain;
+import org.bitcoinj.wallet.KeyChain;
 import com.google.common.base.Optional;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.Uninterruptibles;
