@@ -90,12 +90,13 @@ public class TrezorRelayServer {
 
     HardwareWalletService.hardwareWalletEventBus.register(this);
 
-    serverExecutorService.submit(new Runnable() {
-      @Override
-      public void run() {
-        start();
-      }
-    });
+    serverExecutorService.submit(
+      new Runnable() {
+        @Override
+        public void run() {
+          start();
+        }
+      });
   }
 
   public int getPortNumber() {
@@ -153,21 +154,24 @@ public class TrezorRelayServer {
    */
   private void monitorHardwareWallet(final OutputStream outputToClient) {
     // Monitor the data input stream
-    hardwareWalletMonitorService.submit(new Runnable() {
+    hardwareWalletMonitorService.submit(
+      new Runnable() {
 
-      @Override
-      public void run() {
-        while (true) {
-          log.debug("Waiting for hardware wallet message...");
-          MessageEvent messageEvent = hardwareWallet.readMessage();
+        @Override
+        public void run() {
+          while (true) {
+            log.debug("Waiting for hardware wallet message...");
+            Optional<MessageEvent> messageEvent = hardwareWallet.readMessage();
 
-          // Send the Message back to the client
-          log.debug("Sending raw message to client");
-          writeMessage(messageEvent.getRawMessage().get(), outputToClient);
+            if (messageEvent.isPresent()) {
+              // Send the Message back to the client
+              log.debug("Sending raw message to client");
+              writeMessage(messageEvent.get().getRawMessage().get(), outputToClient);
+            }
+          }
         }
-      }
 
-    });
+      });
   }
 
   /**
@@ -175,29 +179,30 @@ public class TrezorRelayServer {
    */
   private void monitorClient(final InputStream inputFromClient) {
     // Monitor the data input stream
-    clientMonitorService.submit(new Runnable() {
+    clientMonitorService.submit(
+      new Runnable() {
 
-      @Override
-      public void run() {
-        while (true) {
-          try {
-            // Blocking read to get the client message (e.g. "Initialize") formatted as HID packets for simplicity
-            log.debug("Waiting for client message...");
+        @Override
+        public void run() {
+          while (true) {
+            try {
+              // Blocking read to get the client message (e.g. "Initialize") formatted as HID packets for simplicity
+              log.debug("Waiting for client message...");
 
-            MessageEvent messageFromClient = TrezorMessageUtils.parseAsHIDPackets(inputFromClient);
+              MessageEvent messageFromClient = TrezorMessageUtils.parseAsHIDPackets(inputFromClient);
 
-            // Send the Message to the trezor (serialising again to protobuf)
-            log.debug("Writing message to hardware wallet");
-            hardwareWallet.writeMessage(messageFromClient.getRawMessage().get());
+              // Send the Message to the trezor (serialising again to protobuf)
+              log.debug("Writing message to hardware wallet");
+              hardwareWallet.writeMessage(messageFromClient.getRawMessage().get());
 
-          } catch (Exception e) {
-            log.error("Failed in hardware wallet/client read", e);
-            break;
+            } catch (Exception e) {
+              log.error("Failed in hardware wallet/client read", e);
+              break;
+            }
           }
         }
-      }
 
-    });
+      });
   }
 
 

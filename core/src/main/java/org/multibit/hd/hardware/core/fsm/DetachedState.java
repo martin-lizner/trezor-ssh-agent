@@ -23,7 +23,15 @@ public class DetachedState extends AbstractHardwareWalletState {
   protected void internalTransition(HardwareWalletClient client, HardwareWalletContext context, MessageEvent event) {
 
     switch (event.getEventType()) {
-      // TODO Implement
+      case DEVICE_FAILED:
+        context.resetToFailed();
+        break;
+      case DEVICE_DETACHED:
+        // Do nothing
+        break;
+      case DEVICE_ATTACHED:
+        context.resetToAttached();
+        break;
       default:
         log.warn("Unexpected message event '{}'", event.getEventType().name());
         context.resetToConnected();

@@ -58,11 +58,22 @@ public class TrezorHardwareWalletClient extends AbstractTrezorHardwareWalletClie
   }
 
   @Override
-  public void detach() {
+  public void softDetach() {
 
     log.debug("Detaching...");
 
-    trezor.detach();
+    disconnect();
+    trezor.softDetach();
+
+  }
+
+  @Override
+  public void hardDetach() {
+
+    log.debug("Hard detach...");
+
+    disconnect();
+    trezor.hardDetach();
 
   }
 
@@ -99,18 +110,19 @@ public class TrezorHardwareWalletClient extends AbstractTrezorHardwareWalletClie
   protected Optional<MessageEvent> sendMessage(Message message, int duration, TimeUnit timeUnit) {
 
     Preconditions.checkState(isTrezorValid, "Trezor device is not valid. Try connecting or start a new session after a disconnect.");
-    Preconditions.checkState(isSessionIdValid, "An old session ID must be discarded. Create a new instance.");
 
     // Write the message
     trezor.writeMessage(message);
 
     // Wait for a response
-    MessageEvent messageEvent = trezor.readMessage();
+    Optional<MessageEvent> messageEvent = trezor.readMessage();
 
-    // Fire the event
-    MessageEvents.fireMessageEvent(messageEvent);
+    if (messageEvent.isPresent()) {
+      // Fire the event
+      MessageEvents.fireMessageEvent(messageEvent.get());
+    }
 
-    return Optional.of(messageEvent);
+    return messageEvent;
 
   }
 

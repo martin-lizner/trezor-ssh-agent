@@ -1,11 +1,10 @@
 package org.multibit.hd.hardware.core;
 
-import org.bitcoinj.core.Transaction;
-import org.bitcoinj.wallet.KeyChain;
 import com.google.common.base.Preconditions;
 import com.google.common.eventbus.EventBus;
 import com.google.common.util.concurrent.ListeningExecutorService;
-import com.google.common.util.concurrent.Uninterruptibles;
+import org.bitcoinj.core.Transaction;
+import org.bitcoinj.wallet.KeyChain;
 import org.multibit.hd.hardware.core.concurrent.SafeExecutors;
 import org.multibit.hd.hardware.core.fsm.CreateWalletSpecification;
 import org.multibit.hd.hardware.core.fsm.HardwareWalletContext;
@@ -35,14 +34,14 @@ public class HardwareWalletService {
   private static final Logger log = LoggerFactory.getLogger(HardwareWalletService.class);
 
   /**
-   * The EventBus for distributing the high level hardware wallet events
+   * <p>The EventBus for distributing the high level hardware wallet events</p>
    * Downstream consumers are expected to use this
    */
   public static final EventBus hardwareWalletEventBus = new EventBus();
 
   /**
-   * The EventBus for distributing the low level hardware wallet events
-   * <strong>Downstream consumers should not use this</strong>
+   * <p>The EventBus for distributing the low level hardware wallet events</p>
+   * <p>Downstream consumers <strong>should not use this</strong> </p>
    */
   public static final EventBus messageEventBus = new EventBus();
 
@@ -52,6 +51,11 @@ public class HardwareWalletService {
    * The current hardware wallet context
    */
   private final HardwareWalletContext context;
+
+  /**
+   * True if the service has stopped
+   */
+  private boolean stopped = false;
 
   /**
    * @param client The hardware wallet client providing the low level messages
@@ -68,6 +72,10 @@ public class HardwareWalletService {
    */
   public void start() {
 
+    if (stopped) {
+      throw new IllegalStateException("Once stopped the service must be started with a fresh instance");
+    }
+
     // Start the hardware wallet state machine
     clientMonitorService.submit(
       new Runnable() {
@@ -77,7 +85,12 @@ public class HardwareWalletService {
           while (true) {
             context.getState().await(context);
 
-            Uninterruptibles.sleepUninterruptibly(500, TimeUnit.MILLISECONDS);
+            // Allow interruptions
+            try {
+              Thread.sleep(500);
+            } catch (InterruptedException e) {
+              Thread.currentThread().interrupt();
+            }
 
           }
         }
@@ -92,8 +105,23 @@ public class HardwareWalletService {
 
     log.debug("Service {} stopping...", this.getClass().getSimpleName());
 
-    clientMonitorService.shutdownNow();
+    context.resetToStopped();
+    try {
+      clientMonitorService.awaitTermination(1, TimeUnit.SECONDS);
+    } catch (InterruptedException e) {
+      log.warn("Client monitor thread did not terminate within the allowed time");
+    }
 
+    stopped=true;
+
+  }
+
+  /**
+   * @return True if the service is stopped
+   */
+  public boolean isStopped() {
+
+    return stopped;
   }
 
   /**
@@ -226,8 +254,8 @@ public class HardwareWalletService {
       case SIGN_MESSAGE:
         context.continueSignMessage_PIN(pin);
         break;
-        case CHANGE_PIN:
-          context.continueChangePIN_PIN(pin);
+      case CHANGE_PIN:
+        context.continueChangePIN_PIN(pin);
         break;
       default:
         log.warn("Unknown PIN request use case: {}", context.getCurrentUseCase().name());

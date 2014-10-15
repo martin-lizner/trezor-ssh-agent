@@ -5,6 +5,7 @@ import com.google.common.base.Preconditions;
 import com.satoshilabs.trezor.protobuf.TrezorMessage;
 import org.hid4java.*;
 import org.hid4java.event.HidServicesEvent;
+import org.hid4java.jna.HidApi;
 import org.multibit.hd.hardware.core.HardwareWalletSpecification;
 import org.multibit.hd.hardware.core.events.MessageEvent;
 import org.multibit.hd.hardware.core.events.MessageEventType;
@@ -112,7 +113,7 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
 
     // Ensure we close any earlier connections
     if (locatedDevice.isPresent()) {
-      detach();
+      softDetach();
     }
 
     // Explore all attached HID devices
@@ -198,7 +199,7 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
 
 
   @Override
-  public synchronized void detach() {
+  public synchronized void softDetach() {
 
     // Attempt to close the connection (also closes the in/out streams)
     if (locatedDevice.isPresent()) {
@@ -212,7 +213,29 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
   }
 
   @Override
-  protected MessageEvent readFromDevice() {
+  public void hardDetach() {
+
+    log.debug("Hard detach");
+
+    log.debug("Reset endpoints");
+    if (locatedDevice.isPresent()) {
+      locatedDevice.get().close();
+    }
+
+    locatedDevice = Optional.absent();
+
+    log.debug("Exited HID API");
+    HidApi.exit();
+
+    log.info("Hard detach complete");
+
+    // Let everyone know
+    MessageEvents.fireMessageEvent(MessageEventType.DEVICE_DETACHED_HARD);
+
+  }
+
+  @Override
+  protected Optional<MessageEvent> readFromDevice() {
 
     ByteBuffer messageBuffer = ByteBuffer.allocate(32768);
 
@@ -225,6 +248,10 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
       byte[] buffer = new byte[64];
 
       received = locatedDevice.get().read(buffer);
+
+      if (received == -1) {
+        return null;
+      }
 
       log.debug("< {} bytes", received);
       TrezorMessageUtils.logPacket("<", 0, buffer);
@@ -273,7 +300,7 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
     log.debug("Packet complete");
 
     // Parse the message
-    return TrezorMessageUtils.parse(type, Arrays.copyOfRange(messageBuffer.array(), 0, msgSize));
+    return Optional.of(TrezorMessageUtils.parse(type, Arrays.copyOfRange(messageBuffer.array(), 0, msgSize)));
 
   }
 

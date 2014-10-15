@@ -35,7 +35,7 @@ public abstract class AbstractHardwareWalletState implements HardwareWalletState
         context.resetToAttached();
         return;
       case DEVICE_DETACHED:
-        client.detach();
+        client.softDetach();
         context.resetToDetached();
         return;
       case DEVICE_CONNECTED:

@@ -1,10 +1,10 @@
 package org.multibit.hd.hardware.core.fsm;
 
-import org.bitcoinj.core.Transaction;
-import org.bitcoinj.wallet.KeyChain;
 import com.google.common.base.Optional;
 import com.google.common.collect.Maps;
 import com.google.common.eventbus.Subscribe;
+import org.bitcoinj.core.Transaction;
+import org.bitcoinj.wallet.KeyChain;
 import org.multibit.hd.hardware.core.HardwareWalletClient;
 import org.multibit.hd.hardware.core.HardwareWalletService;
 import org.multibit.hd.hardware.core.events.HardwareWalletEventType;
@@ -34,8 +34,6 @@ public class HardwareWalletContext {
 
   private static final Logger log = LoggerFactory.getLogger(HardwareWalletContext.class);
 
-  private Optional<Features> features = Optional.absent();
-
   /**
    * The hardware wallet client handling outgoing messages and generating low level
    * message events
@@ -62,6 +60,11 @@ public class HardwareWalletContext {
    * Provide contextual information for the current wallet load use case
    */
   private Optional<LoadWalletSpecification> loadWalletSpecification = Optional.absent();
+
+  /**
+   * Provide the features
+   */
+  private Optional<Features> features = Optional.absent();
 
   /**
    * Provide the transaction forming the basis for the "sign transaction" use case
@@ -122,6 +125,28 @@ public class HardwareWalletContext {
   }
 
   /**
+   * <p>Reset the context into a stopped state (</p>
+   */
+  public void resetToStopped() {
+
+    log.debug("Reset to 'stopped'");
+
+    // Clear relevant information
+    resetAllButFeatures();
+
+    // Issue a hard detach - we are done
+    client.hardDetach();
+    HardwareWalletService.messageEventBus.unregister(this);
+
+    // Perform the state change
+    currentState = HardwareWalletStates.newStoppedState();
+
+    // Fire the high level event
+    HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_DEVICE_STOPPED);
+
+  }
+
+  /**
    * <p>Reset the context back to a failed state (retain device information but prevent further communication)</p>
    */
   public void resetToFailed() {
@@ -129,7 +154,7 @@ public class HardwareWalletContext {
     log.debug("Reset to 'failed'");
 
     // Clear relevant information
-    createWalletSpecification = Optional.absent();
+    resetAllButFeatures();
 
     // Perform the state change
     currentState = HardwareWalletStates.newFailedState();
@@ -146,8 +171,7 @@ public class HardwareWalletContext {
     log.debug("Reset to 'detached'");
 
     // Clear relevant information
-    createWalletSpecification = Optional.absent();
-    features = Optional.absent();
+    resetAll();
 
     // Perform the state change
     currentState = HardwareWalletStates.newDetachedState();
@@ -163,10 +187,8 @@ public class HardwareWalletContext {
 
     log.debug("Reset to 'attached'");
 
-    // TODO Ensure all context fields are reset here
     // Clear relevant information
-    createWalletSpecification = Optional.absent();
-    features = Optional.absent();
+    resetAll();
 
     // Perform the state change
     currentState = HardwareWalletStates.newAttachedState();
@@ -182,8 +204,7 @@ public class HardwareWalletContext {
     log.debug("Reset to 'connected'");
 
     // Clear relevant information
-    createWalletSpecification = Optional.absent();
-    features = Optional.absent();
+    resetAll();
 
     // Perform the state change
     currentState = HardwareWalletStates.newConnectedState();
@@ -199,7 +220,7 @@ public class HardwareWalletContext {
     log.debug("Reset to 'disconnected'");
 
     // Clear relevant information
-    createWalletSpecification = Optional.absent();
+    resetAll();
 
     // Perform the state change
     currentState = HardwareWalletStates.newDisconnectedState();
@@ -216,7 +237,7 @@ public class HardwareWalletContext {
     log.debug("Reset to 'initialised'");
 
     // Clear relevant information
-    createWalletSpecification = Optional.absent();
+    resetAllButFeatures();
 
     // Perform the state change
     currentState = HardwareWalletStates.newInitialisedState();
@@ -366,7 +387,6 @@ public class HardwareWalletContext {
 
   }
 
-
   /**
    * <p>Begin the "get address" use case</p>
    *
@@ -396,6 +416,7 @@ public class HardwareWalletContext {
     );
 
   }
+
 
   /**
    * <p>Begin the "get public key" use case</p>
@@ -459,7 +480,6 @@ public class HardwareWalletContext {
     );
   }
 
-
   /**
    * <p>Continue the "sign message" use case with the provision of the current PIN</p>
    *
@@ -478,6 +498,7 @@ public class HardwareWalletContext {
     client.pinMatrixAck(pin);
 
   }
+
 
   /**
    * <p>Begin the "cipher key" use case</p>
@@ -730,5 +751,32 @@ public class HardwareWalletContext {
    */
   public ByteArrayOutputStream getSerializedTx() {
     return serializedTx;
+  }
+
+  /**
+   * <p>Reset all context state to ensure a fresh context</p>
+   */
+  private void resetAll() {
+
+    createWalletSpecification = Optional.absent();
+    loadWalletSpecification = Optional.absent();
+    transaction = Optional.absent();
+    signatures = Maps.newHashMap();
+    serializedTx = new ByteArrayOutputStream();
+    features = Optional.absent();
+
+  }
+
+  /**
+   * <p>Reset all context state, excepting Features, to ensure a fresh context</p>
+   */
+  private void resetAllButFeatures() {
+
+    Optional<Features> originalFeatures = this.features;
+
+    resetAll();
+
+    this.features = originalFeatures;
+
   }
 }

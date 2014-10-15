@@ -1,5 +1,6 @@
 package org.multibit.hd.hardware.trezor.wallets;
 
+import com.google.common.base.Optional;
 import com.google.protobuf.Message;
 import org.multibit.hd.hardware.core.HardwareWalletSpecification;
 import org.multibit.hd.hardware.core.events.MessageEvent;
@@ -36,13 +37,13 @@ public abstract class AbstractTrezorHardwareWallet extends AbstractHardwareWalle
   @Override
   public synchronized void disconnect() {
 
-    detach();
+    softDetach();
     hardwareWalletMonitorService.shutdownNow();
 
   }
 
   @Override
-  public MessageEvent readMessage() {
+  public Optional<MessageEvent> readMessage() {
 
     return readFromDevice();
 
@@ -80,9 +81,9 @@ public abstract class AbstractTrezorHardwareWallet extends AbstractHardwareWalle
   /**
    * <p>Read a complete message buffer from the device and convert it into a Core message.</p>
    *
-   * @return The low level message event containing adapted data read from the device
+   * @return The low level message event containing adapted data read from the device if present
    */
-  protected abstract MessageEvent readFromDevice();
+  protected abstract Optional<MessageEvent> readFromDevice();
 
   /**
    * <p>Write a complete message buffer to the device.</p>

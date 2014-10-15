@@ -22,9 +22,15 @@ public interface Connectable {
 
   /**
    * <p>Handle device detachment. The transport to the device is gone (device removed, socket server shut down etc)</p>
-   * <p>Implementations should assume that their thread will be terminated shortly and handle their own shutdown.</p>
+   * <p>Implementations may assume that recovery is possible (the hardware drivers still remain operational)</p>
    */
-  void detach();
+  void softDetach();
+
+  /**
+   * <p>Handle device detachment and imminent shutdown.</p>
+   * <p>Recovery is not possible (the controlling thread is about to close, hardware drivers are closing)</p>
+   */
+  void hardDetach();
 
   /**
    * <p>Attempt a connection to the underlying hardware to establish communication only (no higher level messages)</p>

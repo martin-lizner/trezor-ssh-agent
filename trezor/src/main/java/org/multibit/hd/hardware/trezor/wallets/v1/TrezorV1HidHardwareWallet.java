@@ -102,7 +102,7 @@ public class TrezorV1HidHardwareWallet extends AbstractTrezorHardwareWallet impl
 
     // Ensure we close any earlier connections
     if (locatedDevice.isPresent()) {
-      detach();
+      softDetach();
     }
 
     // Explore all attached HID devices
@@ -124,7 +124,7 @@ public class TrezorV1HidHardwareWallet extends AbstractTrezorHardwareWallet impl
   }
 
   @Override
-  public synchronized void detach() {
+  public synchronized void softDetach() {
 
     log.debug("Reset endpoints");
     if (locatedDevice.isPresent()) {
@@ -134,6 +134,27 @@ public class TrezorV1HidHardwareWallet extends AbstractTrezorHardwareWallet impl
     locatedDevice = Optional.absent();
 
     log.info("Detached from Trezor");
+
+  }
+
+  @Override
+  public void hardDetach() {
+
+    log.debug("Hard detach");
+
+    log.debug("Reset endpoints");
+    if (locatedDevice.isPresent()) {
+      locatedDevice.get().close();
+    }
+
+    locatedDevice = Optional.absent();
+
+    hidServices.removeUsbServicesListener(this);
+
+    log.info("Hard detach complete");
+
+    // Let everyone know
+    MessageEvents.fireMessageEvent(MessageEventType.DEVICE_DETACHED_HARD);
 
   }
 
@@ -198,7 +219,7 @@ public class TrezorV1HidHardwareWallet extends AbstractTrezorHardwareWallet impl
   }
 
   @Override
-  protected synchronized MessageEvent readFromDevice() {
+  protected synchronized Optional<MessageEvent> readFromDevice() {
 
     log.debug("Reading from hardware device");
 
@@ -215,6 +236,11 @@ public class TrezorV1HidHardwareWallet extends AbstractTrezorHardwareWallet impl
       received = locatedDevice.get().read(buffer);
 
       log.debug("< {} bytes", received);
+
+      if (received == -1) {
+        return Optional.absent();
+      }
+
       TrezorMessageUtils.logPacket("<", 0, buffer);
 
       if (received < 9) {
@@ -262,7 +288,7 @@ public class TrezorV1HidHardwareWallet extends AbstractTrezorHardwareWallet impl
     log.debug("Packet complete");
 
     // Parse the message
-    return TrezorMessageUtils.parse(type, Arrays.copyOfRange(messageBuffer.array(), 0, msgSize));
+    return Optional.of(TrezorMessageUtils.parse(type, Arrays.copyOfRange(messageBuffer.array(), 0, msgSize)));
 
   }
 

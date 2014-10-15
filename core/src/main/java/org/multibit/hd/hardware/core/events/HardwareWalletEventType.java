@@ -37,6 +37,11 @@ public enum HardwareWalletEventType {
   SHOW_DEVICE_DETACHED,
 
   /**
+   * Indicates that a device has been stopped and the service will need to be renewed
+   */
+  SHOW_DEVICE_STOPPED,
+
+  /**
    * The UI should show a message informing the user that the device requires a button press.
    */
   SHOW_BUTTON_PRESS,

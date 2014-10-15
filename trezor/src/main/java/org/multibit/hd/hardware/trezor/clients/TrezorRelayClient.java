@@ -94,7 +94,7 @@ public class TrezorRelayClient extends AbstractTrezorHardwareWalletClient {
   }
 
   @Override
-  public void detach() {
+  public void softDetach() {
 
     try {
       if (outputToServer != null) {
@@ -123,6 +123,17 @@ public class TrezorRelayClient extends AbstractTrezorHardwareWalletClient {
     log.debug("Reset endpoints");
 
     log.info("Detached from Trezor relay server");
+  }
+
+  @Override
+  public void hardDetach() {
+
+    log.info("Hard detach");
+
+    softDetach();
+
+    log.info("Hard detach completed");
+
   }
 
   @Override

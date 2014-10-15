@@ -35,6 +35,10 @@ public enum MessageEventType {
    * Notification. Received on a device disconnect (device present and communications were established at the wire level but they are now blocked)
    */
   DEVICE_DISCONNECTED,
+  /**
+   * Notification. Received when a device is detached permanently (no device present, native libraries shut down)
+   */
+  DEVICE_DETACHED_HARD,
 
   // Connection
   /**

@@ -322,12 +322,12 @@ public final class TrezorMessageUtils {
       messageBuffer.get(buffer, 1, 63); // Payload
 
       // Describe the packet
-      String s = "Packet [" + i + "]: ";
+      String s = "> Packet [" + i + "]: ";
       for (int j = 0; j < 64; j++) {
         s += String.format(" %02x", buffer[j]);
       }
 
-      log.info("> {}", s);
+      log.info(s);
 
       out.write(buffer);
 
