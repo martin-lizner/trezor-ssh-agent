@@ -125,6 +125,52 @@ public class HardwareWalletContext {
   }
 
   /**
+   * <p>Note: When adding this signature using the builder setScriptSig() you'll need to append the SIGHASH 0x01 byte</p>
+   *
+   * @return The map of ECDSA signatures provided by the device during "sign transaction" keyed on the input index
+   */
+  public Map<Integer, byte[]> getSignatures() {
+    return signatures;
+  }
+
+  /**
+   * This value cannot be considered complete until the "SHOW_OPERATION_SUCCESSFUL" message has been received
+   * since it can be built up over several incoming messages
+   *
+   * @return The serialized transaction provided by the device during "sign transaction"
+   */
+  public ByteArrayOutputStream getSerializedTx() {
+    return serializedTx;
+  }
+
+  /**
+   * <p>Reset all context state to ensure a fresh context</p>
+   */
+  private void resetAll() {
+
+    createWalletSpecification = Optional.absent();
+    loadWalletSpecification = Optional.absent();
+    transaction = Optional.absent();
+    signatures = Maps.newHashMap();
+    serializedTx = new ByteArrayOutputStream();
+    features = Optional.absent();
+
+  }
+
+  /**
+   * <p>Reset all context state, excepting Features, to ensure a fresh context</p>
+   */
+  private void resetAllButFeatures() {
+
+    Optional<Features> originalFeatures = this.features;
+
+    resetAll();
+
+    this.features = originalFeatures;
+
+  }
+
+  /**
    * <p>Reset the context into a stopped state (</p>
    */
   public void resetToStopped() {
@@ -247,23 +293,6 @@ public class HardwareWalletContext {
   }
 
   /**
-   * <p>Begin the "wipe device" use case</p>
-   */
-  public void beginWipeDeviceUseCase() {
-
-    log.debug("Begin 'wipe device' use case");
-
-    // Track the use case
-    currentUseCase = ContextUseCase.WIPE_DEVICE;
-
-    // Set the event receiving state
-    currentState = HardwareWalletStates.newConfirmWipeState();
-
-    // Issue starting message to elicit the event
-    client.wipeDevice();
-  }
-
-  /**
    * @return The hardware wallet client
    */
   public HardwareWalletClient getClient() {
@@ -356,6 +385,9 @@ public class HardwareWalletContext {
 
     log.debug("Begin 'change PIN' use case");
 
+    // Clear relevant information
+    resetAllButFeatures();
+
     // Track the use case
     currentUseCase = ContextUseCase.CHANGE_PIN;
 
@@ -388,6 +420,26 @@ public class HardwareWalletContext {
   }
 
   /**
+   * <p>Begin the "wipe device" use case</p>
+   */
+  public void beginWipeDeviceUseCase() {
+
+    log.debug("Begin 'wipe device' use case");
+
+    // Clear relevant information
+    resetAllButFeatures();
+
+    // Track the use case
+    currentUseCase = ContextUseCase.WIPE_DEVICE;
+
+    // Set the event receiving state
+    currentState = HardwareWalletStates.newConfirmWipeState();
+
+    // Issue starting message to elicit the event
+    client.wipeDevice();
+  }
+
+  /**
    * <p>Begin the "get address" use case</p>
    *
    * @param account     The plain account number (0 gives maximum compatibility)
@@ -398,6 +450,9 @@ public class HardwareWalletContext {
   public void beginGetAddressUseCase(int account, KeyChain.KeyPurpose keyPurpose, int index, boolean showDisplay) {
 
     log.debug("Begin 'get address' use case");
+
+    // Clear relevant information
+    resetAllButFeatures();
 
     // Track the use case
     currentUseCase = ContextUseCase.REQUEST_ADDRESS;
@@ -417,7 +472,6 @@ public class HardwareWalletContext {
 
   }
 
-
   /**
    * <p>Begin the "get public key" use case</p>
    *
@@ -428,6 +482,9 @@ public class HardwareWalletContext {
   public void beginGetPublicKeyUseCase(int account, KeyChain.KeyPurpose keyPurpose, int index) {
 
     log.debug("Begin 'get public key' use case");
+
+    // Clear relevant information
+    resetAllButFeatures();
 
     // Track the use case
     currentUseCase = ContextUseCase.REQUEST_PUBLIC_KEY;
@@ -462,6 +519,9 @@ public class HardwareWalletContext {
   ) {
 
     log.debug("Begin 'sign message' use case");
+
+    // Clear relevant information
+    resetAllButFeatures();
 
     // Track the use case
     currentUseCase = ContextUseCase.SIGN_MESSAGE;
@@ -499,7 +559,6 @@ public class HardwareWalletContext {
 
   }
 
-
   /**
    * <p>Begin the "cipher key" use case</p>
    *
@@ -525,6 +584,9 @@ public class HardwareWalletContext {
 
     log.debug("Begin 'cipher key' use case");
 
+    // Clear relevant information
+    resetAllButFeatures();
+
     // Track the use case
     currentUseCase = ContextUseCase.REQUEST_CIPHER_KEY;
 
@@ -548,6 +610,25 @@ public class HardwareWalletContext {
   }
 
   /**
+   * <p>Continue the "cipher key" use case with the provision of the current PIN</p>
+   *
+   * @param pin The PIN
+   */
+  public void continueCipherKey_PIN(String pin) {
+
+    log.debug("Continue 'cipher key' use case (provide PIN)");
+
+    // Store the overall context parameters
+
+    // Set the event receiving state
+    currentState = HardwareWalletStates.newConfirmCipherKeyState();
+
+    // Issue starting message to elicit the event
+    client.pinMatrixAck(pin);
+
+  }
+
+  /**
    * <p>Begin the "load wallet" use case</p>
    *
    * @param specification The specification describing the use of PIN, seed strength etc
@@ -555,6 +636,9 @@ public class HardwareWalletContext {
   public void beginLoadWallet(LoadWalletSpecification specification) {
 
     log.debug("Begin 'load wallet' use case");
+
+    // Clear relevant information
+    resetAllButFeatures();
 
     // Track the use case
     currentUseCase = ContextUseCase.LOAD_WALLET;
@@ -597,6 +681,9 @@ public class HardwareWalletContext {
   public void beginCreateWallet(CreateWalletSpecification specification) {
 
     log.debug("Begin 'create wallet on device' use case");
+
+    // Clear relevant information
+    resetAllButFeatures();
 
     // Track the use case
     currentUseCase = ContextUseCase.CREATE_WALLET;
@@ -662,6 +749,9 @@ public class HardwareWalletContext {
 
     log.debug("Begin 'simple sign transaction' use case");
 
+    // Clear relevant information
+    resetAllButFeatures();
+
     // Store the overall context parameters
     this.transaction = Optional.of(transaction);
 
@@ -681,6 +771,9 @@ public class HardwareWalletContext {
   public void beginSignTxUseCase(Transaction transaction) {
 
     log.debug("Begin 'sign transaction' use case");
+
+    // Clear relevant information
+    resetAllButFeatures();
 
     // Track the use case
     currentUseCase = ContextUseCase.SIGN_TX;
@@ -715,68 +808,4 @@ public class HardwareWalletContext {
 
   }
 
-  /**
-   * <p>Continue the "cipher key" use case with the provision of the current PIN</p>
-   *
-   * @param pin The PIN
-   */
-  public void continueCipherKey_PIN(String pin) {
-
-    log.debug("Continue 'cipher key' use case (provide PIN)");
-
-    // Store the overall context parameters
-
-    // Set the event receiving state
-    currentState = HardwareWalletStates.newConfirmCipherKeyState();
-
-    // Issue starting message to elicit the event
-    client.pinMatrixAck(pin);
-
-  }
-
-  /**
-   * <p>Note: When adding this signature using the builder setScriptSig() you'll need to append the SIGHASH 0x01 byte</p>
-   *
-   * @return The map of ECDSA signatures provided by the device during "sign transaction" keyed on the input index
-   */
-  public Map<Integer, byte[]> getSignatures() {
-    return signatures;
-  }
-
-  /**
-   * This value cannot be considered complete until the "SHOW_OPERATION_SUCCESSFUL" message has been received
-   * since it can be built up over several incoming messages
-   *
-   * @return The serialized transaction provided by the device during "sign transaction"
-   */
-  public ByteArrayOutputStream getSerializedTx() {
-    return serializedTx;
-  }
-
-  /**
-   * <p>Reset all context state to ensure a fresh context</p>
-   */
-  private void resetAll() {
-
-    createWalletSpecification = Optional.absent();
-    loadWalletSpecification = Optional.absent();
-    transaction = Optional.absent();
-    signatures = Maps.newHashMap();
-    serializedTx = new ByteArrayOutputStream();
-    features = Optional.absent();
-
-  }
-
-  /**
-   * <p>Reset all context state, excepting Features, to ensure a fresh context</p>
-   */
-  private void resetAllButFeatures() {
-
-    Optional<Features> originalFeatures = this.features;
-
-    resetAll();
-
-    this.features = originalFeatures;
-
-  }
 }

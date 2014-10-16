@@ -3,9 +3,12 @@ package org.multibit.hd.hardware.examples.trezor.usb;
 import com.google.common.base.Optional;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.Uninterruptibles;
+import org.bitcoinj.core.Address;
+import org.bitcoinj.wallet.KeyChain;
 import org.multibit.hd.hardware.core.HardwareWalletClient;
 import org.multibit.hd.hardware.core.HardwareWalletService;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvent;
+import org.multibit.hd.hardware.core.messages.MainNetAddress;
 import org.multibit.hd.hardware.core.messages.PinMatrixRequest;
 import org.multibit.hd.hardware.core.wallets.HardwareWallets;
 import org.multibit.hd.hardware.trezor.clients.TrezorHardwareWalletClient;
@@ -33,6 +36,10 @@ public class TrezorV1WipeAndCreateWalletExample {
 
   private HardwareWalletService hardwareWalletService;
 
+  // Some state variables to allow second use case to follow
+  private boolean isWiped = false;
+  private boolean isAddressReady = false;
+
   /**
    * <p>Main entry point to the example</p>
    *
@@ -56,7 +63,7 @@ public class TrezorV1WipeAndCreateWalletExample {
 
     // Use factory to statically bind the specific hardware wallet
     TrezorV1HidHardwareWallet wallet = HardwareWallets.newUsbInstance(
-            TrezorV1HidHardwareWallet.class,
+      TrezorV1HidHardwareWallet.class,
       Optional.<Integer>absent(),
       Optional.<Integer>absent(),
       Optional.<String>absent()
@@ -98,23 +105,36 @@ public class TrezorV1WipeAndCreateWalletExample {
         // Can simply wait for another device to be connected again
         break;
       case SHOW_DEVICE_READY:
-        if (hardwareWalletService.isWalletPresent()) {
-          // We could choose to bypass the whole wallet creation process
-          // but for this example we'll fall through to the forced creation
-          log.debug("Ignoring the wallet is already present flag");
+        if (!isWiped) {
+
+          // Device is not wiped so start with that
+
+          // Force creation of the wallet (wipe then reset)
+          // Select the use of PIN protection and displaying entropy on the device
+          // This is the most secure way to create a wallet
+          hardwareWalletService.secureCreateWallet(
+            "english",
+            "Aardvark",
+            true,
+            true,
+            128
+          );
+
+        } else {
+
+          // Device is wiped so on to getting the address
+
+          // Request address 0'/0/0 from the device and show it on the screen
+          // to ensure no trickery is taking place
+          hardwareWalletService.requestAddress(
+            0,
+            KeyChain.KeyPurpose.RECEIVE_FUNDS,
+            0,
+            true
+          );
+
         }
 
-        // Force creation of the wallet (wipe then reset)
-        // Select the use of PIN protection, passphrase protection
-        // and displaying entropy on the device
-        // This is the most secure way to create a wallet
-        hardwareWalletService.secureCreateWallet(
-          "english",
-          "Aardvark",
-          true,
-          true,
-          128
-        );
         break;
       case SHOW_PIN_ENTRY:
         // Determine if this is the first or second PIN entry
@@ -149,8 +169,18 @@ public class TrezorV1WipeAndCreateWalletExample {
         hardwareWalletService.provideEntropy(entropy);
         break;
       case SHOW_OPERATION_SUCCEEDED:
-        // Treat as end of example
+        System.err.println("Wallet was created.");
+        if (!isWiped) {
+          isWiped = true;
+        }
+        break;
+      case ADDRESS:
+        Address address = ((MainNetAddress) event.getMessage().get()).getAddress().get();
+        log.info("Device provided address 0'/0/0: '{}'", address.toString());
+
+        // We're done
         System.exit(0);
+
         break;
       case SHOW_OPERATION_FAILED:
         // Treat as end of example
