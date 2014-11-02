@@ -104,7 +104,7 @@ public class TrezorV1GetAddressExample {
           log.debug("Wallet is present. Requesting an address...");
 
           // Request an address from the device using BIP-44 chain code:
-          hardwareWalletService.requestAddress(0, KeyChain.KeyPurpose.RECEIVE_FUNDS, 0, true);
+          hardwareWalletService.requestAddress(0, KeyChain.KeyPurpose.CHANGE, 0, true);
 
         } else {
           log.info("You need to have created a wallet before running this example");

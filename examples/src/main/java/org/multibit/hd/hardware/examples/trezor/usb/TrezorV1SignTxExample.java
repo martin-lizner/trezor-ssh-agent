@@ -3,6 +3,12 @@ package org.multibit.hd.hardware.examples.trezor.usb;
 import com.google.common.base.Optional;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.Uninterruptibles;
+import org.bitcoinj.core.*;
+import org.bitcoinj.params.MainNetParams;
+import org.bitcoinj.wallet.KeyChain;
+com.google.common.base.Optional;
+import com.google.common.eventbus.Subscribe;
+import com.google.common.util.concurrent.Uninterruptibles;
 import org.bitcoinj.core.Address;
 import org.bitcoinj.core.ECKey;
 import org.bitcoinj.core.Transaction;
@@ -17,7 +23,6 @@ import org.multibit.hd.hardware.core.messages.MainNetAddress;
 import org.multibit.hd.hardware.core.messages.PinMatrixRequest;
 import org.multibit.hd.hardware.core.messages.PublicKey;
 import org.multibit.hd.hardware.core.wallets.HardwareWallets;
-import org.multibit.hd.hardware.examples.trezor.FakeTransactions;
 import org.multibit.hd.hardware.trezor.clients.TrezorHardwareWalletClient;
 import org.multibit.hd.hardware.trezor.wallets.v1.TrezorV1HidHardwareWallet;
 import org.slf4j.Logger;
@@ -30,10 +35,10 @@ import java.util.concurrent.TimeUnit;
  * <p>Step 5 - Sign a transaction</p>
  * <p>Requires Trezor V1 production device plugged into a USB HID interface.</p>
  * <p>This example demonstrates the message sequence to sign a transaction.</p>
- *
+ * <p/>
  * <h3>Only perform this example on a Trezor that you are using for test and development!</h3>
- * <h3>The signed tx will not be spendable unless you own the receiving key so there is no point broadcasting it.</h3>
- *
+ * <h3>The signed tx will not be spendable unless you own the receiving key. Only broadcast it if you know how to redeem it.</h3>
+ * <p/>
  * <h3>Preparation if verifying using your own wallet</h3>
  * <ol>
  * <li>Ensure your Trezor is loaded with a seed phrase</li>
@@ -55,18 +60,16 @@ public class TrezorV1SignTxExample {
 
   private Transaction[] fakeTxs;
 
-  private Address receivingAddress = null;
-  private Address changeAddress = null;
+  private static Address receivingAddress = null;
+  private static Address changeAddress = null;
 
   /**
    * <p>Main entry point to the example</p>
    *
    * @param args None required
-   *
    * @throws Exception If something goes wrong
    */
   public static void main(String[] args) throws Exception {
-
     // All the work is done in the class
     TrezorV1SignTxExample example = new TrezorV1SignTxExample();
 
@@ -82,9 +85,9 @@ public class TrezorV1SignTxExample {
     // Use factory to statically bind the specific hardware wallet
     TrezorV1HidHardwareWallet wallet = HardwareWallets.newUsbInstance(
             TrezorV1HidHardwareWallet.class,
-      Optional.<Integer>absent(),
-      Optional.<Integer>absent(),
-      Optional.<String>absent()
+            Optional.<Integer>absent(),
+            Optional.<Integer>absent(),
+            Optional.<String>absent()
     );
 
     // Wrap the hardware wallet in a suitable client to simplify message API
@@ -123,8 +126,9 @@ public class TrezorV1SignTxExample {
         // Can simply wait for another device to be connected again
         break;
       case SHOW_DEVICE_READY:
+        log.debug("SHOW_DEVICE_READY path");
         if (hardwareWalletService.isWalletPresent()) {
-
+          log.debug("wallet is present, receiving address : {}", receivingAddress);
           if (receivingAddress == null) {
             log.debug("Request valid receiving address (chain 0)...");
             hardwareWalletService.requestAddress(0, KeyChain.KeyPurpose.RECEIVE_FUNDS, 0, false);
@@ -156,13 +160,24 @@ public class TrezorV1SignTxExample {
           log.debug("Building a fake transaction...");
 
           // Keep track of all transactions
-          fakeTxs = FakeTransactions.bip44DevWalletTransactions();
 
-          // Set the current transaction
-          Transaction currentTx = fakeTxs[1];
+          // We will send some bitcon to the MultiBit donation address
+          Address multibitDonationAddress;
+          try {
+            multibitDonationAddress = new Address(MainNetParams.get(), "1AhN6rPdrMuKBGFDKR1k9A8SCLYaNgXhty");
 
-          // Request an address from the device
-          hardwareWalletService.signTx(currentTx);
+            fakeTxs = FakeTransactions.bip44DevWalletTransactions(multibitDonationAddress, changeAddress);
+
+            // Set the current transaction
+            Transaction currentTx = fakeTxs[1];
+
+            // Sign the transaction
+            hardwareWalletService.signTx(currentTx);
+
+          } catch (AddressFormatException e) {
+            log.error("Could not create address", e);
+
+          }
 
         }
 
@@ -193,9 +208,9 @@ public class TrezorV1SignTxExample {
         switch (request.getPinMatrixRequestType()) {
           case CURRENT:
             System.err.println(
-              "Recall your PIN (e.g. '1').\n" +
-                "Look at the device screen and type in the numerical position of each of the digits\n" +
-                "with 1 being in the bottom left and 9 being in the top right (numeric keypad style) then press ENTER."
+                    "Recall your PIN (e.g. '1').\n" +
+                            "Look at the device screen and type in the numerical position of each of the digits\n" +
+                            "with 1 being in the bottom left and 9 being in the top right (numeric keypad style) then press ENTER."
             );
             pin = keyboard.next();
             hardwareWalletService.providePIN(pin);
@@ -219,6 +234,8 @@ public class TrezorV1SignTxExample {
           // Load deviceTx
           Transaction deviceTx = new Transaction(MainNetParams.get(), deviceTxPayload);
 
+          log.info("deviceTx:\n{}", deviceTx.toString());
+          log.info("Use http://blockchain.info/pushtx to broadcast this transaction to the Bitcoin network");
           // The deserialized transaction
           log.info("DeviceTx info:\n{}", deviceTx.toString());
 

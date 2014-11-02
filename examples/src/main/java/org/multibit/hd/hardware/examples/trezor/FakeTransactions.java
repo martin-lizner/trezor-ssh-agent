@@ -18,8 +18,7 @@ import java.util.Map;
  *
  * @since 0.0.1
  */
-public class
-  FakeTransactions {
+public class FakeTransactions {
 
   private static final Logger log = LoggerFactory.getLogger(FakeTransactions.class);
 
@@ -124,10 +123,13 @@ public class
    *
    * @return A feeder, prev and current transaction
    */
-  public static Transaction[] bip44DevWalletTransactions() {
+  public static Transaction[] bip44DevWalletTransactions(Address destinationAddress, Address currentChangeAddress) {
 
     MainNetParams params = MainNetParams.get();
 
+    // Deserialize a previous tx that spends to the Trezor receiving address by some other wallet e.g. MultiBit Classic
+    // MultiBit Classic logs the actual transaction bytes sent so you can use that.
+    // Send a transaction of size 1.3 mBTC
     Address currentChangeAddress;
     Address merchantAddress;
     try {
@@ -151,18 +153,24 @@ public class
 
 
     byte[] prevTxBytes = Utils.HEX.decode
+      ("01000000017e38c4af61c39a64bb459f6c9976ba67a724c58098072ab194534f48b9f6cb0b010000006a47304402203d798df4ec3bcc310400eb46b90195b649a422121e461b08c17abcffb1679d8d0220371213153a8e2e30554af868a60d8a64dd705436d177d3e936843d05d76d33ba012103ced26a45356ae0b1b0993e641800719eaa078d21293e27571890ae8aa81180eaffffffff02d0fb0100000000001976a9145e5599d541ad44d341916c4a247dca214a2284b188acb6100600000000001976a91488bac377033ed520408d526420fc99c48b6fba7f88ac00000000");
       ("0100000001f6f11d2369f6034712ae4d2292b9dfaefb360494605c5d2c243a569ba94f2baf010000006b483045022100af01e1b3fafe0426eb67a9865b7373c82e3ff41e3a805f435fa904ad35563f70022050fbe55f7d43d3e2b8147ede76fae887a2744d71bf99bd4abae5d60dd4385339012103ced26a45356ae0b1b0993e641800719eaa078d21293e27571890ae8aa81180eaffffffff02d0fb0100000000001976a9149fb230929fcf2d4ed5fabd80cc33b5ef521bb89788ac484f0a00000000001976a91488bac377033ed520408d526420fc99c48b6fba7f88ac00000000");
     Transaction prevTx = new Transaction(params, prevTxBytes);
     TransactionOutput prevOut0 = prevTx.getOutput(0);
 
+    // Create the current tx that spends to the donation address
+    // Input 1.3mBTC               =  130_000sat
+    // Outputs 1mBTC   (donation) =   100_000sat
+    //         0.1mBTC (fee)      =    10_000sat
+    //         0.2mBTC (change)   =    20_000sat
     // Create the current tx that spends to the merchant
     // Input 1.3mBTC               = 130_000sat
     // Outputs 1mBTC   (merchant) =  100_000sat
     //         0.1mBTC (fee)      =   10_000sat
     //         0.2mBTC (change)   =   20_000sat
     Transaction currentTx = new Transaction(params);
-    TransactionOutput currentMerchantOut = new TransactionOutput(params, currentTx, Coin.valueOf(100_000), merchantAddress);
-    currentTx.addOutput(currentMerchantOut);
+    TransactionOutput currentDonationOut = new TransactionOutput(params, currentTx, Coin.valueOf(100_000), destinationAddress);
+    currentTx.addOutput(currentDonationOut);
 
     // Allow a small fee to facilitate the transaction going through
     TransactionOutput currentChangeOut = new TransactionOutput(params, currentTx, Coin.valueOf(20_000), currentChangeAddress);
