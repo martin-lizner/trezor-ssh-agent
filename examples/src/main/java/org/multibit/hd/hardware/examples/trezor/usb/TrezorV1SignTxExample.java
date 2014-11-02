@@ -1,14 +1,14 @@
 package org.multibit.hd.hardware.examples.trezor.usb;
 
+import com.google.common.base.Optional;
+import com.google.common.eventbus.Subscribe;
+import com.google.common.util.concurrent.Uninterruptibles;
 import org.bitcoinj.core.Address;
 import org.bitcoinj.core.ECKey;
 import org.bitcoinj.core.Transaction;
 import org.bitcoinj.core.Utils;
 import org.bitcoinj.params.MainNetParams;
 import org.bitcoinj.wallet.KeyChain;
-import com.google.common.base.Optional;
-import com.google.common.eventbus.Subscribe;
-import com.google.common.util.concurrent.Uninterruptibles;
 import org.multibit.hd.hardware.core.HardwareWalletClient;
 import org.multibit.hd.hardware.core.HardwareWalletService;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvent;
@@ -204,21 +204,28 @@ public class TrezorV1SignTxExample {
         break;
       case SHOW_OPERATION_SUCCEEDED:
         // Successful signature
-        log.info("prevTx:\n{}", fakeTxs[0].toString());
+        log.info("****************************************************************************************");
+        log.info("prevTx info:\n{}", fakeTxs[0].toString());
 
         // Trezor will provide a signed serialized transaction
         byte[] deviceTxPayload = hardwareWalletService.getContext().getSerializedTx().toByteArray();
 
+        byte[] signature0 = hardwareWalletService.getContext().getSignatures().get(0);
+
         try {
           log.info("DeviceTx payload:\n{}", Utils.HEX.encode(deviceTxPayload));
+          log.info("DeviceTx signature0:\n{}", Utils.HEX.encode(signature0));
 
           // Load deviceTx
           Transaction deviceTx = new Transaction(MainNetParams.get(), deviceTxPayload);
 
-          log.info("deviceTx:\n{}", deviceTx.toString());
+          // The deserialized transaction
+          log.info("DeviceTx info:\n{}", deviceTx.toString());
+
+          log.info("DeviceTx pushtx:\n{}", Utils.HEX.encode(deviceTx.bitcoinSerialize()));
 
         } catch (Exception e) {
-          log.error("deviceTx FAILED.", e);
+          log.error("DeviceTx FAILED.", e);
         }
 
         // Treat as end of example

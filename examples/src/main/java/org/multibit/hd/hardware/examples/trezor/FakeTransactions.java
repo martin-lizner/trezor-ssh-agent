@@ -18,7 +18,8 @@ import java.util.Map;
  *
  * @since 0.0.1
  */
-public class FakeTransactions {
+public class
+  FakeTransactions {
 
   private static final Logger log = LoggerFactory.getLogger(FakeTransactions.class);
 
@@ -138,22 +139,33 @@ public class FakeTransactions {
     }
 
     // Deserialize a previous tx that spends to the Trezor receiving address
+
+    /*
+      Spent:
+      1:
+      01000000013ea3e61ae21fbfd8f6fdae08156a87bd7b985fe1e380e088d54aeb72fa0024ec010000006b483045022100dcaf9241a813699c584b664587d80219ea30ad0b847cec7c6b77aededb743f170220234d646304388ca13a9bebda84413b9e95218b73ceb3bd72a0f5a7d94ff29ef2012102f846445ee80fd95492ee3357257f588815ae8e077f6733e77b83d7d97dac3588ffffffff0240420f00000000001976a9149fb230929fcf2d4ed5fabd80cc33b5ef521bb89788acf91a5913000000001976a9143b0d3dc843fcce054271a7498d63f555548b16af88ac00000000
+      Unspent:
+      2:
+      0100000001f6f11d2369f6034712ae4d2292b9dfaefb360494605c5d2c243a569ba94f2baf010000006b483045022100af01e1b3fafe0426eb67a9865b7373c82e3ff41e3a805f435fa904ad35563f70022050fbe55f7d43d3e2b8147ede76fae887a2744d71bf99bd4abae5d60dd4385339012103ced26a45356ae0b1b0993e641800719eaa078d21293e27571890ae8aa81180eaffffffff02d0fb0100000000001976a9149fb230929fcf2d4ed5fabd80cc33b5ef521bb89788ac484f0a00000000001976a91488bac377033ed520408d526420fc99c48b6fba7f88ac00000000
+     */
+
+
     byte[] prevTxBytes = Utils.HEX.decode
-      ("01000000013ea3e61ae21fbfd8f6fdae08156a87bd7b985fe1e380e088d54aeb72fa0024ec010000006b483045022100dcaf9241a813699c584b664587d80219ea30ad0b847cec7c6b77aededb743f170220234d646304388ca13a9bebda84413b9e95218b73ceb3bd72a0f5a7d94ff29ef2012102f846445ee80fd95492ee3357257f588815ae8e077f6733e77b83d7d97dac3588ffffffff0240420f00000000001976a9149fb230929fcf2d4ed5fabd80cc33b5ef521bb89788acf91a5913000000001976a9143b0d3dc843fcce054271a7498d63f555548b16af88ac00000000");
+      ("0100000001f6f11d2369f6034712ae4d2292b9dfaefb360494605c5d2c243a569ba94f2baf010000006b483045022100af01e1b3fafe0426eb67a9865b7373c82e3ff41e3a805f435fa904ad35563f70022050fbe55f7d43d3e2b8147ede76fae887a2744d71bf99bd4abae5d60dd4385339012103ced26a45356ae0b1b0993e641800719eaa078d21293e27571890ae8aa81180eaffffffff02d0fb0100000000001976a9149fb230929fcf2d4ed5fabd80cc33b5ef521bb89788ac484f0a00000000001976a91488bac377033ed520408d526420fc99c48b6fba7f88ac00000000");
     Transaction prevTx = new Transaction(params, prevTxBytes);
     TransactionOutput prevOut0 = prevTx.getOutput(0);
 
     // Create the current tx that spends to the merchant
-    // Input 10mBTC               = 1_000_000sat
-    // Outputs 1mBTC   (merchant) =   100_000sat
-    //         0.1mBTC (fee)      =    10_000sat
-    //         9mBTC   (change)   =   890_000sat
+    // Input 1.3mBTC               = 130_000sat
+    // Outputs 1mBTC   (merchant) =  100_000sat
+    //         0.1mBTC (fee)      =   10_000sat
+    //         0.2mBTC (change)   =   20_000sat
     Transaction currentTx = new Transaction(params);
     TransactionOutput currentMerchantOut = new TransactionOutput(params, currentTx, Coin.valueOf(100_000), merchantAddress);
     currentTx.addOutput(currentMerchantOut);
 
     // Allow a small fee to facilitate the transaction going through
-    TransactionOutput currentChangeOut = new TransactionOutput(params, currentTx, Coin.valueOf(890_000), currentChangeAddress);
+    TransactionOutput currentChangeOut = new TransactionOutput(params, currentTx, Coin.valueOf(20_000), currentChangeAddress);
     currentTx.addOutput(currentChangeOut);
     currentTx.addInput(prevOut0);
 
