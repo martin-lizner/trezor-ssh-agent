@@ -377,6 +377,7 @@ public abstract class AbstractTrezorHardwareWalletClient implements HardwareWall
 
         TrezorType.TxInputType txInputType = TrezorType.TxInputType
           .newBuilder()
+          .addAllAddressN(buildAddressN(0, KeyChain.KeyPurpose.RECEIVE_FUNDS, 0))
           .setSequence((int) input.getSequenceNumber())
           .setScriptSig(ByteString.copyFrom(input.getScriptSig().getProgram()))
           .setScriptType(inputScriptType)

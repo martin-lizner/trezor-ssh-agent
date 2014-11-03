@@ -6,15 +6,6 @@ import com.google.common.util.concurrent.Uninterruptibles;
 import org.bitcoinj.core.*;
 import org.bitcoinj.params.MainNetParams;
 import org.bitcoinj.wallet.KeyChain;
-com.google.common.base.Optional;
-import com.google.common.eventbus.Subscribe;
-import com.google.common.util.concurrent.Uninterruptibles;
-import org.bitcoinj.core.Address;
-import org.bitcoinj.core.ECKey;
-import org.bitcoinj.core.Transaction;
-import org.bitcoinj.core.Utils;
-import org.bitcoinj.params.MainNetParams;
-import org.bitcoinj.wallet.KeyChain;
 import org.multibit.hd.hardware.core.HardwareWalletClient;
 import org.multibit.hd.hardware.core.HardwareWalletService;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvent;
@@ -23,6 +14,7 @@ import org.multibit.hd.hardware.core.messages.MainNetAddress;
 import org.multibit.hd.hardware.core.messages.PinMatrixRequest;
 import org.multibit.hd.hardware.core.messages.PublicKey;
 import org.multibit.hd.hardware.core.wallets.HardwareWallets;
+import org.multibit.hd.hardware.examples.trezor.FakeTransactions;
 import org.multibit.hd.hardware.trezor.clients.TrezorHardwareWalletClient;
 import org.multibit.hd.hardware.trezor.wallets.v1.TrezorV1HidHardwareWallet;
 import org.slf4j.Logger;
@@ -162,11 +154,11 @@ public class TrezorV1SignTxExample {
           // Keep track of all transactions
 
           // We will send some bitcon to the MultiBit donation address
-          Address multibitDonationAddress;
+          Address destinationAddress;
           try {
-            multibitDonationAddress = new Address(MainNetParams.get(), "1AhN6rPdrMuKBGFDKR1k9A8SCLYaNgXhty");
-
-            fakeTxs = FakeTransactions.bip44DevWalletTransactions(multibitDonationAddress, changeAddress);
+            //multibitDonationAddress = new Address(MainNetParams.get(), "1AhN6rPdrMuKBGFDKR1k9A8SCLYaNgXhty");
+            destinationAddress = new Address(MainNetParams.get(), "189azcVcq5EDhXhRjAB9bt17g64KeXqidW");
+            fakeTxs = FakeTransactions.bip44DevWalletTransactions(destinationAddress);
 
             // Set the current transaction
             Transaction currentTx = fakeTxs[1];
