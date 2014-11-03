@@ -156,7 +156,7 @@ public class HardwareWalletContext {
     signatures = Maps.newHashMap();
     serializedTx = new ByteArrayOutputStream();
     features = Optional.absent();
-
+    addressChainCodeMap = Maps.newHashMap();
   }
 
   /**
@@ -331,8 +331,11 @@ public class HardwareWalletContext {
     log.debug("Received message event: '{}'.'{}'", event.getEventType().name(), event.getMessage());
 
     // Perform a state transition as a result of this event
-    currentState.transition(client, this, event);
-
+    try {
+      currentState.transition(client, this, event);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
   }
 
   /**

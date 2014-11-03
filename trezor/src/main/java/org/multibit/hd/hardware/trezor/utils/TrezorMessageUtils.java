@@ -514,7 +514,10 @@ public final class TrezorMessageUtils {
     TransactionInput input = requestedTx.get().getInput(requestIndex.get());
 
     // Look up the chain code of the receiving address
-    final List<Integer> addressN = addressChainCodeMap.get(requestIndex.get());
+    List<Integer> addressN = addressChainCodeMap.get(requestIndex.get());
+    if (addressN == null) {
+      addressN = Lists.newArrayList();
+    }
 
     // Must be OK to be here
 
