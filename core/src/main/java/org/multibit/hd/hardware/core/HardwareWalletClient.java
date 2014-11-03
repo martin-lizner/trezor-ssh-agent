@@ -8,6 +8,9 @@ import org.multibit.hd.hardware.core.events.MessageEvent;
 import org.multibit.hd.hardware.core.messages.TxRequest;
 import org.multibit.hd.hardware.core.wallets.Connectable;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * <p>Interface to provide the following to applications:</p>
  * <ul>
@@ -255,9 +258,10 @@ public interface HardwareWalletClient extends Connectable {
    * @param txRequest The transaction request describing what is required
    * @param tx        The Bitcoinj transaction providing all the necessary information (will be modified)
    *
+   * @param addressNMap
    * @return The response event if implementation is blocking. Absent if non-blocking or device failure.
    */
-  Optional<MessageEvent> txAck(TxRequest txRequest, Transaction tx);
+  Optional<MessageEvent> txAck(TxRequest txRequest, Transaction tx, Map<Integer, List<Integer>> addressNMap);
 
   /**
    * <p>Send the PIN_MATRIX_ACK message to the device in response to a PIN_MATRIX_REQUEST.</p>
@@ -475,4 +479,6 @@ public interface HardwareWalletClient extends Connectable {
    * @return The response event if implementation is blocking. Absent if non-blocking or device failure.
    */
   Optional<MessageEvent> estimateTxSize(Transaction tx);
+
+
 }

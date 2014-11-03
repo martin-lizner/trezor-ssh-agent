@@ -159,6 +159,11 @@ public class TrezorMessageToStringStyle extends ToStringStyle {
   }
 
   private void appendTxInputType(StringBuffer buffer, TrezorType.TxInputType txInput) {
+
+    buffer
+      .append("\n      sequence: ")
+      .append(txInput.getSequence());
+
     for (Integer addressN: txInput.getAddressNList()) {
       buffer
         .append("\n      address_n: ")
