@@ -1,6 +1,7 @@
 package org.multibit.hd.hardware.examples.trezor.usb;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.Maps;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.Uninterruptibles;
 import org.bitcoinj.core.*;
@@ -16,10 +17,13 @@ import org.multibit.hd.hardware.core.messages.PublicKey;
 import org.multibit.hd.hardware.core.wallets.HardwareWallets;
 import org.multibit.hd.hardware.examples.trezor.FakeTransactions;
 import org.multibit.hd.hardware.trezor.clients.TrezorHardwareWalletClient;
+import org.multibit.hd.hardware.trezor.utils.TrezorMessageUtils;
 import org.multibit.hd.hardware.trezor.wallets.v1.TrezorV1HidHardwareWallet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
@@ -92,6 +96,11 @@ public class TrezorV1SignTxExample {
     HardwareWalletService.hardwareWalletEventBus.register(this);
 
     hardwareWalletService.start();
+
+    // This would normally be provided by a wallet
+    Map<Integer, List<Integer>> addressChainCodeMap = Maps.newHashMap();
+    addressChainCodeMap.put(0, TrezorMessageUtils.buildAddressN(0, KeyChain.KeyPurpose.RECEIVE_FUNDS, 0));
+    hardwareWalletService.getContext().setAddressChainCodeMap(addressChainCodeMap);
 
     // Simulate the main thread continuing with other unrelated work
     // We don't terminate main since we're using safe executors

@@ -1,6 +1,7 @@
 package org.multibit.hd.hardware.trezor.utils;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
@@ -11,7 +12,9 @@ import org.bitcoinj.core.Address;
 import org.bitcoinj.core.Transaction;
 import org.bitcoinj.core.TransactionInput;
 import org.bitcoinj.core.TransactionOutput;
+import org.bitcoinj.crypto.ChildNumber;
 import org.bitcoinj.params.MainNetParams;
+import org.bitcoinj.wallet.KeyChain;
 import org.multibit.hd.hardware.core.events.MessageEvent;
 import org.multibit.hd.hardware.core.events.MessageEventType;
 import org.multibit.hd.hardware.core.messages.HardwareWalletMessage;
@@ -490,16 +493,16 @@ public final class TrezorMessageUtils {
   }
 
   /**
-   * @param txRequest   The Trezor request
-   * @param requestedTx The requested tx (either current or a previous one providing inputs)
-   * @param addressNMap A map of chain codes for rapid address lookup
+   * @param txRequest           The Trezor request
+   * @param requestedTx         The requested tx (either current or a previous one providing inputs)
+   * @param addressChainCodeMap A map of chain codes for rapid address lookup (called AddressN in Trezor protobuf)
    *
    * @return A Trezor transaction type containing a description of an input
    */
   public static TrezorType.TransactionType buildTxInputResponse(
     TxRequest txRequest,
     Optional<Transaction> requestedTx,
-    Map<Integer, List<Integer>> addressNMap) {
+    Map<Integer, List<Integer>> addressChainCodeMap) {
 
     final Optional<Integer> requestIndex = txRequest.getTxRequestDetailsType().getRequestIndex();
     if (!requestIndex.isPresent()) {
@@ -511,7 +514,7 @@ public final class TrezorMessageUtils {
     TransactionInput input = requestedTx.get().getInput(requestIndex.get());
 
     // Look up the chain code of the receiving address
-    final List<Integer> addressN = addressNMap.get(requestIndex.get());
+    final List<Integer> addressN = addressChainCodeMap.get(requestIndex.get());
 
     // Must be OK to be here
 
@@ -610,5 +613,37 @@ public final class TrezorMessageUtils {
       .build();
 
   }
+
+  /**
+   * <p>Build an AddressN chain code structure</p>
+   *
+   * @param account    The plain account number (0 gives maximum compatibility)
+   * @param keyPurpose The key purpose (RECEIVE_FUNDS,CHANGE,REFUND,AUTHENTICATION etc)
+   * @param index      The plain index of the required address
+   *
+   * @return The list representing the chain code (only a simple chain is currently supported)
+   */
+  public static List<Integer> buildAddressN(int account, KeyChain.KeyPurpose keyPurpose, int index) {
+    int keyPurposeAddressN = 0;
+    switch (keyPurpose) {
+      case RECEIVE_FUNDS:
+      case REFUND:
+        keyPurposeAddressN = 0;
+        break;
+      case CHANGE:
+      case AUTHENTICATION:
+        keyPurposeAddressN = 1;
+        break;
+    }
+
+    return Lists.newArrayList(
+      44 | ChildNumber.HARDENED_BIT,
+      ChildNumber.HARDENED_BIT,
+      account | ChildNumber.HARDENED_BIT,
+      keyPurposeAddressN,
+      index
+    );
+  }
+
 
 }

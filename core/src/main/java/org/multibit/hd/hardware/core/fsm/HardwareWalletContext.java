@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -79,6 +80,7 @@ public class HardwareWalletContext {
    * Keep track of any transaction serialization bytes coming back from the device
    */
   private ByteArrayOutputStream serializedTx = new ByteArrayOutputStream();
+  private Map<Integer, List<Integer>> addressChainCodeMap;
 
   /**
    * @param client The hardware wallet client
@@ -808,4 +810,20 @@ public class HardwareWalletContext {
 
   }
 
+  /**
+   * @return The map of chain codes for our receiving addresses on the current transaction (key input index, value list of integers)
+   */
+  public Map<Integer, List<Integer>> getAddressChainCodeMap() {
+    return addressChainCodeMap;
+  }
+
+  /**
+   * <p>To speed up private key lookup we provide the chain codes for all receiving addresses on the current transaction</p>
+   * <p>Key: input index, value: list of integers</p>
+   *
+   * @param addressChainCodeMap The map of chain codes for our receiving addresses
+   */
+  public void setAddressChainCodeMap(Map<Integer, List<Integer>> addressChainCodeMap) {
+    this.addressChainCodeMap = addressChainCodeMap;
+  }
 }
