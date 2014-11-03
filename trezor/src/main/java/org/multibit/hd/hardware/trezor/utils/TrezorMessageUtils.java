@@ -1,13 +1,21 @@
 package org.multibit.hd.hardware.trezor.utils;
 
 import com.google.common.base.Optional;
+import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
 import com.satoshilabs.trezor.protobuf.TrezorMessage;
+import com.satoshilabs.trezor.protobuf.TrezorType;
 import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.bitcoinj.core.Address;
+import org.bitcoinj.core.Transaction;
+import org.bitcoinj.core.TransactionInput;
+import org.bitcoinj.core.TransactionOutput;
+import org.bitcoinj.params.MainNetParams;
 import org.multibit.hd.hardware.core.events.MessageEvent;
 import org.multibit.hd.hardware.core.events.MessageEventType;
 import org.multibit.hd.hardware.core.messages.HardwareWalletMessage;
+import org.multibit.hd.hardware.core.messages.TxRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,6 +24,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 
 /**
  * <p>Utility class to provide the following to applications:</p>
@@ -454,6 +464,150 @@ public final class TrezorMessageUtils {
 
     // Parse the message
     return TrezorMessageUtils.parse(type, Arrays.copyOfRange(messageBuffer.array(), 0, msgSize));
+
+  }
+
+  /**
+   * @param requestedTx The requested tx
+   *
+   * @return A Trezor transaction type containing an overall description of the current transaction
+   */
+  public static TrezorType.TransactionType buildTxMetaResponse(Optional<Transaction> requestedTx) {
+
+    int inputCount = requestedTx.get().getInputs().size();
+    // TxOutputBinType and TxOutputType counts are the same so ignore hash flag
+    int outputCount = requestedTx.get().getOutputs().size();
+
+    // Provide details about the requested transaction
+    return TrezorType.TransactionType
+      .newBuilder()
+      .setVersion((int) requestedTx.get().getVersion())
+      .setLockTime((int) requestedTx.get().getLockTime())
+      .setInputsCnt(inputCount)
+      .setOutputsCnt(outputCount)
+      .build();
+
+  }
+
+  /**
+   * @param txRequest   The Trezor request
+   * @param requestedTx The requested tx (either current or a previous one providing inputs)
+   * @param addressNMap A map of chain codes for rapid address lookup
+   *
+   * @return A Trezor transaction type containing a description of an input
+   */
+  public static TrezorType.TransactionType buildTxInputResponse(
+    TxRequest txRequest,
+    Optional<Transaction> requestedTx,
+    Map<Integer, List<Integer>> addressNMap) {
+
+    final Optional<Integer> requestIndex = txRequest.getTxRequestDetailsType().getRequestIndex();
+    if (!requestIndex.isPresent()) {
+      log.warn("Request index is not present for TxInput");
+      return null;
+    }
+
+    // Get the transaction input indicated by the request index
+    TransactionInput input = requestedTx.get().getInput(requestIndex.get());
+
+    // Look up the chain code of the receiving address
+    final List<Integer> addressN = addressNMap.get(requestIndex.get());
+
+    // Must be OK to be here
+
+    // Build a TxInputType message
+    int prevIndex = (int) input.getOutpoint().getIndex();
+    byte[] prevHash = input.getOutpoint().getHash().getBytes();
+
+    // No multisig support in MBHD yet
+    TrezorType.InputScriptType inputScriptType = TrezorType.InputScriptType.SPENDADDRESS;
+
+    TrezorType.TxInputType txInputType = TrezorType.TxInputType
+      .newBuilder()
+      .addAllAddressN(addressN)
+      .setSequence((int) input.getSequenceNumber())
+      .setScriptSig(ByteString.copyFrom(input.getScriptSig().getProgram()))
+      .setScriptType(inputScriptType)
+      .setPrevIndex(prevIndex)
+      .setPrevHash(ByteString.copyFrom(prevHash))
+      .build();
+
+    return TrezorType.TransactionType
+      .newBuilder()
+      .addInputs(txInputType)
+      .build();
+
+  }
+
+
+  /**
+   * @param txRequest   The Trezor request
+   * @param requestedTx The requested tx (either current or a previous one providing inputs)
+   *
+   * @return A Trezor transaction type containing a description of an output
+   */
+  public static TrezorType.TransactionType buildTxOutputResponse(
+    TxRequest txRequest,
+    Optional<Transaction> requestedTx,
+    boolean binOutputType
+  ) {
+
+    final Optional<Integer> requestIndex = txRequest.getTxRequestDetailsType().getRequestIndex();
+    if (!requestIndex.isPresent()) {
+      log.warn("Request index is not present for TxOutput");
+      return null;
+    }
+
+    // Get the transaction output indicated by the request index
+    TransactionOutput output = requestedTx.get().getOutput(requestIndex.get());
+
+    if (binOutputType) {
+
+      // Build a TxOutputBinType representing a previous transaction
+
+      // Require the output script program
+      byte[] scriptPubKey = output.getScriptPubKey().getProgram();
+
+      TrezorType.TxOutputBinType txOutputBinType = TrezorType.TxOutputBinType
+        .newBuilder()
+        .setAmount(output.getValue().value)
+        .setScriptPubkey(ByteString.copyFrom(scriptPubKey))
+        .build();
+
+      return TrezorType.TransactionType
+        .newBuilder()
+        .addBinOutputs(txOutputBinType)
+        .build();
+
+    }
+
+    // Build a TxOutputType representing the current transaction
+
+    // Address
+    Address address = output.getAddressFromP2PKHScript(MainNetParams.get());
+    if (address == null) {
+      throw new IllegalArgumentException("TxOutput " + requestIndex + " has no address.");
+    }
+
+    // Is it pay-to-script-hash (P2SH) or pay-to-address (P2PKH)?
+    final TrezorType.OutputScriptType outputScriptType;
+    if (address.isP2SHAddress()) {
+      outputScriptType = TrezorType.OutputScriptType.PAYTOSCRIPTHASH;
+    } else {
+      outputScriptType = TrezorType.OutputScriptType.PAYTOADDRESS;
+    }
+
+    TrezorType.TxOutputType txOutputType = TrezorType.TxOutputType
+      .newBuilder()
+      .setAddress(String.valueOf(address))
+      .setAmount(output.getValue().value)
+      .setScriptType(outputScriptType)
+      .build();
+
+    return TrezorType.TransactionType
+      .newBuilder()
+      .addOutputs(txOutputType)
+      .build();
 
   }
 
