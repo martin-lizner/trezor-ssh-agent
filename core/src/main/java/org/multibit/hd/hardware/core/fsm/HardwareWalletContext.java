@@ -83,6 +83,12 @@ public class HardwareWalletContext {
   private Map<Integer, List<Integer>> addressChainCodeMap;
 
   /**
+   * Keep track of the number of times the 'Confirm tx output' has been pressed when signing a tx.
+   * (Each transaction output is presented to the user in order in turn and they confirm each)
+   */
+  private Optional<Integer> transactionOutputCount = Optional.absent();
+
+  /**
    * @param client The hardware wallet client
    */
   public HardwareWalletContext(HardwareWalletClient client) {
@@ -828,5 +834,13 @@ public class HardwareWalletContext {
    */
   public void setAddressChainCodeMap(Map<Integer, List<Integer>> addressChainCodeMap) {
     this.addressChainCodeMap = addressChainCodeMap;
+  }
+
+  public Optional<Integer> getTransactionOutputCount() {
+    return transactionOutputCount;
+  }
+
+  public void setTransactionOutputCount(Optional<Integer> transactionOutputCount) {
+    this.transactionOutputCount = transactionOutputCount;
   }
 }
