@@ -2,7 +2,13 @@ package org.multibit.hd.hardware.trezor.utils;
 
 import com.satoshilabs.trezor.protobuf.TrezorMessage;
 import com.satoshilabs.trezor.protobuf.TrezorType;
+import org.bitcoinj.core.Base58;
+import org.bitcoinj.core.Utils;
 import org.multibit.hd.hardware.core.messages.*;
+
+import java.nio.ByteBuffer;
+
+import static com.google.common.base.Preconditions.checkState;
 
 /**
  * <p>Adapter to provide the following to Trezor messages:</p>
@@ -218,8 +224,42 @@ public class TrezorMessageAdapter {
   public static PublicKey adaptPublicKey(TrezorMessage.PublicKey source) {
 
     HDNodeType hdNodeType = null;
+
     if (source.hasNode()) {
       hdNodeType = adaptHDNodeType(source.getNode());
+      if (!source.hasXpub()) {
+        // Decode the node information into an xpub
+
+        ByteBuffer ser = ByteBuffer.allocate(78);
+        ser.putInt(0x0488b21e); // Version (results in "xpub" on MainNet)
+        ser.put(hdNodeType.getDepth().get().byteValue()); // Depth
+        ser.putInt(hdNodeType.getFingerprint().get()); // Fingerprint (0x00000000 for master)
+        ser.putInt(hdNodeType.getChildNum().get()); // Child number (0x00000000 for master)
+        ser.put(hdNodeType.getChainCode().get());// The chain code (32 bytes)
+        ser.put(hdNodeType.getPublicKey().get());// The public key (33 bytes)
+
+        checkState(ser.position() == 78);
+
+        byte[] input = ser.array();
+        int inputLength = input.length;
+        byte[] checksummed = new byte[inputLength + 4];
+        System.arraycopy(input, 0, checksummed, 0, inputLength);
+        byte[] checksum = Utils.doubleDigest(input);
+        System.arraycopy(checksum, 0, checksummed, inputLength, 4);
+
+        byte[] xpubBytes = checksummed;
+
+        String xpub = Base58.encode(xpubBytes);
+
+        return new PublicKey(
+          true,
+          xpub,
+          xpubBytes,
+          source.hasNode(),
+          hdNodeType
+        );
+
+      }
     }
 
     return new PublicKey(

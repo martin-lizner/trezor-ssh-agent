@@ -1,9 +1,13 @@
 package org.multibit.hd.hardware.core.fsm;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.eventbus.Subscribe;
 import org.bitcoinj.core.Transaction;
+import org.bitcoinj.crypto.ChildNumber;
+import org.bitcoinj.crypto.DeterministicHierarchy;
+import org.bitcoinj.crypto.DeterministicKey;
 import org.bitcoinj.wallet.KeyChain;
 import org.multibit.hd.hardware.core.HardwareWalletClient;
 import org.multibit.hd.hardware.core.HardwareWalletService;
@@ -89,6 +93,30 @@ public class HardwareWalletContext {
   private Optional<Integer> transactionOutputCount = Optional.absent();
 
   /**
+   * Provide a list of child numbers defining the HD path required.
+   * In the case of an extended public key this will result in multiple calls to retrieve each parent
+   * due to hardening.
+   *
+   * The end result can be found in {@link #deterministicHierarchy}.
+   */
+  private Optional<List<ChildNumber>> childNumbers = Optional.absent();
+
+  /**
+   * Provide a deterministic key representing the root node of the current HD path.
+   * As the child numbers are explored one by one this deterministic key maintains the chain
+   * of keys derived from the base 58 xpub.
+   *
+   * The end result can be found in {@link #deterministicHierarchy}.
+   */
+  private Optional<DeterministicKey> deterministicKey = Optional.absent();
+
+  /**
+   * Provide a deterministic hierarchy containing all hardened extended public keys so that a
+   * watching wallet can be created
+   */
+  private Optional<DeterministicHierarchy> deterministicHierarchy = Optional.absent();
+
+  /**
    * @param client The hardware wallet client
    */
   public HardwareWalletContext(HardwareWalletClient client) {
@@ -163,6 +191,9 @@ public class HardwareWalletContext {
     serializedTx = new ByteArrayOutputStream();
     features = Optional.absent();
     addressChainCodeMap = Maps.newHashMap();
+    transactionOutputCount = Optional.absent();
+    deterministicHierarchy = Optional.absent();
+
   }
 
   /**
@@ -319,6 +350,63 @@ public class HardwareWalletContext {
    */
   public Optional<LoadWalletSpecification> getLoadWalletSpecification() {
     return loadWalletSpecification;
+  }
+
+  /**
+   * @return The map of chain codes for our receiving addresses on the current transaction (key input index, value list of integers)
+   */
+  public Map<Integer, List<Integer>> getAddressChainCodeMap() {
+    return addressChainCodeMap;
+  }
+
+  /**
+   * <p>To speed up private key lookup we provide the chain codes for all receiving addresses on the current transaction</p>
+   * <p>Key: input index, value: list of integers</p>
+   *
+   * @param addressChainCodeMap The map of chain codes for our receiving addresses
+   */
+  public void setAddressChainCodeMap(Map<Integer, List<Integer>> addressChainCodeMap) {
+    this.addressChainCodeMap = addressChainCodeMap;
+  }
+
+  /**
+   * @return The number of times the 'Confirm tx output' has been pressed when signing a tx to assist downstream user interfaces
+   */
+  public Optional<Integer> getTransactionOutputCount() {
+    return transactionOutputCount;
+  }
+
+  public void setTransactionOutputCount(Optional<Integer> transactionOutputCount) {
+    this.transactionOutputCount = transactionOutputCount;
+  }
+
+  /**
+   * @return The list of child numbers representing a HD path for the current use case
+   */
+  public Optional<List<ChildNumber>> getChildNumbers() {
+    return childNumbers;
+  }
+
+  /**
+   * @return The deterministic key derived from the xpub of the given child numbers for the current use case
+   */
+  public Optional<DeterministicKey> getDeterministicKey() {
+    return deterministicKey;
+  }
+
+  public void setDeterministicKey(DeterministicKey deterministicKey) {
+    this.deterministicKey = Optional.fromNullable(deterministicKey);
+  }
+
+  /**
+   * @return The deterministic hierarchy based on the deterministic key for the current use case
+   */
+  public Optional<DeterministicHierarchy> getDeterministicHierarchy() {
+    return deterministicHierarchy;
+  }
+
+  public void setDeterministicHierarchy(DeterministicHierarchy deterministicHierarchy) {
+    this.deterministicHierarchy = Optional.fromNullable(deterministicHierarchy);
   }
 
   /**
@@ -511,6 +599,34 @@ public class HardwareWalletContext {
       keyPurpose,
       index
     );
+
+  }
+
+  /**
+   * <p>Begin the "get deterministic hierarchy" use case</p>
+   *
+   * @param childNumbers The child numbers describing the required chain from the master node including hardening bits
+   */
+  public void beginGetDeterministicHierarchyUseCase(List<ChildNumber> childNumbers) {
+
+    log.debug("Begin 'get deterministic hierarchy' use case");
+
+    // Clear relevant information
+    resetAllButFeatures();
+
+    // Track the use case
+    currentUseCase = ContextUseCase.REQUEST_DETERMINISTIC_HIERARCHY;
+
+    // Store the overall context parameters
+    this.childNumbers = Optional.of(childNumbers);
+
+    // Set the event receiving state
+    currentState = HardwareWalletStates.newConfirmGetDeterministicHierarchyState();
+
+    // Issue starting message to elicit the event
+    // In this case we start with the master node to enable building up a complete
+    // hierarchy in case of hardened child numbers that require private keys to create
+    client.getDeterministicHierarchy(Lists.<ChildNumber>newArrayList());
 
   }
 
@@ -819,28 +935,4 @@ public class HardwareWalletContext {
 
   }
 
-  /**
-   * @return The map of chain codes for our receiving addresses on the current transaction (key input index, value list of integers)
-   */
-  public Map<Integer, List<Integer>> getAddressChainCodeMap() {
-    return addressChainCodeMap;
-  }
-
-  /**
-   * <p>To speed up private key lookup we provide the chain codes for all receiving addresses on the current transaction</p>
-   * <p>Key: input index, value: list of integers</p>
-   *
-   * @param addressChainCodeMap The map of chain codes for our receiving addresses
-   */
-  public void setAddressChainCodeMap(Map<Integer, List<Integer>> addressChainCodeMap) {
-    this.addressChainCodeMap = addressChainCodeMap;
-  }
-
-  public Optional<Integer> getTransactionOutputCount() {
-    return transactionOutputCount;
-  }
-
-  public void setTransactionOutputCount(Optional<Integer> transactionOutputCount) {
-    this.transactionOutputCount = transactionOutputCount;
-  }
 }

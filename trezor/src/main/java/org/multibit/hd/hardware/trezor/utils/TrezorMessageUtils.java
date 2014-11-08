@@ -648,5 +648,4 @@ public final class TrezorMessageUtils {
     );
   }
 
-
 }

@@ -56,6 +56,11 @@ public class TrezorMessageToStringStyle extends ToStringStyle {
       TrezorType.TransactionType txType = ((TrezorType.TransactionType) value);
       appendTransactionType(buffer, txType);
 
+    } else if (value instanceof TrezorType.HDNodeType) {
+
+      TrezorType.HDNodeType hdNodeType = ((TrezorType.HDNodeType) value);
+      appendHDNodeType(buffer, hdNodeType);
+
     } else {
 
       buffer.append(value);
@@ -105,6 +110,34 @@ public class TrezorMessageToStringStyle extends ToStringStyle {
     buffer
       .append("\n    version: ")
       .append(txType.getVersion());
+
+  }
+
+  private void appendHDNodeType(StringBuffer buffer, TrezorType.HDNodeType hdNodeType) {
+
+    buffer
+      .append("\n    child_num: ")
+      .append(hdNodeType.getChildNum());
+
+    buffer
+      .append("\n    depth: ")
+      .append(hdNodeType.getDepth());
+
+    buffer
+      .append("\n    fingerprint: ")
+      .append(hdNodeType.getFingerprint());
+
+    buffer
+      .append("\n    chain_code: ");
+    appendHexBytes(buffer, hdNodeType.getChainCode().toByteArray());
+
+    buffer
+      .append("\n    private_key: *****");
+    //appendHexBytes(buffer, hdNodeType.getPrivateKey().toByteArray());
+
+    buffer
+      .append("\n    public_key: ");
+    appendHexBytes(buffer, hdNodeType.getPublicKey().toByteArray());
 
   }
 
