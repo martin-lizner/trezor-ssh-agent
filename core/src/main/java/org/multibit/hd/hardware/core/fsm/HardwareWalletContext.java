@@ -624,7 +624,7 @@ public class HardwareWalletContext {
     currentState = HardwareWalletStates.newConfirmGetDeterministicHierarchyState();
 
     // Issue starting message to elicit the event
-    // In this case we start with the master node to enable building up a complete
+    // In this case we start with the master node (empty list) to enable building up a complete
     // hierarchy in case of hardened child numbers that require private keys to create
     client.getDeterministicHierarchy(Lists.<ChildNumber>newArrayList());
 
