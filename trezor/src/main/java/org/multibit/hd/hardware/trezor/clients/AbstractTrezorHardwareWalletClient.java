@@ -1,11 +1,13 @@
 package org.multibit.hd.hardware.trezor.clients;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.Message;
 import com.satoshilabs.trezor.protobuf.TrezorMessage;
 import com.satoshilabs.trezor.protobuf.TrezorType;
 import org.bitcoinj.core.*;
+import org.bitcoinj.crypto.ChildNumber;
 import org.bitcoinj.params.MainNetParams;
 import org.bitcoinj.wallet.KeyChain;
 import org.multibit.hd.hardware.core.HardwareWalletClient;
@@ -99,6 +101,7 @@ public abstract class AbstractTrezorHardwareWalletClient implements HardwareWall
     );
   }
 
+  // TODO Support use of seed node
   @Override
   public Optional<MessageEvent> loadDevice(
     String language,
@@ -430,6 +433,23 @@ public abstract class AbstractTrezorHardwareWalletClient implements HardwareWall
         .newBuilder()
           // Build the chain code
         .addAllAddressN(TrezorMessageUtils.buildAddressN(account, keyPurpose, index))
+        .build()
+    );
+
+  }
+
+  @Override
+  public Optional<MessageEvent> getDeterministicHierarchy(List<ChildNumber> childNumbers) {
+
+    List<Integer> addressN = Lists.newArrayList();
+    for (ChildNumber childNumber: childNumbers) {
+      addressN.add(childNumber.getI());
+    }
+
+    return sendMessage(
+      TrezorMessage.GetPublicKey
+        .newBuilder()
+        .addAllAddressN(addressN)
         .build()
     );
 

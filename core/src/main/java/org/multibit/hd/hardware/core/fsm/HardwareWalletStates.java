@@ -177,6 +177,17 @@ public class HardwareWalletStates {
   }
 
   /**
+   * @return A new confirm get deterministic hierarchy state
+   */
+  public static ConfirmGetDeterministicHierarchyState newConfirmGetDeterministicHierarchyState() {
+
+    log.debug("Transitioning to 'confirm GetDeterministicHierarchy' state");
+
+    return new ConfirmGetDeterministicHierarchyState();
+
+  }
+
+  /**
    * @return A new confirm cipher key state
    */
   public static HardwareWalletState newConfirmCipherKeyState() {

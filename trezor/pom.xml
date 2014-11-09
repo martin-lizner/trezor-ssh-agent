@@ -61,7 +61,6 @@
                     </path>
                     <pathconvert pathsep=" " property="proto.files" refid="proto.path"/>
                     <exec executable="/usr/local/bin/protoc" failonerror="true">
-                      <!-- TODO Determine if this can be ignored -->
                       <arg value="-I=${project.basedir}/src/main/trezor-common/protob"/>
                       <arg value="--java_out=${project.basedir}/src/main/java"/>
                       <arg line="${proto.files}"/>

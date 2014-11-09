@@ -2,6 +2,7 @@ package org.multibit.hd.hardware.core;
 
 import org.bitcoinj.core.Address;
 import org.bitcoinj.core.Transaction;
+import org.bitcoinj.crypto.ChildNumber;
 import org.bitcoinj.wallet.KeyChain;
 import com.google.common.base.Optional;
 import org.multibit.hd.hardware.core.events.MessageEvent;
@@ -357,6 +358,22 @@ public interface HardwareWalletClient extends Connectable {
    * @return The response event if implementation is blocking. Absent if non-blocking or device failure.
    */
   Optional<MessageEvent> getPublicKey(int account, KeyChain.KeyPurpose keyPurpose, int index);
+
+  /**
+   * <p>Send the GET_PUBLIC_KEY message to the device based on the given list of child numbers. The device will respond by
+   * providing an extended public key (xpub) calculated based on the <a href="https://en.bitcoin.it/wiki/BIP_0044">BIP-44</a>
+   * deterministic wallet approach from the master node. If the </p>
+   * <p>Expected response events are:</p>
+   * <ul>
+   * <li>PUBLIC_KEY if the operation succeeded (may take up to 10 seconds)</li>
+   * <li>FAILURE if the operation was unsuccessful</li>
+   * </ul>
+   *
+   * @param childNumbers The list of child numbers to explore (some of which may be hardened)
+   *
+   * @return The response event if implementation is blocking. Absent if non-blocking or device failure.
+   */
+  Optional<MessageEvent> getDeterministicHierarchy(List<ChildNumber> childNumbers);
 
   /**
    * <p>Send the ENTROPY_ACK message to the device in response to an ENTROPY_REQUEST. This allows the device to obtain

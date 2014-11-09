@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.eventbus.EventBus;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import org.bitcoinj.core.Transaction;
+import org.bitcoinj.crypto.ChildNumber;
 import org.bitcoinj.wallet.KeyChain;
 import org.multibit.hd.hardware.core.concurrent.SafeExecutors;
 import org.multibit.hd.hardware.core.fsm.CreateWalletSpecification;
@@ -14,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -324,6 +326,21 @@ public class HardwareWalletService {
 
     // Set the FSM context
     context.beginGetPublicKeyUseCase(account, keyPurpose, index);
+
+  }
+
+  /**
+   * <p>Request a deterministic hierarchy based on the given child numbers.</p>
+   *
+   * <p>This can be used to create a "watching wallet" that does not contain any private keys so long
+   * as all hardened child numbers are included.</p>
+   *
+   * @param childNumbers The list of child numbers representing a path that may include hardened entries
+   */
+  public void requestDeterministicHierarchy(List<ChildNumber> childNumbers) {
+
+    // Set the FSM context
+    context.beginGetDeterministicHierarchyUseCase(childNumbers);
 
   }
 
