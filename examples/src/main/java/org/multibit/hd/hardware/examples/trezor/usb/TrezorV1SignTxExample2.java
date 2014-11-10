@@ -1,6 +1,7 @@
 package org.multibit.hd.hardware.examples.trezor.usb;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.Maps;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.Uninterruptibles;
 import org.bitcoinj.core.*;
@@ -17,10 +18,13 @@ import org.multibit.hd.hardware.core.messages.PublicKey;
 import org.multibit.hd.hardware.core.wallets.HardwareWallets;
 import org.multibit.hd.hardware.examples.trezor.FakeTransactions2;
 import org.multibit.hd.hardware.trezor.clients.TrezorHardwareWalletClient;
+import org.multibit.hd.hardware.trezor.utils.TrezorMessageUtils;
 import org.multibit.hd.hardware.trezor.wallets.v1.TrezorV1HidHardwareWallet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
@@ -96,7 +100,12 @@ public class TrezorV1SignTxExample2 {
 
     hardwareWalletService.start();
 
-    // Simulate the main thread continuing with other unrelated work
+    // This would normally be provided by a wallet
+    Map<Integer, List<Integer>> addressChainCodeMap = Maps.newHashMap();
+    addressChainCodeMap.put(0, TrezorMessageUtils.buildAddressN(0, KeyChain.KeyPurpose.RECEIVE_FUNDS, 0));
+    hardwareWalletService.getContext().setAddressChainCodeMap(addressChainCodeMap);
+
+     // Simulate the main thread continuing with other unrelated work
     // We don't terminate main since we're using safe executors
     Uninterruptibles.sleepUninterruptibly(1, TimeUnit.HOURS);
 
@@ -215,13 +224,17 @@ public class TrezorV1SignTxExample2 {
         break;
       case SHOW_OPERATION_SUCCEEDED:
         // Successful signature
-        log.info("prevTx:\n{}", fakeTxs[0].toString());
+        log.info("****************************************************************************************");
+        log.info("prevTx info:\n{}", fakeTxs[0].toString());
 
         // Trezor will provide a signed serialized transaction
         byte[] deviceTxPayload = hardwareWalletService.getContext().getSerializedTx().toByteArray();
 
+        byte[] signature0 = hardwareWalletService.getContext().getSignatures().get(0);
+
         try {
           log.info("DeviceTx payload:\n{}", Utils.HEX.encode(deviceTxPayload));
+          log.info("DeviceTx signature0:\n{}", Utils.HEX.encode(signature0));
 
           // Load deviceTx
           Transaction deviceTx = new Transaction(MainNetParams.get(), deviceTxPayload);
@@ -263,9 +276,13 @@ public class TrezorV1SignTxExample2 {
 
 
           log.info("Use http://blockchain.info/pushtx to broadcast this transaction to the Bitcoin network");
+          // The deserialized transaction
+          log.info("DeviceTx info:\n{}", deviceTx.toString());
+
+          log.info("DeviceTx pushtx:\n{}", Utils.HEX.encode(deviceTx.bitcoinSerialize()));
 
         } catch (Exception e) {
-          log.error("deviceTx FAILED.", e);
+          log.error("DeviceTx FAILED.", e);
         }
 
         // Treat as end of example

@@ -101,16 +101,16 @@ public class TrezorV1WipeAndLoadAbandonWalletExample {
       case SHOW_DEVICE_READY:
 
         // Set the seed phrase
-        String seedPhrase ="abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about";
-        // String seedPhrase ="job during sweet dash wash session meat better ecology walk blue amused";
+        //String seedPhrase ="abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about";
+        String seedPhrase ="job during sweet dash wash session meat better ecology walk blue amused";
 
         // Force loading of the wallet (wipe then load)
         // Specify PIN
         // This method reveals the seed phrase so is not secure
         hardwareWalletService.loadWallet(
           "english",
-          "Abandon",
-          seedPhrase,
+          "Garys temp",
+          "Garys temp",
           "1"
         );
         break;
