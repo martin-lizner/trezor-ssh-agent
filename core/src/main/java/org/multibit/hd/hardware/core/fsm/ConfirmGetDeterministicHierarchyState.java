@@ -68,7 +68,8 @@ public class ConfirmGetDeterministicHierarchyState extends AbstractHardwareWalle
           context.setDeterministicHierarchy(new DeterministicHierarchy(context.getDeterministicKey().get()));
 
           // Inform downstream consumers that we are ready
-          HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.DETERMINISTIC_HIERARCHY, event.getMessage().get());
+          // (deterministic hierarchy would require a wrapper for inclusion in the event itself)
+          HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.DETERMINISTIC_HIERARCHY);
         }
 
         break;
