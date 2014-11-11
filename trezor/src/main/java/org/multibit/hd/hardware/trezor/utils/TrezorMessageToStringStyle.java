@@ -1,10 +1,10 @@
 package org.multibit.hd.hardware.trezor.utils;
 
-import org.bitcoinj.core.Utils;
 import com.google.protobuf.ByteString;
 import com.satoshilabs.trezor.protobuf.TrezorType;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.bitcoinj.core.Utils;
 
 /**
  * <p>Apache Commons ToStringStyle extension to provide the following to logging:</p>
@@ -117,7 +117,7 @@ public class TrezorMessageToStringStyle extends ToStringStyle {
 
     buffer
       .append("\n    child_num: ")
-      .append(hdNodeType.getChildNum());
+      .append(Integer.toHexString(hdNodeType.getChildNum()));
 
     buffer
       .append("\n    depth: ")
@@ -125,7 +125,7 @@ public class TrezorMessageToStringStyle extends ToStringStyle {
 
     buffer
       .append("\n    fingerprint: ")
-      .append(hdNodeType.getFingerprint());
+      .append(Integer.toHexString(hdNodeType.getFingerprint()));
 
     buffer
       .append("\n    chain_code: ");
