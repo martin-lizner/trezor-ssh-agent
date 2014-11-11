@@ -54,15 +54,6 @@ public class ConfirmGetDeterministicHierarchyState extends AbstractHardwareWalle
           log.debug("Child key path: {}", child.getPathAsString());
           context.setDeterministicKey(child);
 
-          // Build up the child number list to include the next level
-          int nextDepth = depth + 1;
-          List<ChildNumber> nextChildNumbers = Lists.newArrayList();
-          for (int i = 0; i < childNumbers.size(); i++) {
-            if (i < nextDepth) {
-              nextChildNumbers.add(childNumbers.get(i));
-            }
-          }
-          client.getDeterministicHierarchy(nextChildNumbers);
         }
 
         if (depth == childNumbers.size()) {
@@ -72,6 +63,21 @@ public class ConfirmGetDeterministicHierarchyState extends AbstractHardwareWalle
           // Inform downstream consumers that we are ready
           // (deterministic hierarchy would require a wrapper for inclusion in the event itself)
           HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.DETERMINISTIC_HIERARCHY);
+        }
+
+        // Are further calls into the hierarchy required?
+        if (depth < childNumbers.size()) {
+
+          // Build up the child number list to include the next level
+          int nextDepth = depth + 1;
+          List<ChildNumber> nextChildNumbers = Lists.newArrayList();
+          for (int i = 0; i < childNumbers.size(); i++) {
+            if (i < nextDepth) {
+              nextChildNumbers.add(childNumbers.get(i));
+            }
+          }
+          client.getDeterministicHierarchy(nextChildNumbers);
+
         }
 
         break;
