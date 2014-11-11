@@ -49,7 +49,9 @@ public class ConfirmGetDeterministicHierarchyState extends AbstractHardwareWalle
 
           // Update the current deterministic key forming the root of the hierarchy
           DeterministicKey parent = context.getDeterministicKey().orNull();
+          log.debug("Parent key path: {}", parent == null ? "Root" : parent.getPathAsString());
           DeterministicKey child = DeterministicKey.deserializeB58(parent, base58Xpub);
+          log.debug("Child key path: {}", child.getPathAsString());
           context.setDeterministicKey(child);
 
           // Build up the child number list to include the next level
