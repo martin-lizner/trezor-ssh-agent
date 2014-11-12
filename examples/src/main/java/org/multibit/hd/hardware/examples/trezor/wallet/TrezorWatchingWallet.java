@@ -226,22 +226,18 @@ public class TrezorWatchingWallet {
         ChildNumber.ZERO
       );
 
-
-      // Create a new wallet
-      log.debug("Creating new watching wallet based on path: {}", key_0_0.getPathAsString());
-
       // Calculate the pubkeys
       ECKey pubkey_0_0 = ECKey.fromPublicOnly(key_0_0.getPubKey());
       Address address_0_0 = new Address(networkParameters, pubkey_0_0.getPubKeyHash());
-      log.debug("Adding public key for '{}'", address_0_0.toString());
+      log.debug("Derived 0_0 address '{}'", address_0_0.toString());
 
       ECKey pubkey_1_0 = ECKey.fromPublicOnly(key_1_0.getPubKey());
       Address address_1_0 = new Address(networkParameters, pubkey_1_0.getPubKeyHash());
-      log.debug("Adding public key for '{}'", address_1_0.toString());
+      log.debug("Derived 1_0 address '{}'", address_1_0.toString());
 
       watchingWallet = new Wallet(networkParameters);
-      watchingWallet.importKey(pubkey_0_0);
-      watchingWallet.importKey(pubkey_1_0);
+      watchingWallet.addWatchedAddress(address_0_0);
+      watchingWallet.addWatchedAddress(address_1_0);
 
       watchingWallet.saveToFile(new File(walletPath));
 
@@ -299,16 +295,16 @@ public class TrezorWatchingWallet {
     log.debug("Building Wallet in: '{}'", walletDirectory.getAbsolutePath());
 
     // Copy in the checkpoints stored in git - this is in src/main/resources
-//    File checkpoints = new File(walletDirectoryPath + File.separator + "multibit-hardware.checkpoints");
+    File checkpoints = new File(walletDirectoryPath + File.separator + "multibit-hardware.checkpoints");
 
-//    File source = new java.io.File("./examples/src/main/resources/multibit-hardware.checkpoints");
-//    log.debug("Using source checkpoints file {}", source.getAbsolutePath());
-//
-//    copyFile(source, checkpoints);
+    File source = new java.io.File("./examples/src/main/resources/multibit-hardware.checkpoints");
+    log.debug("Using source checkpoints file {}", source.getAbsolutePath());
 
-//    checkpoints.deleteOnExit();
+    copyFile(source, checkpoints);
 
-//    log.debug("Copied checkpoints file to '{}', size {} bytes", checkpoints.getAbsolutePath(), checkpoints.length());
+    checkpoints.deleteOnExit();
+
+    log.debug("Copied checkpoints file to '{}', size {} bytes", checkpoints.getAbsolutePath(), checkpoints.length());
 
     return walletDirectory;
   }
