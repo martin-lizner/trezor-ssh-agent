@@ -3,20 +3,19 @@ package org.multibit.hd.hardware.examples.trezor.wallet;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.eventbus.Subscribe;
-import com.google.common.io.Files;
+import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.Uninterruptibles;
 import org.bitcoinj.core.*;
 import org.bitcoinj.crypto.ChildNumber;
 import org.bitcoinj.crypto.DeterministicHierarchy;
 import org.bitcoinj.crypto.DeterministicKey;
 import org.bitcoinj.net.discovery.DnsDiscovery;
-import org.bitcoinj.params.MainNetParams;
 import org.bitcoinj.store.BlockStore;
 import org.bitcoinj.store.BlockStoreException;
 import org.bitcoinj.store.SPVBlockStore;
-import org.bitcoinj.wallet.KeyChainGroup;
 import org.multibit.hd.hardware.core.HardwareWalletClient;
 import org.multibit.hd.hardware.core.HardwareWalletService;
+import org.multibit.hd.hardware.core.concurrent.SafeExecutors;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvent;
 import org.multibit.hd.hardware.core.wallets.HardwareWallets;
 import org.multibit.hd.hardware.trezor.clients.TrezorHardwareWalletClient;
@@ -34,7 +33,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
- * <p>Get a deterministic hierarchy based on the master extended public key (xpub)</p>
+ * <p>Create a Bitcoinj watching wallet based on a deterministic hierarchy provided by a Trezor</p>
  * <p>Requires Trezor V1 production device plugged into a USB HID interface.</p>
  * <p>This example demonstrates the message sequence to get a Bitcoinj deterministic hierarchy
  * from a Trezor that has an active wallet to enable a "watching wallet" to be created.</p>
@@ -45,11 +44,11 @@ import java.util.concurrent.TimeUnit;
  * @since 0.0.1
  *  
  */
-public class SyncWallet {
+public class TrezorWatchingWallet {
 
-  private static final Logger log = LoggerFactory.getLogger(SyncWallet.class);
+  private static final Logger log = LoggerFactory.getLogger(TrezorWatchingWallet.class);
 
-  private static final String START_OF_REPLAY_PERIOD = "2014-11-01 00:00:00";
+  private static final String START_OF_REPLAY_PERIOD = "2014-11-10 00:00:00";
   private static Date replayDate;
 
   private static PeerGroup peerGroup;
@@ -62,6 +61,8 @@ public class SyncWallet {
   public static final String CHECKPOINTS_SUFFIX = ".checkpoints";
 
   private HardwareWalletService hardwareWalletService;
+
+  private ListeningExecutorService walletService = SafeExecutors.newSingleThreadExecutor("wallet-service");
 
   /**
    * <p>Main entry point to the example</p>
@@ -78,7 +79,7 @@ public class SyncWallet {
     replayDate = format.parse(START_OF_REPLAY_PERIOD);
 
     // All the work is done in the class
-    SyncWallet example = new SyncWallet();
+    TrezorWatchingWallet example = new TrezorWatchingWallet();
 
     example.executeExample();
 
@@ -152,30 +153,23 @@ public class SyncWallet {
         break;
       case DETERMINISTIC_HIERARCHY:
 
-        // Parent key should be M/44'/0'/0'
-        DeterministicKey parentKey = hardwareWalletService.getContext().getDeterministicKey().get();
-        log.info("Parent key path: {}", parentKey.getPathAsString());
+        // Exit quickly from the event thread
+        walletService.submit(new Runnable() {
+          @Override
+          public void run() {
 
-        // Verify the deterministic hierarchy can derive child keys
-        // In this case 0/0 from a parent of M/44'/0'/0'
-        DeterministicHierarchy hierarchy = hardwareWalletService.getContext().getDeterministicHierarchy().get();
-        DeterministicKey childKey = hierarchy.deriveChild(
-          Lists.newArrayList(
-            ChildNumber.ZERO
-          ),
-          true,
-          true,
-          ChildNumber.ZERO
-        );
+            // Parent key should be M/44'/0'/0'
+            DeterministicKey parentKey = hardwareWalletService.getContext().getDeterministicKey().get();
+            log.info("Parent key path: {}", parentKey.getPathAsString());
 
-        // Calculate the address
-        ECKey seedKey = ECKey.fromPublicOnly(childKey.getPubKey());
-        Address walletKeyAddress = new Address(MainNetParams.get(), seedKey.getPubKeyHash());
+            // Verify the deterministic hierarchy can derive child keys
+            // In this case 0/0 from a parent of M/44'/0'/0'
+            final DeterministicHierarchy hierarchy = hardwareWalletService.getContext().getDeterministicHierarchy().get();
 
-        log.info("Path {}/0/0 has address: '{}'", parentKey.getPathAsString(), walletKeyAddress.toString());
-
-        // Treat as end of example
-        createWallet(hierarchy);
+            // Create a watching wallet
+            createWatchingWallet(hierarchy);
+          }
+        });
 
         break;
       case SHOW_OPERATION_FAILED:
@@ -188,7 +182,10 @@ public class SyncWallet {
     }
   }
 
-  private void createWallet(DeterministicHierarchy hierarchy) {
+  /**
+   * @param hierarchy The deterministic hierarchy that forms the first node in the watching wallet
+   */
+  private void createWatchingWallet(DeterministicHierarchy hierarchy) {
 
     // Date format is UTC with century, T time separator and Z for UTC timezone.
     SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.ENGLISH);
@@ -196,44 +193,80 @@ public class SyncWallet {
 
     networkParameters = NetworkParameters.fromID(NetworkParameters.ID_MAINNET);
 
-    final File multiBitDirectory;
+    final File walletEnvironmentDirectory;
     try {
-      multiBitDirectory = createWalletEnvironment();
+      walletEnvironmentDirectory = createWalletEnvironment();
     } catch (IOException e) {
       handleError(e);
       return;
     }
 
     // Create wallet
-    String walletPath = multiBitDirectory.getAbsolutePath() + File.separator + "example.wallet";
+    String walletPath = walletEnvironmentDirectory.getAbsolutePath() + File.separator + "watching.wallet";
 
-    // Create a new wallet
-    KeyChainGroup group = new KeyChainGroup(networkParameters, hierarchy.getRootKey());
-    Wallet exampleWallet = new Wallet(networkParameters, group);
+    final Wallet watchingWallet;
 
     try {
-      exampleWallet.saveToFile(new File(walletPath));
 
-      log.debug("Example wallet = \n" + exampleWallet.toString());
+      // Derive the first key
+      DeterministicKey key_0_0 = hierarchy.deriveChild(
+        Lists.newArrayList(
+          ChildNumber.ZERO
+        ),
+        true,
+        true,
+        ChildNumber.ZERO
+      );
+      DeterministicKey key_1_0 = hierarchy.deriveChild(
+        Lists.newArrayList(
+          ChildNumber.ONE
+        ),
+        true,
+        true,
+        ChildNumber.ZERO
+      );
+
+
+      // Create a new wallet
+      log.debug("Creating new watching wallet based on path: {}", key_0_0.getPathAsString());
+
+      // Calculate the pubkeys
+      ECKey pubkey_0_0 = ECKey.fromPublicOnly(key_0_0.getPubKey());
+      Address address_0_0 = new Address(networkParameters, pubkey_0_0.getPubKeyHash());
+      log.debug("Adding public key for '{}'", address_0_0.toString());
+
+      ECKey pubkey_1_0 = ECKey.fromPublicOnly(key_1_0.getPubKey());
+      Address address_1_0 = new Address(networkParameters, pubkey_1_0.getPubKeyHash());
+      log.debug("Adding public key for '{}'", address_1_0.toString());
+
+      watchingWallet = new Wallet(networkParameters);
+      watchingWallet.importKey(pubkey_0_0);
+      watchingWallet.importKey(pubkey_1_0);
+
+      watchingWallet.saveToFile(new File(walletPath));
+
+      log.debug("Example wallet = \n{}", watchingWallet.toString());
 
       // Load or create the blockStore..
-      log.debug("Loading/ creating blockstore ...");
+      log.debug("Loading/creating block store...");
       BlockStore blockStore = createBlockStore(replayDate);
-      log.debug("Blockstore is '" + blockStore + "'");
+      log.debug("Block store is '" + blockStore + "'");
 
-      log.debug("Creating blockchain ...");
+      log.debug("Creating block chain...");
       blockChain = new BlockChain(networkParameters, blockStore);
-      log.debug("Created blockchain '" + blockChain + "' with height " + blockChain.getBestChainHeight());
+      log.debug("Created block chain '" + blockChain + "' with height " + blockChain.getBestChainHeight());
 
-      log.debug("Creating peergroup ...");
-      createNewPeerGroup(exampleWallet);
-      log.debug("Created peergroup '" + peerGroup + "'");
+      log.debug("Creating peer group...");
+      createNewPeerGroup(watchingWallet);
+      log.debug("Created peer group '" + peerGroup + "'");
 
-      log.debug("Starting peergroup ...");
+      log.debug("Starting peer group...");
       peerGroup.startAsync();
-      log.debug("Started peergroup.");
-    } catch (BlockStoreException | IOException e) {
+      log.debug("Started peer group.");
+
+    } catch (Exception e) {
       handleError(e);
+      return;
     }
 
     // Wallet environment is now setup and running
@@ -243,37 +276,39 @@ public class SyncWallet {
     while (peerGroup.getConnectedPeers().isEmpty()) {
       Uninterruptibles.sleepUninterruptibly(2, TimeUnit.SECONDS);
     }
-    log.debug("Now online.");
+    log.debug("Now online. Downloading block chain...");
 
     peerGroup.downloadBlockChain();
+
+    log.info("Balance: {}", watchingWallet.getBalance());
 
     // Tidy up
     peerGroup.stopAsync();
   }
 
   /**
-   * Create a basic wallet environment (blockstore and checkpoints) in a temporary directory.
+   * Create a basic wallet environment (block store and checkpoints) in a temporary directory.
    *
    * @return The temporary directory for the wallet environment
    */
   private File createWalletEnvironment() throws IOException {
 
-    File walletDirectory = Files.createTempDir();
+    File walletDirectory = new File(".");
     String walletDirectoryPath = walletDirectory.getAbsolutePath();
 
     log.debug("Building Wallet in: '{}'", walletDirectory.getAbsolutePath());
 
     // Copy in the checkpoints stored in git - this is in src/main/resources
-    File checkpoints = new File(walletDirectoryPath + File.separator + "multibit-hardware.checkpoints");
+//    File checkpoints = new File(walletDirectoryPath + File.separator + "multibit-hardware.checkpoints");
 
-    File source = new java.io.File("./examples/src/main/resources/multibit-hardware.checkpoints");
-    log.debug("Using source checkpoints file {}", source.getAbsolutePath());
+//    File source = new java.io.File("./examples/src/main/resources/multibit-hardware.checkpoints");
+//    log.debug("Using source checkpoints file {}", source.getAbsolutePath());
+//
+//    copyFile(source, checkpoints);
 
-    copyFile(source, checkpoints);
+//    checkpoints.deleteOnExit();
 
-    checkpoints.deleteOnExit();
-
-    log.debug("Copied checkpoints file to '{}', size {} bytes", checkpoints.getAbsolutePath(), checkpoints.length());
+//    log.debug("Copied checkpoints file to '{}', size {} bytes", checkpoints.getAbsolutePath(), checkpoints.length());
 
     return walletDirectory;
   }
@@ -284,24 +319,25 @@ public class SyncWallet {
   private void createNewPeerGroup(Wallet wallet) {
 
     peerGroup = new PeerGroup(networkParameters, blockChain);
-    peerGroup.setUserAgent("SyncWallet", "1");
+    peerGroup.setUserAgent("TrezorWatchingWallet", "1");
 
     peerGroup.addPeerDiscovery(new DnsDiscovery(networkParameters));
 
+    peerGroup.addEventListener(new LoggingPeerEventListener());
+
     peerGroup.addWallet(wallet);
 
-    // Add a PeerEventListener to the PeerGroup if you want to hear about blocks downloaded etc
   }
 
   /**
-   * @param checkpointDate The date of the checkpoint file
+   * @param replayDate The date of the checkpoint file
    *
    * @return The new block store for synchronization
    *
    * @throws BlockStoreException
    * @throws IOException
    */
-  private BlockStore createBlockStore(Date checkpointDate) throws BlockStoreException, IOException {
+  private BlockStore createBlockStore(Date replayDate) throws BlockStoreException, IOException {
 
     BlockStore blockStore = null;
 
@@ -317,7 +353,7 @@ public class SyncWallet {
     // Ensure there is a checkpoints file.
     File checkpointsFile = new File(checkpointsFilename);
 
-    log.debug("Opening / Creating SPV block store '{}' from disk", blockchainFilename);
+    log.debug("{} SPV block store '{}' from disk", blockStoreCreatedNew ? "Creating" : "Opening", blockchainFilename);
     try {
       blockStore = new SPVBlockStore(networkParameters, blockStoreFile);
     } catch (BlockStoreException bse) {
@@ -329,7 +365,7 @@ public class SyncWallet {
       FileInputStream stream = null;
       try {
         stream = new FileInputStream(checkpointsFile);
-        if (checkpointDate == null) {
+        if (replayDate == null) {
           if (blockStoreCreatedNew) {
             // Brand new block store - checkpoint from today. This
             // will go back to the last checkpoint.
@@ -337,7 +373,7 @@ public class SyncWallet {
           }
         } else {
           // Use checkpoint date (block replay).
-          CheckpointManager.checkpoint(networkParameters, stream, blockStore, checkpointDate.getTime() / 1000);
+          CheckpointManager.checkpoint(networkParameters, stream, blockStore, replayDate.getTime() / 1000);
         }
       } finally {
         if (stream != null) {
@@ -368,7 +404,7 @@ public class SyncWallet {
   }
 
   private void handleError(Exception e) {
-    log.error("Error creating SyncWallet " + e.getClass().getName() + " " + e.getMessage());
+    log.error("Error creating watching wallet: " + e.getClass().getName() + " " + e.getMessage());
 
     // Treat as end of example
     System.exit(-1);
