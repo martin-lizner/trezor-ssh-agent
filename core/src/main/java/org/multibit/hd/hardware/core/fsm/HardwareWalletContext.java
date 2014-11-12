@@ -186,12 +186,18 @@ public class HardwareWalletContext {
 
     createWalletSpecification = Optional.absent();
     loadWalletSpecification = Optional.absent();
+
+    features = Optional.absent();
+
     transaction = Optional.absent();
     signatures = Maps.newHashMap();
+
     serializedTx = new ByteArrayOutputStream();
-    features = Optional.absent();
     addressChainCodeMap = Maps.newHashMap();
     transactionOutputCount = Optional.absent();
+
+    childNumbers = Optional.absent();
+    deterministicKey = Optional.absent();
     deterministicHierarchy = Optional.absent();
 
   }
