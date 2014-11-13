@@ -46,6 +46,8 @@ import java.util.concurrent.TimeUnit;
  * <li>Run the example</li>
  * </ol>
  *
+ * This example uses the seed: room misery comfort card follow invest immense pony throw observe combine stick
+ *
  * @since 0.0.1
  *  
  */
@@ -102,10 +104,12 @@ public class TrezorV1SignTxExample2 {
 
     // This would normally be provided by a wallet
     Map<Integer, List<Integer>> addressChainCodeMap = Maps.newHashMap();
-    addressChainCodeMap.put(0, TrezorMessageUtils.buildAddressN(0, KeyChain.KeyPurpose.RECEIVE_FUNDS, 0));
+    List<Integer> path = TrezorMessageUtils.buildAddressN(0, KeyChain.KeyPurpose.RECEIVE_FUNDS, 0);
+    addressChainCodeMap.put(0, path);
+    log.debug("Setting address path for txinput 0 to be {}", path);
     hardwareWalletService.getContext().setAddressChainCodeMap(addressChainCodeMap);
 
-     // Simulate the main thread continuing with other unrelated work
+    // Simulate the main thread continuing with other unrelated work
     // We don't terminate main since we're using safe executors
     Uninterruptibles.sleepUninterruptibly(1, TimeUnit.HOURS);
 
@@ -197,6 +201,7 @@ public class TrezorV1SignTxExample2 {
           receivingKey = ECKey.fromPublicOnly(receivingPubKey);
           Address actualAddress = new Address(MainNetParams.get(), receivingKey.getPubKeyHash());
           log.info("Device provided receiving address public key (0/0):\n'{}'\n'{}'", actualAddress, Utils.HEX.encode(receivingPubKey));
+
         }
 
         // Now we require a valid change address (so back to ADDRESS...)
