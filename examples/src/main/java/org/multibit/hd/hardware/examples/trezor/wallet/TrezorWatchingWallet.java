@@ -37,7 +37,7 @@ import java.util.concurrent.TimeUnit;
  * <p>Requires Trezor V1 production device plugged into a USB HID interface.</p>
  * <p>This example demonstrates the message sequence to get a Bitcoinj deterministic hierarchy
  * from a Trezor that has an active wallet to enable a "watching wallet" to be created.</p>
- *
+ * <p/>
  * <h3>Only perform this example on a Trezor that you are using for test and development!</h3>
  * <h3>Do not send funds to any addresses generated from this xpub unless you have a copy of the seed phrase written down!</h3>
  *
@@ -48,7 +48,7 @@ public class TrezorWatchingWallet {
 
   private static final Logger log = LoggerFactory.getLogger(TrezorWatchingWallet.class);
 
-  private static final String START_OF_REPLAY_PERIOD = "2014-11-10 00:00:00";
+  private static final String START_OF_REPLAY_PERIOD = "2014-11-01 00:00:00";
   private static Date replayDate;
 
   private static PeerGroup peerGroup;
@@ -68,7 +68,6 @@ public class TrezorWatchingWallet {
    * <p>Main entry point to the example</p>
    *
    * @param args None required
-   *
    * @throws Exception If something goes wrong
    */
   public static void main(String[] args) throws Exception {
@@ -77,6 +76,7 @@ public class TrezorWatchingWallet {
     java.util.Calendar cal = Calendar.getInstance(new SimpleTimeZone(0, "GMT"));
     format.setCalendar(cal);
     replayDate = format.parse(START_OF_REPLAY_PERIOD);
+    log.debug("Replay for this watching wallet will be performed from {}", replayDate.toString());
 
     // All the work is done in the class
     TrezorWatchingWallet example = new TrezorWatchingWallet();
@@ -92,10 +92,10 @@ public class TrezorWatchingWallet {
 
     // Use factory to statically bind the specific hardware wallet
     TrezorV1HidHardwareWallet wallet = HardwareWallets.newUsbInstance(
-      TrezorV1HidHardwareWallet.class,
-      Optional.<Integer>absent(),
-      Optional.<Integer>absent(),
-      Optional.<String>absent()
+            TrezorV1HidHardwareWallet.class,
+            Optional.<Integer>absent(),
+            Optional.<Integer>absent(),
+            Optional.<String>absent()
     );
 
     // Wrap the hardware wallet in a suitable client to simplify message API
@@ -140,11 +140,11 @@ public class TrezorWatchingWallet {
 
           // Request the extended public key for the given account
           hardwareWalletService.requestDeterministicHierarchy(
-            Lists.newArrayList(
-              new ChildNumber(44 | ChildNumber.HARDENED_BIT),
-              ChildNumber.ZERO_HARDENED,
-              ChildNumber.ZERO_HARDENED
-            ));
+                  Lists.newArrayList(
+                          new ChildNumber(44 | ChildNumber.HARDENED_BIT),
+                          ChildNumber.ZERO_HARDENED,
+                          ChildNumber.ZERO_HARDENED
+                  ));
 
         } else {
           log.info("You need to have created a wallet before running this example");
@@ -210,20 +210,20 @@ public class TrezorWatchingWallet {
 
       // Derive the first key
       DeterministicKey key_0_0 = hierarchy.deriveChild(
-        Lists.newArrayList(
-          ChildNumber.ZERO
-        ),
-        true,
-        true,
-        ChildNumber.ZERO
+              Lists.newArrayList(
+                      ChildNumber.ZERO
+              ),
+              true,
+              true,
+              ChildNumber.ZERO
       );
       DeterministicKey key_1_0 = hierarchy.deriveChild(
-        Lists.newArrayList(
-          ChildNumber.ONE
-        ),
-        true,
-        true,
-        ChildNumber.ZERO
+              Lists.newArrayList(
+                      ChildNumber.ONE
+              ),
+              true,
+              true,
+              ChildNumber.ZERO
       );
 
       // Calculate the pubkeys
@@ -235,9 +235,9 @@ public class TrezorWatchingWallet {
       Address address_1_0 = new Address(networkParameters, pubkey_1_0.getPubKeyHash());
       log.debug("Derived 1_0 address '{}'", address_1_0.toString());
 
-      watchingWallet = new Wallet(networkParameters);
-      watchingWallet.addWatchedAddress(address_0_0);
-      watchingWallet.addWatchedAddress(address_1_0);
+      DeterministicKey rootNodePubOnly = hierarchy.getRootKey().getPubOnly();
+      log.debug("rootNodePubOnly = " + rootNodePubOnly);
+      watchingWallet = Wallet.fromWatchingKey(networkParameters, rootNodePubOnly, (long) (replayDate.getTime() * 0.001), rootNodePubOnly.getPath());
 
       watchingWallet.saveToFile(new File(walletPath));
 
@@ -251,6 +251,7 @@ public class TrezorWatchingWallet {
       log.debug("Creating block chain...");
       blockChain = new BlockChain(networkParameters, blockStore);
       log.debug("Created block chain '" + blockChain + "' with height " + blockChain.getBestChainHeight());
+      blockChain.addWallet(watchingWallet);
 
       log.debug("Creating peer group...");
       createNewPeerGroup(watchingWallet);
@@ -276,7 +277,7 @@ public class TrezorWatchingWallet {
 
     peerGroup.downloadBlockChain();
 
-    log.info("Balance: {}", watchingWallet.getBalance());
+    log.info("Wallet after sync: {}", watchingWallet.toString());
 
     // Tidy up
     peerGroup.stopAsync();
@@ -319,17 +320,17 @@ public class TrezorWatchingWallet {
 
     peerGroup.addPeerDiscovery(new DnsDiscovery(networkParameters));
 
-    peerGroup.addEventListener(new LoggingPeerEventListener());
+    peerGroup.addEventListener(new WatchingPeerEventListener(wallet));
 
     peerGroup.addWallet(wallet);
+
+    peerGroup.recalculateFastCatchupAndFilter(PeerGroup.FilterRecalculateMode.FORCE_SEND_FOR_REFRESH);
 
   }
 
   /**
    * @param replayDate The date of the checkpoint file
-   *
    * @return The new block store for synchronization
-   *
    * @throws BlockStoreException
    * @throws IOException
    */
@@ -391,8 +392,8 @@ public class TrezorWatchingWallet {
     }
 
     try (
-      FileChannel in = new FileInputStream(from).getChannel();
-      FileChannel out = new FileOutputStream(to).getChannel()) {
+            FileChannel in = new FileInputStream(from).getChannel();
+            FileChannel out = new FileOutputStream(to).getChannel()) {
 
       out.transferFrom(in, 0, in.size());
     }
