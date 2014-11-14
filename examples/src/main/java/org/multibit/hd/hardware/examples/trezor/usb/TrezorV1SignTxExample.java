@@ -97,11 +97,6 @@ public class TrezorV1SignTxExample {
 
     hardwareWalletService.start();
 
-    // This would normally be provided by a wallet
-    Map<Integer, List<Integer>> addressChainCodeMap = Maps.newHashMap();
-    addressChainCodeMap.put(0, TrezorMessageUtils.buildAddressN(0, KeyChain.KeyPurpose.RECEIVE_FUNDS, 0));
-    hardwareWalletService.getContext().setAddressChainCodeMap(addressChainCodeMap);
-
     // Simulate the main thread continuing with other unrelated work
     // We don't terminate main since we're using safe executors
     Uninterruptibles.sleepUninterruptibly(1, TimeUnit.HOURS);
@@ -172,8 +167,12 @@ public class TrezorV1SignTxExample {
             // Set the current transaction
             Transaction currentTx = fakeTxs[1];
 
+            // This would normally be provided by a wallet
+            Map<Integer, List<Integer>> receivingAddressPathMap = Maps.newHashMap();
+            receivingAddressPathMap.put(0, TrezorMessageUtils.buildAddressN(0, KeyChain.KeyPurpose.RECEIVE_FUNDS, 0));
+
             // Sign the transaction
-            hardwareWalletService.signTx(currentTx);
+            hardwareWalletService.signTx(currentTx, receivingAddressPathMap);
 
           } catch (AddressFormatException e) {
             log.error("Could not create address", e);

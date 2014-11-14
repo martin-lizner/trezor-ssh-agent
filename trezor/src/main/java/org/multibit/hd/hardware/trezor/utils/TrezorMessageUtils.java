@@ -1,6 +1,7 @@
 package org.multibit.hd.hardware.trezor.utils;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -493,16 +494,16 @@ public final class TrezorMessageUtils {
   }
 
   /**
-   * @param txRequest           The Trezor request
-   * @param requestedTx         The requested tx (either current or a previous one providing inputs)
-   * @param addressChainCodeMap A map of chain codes for rapid address lookup (called AddressN in Trezor protobuf)
+   * @param txRequest               The Trezor request
+   * @param requestedTx             The requested tx (either current or a previous one providing inputs)
+   * @param receivingAddressPathMap A map of paths for rapid address lookup (called AddressN in Trezor protobuf)
    *
    * @return A Trezor transaction type containing a description of an input
    */
   public static TrezorType.TransactionType buildTxInputResponse(
     TxRequest txRequest,
     Optional<Transaction> requestedTx,
-    Map<Integer, List<Integer>> addressChainCodeMap) {
+    Map<Integer, List<Integer>> receivingAddressPathMap) {
 
     final Optional<Integer> requestIndex = txRequest.getTxRequestDetailsType().getRequestIndex();
     if (!requestIndex.isPresent()) {
@@ -514,10 +515,8 @@ public final class TrezorMessageUtils {
     TransactionInput input = requestedTx.get().getInput(requestIndex.get());
 
     // Look up the chain code of the receiving address
-    List<Integer> addressN = addressChainCodeMap.get(requestIndex.get());
-    if (addressN == null) {
-      addressN = Lists.newArrayList();
-    }
+    List<Integer> addressN = receivingAddressPathMap.get(requestIndex.get());
+    Preconditions.checkNotNull(addressN,"The receiving address path has no entry for index {}. Signing will fail.", requestIndex.get());
 
     // Must be OK to be here
 

@@ -84,7 +84,12 @@ public class HardwareWalletContext {
    * Keep track of any transaction serialization bytes coming back from the device
    */
   private ByteArrayOutputStream serializedTx = new ByteArrayOutputStream();
-  private Map<Integer, List<Integer>> addressChainCodeMap;
+
+  /**
+   * A map keyed on TxInput index and the associated path to the receiving address on that input
+   * This is used during Trezor transaction signing for fast addressN lookup
+   */
+  private Map<Integer, List<Integer>> receivingAddressPathMap;
 
   /**
    * Keep track of the number of times the 'Confirm tx output' has been pressed when signing a tx.
@@ -193,7 +198,7 @@ public class HardwareWalletContext {
     signatures = Maps.newHashMap();
 
     serializedTx = new ByteArrayOutputStream();
-    addressChainCodeMap = Maps.newHashMap();
+    receivingAddressPathMap = Maps.newHashMap();
     transactionOutputCount = Optional.absent();
 
     childNumbers = Optional.absent();
@@ -359,20 +364,10 @@ public class HardwareWalletContext {
   }
 
   /**
-   * @return The map of chain codes for our receiving addresses on the current transaction (key input index, value list of integers)
+   * @return The map of paths for our receiving addresses on the current transaction (key input index, value list of integers)
    */
-  public Map<Integer, List<Integer>> getAddressChainCodeMap() {
-    return addressChainCodeMap;
-  }
-
-  /**
-   * <p>To speed up private key lookup we provide the chain codes for all receiving addresses on the current transaction</p>
-   * <p>Key: input index, value: list of integers</p>
-   *
-   * @param addressChainCodeMap The map of chain codes for our receiving addresses
-   */
-  public void setAddressChainCodeMap(Map<Integer, List<Integer>> addressChainCodeMap) {
-    this.addressChainCodeMap = addressChainCodeMap;
+  public Map<Integer, List<Integer>> getReceivingAddressPathMap() {
+    return receivingAddressPathMap;
   }
 
   /**
@@ -900,8 +895,9 @@ public class HardwareWalletContext {
    * <p>Begin the "sign transaction" use case</p>
    *
    * @param transaction The transaction containing the inputs and outputs
+   * @param receivingAddressPathMap The map of paths for our receiving addresses
    */
-  public void beginSignTxUseCase(Transaction transaction) {
+  public void beginSignTxUseCase(Transaction transaction, Map<Integer, List<Integer>> receivingAddressPathMap) {
 
     log.debug("Begin 'sign transaction' use case");
 
@@ -913,6 +909,7 @@ public class HardwareWalletContext {
 
     // Store the overall context parameters
     this.transaction = Optional.of(transaction);
+    this.receivingAddressPathMap = receivingAddressPathMap;
 
     // Set the event receiving state
     currentState = HardwareWalletStates.newConfirmSignTxState();

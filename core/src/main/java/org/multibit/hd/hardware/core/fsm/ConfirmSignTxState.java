@@ -85,7 +85,7 @@ public class ConfirmSignTxState extends AbstractHardwareWalletState {
           case TX_OUTPUT:
             break;
         }
-        client.txAck(txRequest, transaction, context.getAddressChainCodeMap());
+        client.txAck(txRequest, transaction, context.getReceivingAddressPathMap());
         break;
       case BUTTON_REQUEST:
         // Device is requesting a button press

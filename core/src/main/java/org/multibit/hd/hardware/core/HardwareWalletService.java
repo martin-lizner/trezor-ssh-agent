@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -426,24 +427,26 @@ public class HardwareWalletService {
   /**
    * <p>Request that the device signs the given transaction (limited number of inputs/outputs).</p>
    *
-   * @param transaction The transaction containing all the inputs and outputs
+   * @param transaction             The transaction containing all the inputs and outputs
+   * @param receivingAddressPathMap The paths to the receiving addresses for this transaction keyed by input index
    */
-  public void simpleSignTx(Transaction transaction) {
+  public void simpleSignTx(Transaction transaction, Map<Integer, List<Integer>> receivingAddressPathMap) {
 
     // Set the FSM context
-    context.beginSignTxUseCase(transaction);
+    context.beginSignTxUseCase(transaction, receivingAddressPathMap);
 
   }
 
   /**
    * <p>Request that the device signs the given transaction (unlimited number of inputs/outputs).</p>
    *
-   * @param transaction The transaction containing all the inputs and outputs
+   * @param transaction             The transaction containing all the inputs and outputs
+   * @param receivingAddressPathMap The paths to the receiving addresses for this transaction keyed by input index
    */
-  public void signTx(Transaction transaction) {
+  public void signTx(Transaction transaction, Map<Integer, List<Integer>> receivingAddressPathMap) {
 
     // Set the FSM context
-    context.beginSignTxUseCase(transaction);
+    context.beginSignTxUseCase(transaction, receivingAddressPathMap);
 
   }
 
