@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Set;
 
 /**
  * <p>Implementation to provide the following to application:</p>
@@ -24,6 +25,11 @@ public class WatchingPeerEventListener implements PeerEventListener {
 
   public WatchingPeerEventListener(Wallet wallet) {
     this.wallet = wallet;
+  }
+
+  @Override
+  public void onPeersDiscovered(Set<PeerAddress> peerAddresses) {
+
   }
 
   @Override

@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import org.bitcoinj.crypto.ChildNumber;
 import org.bitcoinj.crypto.DeterministicHierarchy;
 import org.bitcoinj.crypto.DeterministicKey;
+import org.bitcoinj.params.MainNetParams;
 import org.multibit.hd.hardware.core.HardwareWalletClient;
 import org.multibit.hd.hardware.core.events.HardwareWalletEventType;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
@@ -50,7 +51,7 @@ public class ConfirmGetDeterministicHierarchyState extends AbstractHardwareWalle
           // Update the current deterministic key forming the root of the hierarchy
           DeterministicKey parent = context.getDeterministicKey().orNull();
           log.debug("Parent key path: {}", parent == null ? "Root" : parent.getPathAsString());
-          DeterministicKey child = DeterministicKey.deserializeB58(parent, base58Xpub);
+          DeterministicKey child = DeterministicKey.deserializeB58(parent, base58Xpub, MainNetParams.get());
           log.debug("Child key path: {}", child.getPathAsString());
           context.setDeterministicKey(child);
 

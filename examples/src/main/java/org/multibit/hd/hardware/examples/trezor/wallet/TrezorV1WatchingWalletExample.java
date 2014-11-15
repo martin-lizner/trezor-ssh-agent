@@ -17,7 +17,6 @@ import org.bitcoinj.script.Script;
 import org.bitcoinj.store.BlockStore;
 import org.bitcoinj.store.BlockStoreException;
 import org.bitcoinj.store.SPVBlockStore;
-import org.bitcoinj.wallet.DeterministicKeyChain;
 import org.bitcoinj.wallet.KeyChainGroup;
 import org.multibit.hd.hardware.core.HardwareWalletClient;
 import org.multibit.hd.hardware.core.HardwareWalletService;
@@ -52,9 +51,9 @@ import java.util.concurrent.TimeUnit;
  * @since 0.0.1
  *  
  */
-public class TrezorWatchingWallet {
+public class TrezorV1WatchingWalletExample {
 
-  private static final Logger log = LoggerFactory.getLogger(TrezorWatchingWallet.class);
+  private static final Logger log = LoggerFactory.getLogger(TrezorV1WatchingWalletExample.class);
 
   private static final String START_OF_REPLAY_PERIOD = "2014-11-01 00:00:00";
   private static Date replayDate;
@@ -71,9 +70,7 @@ public class TrezorWatchingWallet {
   private HardwareWalletService hardwareWalletService;
 
   private ListeningExecutorService walletService = SafeExecutors.newSingleThreadExecutor("wallet-service");
-  private Wallet watchingWallet;
-  private DeterministicKey rootNodePubOnly;
-  private KeyChainGroup keyChainGroup;
+  private Wallet trezorWatchingWallet;
 
   /**
    * <p>Main entry point to the example</p>
@@ -91,7 +88,7 @@ public class TrezorWatchingWallet {
     log.debug("Replay for this watching wallet will be performed from {}", replayDate.toString());
 
     // All the work is done in the class
-    TrezorWatchingWallet example = new TrezorWatchingWallet();
+    TrezorV1WatchingWalletExample example = new TrezorV1WatchingWalletExample();
 
     example.executeExample();
 
@@ -136,6 +133,9 @@ public class TrezorWatchingWallet {
   public void onHardwareWalletEvent(HardwareWalletEvent event) {
 
     log.debug("Received hardware event: '{}'.{}", event.getEventType().name(), event.getMessage());
+
+    // Allow user input
+    Scanner keyboard;
 
     switch (event.getEventType()) {
       case SHOW_DEVICE_FAILED:
@@ -198,7 +198,7 @@ public class TrezorWatchingWallet {
       case SHOW_PIN_ENTRY:
         // Device requires the current PIN to proceed
         PinMatrixRequest request = (PinMatrixRequest) event.getMessage().get();
-        Scanner keyboard = new Scanner(System.in);
+        keyboard = new Scanner(System.in);
         String pin;
         switch (request.getPinMatrixRequestType()) {
           case CURRENT:
@@ -227,13 +227,22 @@ public class TrezorWatchingWallet {
 
           // Load deviceTx
           Transaction deviceTx = new Transaction(MainNetParams.get(), deviceTxPayload);
-
           log.info("deviceTx:\n{}", deviceTx.toString());
-          log.info("Use http://blockchain.info/pushtx to broadcast this transaction to the Bitcoin network");
-          // The deserialized transaction
-          log.info("DeviceTx info:\n{}", deviceTx.toString());
 
-          log.info("DeviceTx pushtx:\n{}", Utils.HEX.encode(deviceTx.bitcoinSerialize()));
+          keyboard = new Scanner(System.in);
+          System.err.println("Do you want to use your peer group to broadcast this transaction? (Y/N) [Y]? ");
+          String choice = keyboard.next();
+          if (!choice.toLowerCase().startsWith("n")) {
+
+            log.info("Broadcasting via peer group...");
+            peerGroup.broadcastTransaction(deviceTx);
+
+          } else {
+
+            log.info("Use http://blockchain.info/pushtx to broadcast this transaction to the Bitcoin network");
+            log.info("DeviceTx pushtx:\n{}", Utils.HEX.encode(deviceTx.bitcoinSerialize()));
+
+          }
 
         } catch (Exception e) {
           log.error("DeviceTx FAILED.", e);
@@ -277,19 +286,32 @@ public class TrezorWatchingWallet {
 
     try {
 
-      rootNodePubOnly = hierarchy.getRootKey().getPubOnly();
+//      if (walletFile.exists()) {
+//
+//        trezorWatchingWallet = Wallet.loadFromFile(walletFile);
+//
+//      } else {
 
-      // Get the root public key and share the reference with the wallet since it will update
-      // the known key search space which will be handy later
-      keyChainGroup = new KeyChainGroup(networkParameters, rootNodePubOnly, (long) (replayDate.getTime() * 0.001), rootNodePubOnly.getPath());
+        DeterministicKey rootNodePubOnly = hierarchy.getRootKey().getPubOnly();
 
-      // Using this key chain group will result in a watching wallet
-      watchingWallet = new Wallet(networkParameters, keyChainGroup);
+        // Get the root public key and share the reference with the wallet since it will update
+        // the known key search space which will be handy later
+        KeyChainGroup keyChainGroup = new KeyChainGroup(
+          networkParameters,
+          rootNodePubOnly,
+          (long) (replayDate.getTime() * 0.001),
+          rootNodePubOnly.getPath()
+        );
 
-      // Immediately save
-      watchingWallet.saveToFile(walletFile);
+        // Using this key chain group will result in a watching wallet
+        trezorWatchingWallet = new Wallet(networkParameters, keyChainGroup);
 
-      log.debug("Example wallet = \n{}", watchingWallet.toString());
+        // Immediately save
+        trezorWatchingWallet.saveToFile(walletFile);
+
+//      }
+
+      log.debug("Example wallet = \n{}", trezorWatchingWallet.toString());
 
       // Load or create the blockStore..
       log.debug("Loading/creating block store...");
@@ -299,10 +321,10 @@ public class TrezorWatchingWallet {
       log.debug("Creating block chain...");
       blockChain = new BlockChain(networkParameters, blockStore);
       log.debug("Created block chain '" + blockChain + "' with height " + blockChain.getBestChainHeight());
-      blockChain.addWallet(watchingWallet);
+      blockChain.addWallet(trezorWatchingWallet);
 
       log.debug("Creating peer group...");
-      createNewPeerGroup(watchingWallet);
+      createNewPeerGroup(trezorWatchingWallet);
       log.debug("Created peer group '" + peerGroup + "'");
 
       log.debug("Starting peer group...");
@@ -325,10 +347,10 @@ public class TrezorWatchingWallet {
 
     peerGroup.downloadBlockChain();
 
-    log.info("Wallet after sync: {}", watchingWallet.toString());
+    log.info("Wallet after sync: {}", trezorWatchingWallet.toString());
 
     try {
-      watchingWallet.saveToFile(walletFile);
+      trezorWatchingWallet.saveToFile(walletFile);
     } catch (IOException e) {
       handleError(e);
       return;
@@ -337,11 +359,11 @@ public class TrezorWatchingWallet {
     // Now that we're synchronized create a spendable transaction
 
     // Build a spend transaction
-    Address changeAddress = watchingWallet.getChangeAddress();
+    Address changeAddress = trezorWatchingWallet.getChangeAddress();
     Wallet.SendRequest sendRequest = Wallet.SendRequest.to(changeAddress, Coin.valueOf(100_000));
     sendRequest.missingSigsMode = Wallet.MissingSigsMode.USE_OP_ZERO;
     try {
-      watchingWallet.completeTx(sendRequest);
+      trezorWatchingWallet.completeTx(sendRequest);
     } catch (InsufficientMoneyException e) {
       log.error("Insufficient funds. Require at least 100 000 satoshis");
       System.exit(-1);
@@ -466,20 +488,15 @@ public class TrezorWatchingWallet {
 
     Map<Integer, ImmutableList<ChildNumber>> receivingAddressPathMap = Maps.newHashMap();
 
-    Preconditions.checkNotNull(keyChainGroup, "No key chain group. Is wallet created?");
-    DeterministicKeyChain activeKeyChain = keyChainGroup.getActiveKeyChain();
-    Preconditions.checkNotNull(activeKeyChain, "No active key chain. Signing will fail.");
-
     // Examine the Tx inputs to determine receiving addresses in use
     for (int i = 0; i < spendToChangeTx.getInputs().size(); i++) {
       TransactionInput input = spendToChangeTx.getInput(i);
 
-      // Input script arranged as OP_0, PUSHDATA(33)[public key]
+      // Unsigned input script arranged as OP_0, PUSHDATA(33)[public key]
       Script script = input.getScriptSig();
-
       byte[] data = script.getChunks().get(1).data;
 
-      DeterministicKey keyFromPubKey = activeKeyChain.findKeyFromPubKey(data);
+      DeterministicKey keyFromPubKey = trezorWatchingWallet.getActiveKeychain().findKeyFromPubKey(data);
       Preconditions.checkNotNull(keyFromPubKey, "Could not find deterministic key from given pubkey. Input script index: " + i);
 
       receivingAddressPathMap.put(i, keyFromPubKey.getPath());
