@@ -1,10 +1,11 @@
 package org.multibit.hd.hardware.core;
 
+import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
 import org.bitcoinj.core.Address;
 import org.bitcoinj.core.Transaction;
 import org.bitcoinj.crypto.ChildNumber;
 import org.bitcoinj.wallet.KeyChain;
-import com.google.common.base.Optional;
 import org.multibit.hd.hardware.core.events.MessageEvent;
 import org.multibit.hd.hardware.core.messages.TxRequest;
 import org.multibit.hd.hardware.core.wallets.Connectable;
@@ -256,13 +257,13 @@ public interface HardwareWalletClient extends Connectable {
    * <li>FAILURE if the operation was unsuccessful</li>
    * </ul>
    *
-   * @param txRequest The transaction request describing what is required
-   * @param tx        The Bitcoinj transaction providing all the necessary information (will be modified)
+   * @param txRequest               The transaction request describing what is required
+   * @param tx                      The Bitcoinj transaction providing all the necessary information (will be modified)
+   * @param receivingAddressPathMap The receiving address path map (keyed on input index and providing deterministic path to receiving address)
    *
-   * @param addressNMap
    * @return The response event if implementation is blocking. Absent if non-blocking or device failure.
    */
-  Optional<MessageEvent> txAck(TxRequest txRequest, Transaction tx, Map<Integer, List<Integer>> addressNMap);
+  Optional<MessageEvent> txAck(TxRequest txRequest, Transaction tx, Map<Integer, ImmutableList<ChildNumber>> receivingAddressPathMap);
 
   /**
    * <p>Send the PIN_MATRIX_ACK message to the device in response to a PIN_MATRIX_REQUEST.</p>

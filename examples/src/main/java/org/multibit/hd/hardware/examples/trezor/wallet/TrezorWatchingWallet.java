@@ -1,34 +1,36 @@
 package org.multibit.hd.hardware.examples.trezor.wallet;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.eventbus.Subscribe;
-import com.google.common.util.concurrent.ListeningExecutorService;
-import com.google.common.util.concurrent.Uninterruptibles;
+import com.google.common.util.concurrent.*;
 import org.bitcoinj.core.*;
 import org.bitcoinj.crypto.ChildNumber;
 import org.bitcoinj.crypto.DeterministicHierarchy;
 import org.bitcoinj.crypto.DeterministicKey;
 import org.bitcoinj.net.discovery.DnsDiscovery;
 import org.bitcoinj.params.MainNetParams;
+import org.bitcoinj.script.Script;
 import org.bitcoinj.store.BlockStore;
 import org.bitcoinj.store.BlockStoreException;
 import org.bitcoinj.store.SPVBlockStore;
-import org.bitcoinj.wallet.KeyChain;
+import org.bitcoinj.wallet.DeterministicKeyChain;
+import org.bitcoinj.wallet.KeyChainGroup;
 import org.multibit.hd.hardware.core.HardwareWalletClient;
 import org.multibit.hd.hardware.core.HardwareWalletService;
 import org.multibit.hd.hardware.core.concurrent.SafeExecutors;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvent;
-import org.multibit.hd.hardware.core.messages.MainNetAddress;
 import org.multibit.hd.hardware.core.messages.PinMatrixRequest;
 import org.multibit.hd.hardware.core.wallets.HardwareWallets;
 import org.multibit.hd.hardware.trezor.clients.TrezorHardwareWalletClient;
-import org.multibit.hd.hardware.trezor.utils.TrezorMessageUtils;
 import org.multibit.hd.hardware.trezor.wallets.v1.TrezorV1HidHardwareWallet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -70,6 +72,8 @@ public class TrezorWatchingWallet {
 
   private ListeningExecutorService walletService = SafeExecutors.newSingleThreadExecutor("wallet-service");
   private Wallet watchingWallet;
+  private DeterministicKey rootNodePubOnly;
+  private KeyChainGroup keyChainGroup;
 
   /**
    * <p>Main entry point to the example</p>
@@ -162,7 +166,7 @@ public class TrezorWatchingWallet {
       case DETERMINISTIC_HIERARCHY:
 
         // Exit quickly from the event thread
-        walletService.submit(new Runnable() {
+        ListenableFuture<?> future = walletService.submit(new Runnable() {
           @Override
           public void run() {
 
@@ -178,30 +182,19 @@ public class TrezorWatchingWallet {
             createWatchingWallet(hierarchy);
           }
         });
+        Futures.addCallback(future, new FutureCallback<Object>() {
+          @Override
+          public void onSuccess(@Nullable Object result) {
+            log.error("Created watching wallet");
+          }
+
+          @Override
+          public void onFailure(Throwable t) {
+            log.error("Failed", t);
+          }
+        });
 
         break;
-      case ADDRESS:
-
-        MainNetAddress changeAddress = (MainNetAddress) event.getMessage().get();
-
-        // Received an address from the device (must be part of our spend)
-        // Build a spend transaction
-        Wallet.SendRequest sendRequest = Wallet.SendRequest.to(changeAddress.getAddress().get(), Coin.valueOf(100_000));
-        sendRequest.missingSigsMode = Wallet.MissingSigsMode.USE_OP_ZERO;
-        try {
-          watchingWallet.completeTx(sendRequest);
-        } catch (InsufficientMoneyException e) {
-          log.error("Insufficient funds. Require at least 100 000 satoshis");
-          System.exit(-1);
-          return;
-        }
-        final Transaction spendToChangeTx = sendRequest.tx;
-
-        // Create a map of transaction inputs to addresses (we expect funds as a Tx with single input to 0/0/0)
-        Map<Integer, List<Integer>> receivingAddressPathMap = buildReceivingAddressPathMap(spendToChangeTx);
-        hardwareWalletService.signTx(spendToChangeTx, receivingAddressPathMap);
-        break;
-
       case SHOW_PIN_ENTRY:
         // Device requires the current PIN to proceed
         PinMatrixRequest request = (PinMatrixRequest) event.getMessage().get();
@@ -260,42 +253,6 @@ public class TrezorWatchingWallet {
     }
   }
 
-  private Map<Integer, List<Integer>> buildReceivingAddressPathMap(Transaction spendToChangeTx) {
-    Map<Integer, List<Integer>> receivingAddressPathMap = Maps.newHashMap();
-    Address address_0_0 = watchingWallet.getKeyByPath(Lists.newArrayList(
-      new ChildNumber(44 | ChildNumber.HARDENED_BIT),
-      ChildNumber.ZERO_HARDENED,
-      ChildNumber.ZERO_HARDENED,
-      ChildNumber.ZERO,
-      ChildNumber.ZERO
-    )).toAddress(networkParameters);
-
-    Address address_1_0 = watchingWallet.getKeyByPath(Lists.newArrayList(
-      new ChildNumber(44 | ChildNumber.HARDENED_BIT),
-      ChildNumber.ZERO_HARDENED,
-      ChildNumber.ZERO_HARDENED,
-      ChildNumber.ONE,
-      ChildNumber.ZERO
-    )).toAddress(networkParameters);
-
-
-    for (int i = 0; i < spendToChangeTx.getInputs().size(); i++) {
-      TransactionInput input = spendToChangeTx.getInput(i);
-      if (input.getConnectedOutput() != null) {
-        Address address = input.getConnectedOutput().getAddressFromP2PKHScript(networkParameters);
-        if (address_0_0.equals(address)) {
-          receivingAddressPathMap.put(i, TrezorMessageUtils.buildAddressN(0, KeyChain.KeyPurpose.RECEIVE_FUNDS, 0));
-        } else if (address_1_0.equals(address)) {
-          receivingAddressPathMap.put(i, TrezorMessageUtils.buildAddressN(0, KeyChain.KeyPurpose.CHANGE, 0));
-        } else {
-          log.info("Unknown receiving address: {}", address.toString());
-        }
-      }
-
-    }
-    return receivingAddressPathMap;
-  }
-
   /**
    * @param hierarchy The deterministic hierarchy that forms the first node in the watching wallet
    */
@@ -316,44 +273,21 @@ public class TrezorWatchingWallet {
     }
 
     // Create wallet
-    String walletPath = walletEnvironmentDirectory.getAbsolutePath() + File.separator + "watching.wallet";
+    File walletFile = new File(walletEnvironmentDirectory.getAbsolutePath() + File.separator + "watching.wallet");
 
     try {
 
-      // Derive the first key
-      DeterministicKey key_0_0 = hierarchy.deriveChild(
-        Lists.newArrayList(
-          ChildNumber.ZERO
-        ),
-        true,
-        true,
-        ChildNumber.ZERO
-      );
-      DeterministicKey key_1_0 = hierarchy.deriveChild(
-        Lists.newArrayList(
-          ChildNumber.ONE
-        ),
-        true,
-        true,
-        ChildNumber.ZERO
-      );
+      rootNodePubOnly = hierarchy.getRootKey().getPubOnly();
 
-      // Calculate the pubkeys
-      ECKey pubkey_0_0 = ECKey.fromPublicOnly(key_0_0.getPubKey());
-      Address address_0_0 = new Address(networkParameters, pubkey_0_0.getPubKeyHash());
-      log.debug("Derived 0_0 address '{}'", address_0_0.toString());
+      // Get the root public key and share the reference with the wallet since it will update
+      // the known key search space which will be handy later
+      keyChainGroup = new KeyChainGroup(networkParameters, rootNodePubOnly, (long) (replayDate.getTime() * 0.001), rootNodePubOnly.getPath());
 
-      ECKey pubkey_1_0 = ECKey.fromPublicOnly(key_1_0.getPubKey());
-      Address address_1_0 = new Address(networkParameters, pubkey_1_0.getPubKeyHash());
-      log.debug("Derived 1_0 address '{}'", address_1_0.toString());
+      // Using this key chain group will result in a watching wallet
+      watchingWallet = new Wallet(networkParameters, keyChainGroup);
 
-      DeterministicKey rootNodePubOnly = hierarchy.getRootKey().getPubOnly();
-      log.debug("rootNodePubOnly = " + rootNodePubOnly);
-      watchingWallet = Wallet.fromWatchingKey(networkParameters, rootNodePubOnly, (long) (replayDate.getTime() * 0.001), rootNodePubOnly.getPath());
-//      TransactionSigner signer = new TrezorTransactionSigner();
-//      watchingWallet.addTransactionSigner(signer);
-
-      watchingWallet.saveToFile(new File(walletPath));
+      // Immediately save
+      watchingWallet.saveToFile(walletFile);
 
       log.debug("Example wallet = \n{}", watchingWallet.toString());
 
@@ -393,15 +327,31 @@ public class TrezorWatchingWallet {
 
     log.info("Wallet after sync: {}", watchingWallet.toString());
 
+    try {
+      watchingWallet.saveToFile(walletFile);
+    } catch (IOException e) {
+      handleError(e);
+      return;
+    }
+
     // Now that we're synchronized create a spendable transaction
-    spendFundsToChangeAddress();
 
-  }
+    // Build a spend transaction
+    Address changeAddress = watchingWallet.getChangeAddress();
+    Wallet.SendRequest sendRequest = Wallet.SendRequest.to(changeAddress, Coin.valueOf(100_000));
+    sendRequest.missingSigsMode = Wallet.MissingSigsMode.USE_OP_ZERO;
+    try {
+      watchingWallet.completeTx(sendRequest);
+    } catch (InsufficientMoneyException e) {
+      log.error("Insufficient funds. Require at least 100 000 satoshis");
+      System.exit(-1);
+      return;
+    }
+    final Transaction spendToChangeTx = sendRequest.tx;
 
-  private void spendFundsToChangeAddress() {
-
-    // Request an address
-    hardwareWalletService.requestAddress(0, KeyChain.KeyPurpose.CHANGE, 0, false);
+    // Create a map of transaction inputs to addresses (we expect funds as a Tx with single input to 0/0/0)
+    Map<Integer, ImmutableList<ChildNumber>> receivingAddressPathMap = buildReceivingAddressPathMap(spendToChangeTx);
+    hardwareWalletService.signTx(spendToChangeTx, receivingAddressPathMap);
 
   }
 
@@ -505,6 +455,38 @@ public class TrezorWatchingWallet {
 
     return blockStore;
 
+  }
+
+  /**
+   * @param spendToChangeTx The proposed transaction
+   *
+   * @return The receiving address path map linking the tx input index to a deterministic path
+   */
+  private Map<Integer, ImmutableList<ChildNumber>> buildReceivingAddressPathMap(Transaction spendToChangeTx) {
+
+    Map<Integer, ImmutableList<ChildNumber>> receivingAddressPathMap = Maps.newHashMap();
+
+    Preconditions.checkNotNull(keyChainGroup, "No key chain group. Is wallet created?");
+    DeterministicKeyChain activeKeyChain = keyChainGroup.getActiveKeyChain();
+    Preconditions.checkNotNull(activeKeyChain, "No active key chain. Signing will fail.");
+
+    // Examine the Tx inputs to determine receiving addresses in use
+    for (int i = 0; i < spendToChangeTx.getInputs().size(); i++) {
+      TransactionInput input = spendToChangeTx.getInput(i);
+
+      // Input script arranged as OP_0, PUSHDATA(33)[public key]
+      Script script = input.getScriptSig();
+
+      byte[] data = script.getChunks().get(1).data;
+
+      DeterministicKey keyFromPubKey = activeKeyChain.findKeyFromPubKey(data);
+      Preconditions.checkNotNull(keyFromPubKey, "Could not find deterministic key from given pubkey. Input script index: " + i);
+
+      receivingAddressPathMap.put(i, keyFromPubKey.getPath());
+
+    }
+
+    return receivingAddressPathMap;
   }
 
   private void copyFile(File from, File to) throws IOException {

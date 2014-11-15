@@ -2,6 +2,7 @@ package org.multibit.hd.hardware.trezor.utils;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
@@ -496,6 +497,7 @@ public final class TrezorMessageUtils {
   /**
    * @param txRequest               The Trezor request
    * @param requestedTx             The requested tx (either current or a previous one providing inputs)
+   * @param binOutputType           True if the requested tx is a parent (the receiving address map does not apply)
    * @param receivingAddressPathMap A map of paths for rapid address lookup (called AddressN in Trezor protobuf)
    *
    * @return A Trezor transaction type containing a description of an input
@@ -503,7 +505,7 @@ public final class TrezorMessageUtils {
   public static TrezorType.TransactionType buildTxInputResponse(
     TxRequest txRequest,
     Optional<Transaction> requestedTx,
-    Map<Integer, List<Integer>> receivingAddressPathMap) {
+    boolean binOutputType, Map<Integer, ImmutableList<ChildNumber>> receivingAddressPathMap) {
 
     final Optional<Integer> requestIndex = txRequest.getTxRequestDetailsType().getRequestIndex();
     if (!requestIndex.isPresent()) {
@@ -514,9 +516,13 @@ public final class TrezorMessageUtils {
     // Get the transaction input indicated by the request index
     TransactionInput input = requestedTx.get().getInput(requestIndex.get());
 
-    // Look up the chain code of the receiving address
-    List<Integer> addressN = receivingAddressPathMap.get(requestIndex.get());
-    Preconditions.checkNotNull(addressN,"The receiving address path has no entry for index {}. Signing will fail.", requestIndex.get());
+    List<Integer> addressN = Lists.newArrayList();
+    if (!binOutputType) {
+      // We are the current transaction so look up the path of the receiving address
+      ImmutableList<ChildNumber> receivingAddressPath = receivingAddressPathMap.get(requestIndex.get());
+      Preconditions.checkNotNull(receivingAddressPath, "The receiving address path has no entry for index " + requestIndex.get() + ". Signing will fail.");
+      addressN = TrezorMessageUtils.buildAddressN(receivingAddressPath);
+    }
 
     // Must be OK to be here
 
@@ -543,7 +549,6 @@ public final class TrezorMessageUtils {
       .build();
 
   }
-
 
   /**
    * @param txRequest   The Trezor request
@@ -616,6 +621,7 @@ public final class TrezorMessageUtils {
 
   }
 
+
   /**
    * <p>Build an AddressN chain code structure</p>
    *
@@ -646,5 +652,26 @@ public final class TrezorMessageUtils {
       index
     );
   }
+
+  /**
+   * <p>Build an AddressN chain code structure</p>
+   *
+   * @param receivingAddressPath The Bitcoinj receiving address path
+   *
+   * @return The list representing the chain code (only a simple chain is currently supported)
+   */
+  public static List<Integer> buildAddressN(ImmutableList<ChildNumber> receivingAddressPath) {
+
+    List<Integer> addressN = Lists.newArrayList();
+
+    for (ChildNumber childNumber : receivingAddressPath) {
+
+      addressN.add(childNumber.getI());
+
+    }
+
+    return addressN;
+  }
+
 
 }

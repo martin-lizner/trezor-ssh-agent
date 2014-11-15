@@ -1,10 +1,12 @@
 package org.multibit.hd.hardware.examples.trezor.usb;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.Uninterruptibles;
 import org.bitcoinj.core.*;
+import org.bitcoinj.crypto.ChildNumber;
 import org.bitcoinj.crypto.TransactionSignature;
 import org.bitcoinj.params.MainNetParams;
 import org.bitcoinj.wallet.KeyChain;
@@ -18,12 +20,10 @@ import org.multibit.hd.hardware.core.messages.PublicKey;
 import org.multibit.hd.hardware.core.wallets.HardwareWallets;
 import org.multibit.hd.hardware.examples.trezor.FakeTransactions2;
 import org.multibit.hd.hardware.trezor.clients.TrezorHardwareWalletClient;
-import org.multibit.hd.hardware.trezor.utils.TrezorMessageUtils;
 import org.multibit.hd.hardware.trezor.wallets.v1.TrezorV1HidHardwareWallet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
@@ -173,8 +173,16 @@ public class TrezorV1SignTxExample2 {
             Transaction currentTx = fakeTxs[1];
 
             // This would normally be provided by a wallet
-            Map<Integer, List<Integer>> receivingAddressPathMap = Maps.newHashMap();
-            receivingAddressPathMap.put(0, TrezorMessageUtils.buildAddressN(0, KeyChain.KeyPurpose.RECEIVE_FUNDS, 0));
+            ImmutableList<ChildNumber> path_0_0_0 = ImmutableList.of(
+              new ChildNumber(44 | ChildNumber.HARDENED_BIT),
+              ChildNumber.ZERO_HARDENED,
+              ChildNumber.ZERO_HARDENED,
+              ChildNumber.ZERO,
+              ChildNumber.ZERO,
+              ChildNumber.ZERO
+            );
+            Map<Integer, ImmutableList<ChildNumber>> receivingAddressPathMap = Maps.newHashMap();
+            receivingAddressPathMap.put(0, path_0_0_0);
 
             // Sign the transaction
             hardwareWalletService.signTx(currentTx, receivingAddressPathMap);

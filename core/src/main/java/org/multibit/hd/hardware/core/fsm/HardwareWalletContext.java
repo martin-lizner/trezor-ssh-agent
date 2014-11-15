@@ -1,6 +1,7 @@
 package org.multibit.hd.hardware.core.fsm;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.eventbus.Subscribe;
@@ -89,7 +90,7 @@ public class HardwareWalletContext {
    * A map keyed on TxInput index and the associated path to the receiving address on that input
    * This is used during Trezor transaction signing for fast addressN lookup
    */
-  private Map<Integer, List<Integer>> receivingAddressPathMap;
+  private Map<Integer, ImmutableList<ChildNumber>> receivingAddressPathMap;
 
   /**
    * Keep track of the number of times the 'Confirm tx output' has been pressed when signing a tx.
@@ -364,9 +365,9 @@ public class HardwareWalletContext {
   }
 
   /**
-   * @return The map of paths for our receiving addresses on the current transaction (key input index, value list of integers)
+   * @return The map of paths for our receiving addresses on the current transaction (key input index, value deterministic path to receiving address)
    */
-  public Map<Integer, List<Integer>> getReceivingAddressPathMap() {
+  public Map<Integer, ImmutableList<ChildNumber>> getReceivingAddressPathMap() {
     return receivingAddressPathMap;
   }
 
@@ -895,9 +896,9 @@ public class HardwareWalletContext {
    * <p>Begin the "sign transaction" use case</p>
    *
    * @param transaction The transaction containing the inputs and outputs
-   * @param receivingAddressPathMap The map of paths for our receiving addresses
+   * @param receivingAddressPathMap The map of paths for our receiving addresses)
    */
-  public void beginSignTxUseCase(Transaction transaction, Map<Integer, List<Integer>> receivingAddressPathMap) {
+  public void beginSignTxUseCase(Transaction transaction, Map<Integer, ImmutableList<ChildNumber>> receivingAddressPathMap) {
 
     log.debug("Begin 'sign transaction' use case");
 

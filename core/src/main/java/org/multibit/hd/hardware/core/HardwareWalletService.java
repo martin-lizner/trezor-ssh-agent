@@ -1,6 +1,7 @@
 package org.multibit.hd.hardware.core;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import com.google.common.eventbus.EventBus;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import org.bitcoinj.core.Transaction;
@@ -430,7 +431,7 @@ public class HardwareWalletService {
    * @param transaction             The transaction containing all the inputs and outputs
    * @param receivingAddressPathMap The paths to the receiving addresses for this transaction keyed by input index
    */
-  public void simpleSignTx(Transaction transaction, Map<Integer, List<Integer>> receivingAddressPathMap) {
+  public void simpleSignTx(Transaction transaction, Map<Integer, ImmutableList<ChildNumber>> receivingAddressPathMap) {
 
     // Set the FSM context
     context.beginSignTxUseCase(transaction, receivingAddressPathMap);
@@ -443,7 +444,7 @@ public class HardwareWalletService {
    * @param transaction             The transaction containing all the inputs and outputs
    * @param receivingAddressPathMap The paths to the receiving addresses for this transaction keyed by input index
    */
-  public void signTx(Transaction transaction, Map<Integer, List<Integer>> receivingAddressPathMap) {
+  public void signTx(Transaction transaction, Map<Integer, ImmutableList<ChildNumber>> receivingAddressPathMap) {
 
     // Set the FSM context
     context.beginSignTxUseCase(transaction, receivingAddressPathMap);
