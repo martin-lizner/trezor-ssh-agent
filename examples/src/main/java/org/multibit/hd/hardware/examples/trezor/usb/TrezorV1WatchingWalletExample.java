@@ -1,4 +1,4 @@
-package org.multibit.hd.hardware.examples.trezor.wallet;
+package org.multibit.hd.hardware.examples.trezor.usb;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -24,6 +24,7 @@ import org.multibit.hd.hardware.core.concurrent.SafeExecutors;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvent;
 import org.multibit.hd.hardware.core.messages.PinMatrixRequest;
 import org.multibit.hd.hardware.core.wallets.HardwareWallets;
+import org.multibit.hd.hardware.examples.trezor.wallet.WatchingPeerEventListener;
 import org.multibit.hd.hardware.trezor.clients.TrezorHardwareWalletClient;
 import org.multibit.hd.hardware.trezor.wallets.v1.TrezorV1HidHardwareWallet;
 import org.slf4j.Logger;
@@ -40,6 +41,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * <p>Step 5 - Sign a transaction</p>
  * <p>Create a Bitcoinj watching wallet based on a deterministic hierarchy provided by a Trezor</p>
  * <p>Requires Trezor V1 production device plugged into a USB HID interface.</p>
  * <p>This example demonstrates the message sequence to get a Bitcoinj deterministic hierarchy
@@ -230,9 +232,9 @@ public class TrezorV1WatchingWalletExample {
           log.info("deviceTx:\n{}", deviceTx.toString());
 
           keyboard = new Scanner(System.in);
-          System.err.println("Do you want to use your peer group to broadcast this transaction? (Y/N) [Y]? ");
+          System.err.println("Do you want to use your peer group to broadcast this transaction? (Y/N) ? ");
           String choice = keyboard.next();
-          if (!choice.toLowerCase().startsWith("n")) {
+          if (choice.toLowerCase().startsWith("y")) {
 
             log.info("Broadcasting via peer group...");
             peerGroup.broadcastTransaction(deviceTx);
@@ -286,11 +288,11 @@ public class TrezorV1WatchingWalletExample {
 
     try {
 
-//      if (walletFile.exists()) {
-//
-//        trezorWatchingWallet = Wallet.loadFromFile(walletFile);
-//
-//      } else {
+      if (walletFile.exists()) {
+
+        trezorWatchingWallet = Wallet.loadFromFile(walletFile);
+
+      } else {
 
         DeterministicKey rootNodePubOnly = hierarchy.getRootKey().getPubOnly();
 
@@ -309,7 +311,7 @@ public class TrezorV1WatchingWalletExample {
         // Immediately save
         trezorWatchingWallet.saveToFile(walletFile);
 
-//      }
+      }
 
       log.debug("Example wallet = \n{}", trezorWatchingWallet.toString());
 
