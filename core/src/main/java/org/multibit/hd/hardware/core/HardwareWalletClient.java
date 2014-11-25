@@ -260,10 +260,11 @@ public interface HardwareWalletClient extends Connectable {
    * @param txRequest               The transaction request describing what is required
    * @param tx                      The Bitcoinj transaction providing all the necessary information (will be modified)
    * @param receivingAddressPathMap The receiving address path map (keyed on input index and providing deterministic path to receiving address)
+   * @param changeAddressPathMap    The change address path map (keyed on Address and providing deterministic path to change address)
    *
    * @return The response event if implementation is blocking. Absent if non-blocking or device failure.
    */
-  Optional<MessageEvent> txAck(TxRequest txRequest, Transaction tx, Map<Integer, ImmutableList<ChildNumber>> receivingAddressPathMap);
+  Optional<MessageEvent> txAck(TxRequest txRequest, Transaction tx, Map<Integer, ImmutableList<ChildNumber>> receivingAddressPathMap, Map<Address, ImmutableList<ChildNumber>> changeAddressPathMap);
 
   /**
    * <p>Send the PIN_MATRIX_ACK message to the device in response to a PIN_MATRIX_REQUEST.</p>

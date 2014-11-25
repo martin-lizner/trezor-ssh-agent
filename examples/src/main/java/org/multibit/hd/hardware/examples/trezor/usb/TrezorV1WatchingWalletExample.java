@@ -17,6 +17,7 @@ import org.bitcoinj.script.Script;
 import org.bitcoinj.store.BlockStore;
 import org.bitcoinj.store.BlockStoreException;
 import org.bitcoinj.store.SPVBlockStore;
+import org.bitcoinj.wallet.DeterministicKeyChain;
 import org.bitcoinj.wallet.KeyChainGroup;
 import org.multibit.hd.hardware.core.HardwareWalletClient;
 import org.multibit.hd.hardware.core.HardwareWalletService;
@@ -360,9 +361,18 @@ public class TrezorV1WatchingWalletExample {
 
     // Now that we're synchronized create a spendable transaction
 
-    // Build a spend transaction
-    Address changeAddress = trezorWatchingWallet.getChangeAddress();
-    Wallet.SendRequest sendRequest = Wallet.SendRequest.to(changeAddress, Coin.valueOf(100_000));
+    // Build a spend transaction to an external address (ideally under your control)
+    final Address spendAddress;
+    try {
+      spendAddress = new Address(MainNetParams.get(), "1AhN6rPdrMuKBGFDKR1k9A8SCLYaNgXhty");
+    } catch (AddressFormatException e) {
+      log.error(e.getMessage(), e);
+      System.exit(-1);
+      return;
+    }
+
+    // Spend 1 milli to the spend address
+    Wallet.SendRequest sendRequest = Wallet.SendRequest.to(spendAddress, Coin.valueOf(100_000));
     sendRequest.missingSigsMode = Wallet.MissingSigsMode.USE_OP_ZERO;
     try {
       trezorWatchingWallet.completeTx(sendRequest);
@@ -375,7 +385,8 @@ public class TrezorV1WatchingWalletExample {
 
     // Create a map of transaction inputs to addresses (we expect funds as a Tx with single input to 0/0/0)
     Map<Integer, ImmutableList<ChildNumber>> receivingAddressPathMap = buildReceivingAddressPathMap(spendToChangeTx);
-    hardwareWalletService.signTx(spendToChangeTx, receivingAddressPathMap);
+    Map<Address, ImmutableList<ChildNumber>> changeAddressPathMap = buildChangeAddressPathMap(spendToChangeTx);
+    hardwareWalletService.signTx(spendToChangeTx, receivingAddressPathMap, changeAddressPathMap);
 
   }
 
@@ -482,17 +493,17 @@ public class TrezorV1WatchingWalletExample {
   }
 
   /**
-   * @param spendToChangeTx The proposed transaction
+   * @param tx The proposed transaction
    *
    * @return The receiving address path map linking the tx input index to a deterministic path
    */
-  private Map<Integer, ImmutableList<ChildNumber>> buildReceivingAddressPathMap(Transaction spendToChangeTx) {
+  private Map<Integer, ImmutableList<ChildNumber>> buildReceivingAddressPathMap(Transaction tx) {
 
     Map<Integer, ImmutableList<ChildNumber>> receivingAddressPathMap = Maps.newHashMap();
 
     // Examine the Tx inputs to determine receiving addresses in use
-    for (int i = 0; i < spendToChangeTx.getInputs().size(); i++) {
-      TransactionInput input = spendToChangeTx.getInput(i);
+    for (int i = 0; i < tx.getInputs().size(); i++) {
+      TransactionInput input = tx.getInput(i);
 
       // Unsigned input script arranged as OP_0, PUSHDATA(33)[public key]
       Script script = input.getScriptSig();
@@ -506,6 +517,63 @@ public class TrezorV1WatchingWalletExample {
     }
 
     return receivingAddressPathMap;
+  }
+
+  /**
+   * @param tx The proposed transaction
+   *
+   * @return The receiving address path map linking the tx input index to a deterministic path
+   */
+  private Map<Address, ImmutableList<ChildNumber>> buildChangeAddressPathMap(Transaction tx) {
+
+    Map<Address, ImmutableList<ChildNumber>> changeAddressPathMap = Maps.newHashMap();
+
+    DeterministicKeyChain activeKeyChain = trezorWatchingWallet.getActiveKeychain();
+
+    for (int i = 0; i < tx.getOutputs().size(); i++) {
+
+      TransactionOutput output = tx.getOutput(i);
+
+      Optional<DeterministicKey> key = Optional.absent();
+      Optional<Address> address = Optional.absent();
+
+      // Analyse the output script
+      Script script = output.getScriptPubKey();
+      if (script.isSentToRawPubKey()) {
+
+        // Use the raw public key
+        byte[] pubkey = script.getPubKey();
+        if (trezorWatchingWallet.isPubKeyMine(pubkey)) {
+          key = Optional.fromNullable(activeKeyChain.findKeyFromPubKey(pubkey));
+          ECKey ecKey = ECKey.fromPublicOnly(pubkey);
+          address = Optional.fromNullable(ecKey.toAddress(MainNetParams.get()));
+        }
+
+      } else if (script.isPayToScriptHash() && trezorWatchingWallet.isPayToScriptHashMine(script.getPubKeyHash())) {
+
+        // Extract the public key hash from the script
+        byte[] pubkeyHash = script.getPubKeyHash();
+        key = Optional.fromNullable(activeKeyChain.findKeyFromPubHash(pubkeyHash));
+        address = Optional.fromNullable(new Address(MainNetParams.get(), pubkeyHash));
+      } else {
+
+        // Use the public key hash
+        byte[] pubkeyHash = script.getPubKeyHash();
+        if (trezorWatchingWallet.isPubKeyHashMine(pubkeyHash)) {
+          key = Optional.fromNullable(activeKeyChain.findKeyFromPubHash(pubkeyHash));
+          address = Optional.fromNullable(new Address(MainNetParams.get(), pubkeyHash));
+        }
+      }
+
+     if (key.isPresent() && address.isPresent()) {
+
+       // Found an address we own
+       changeAddressPathMap.put(address.get(), key.get().getPath());
+     }
+
+    }
+
+    return changeAddressPathMap;
   }
 
   private void copyFile(File from, File to) throws IOException {

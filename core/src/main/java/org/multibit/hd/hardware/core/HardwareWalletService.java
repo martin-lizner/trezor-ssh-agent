@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.eventbus.EventBus;
 import com.google.common.util.concurrent.ListeningExecutorService;
+import org.bitcoinj.core.Address;
 import org.bitcoinj.core.Transaction;
 import org.bitcoinj.crypto.ChildNumber;
 import org.bitcoinj.wallet.KeyChain;
@@ -430,11 +431,11 @@ public class HardwareWalletService {
    *
    * @param transaction             The transaction containing all the inputs and outputs
    * @param receivingAddressPathMap The paths to the receiving addresses for this transaction keyed by input index
+   * @param changeAddressPathMap    The paths to the change address for this transaction keyed by Address
    */
-  public void simpleSignTx(Transaction transaction, Map<Integer, ImmutableList<ChildNumber>> receivingAddressPathMap) {
+  public void simpleSignTx(Transaction transaction, Map<Integer, ImmutableList<ChildNumber>> receivingAddressPathMap, Map<Address, ImmutableList<ChildNumber>> changeAddressPathMap) {
 
-    // Set the FSM context
-    context.beginSignTxUseCase(transaction, receivingAddressPathMap);
+    throw new UnsupportedOperationException("Not yet supported. Use signTx instead.");
 
   }
 
@@ -443,11 +444,12 @@ public class HardwareWalletService {
    *
    * @param transaction             The transaction containing all the inputs and outputs
    * @param receivingAddressPathMap The paths to the receiving addresses for this transaction keyed by input index
+   * @param changeAddressPathMap    The paths to the change address for this transaction keyed by Address
    */
-  public void signTx(Transaction transaction, Map<Integer, ImmutableList<ChildNumber>> receivingAddressPathMap) {
+  public void signTx(Transaction transaction, Map<Integer, ImmutableList<ChildNumber>> receivingAddressPathMap, Map<Address, ImmutableList<ChildNumber>> changeAddressPathMap) {
 
     // Set the FSM context
-    context.beginSignTxUseCase(transaction, receivingAddressPathMap);
+    context.beginSignTxUseCase(transaction, receivingAddressPathMap, changeAddressPathMap);
 
   }
 

@@ -505,7 +505,9 @@ public final class TrezorMessageUtils {
   public static TrezorType.TransactionType buildTxInputResponse(
     TxRequest txRequest,
     Optional<Transaction> requestedTx,
-    boolean binOutputType, Map<Integer, ImmutableList<ChildNumber>> receivingAddressPathMap) {
+    boolean binOutputType,
+    Map<Integer, ImmutableList<ChildNumber>> receivingAddressPathMap
+  ) {
 
     final Optional<Integer> requestIndex = txRequest.getTxRequestDetailsType().getRequestIndex();
     if (!requestIndex.isPresent()) {
@@ -551,16 +553,19 @@ public final class TrezorMessageUtils {
   }
 
   /**
-   * @param txRequest   The Trezor request
-   * @param requestedTx The requested tx (either current or a previous one providing inputs)
+   * @param txRequest            The Trezor request
+   * @param requestedTx          The requested tx (either current or a previous one providing inputs)
+   * @param changeAddressPathMap A map of paths for rapid address lookup (called AddressN in Trezor protobuf)
    *
    * @return A Trezor transaction type containing a description of an output
    */
   public static TrezorType.TransactionType buildTxOutputResponse(
     TxRequest txRequest,
     Optional<Transaction> requestedTx,
-    boolean binOutputType
-  ) {
+    boolean binOutputType,
+    Map<Address, ImmutableList<ChildNumber>> changeAddressPathMap) {
+
+    Preconditions.checkNotNull(changeAddressPathMap, "'changeAddressPathMap' must be present");
 
     final Optional<Integer> requestIndex = txRequest.getTxRequestDetailsType().getRequestIndex();
     if (!requestIndex.isPresent()) {
@@ -607,12 +612,33 @@ public final class TrezorMessageUtils {
       outputScriptType = TrezorType.OutputScriptType.PAYTOADDRESS;
     }
 
-    TrezorType.TxOutputType txOutputType = TrezorType.TxOutputType
-      .newBuilder()
-      .setAddress(String.valueOf(address))
-      .setAmount(output.getValue().value)
-      .setScriptType(outputScriptType)
-      .build();
+    final TrezorType.TxOutputType txOutputType;
+
+    // Check for change addresses
+
+    if (changeAddressPathMap.containsKey(address)) {
+
+      Iterable<? extends Integer> addressN = buildAddressN(changeAddressPathMap.get(address));
+
+      // Known change address so it won't trigger a sign confirmation
+      txOutputType = TrezorType.TxOutputType
+        .newBuilder()
+        .addAllAddressN(addressN)
+        .setAmount(output.getValue().value)
+        .setScriptType(outputScriptType)
+        .build();
+
+    } else {
+
+      // Unknown address so can expect a sign confirmation
+      txOutputType = TrezorType.TxOutputType
+        .newBuilder()
+        .setAddress(String.valueOf(address))
+        .setAmount(output.getValue().value)
+        .setScriptType(outputScriptType)
+        .build();
+
+    }
 
     return TrezorType.TransactionType
       .newBuilder()

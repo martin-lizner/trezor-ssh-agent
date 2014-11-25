@@ -313,7 +313,7 @@ public abstract class AbstractTrezorHardwareWalletClient implements HardwareWall
   }
 
   @Override
-  public Optional<MessageEvent> txAck(TxRequest txRequest, Transaction tx, Map<Integer, ImmutableList<ChildNumber>> addressChainCodeMap) {
+  public Optional<MessageEvent> txAck(TxRequest txRequest, Transaction tx, Map<Integer, ImmutableList<ChildNumber>> receivingAddressPathMap, Map<Address, ImmutableList<ChildNumber>> changeAddressPathMap) {
 
     TrezorType.TransactionType txType = null;
 
@@ -344,10 +344,10 @@ public abstract class AbstractTrezorHardwareWalletClient implements HardwareWall
         txType = TrezorMessageUtils.buildTxMetaResponse(requestedTx);
         break;
       case TX_INPUT:
-        txType = TrezorMessageUtils.buildTxInputResponse(txRequest, requestedTx, binOutputType, addressChainCodeMap);
+        txType = TrezorMessageUtils.buildTxInputResponse(txRequest, requestedTx, binOutputType, receivingAddressPathMap);
         break;
       case TX_OUTPUT:
-        txType = TrezorMessageUtils.buildTxOutputResponse(txRequest, requestedTx, binOutputType);
+        txType = TrezorMessageUtils.buildTxOutputResponse(txRequest, requestedTx, binOutputType, changeAddressPathMap);
         break;
       case TX_FINISHED:
         log.info("TxSign workflow complete.");

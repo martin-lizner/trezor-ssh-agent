@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.eventbus.Subscribe;
+import org.bitcoinj.core.Address;
 import org.bitcoinj.core.Transaction;
 import org.bitcoinj.crypto.ChildNumber;
 import org.bitcoinj.crypto.DeterministicHierarchy;
@@ -93,6 +94,13 @@ public class HardwareWalletContext {
   private Map<Integer, ImmutableList<ChildNumber>> receivingAddressPathMap;
 
   /**
+   * A map keyed on TxOutput Address and the associated path to the change address on that output
+   * This is used during Trezor transaction signing for fast addressN lookup, removes the need
+   * to confirm a change address and ensures the transaction balance is correct on the display
+   */
+  private Map<Address, ImmutableList<ChildNumber>> changeAddressPathMap;
+
+  /**
    * Keep track of the number of times the 'Confirm tx output' has been pressed when signing a tx.
    * (Each transaction output is presented to the user in order in turn and they confirm each)
    */
@@ -115,7 +123,6 @@ public class HardwareWalletContext {
    * The end result can be found in {@link #deterministicHierarchy}.
    */
   private Optional<DeterministicKey> deterministicKey = Optional.absent();
-
   /**
    * Provide a deterministic hierarchy containing all hardened extended public keys so that a
    * watching wallet can be created
@@ -200,6 +207,8 @@ public class HardwareWalletContext {
 
     serializedTx = new ByteArrayOutputStream();
     receivingAddressPathMap = Maps.newHashMap();
+    changeAddressPathMap = Maps.newHashMap();
+
     transactionOutputCount = Optional.absent();
 
     childNumbers = Optional.absent();
@@ -369,6 +378,13 @@ public class HardwareWalletContext {
    */
   public Map<Integer, ImmutableList<ChildNumber>> getReceivingAddressPathMap() {
     return receivingAddressPathMap;
+  }
+
+  /**
+   * @return The map of paths for the change address (key address, value deterministic path to change address)
+   */
+  public Map<Address, ImmutableList<ChildNumber>> getChangeAddressPathMap() {
+    return changeAddressPathMap;
   }
 
   /**
@@ -870,35 +886,13 @@ public class HardwareWalletContext {
   }
 
   /**
-   * <p>Begin the "simple sign transaction" use case</p>
-   *
-   * @param transaction The transaction containing the inputs and outputs
-   */
-  public void beginSimpleSignTxUseCase(Transaction transaction) {
-
-    log.debug("Begin 'simple sign transaction' use case");
-
-    // Clear relevant information
-    resetAllButFeatures();
-
-    // Store the overall context parameters
-    this.transaction = Optional.of(transaction);
-
-    // Set the event receiving state
-    currentState = HardwareWalletStates.newConfirmSignTxState();
-
-    // Issue starting message to elicit the event
-    client.simpleSignTx(transaction);
-
-  }
-
-  /**
    * <p>Begin the "sign transaction" use case</p>
    *
-   * @param transaction The transaction containing the inputs and outputs
-   * @param receivingAddressPathMap The map of paths for our receiving addresses)
+   * @param transaction             The transaction containing the inputs and outputs
+   * @param receivingAddressPathMap The map of paths for our receiving addresses
+   * @param changeAddressPathMap    The map paths for our change address
    */
-  public void beginSignTxUseCase(Transaction transaction, Map<Integer, ImmutableList<ChildNumber>> receivingAddressPathMap) {
+  public void beginSignTxUseCase(Transaction transaction, Map<Integer, ImmutableList<ChildNumber>> receivingAddressPathMap, Map<Address, ImmutableList<ChildNumber>> changeAddressPathMap) {
 
     log.debug("Begin 'sign transaction' use case");
 
@@ -911,6 +905,7 @@ public class HardwareWalletContext {
     // Store the overall context parameters
     this.transaction = Optional.of(transaction);
     this.receivingAddressPathMap = receivingAddressPathMap;
+    this.changeAddressPathMap = changeAddressPathMap;
 
     // Set the event receiving state
     currentState = HardwareWalletStates.newConfirmSignTxState();
@@ -938,5 +933,4 @@ public class HardwareWalletContext {
     client.pinMatrixAck(pin);
 
   }
-
 }
