@@ -101,12 +101,6 @@ public class HardwareWalletContext {
   private Map<Address, ImmutableList<ChildNumber>> changeAddressPathMap;
 
   /**
-   * Keep track of the number of times the 'Confirm tx output' has been pressed when signing a tx.
-   * (Each transaction output is presented to the user in order in turn and they confirm each)
-   */
-  private Optional<Integer> transactionOutputCount = Optional.absent();
-
-  /**
    * Provide a list of child numbers defining the HD path required.
    * In the case of an extended public key this will result in multiple calls to retrieve each parent
    * due to hardening.
@@ -208,8 +202,6 @@ public class HardwareWalletContext {
     serializedTx = new ByteArrayOutputStream();
     receivingAddressPathMap = Maps.newHashMap();
     changeAddressPathMap = Maps.newHashMap();
-
-    transactionOutputCount = Optional.absent();
 
     childNumbers = Optional.absent();
     deterministicKey = Optional.absent();
@@ -385,17 +377,6 @@ public class HardwareWalletContext {
    */
   public Map<Address, ImmutableList<ChildNumber>> getChangeAddressPathMap() {
     return changeAddressPathMap;
-  }
-
-  /**
-   * @return The number of times the 'Confirm tx output' has been pressed when signing a tx to assist downstream user interfaces
-   */
-  public Optional<Integer> getTransactionOutputCount() {
-    return transactionOutputCount;
-  }
-
-  public void setTransactionOutputCount(Optional<Integer> transactionOutputCount) {
-    this.transactionOutputCount = transactionOutputCount;
   }
 
   /**
