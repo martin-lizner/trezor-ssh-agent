@@ -53,7 +53,7 @@ public class TrezorMessageAdapter {
 
     features.setDeviceId(source.getDeviceId());
     features.setImported(source.getImported());
-    features.setInitialized(source.isInitialized());
+    features.setInitialized(source.getInitialized());
 
     features.setLabel(source.getLabel());
     features.setLanguage(source.getLanguage());
