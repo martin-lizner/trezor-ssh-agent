@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import org.bitcoinj.crypto.ChildNumber;
 import org.bitcoinj.crypto.DeterministicHierarchy;
 import org.bitcoinj.crypto.DeterministicKey;
+import org.bitcoinj.params.MainNetParams;
 import org.multibit.hd.hardware.core.HardwareWalletClient;
 import org.multibit.hd.hardware.core.events.HardwareWalletEventType;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
@@ -49,8 +50,24 @@ public class ConfirmGetDeterministicHierarchyState extends AbstractHardwareWalle
 
           // Update the current deterministic key forming the root of the hierarchy
           DeterministicKey parent = context.getDeterministicKey().orNull();
-          DeterministicKey child = DeterministicKey.deserializeB58(parent, base58Xpub);
+          log.debug("Parent key path: {}", parent == null ? "Root" : parent.getPathAsString());
+          DeterministicKey child = DeterministicKey.deserializeB58(parent, base58Xpub, MainNetParams.get());
+          log.debug("Child key path: {}", child.getPathAsString());
           context.setDeterministicKey(child);
+
+        }
+
+        if (depth == childNumbers.size()) {
+          // We have reached the correct depth so we can create the hierarchy
+          context.setDeterministicHierarchy(new DeterministicHierarchy(context.getDeterministicKey().get()));
+
+          // Inform downstream consumers that we are ready
+          // (deterministic hierarchy would require a wrapper for inclusion in the event itself)
+          HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.DETERMINISTIC_HIERARCHY);
+        }
+
+        // Are further calls into the hierarchy required?
+        if (depth < childNumbers.size()) {
 
           // Build up the child number list to include the next level
           int nextDepth = depth + 1;
@@ -61,14 +78,7 @@ public class ConfirmGetDeterministicHierarchyState extends AbstractHardwareWalle
             }
           }
           client.getDeterministicHierarchy(nextChildNumbers);
-        }
 
-        if (depth == childNumbers.size()) {
-          // We have reached the correct depth so we can create the hierarchy
-          context.setDeterministicHierarchy(new DeterministicHierarchy(context.getDeterministicKey().get()));
-
-          // Inform downstream consumers that we are ready
-          HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.DETERMINISTIC_HIERARCHY, event.getMessage().get());
         }
 
         break;

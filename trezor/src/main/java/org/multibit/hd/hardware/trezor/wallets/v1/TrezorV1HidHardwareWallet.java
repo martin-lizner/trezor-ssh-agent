@@ -208,7 +208,9 @@ public class TrezorV1HidHardwareWallet extends AbstractTrezorHardwareWallet impl
       PACKET_LENGTH,
       (byte) 0x00
     );
-    if (bytesSent != buffer.length) {
+
+    // Check the packet is correct (64 bytes + report ID)
+    if (bytesSent != buffer.length + 1) {
       log.warn("Invalid packet size sent. Expected: " + buffer.length + " Actual: " + bytesSent);
     }
 

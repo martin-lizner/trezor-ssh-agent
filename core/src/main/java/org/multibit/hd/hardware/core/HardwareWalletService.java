@@ -1,8 +1,10 @@
 package org.multibit.hd.hardware.core;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 import com.google.common.eventbus.EventBus;
 import com.google.common.util.concurrent.ListeningExecutorService;
+import org.bitcoinj.core.Address;
 import org.bitcoinj.core.Transaction;
 import org.bitcoinj.crypto.ChildNumber;
 import org.bitcoinj.wallet.KeyChain;
@@ -16,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -426,24 +429,27 @@ public class HardwareWalletService {
   /**
    * <p>Request that the device signs the given transaction (limited number of inputs/outputs).</p>
    *
-   * @param transaction The transaction containing all the inputs and outputs
+   * @param transaction             The transaction containing all the inputs and outputs
+   * @param receivingAddressPathMap The paths to the receiving addresses for this transaction keyed by input index
+   * @param changeAddressPathMap    The paths to the change address for this transaction keyed by Address
    */
-  public void simpleSignTx(Transaction transaction) {
+  public void simpleSignTx(Transaction transaction, Map<Integer, ImmutableList<ChildNumber>> receivingAddressPathMap, Map<Address, ImmutableList<ChildNumber>> changeAddressPathMap) {
 
-    // Set the FSM context
-    context.beginSignTxUseCase(transaction);
+    throw new UnsupportedOperationException("Not yet supported. Use signTx instead.");
 
   }
 
   /**
    * <p>Request that the device signs the given transaction (unlimited number of inputs/outputs).</p>
    *
-   * @param transaction The transaction containing all the inputs and outputs
+   * @param transaction             The transaction containing all the inputs and outputs
+   * @param receivingAddressPathMap The paths to the receiving addresses for this transaction keyed by input index
+   * @param changeAddressPathMap    The paths to the change address for this transaction keyed by Address
    */
-  public void signTx(Transaction transaction) {
+  public void signTx(Transaction transaction, Map<Integer, ImmutableList<ChildNumber>> receivingAddressPathMap, Map<Address, ImmutableList<ChildNumber>> changeAddressPathMap) {
 
     // Set the FSM context
-    context.beginSignTxUseCase(transaction);
+    context.beginSignTxUseCase(transaction, receivingAddressPathMap, changeAddressPathMap);
 
   }
 
