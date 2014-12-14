@@ -152,6 +152,18 @@ public class HardwareWalletService {
   }
 
   /**
+   * <p>Cancel the current operation and return to the initialised state</p>
+   *
+   * <p>This will trigger a SHOW_OPERATION_FAILED and a DEVICE_READY event during the reset phase</p>
+   */
+  public void requestCancel() {
+
+    // Let the state changes occur as a result of the internal messages
+    context.getClient().cancel();
+
+  }
+
+  /**
    * <p>Clear the device back to factory settings</p>
    */
   public void wipeDevice() {
