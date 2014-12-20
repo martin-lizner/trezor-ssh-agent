@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>Abstract base class provide the following to Trezor hardware wallets:</p>
@@ -22,7 +23,6 @@ import java.nio.ByteBuffer;
 public abstract class AbstractTrezorHardwareWallet extends AbstractHardwareWallet {
 
   private static final Logger log = LoggerFactory.getLogger(AbstractTrezorHardwareWallet.class);
-
 
   @Override
   public HardwareWalletSpecification getDefaultSpecification() {
@@ -43,9 +43,9 @@ public abstract class AbstractTrezorHardwareWallet extends AbstractHardwareWalle
   }
 
   @Override
-  public Optional<MessageEvent> readMessage() {
+  public Optional<MessageEvent> readMessage(int duration, TimeUnit timeUnit) {
 
-    return readFromDevice();
+    return readFromDevice(duration, timeUnit);
 
   }
 
@@ -81,9 +81,12 @@ public abstract class AbstractTrezorHardwareWallet extends AbstractHardwareWalle
   /**
    * <p>Read a complete message buffer from the device and convert it into a Core message.</p>
    *
+   * @param duration The duration
+   * @param timeUnit The time unit
+   *
    * @return The low level message event containing adapted data read from the device if present
    */
-  protected abstract Optional<MessageEvent> readFromDevice();
+  protected abstract Optional<MessageEvent> readFromDevice(int duration, TimeUnit timeUnit);
 
   /**
    * <p>Write a complete message buffer to the device.</p>

@@ -313,7 +313,11 @@ public abstract class AbstractTrezorHardwareWalletClient implements HardwareWall
   }
 
   @Override
-  public Optional<MessageEvent> txAck(TxRequest txRequest, Transaction tx, Map<Integer, ImmutableList<ChildNumber>> receivingAddressPathMap, Map<Address, ImmutableList<ChildNumber>> changeAddressPathMap) {
+  public Optional<MessageEvent> txAck(
+    TxRequest txRequest,
+    Transaction tx,
+    Map<Integer, ImmutableList<ChildNumber>> receivingAddressPathMap,
+    Map<Address, ImmutableList<ChildNumber>> changeAddressPathMap) {
 
     TrezorType.TransactionType txType = null;
 
@@ -380,7 +384,9 @@ public abstract class AbstractTrezorHardwareWalletClient implements HardwareWall
       TrezorMessage.PinMatrixAck
         .newBuilder()
         .setPin(pin)
-        .build()
+        .build(),
+      // No immediate response expected
+      2, TimeUnit.SECONDS
     );
   }
 
@@ -390,8 +396,8 @@ public abstract class AbstractTrezorHardwareWalletClient implements HardwareWall
       TrezorMessage.ButtonAck
         .newBuilder()
         .build(),
-      // Allow user time to decide
-      10, TimeUnit.MINUTES
+      // No immediate response expected
+      2, TimeUnit.SECONDS
     );
   }
 
@@ -399,8 +405,9 @@ public abstract class AbstractTrezorHardwareWalletClient implements HardwareWall
     return sendMessage(
       TrezorMessage.Cancel
         .newBuilder()
-        .build()
-    );
+        .build(),
+      // No immediate response expected
+      2, TimeUnit.SECONDS);
   }
 
   @Override
@@ -443,7 +450,7 @@ public abstract class AbstractTrezorHardwareWalletClient implements HardwareWall
   public Optional<MessageEvent> getDeterministicHierarchy(List<ChildNumber> childNumbers) {
 
     List<Integer> addressN = Lists.newArrayList();
-    for (ChildNumber childNumber: childNumbers) {
+    for (ChildNumber childNumber : childNumbers) {
       addressN.add(childNumber.getI());
     }
 
@@ -587,7 +594,7 @@ public abstract class AbstractTrezorHardwareWalletClient implements HardwareWall
   }
 
   /**
-   * <p>Send a message to the device that should have a near-immediate (under 1 second) response.</p>
+   * <p>Send a message to the device that should have a near-immediate (under 5 second) response.</p>
    * <p>If the response times out a FAILURE message should be generated.</p>
    *
    * @param message The message to send to the hardware wallet
@@ -600,7 +607,11 @@ public abstract class AbstractTrezorHardwareWalletClient implements HardwareWall
    * <p>Send a message to the device with an arbitrary response duration.</p>
    * <p>If the response times out a FAILURE message should be generated.</p>
    *
-   * @param message@return An optional low level message event, present only in blocking implementations
+   * @param message  The message to send to the hardware wallet
+   * @param duration The duration to wait before returning
+   * @param timeUnit The time unit
+   *
+   * @return An optional low level message event, present only in blocking implementations
    */
   protected abstract Optional<MessageEvent> sendMessage(Message message, int duration, TimeUnit timeUnit);
 

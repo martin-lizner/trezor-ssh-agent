@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>Trezor implementation to provide the following to applications:</p>
@@ -151,7 +152,7 @@ public class TrezorShieldSocketHardwareWallet extends AbstractTrezorHardwareWall
   }
 
   @Override
-  protected com.google.common.base.Optional<MessageEvent> readFromDevice() {
+  protected com.google.common.base.Optional<MessageEvent> readFromDevice(int duration, TimeUnit timeUnit) {
 
     // TODO Implement this using the Trezor V1 as a template
 

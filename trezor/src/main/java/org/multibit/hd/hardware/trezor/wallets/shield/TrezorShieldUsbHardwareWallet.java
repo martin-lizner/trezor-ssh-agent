@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>Trezor implementation to provide the following to applications:</p>
@@ -235,7 +236,7 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
   }
 
   @Override
-  protected Optional<MessageEvent> readFromDevice() {
+  protected Optional<MessageEvent> readFromDevice(int duration, TimeUnit timeUnit) {
 
     ByteBuffer messageBuffer = ByteBuffer.allocate(32768);
 

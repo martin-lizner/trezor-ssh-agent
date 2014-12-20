@@ -2,13 +2,17 @@ package org.multibit.hd.hardware.trezor.wallets.v1;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.Uninterruptibles;
+import com.google.protobuf.Message;
 import com.satoshilabs.trezor.protobuf.TrezorMessage;
 import org.hid4java.*;
 import org.hid4java.event.HidServicesEvent;
 import org.multibit.hd.hardware.core.HardwareWalletSpecification;
+import org.multibit.hd.hardware.core.concurrent.SafeExecutors;
 import org.multibit.hd.hardware.core.events.MessageEvent;
 import org.multibit.hd.hardware.core.events.MessageEventType;
 import org.multibit.hd.hardware.core.events.MessageEvents;
+import org.multibit.hd.hardware.core.messages.HardwareWalletMessage;
 import org.multibit.hd.hardware.trezor.utils.TrezorMessageUtils;
 import org.multibit.hd.hardware.trezor.wallets.AbstractTrezorHardwareWallet;
 import org.slf4j.Logger;
@@ -16,6 +20,8 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>Trezor implementation to provide the following to applications:</p>
@@ -48,6 +54,12 @@ public class TrezorV1HidHardwareWallet extends AbstractTrezorHardwareWallet impl
    * The USB HID entry point
    */
   private final HidServices hidServices;
+
+  /**
+   * Monitor the USB HID read buffer and handle the firing of low level messages when a message is found
+   * A new one is required after a detach
+   */
+  private ExecutorService monitorHidExecutorService;
 
   /**
    * Default constructor for use with dynamic binding
@@ -115,7 +127,7 @@ public class TrezorV1HidHardwareWallet extends AbstractTrezorHardwareWallet impl
     );
 
     if (!locatedDevice.isPresent()) {
-      log.warn("Device not attached");
+      log.info("Device not attached");
     }
 
     // Must be OK to be here
@@ -129,9 +141,20 @@ public class TrezorV1HidHardwareWallet extends AbstractTrezorHardwareWallet impl
     log.debug("Reset endpoints");
     if (locatedDevice.isPresent()) {
       locatedDevice.get().close();
+    } else {
+      // Already closed
+      return;
     }
 
     locatedDevice = Optional.absent();
+
+    monitorHidExecutorService.shutdownNow();
+
+    try {
+      monitorHidExecutorService.awaitTermination(1, TimeUnit.SECONDS);
+    } catch (InterruptedException e) {
+      log.error("Could not cleanly shutdown the low level monitor executor service during soft detach");
+    }
 
     log.info("Detached from Trezor");
 
@@ -142,12 +165,7 @@ public class TrezorV1HidHardwareWallet extends AbstractTrezorHardwareWallet impl
 
     log.debug("Hard detach");
 
-    log.debug("Reset endpoints");
-    if (locatedDevice.isPresent()) {
-      locatedDevice.get().close();
-    }
-
-    locatedDevice = Optional.absent();
+    softDetach();
 
     hidServices.removeUsbServicesListener(this);
 
@@ -178,7 +196,46 @@ public class TrezorV1HidHardwareWallet extends AbstractTrezorHardwareWallet impl
 
     }
 
-    log.info("Located a Trezor device. Attempting verification...");
+    log.info("Located a Trezor device.");
+
+    // Ensure any pre-existing monitors are terminated
+    if (monitorHidExecutorService != null && !monitorHidExecutorService.isShutdown()) {
+      log.warn("Low level monitor executor service is still running. Device not detached properly. Attempting clean shutdown of executor service...");
+      monitorHidExecutorService.shutdownNow();
+      try {
+        monitorHidExecutorService.awaitTermination(1, TimeUnit.SECONDS);
+        log.info("Clean shutdown OK");
+      } catch (InterruptedException e) {
+        log.error("Could not cleanly shutdown the low level monitor executor service during connect");
+      }
+    }
+
+    // Start polling the HID read buffer looking for messages
+    monitorHidExecutorService = SafeExecutors.newSingleThreadExecutor("monitor-hid");
+    monitorHidExecutorService.submit(
+      new Runnable() {
+        @Override
+        public void run() {
+
+          while (true) {
+            // Wait forever for a response
+            Optional<MessageEvent> messageEvent = readMessage(0, TimeUnit.SECONDS);
+
+            if (messageEvent.isPresent()) {
+              if (MessageEventType.DEVICE_FAILED.equals(messageEvent.get().getEventType())) {
+                // Stop reading messages on this thread for a short while to allow recovery time
+                Uninterruptibles.sleepUninterruptibly(1, TimeUnit.SECONDS);
+              } else {
+                // Fire the event
+                MessageEvents.fireMessageEvent(messageEvent.get());
+              }
+            }
+          }
+        }
+      });
+
+    // Allow time for the read monitor thread to start
+    Uninterruptibles.sleepUninterruptibly(100, TimeUnit.MILLISECONDS);
 
     // Must be OK to be here
     return true;
@@ -221,7 +278,7 @@ public class TrezorV1HidHardwareWallet extends AbstractTrezorHardwareWallet impl
   }
 
   @Override
-  protected synchronized Optional<MessageEvent> readFromDevice() {
+  protected synchronized Optional<MessageEvent> readFromDevice(int duration, TimeUnit timeUnit) {
 
     log.debug("Reading from hardware device");
 
@@ -235,11 +292,28 @@ public class TrezorV1HidHardwareWallet extends AbstractTrezorHardwareWallet impl
     for (; ; ) {
       byte[] buffer = new byte[PACKET_LENGTH];
 
-      received = locatedDevice.get().read(buffer);
+      // Check for timeout against the read operation
+      // This allows the executing thread to terminate in a timely manner without
+      // a response from the device
+      if (duration != 0) {
+        received = locatedDevice.get().read(buffer, (int) timeUnit.toMillis(duration));
+      } else {
+        received = locatedDevice.get().read(buffer);
+      }
 
       log.debug("< {} bytes", received);
 
       if (received == -1) {
+        // Hardware problem
+        return Optional.of(
+          new MessageEvent(
+            MessageEventType.DEVICE_FAILED,
+            Optional.<HardwareWalletMessage>absent(),
+            Optional.<Message>absent()
+          ));
+      }
+
+      if (received == 0) {
         return Optional.absent();
       }
 

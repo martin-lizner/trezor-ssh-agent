@@ -10,8 +10,6 @@ import org.multibit.hd.hardware.trezor.wallets.AbstractTrezorHardwareWallet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -32,9 +30,6 @@ public class TrezorHardwareWalletClient extends AbstractTrezorHardwareWalletClie
   private final AbstractTrezorHardwareWallet trezor;
   private boolean isTrezorValid = false;
 
-  private ExecutorService trezorEventExecutorService = Executors.newSingleThreadExecutor();
-  private boolean isSessionIdValid = true;
-
   /**
    * @param trezor The Trezor device
    */
@@ -54,6 +49,7 @@ public class TrezorHardwareWalletClient extends AbstractTrezorHardwareWalletClie
 
     // Must be OK to be here
     log.debug("Environment OK");
+
     return true;
   }
 
@@ -93,10 +89,8 @@ public class TrezorHardwareWalletClient extends AbstractTrezorHardwareWalletClie
 
   @Override
   public void disconnect() {
-    isSessionIdValid = false;
     isTrezorValid = false;
     trezor.disconnect();
-    trezorEventExecutorService.shutdownNow();
   }
 
   @Override
@@ -114,15 +108,7 @@ public class TrezorHardwareWalletClient extends AbstractTrezorHardwareWalletClie
     // Write the message
     trezor.writeMessage(message);
 
-    // Wait for a response
-    Optional<MessageEvent> messageEvent = trezor.readMessage();
-
-    if (messageEvent.isPresent()) {
-      // Fire the event
-      MessageEvents.fireMessageEvent(messageEvent.get());
-    }
-
-    return messageEvent;
+    return Optional.absent();
 
   }
 

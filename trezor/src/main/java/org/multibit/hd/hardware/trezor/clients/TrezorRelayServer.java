@@ -3,6 +3,7 @@ package org.multibit.hd.hardware.trezor.clients;
 import com.google.common.base.Optional;
 import com.google.common.collect.Queues;
 import com.google.common.eventbus.Subscribe;
+import com.google.common.util.concurrent.Uninterruptibles;
 import com.google.protobuf.Message;
 import org.multibit.hd.hardware.core.HardwareWalletService;
 import org.multibit.hd.hardware.core.concurrent.SafeExecutors;
@@ -20,6 +21,7 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  *  <p>Server to provide the following to RelayClient:<br>
@@ -161,12 +163,19 @@ public class TrezorRelayServer {
         public void run() {
           while (true) {
             log.debug("Waiting for hardware wallet message...");
-            Optional<MessageEvent> messageEvent = hardwareWallet.readMessage();
+            Optional<MessageEvent> messageEvent = hardwareWallet.readMessage(1, TimeUnit.MINUTES);
 
             if (messageEvent.isPresent()) {
-              // Send the Message back to the client
-              log.debug("Sending raw message to client");
-              writeMessage(messageEvent.get().getRawMessage().get(), outputToClient);
+
+              if (MessageEventType.DEVICE_FAILED.equals(messageEvent.get().getEventType())) {
+                // Stop reading messages on this thread for a short while to allow recovery time
+                Uninterruptibles.sleepUninterruptibly(1, TimeUnit.SECONDS);
+              } else {
+
+                // Send the Message back to the client
+                log.debug("Sending raw message to client");
+                writeMessage(messageEvent.get().getRawMessage().get(), outputToClient);
+              }
             }
           }
         }

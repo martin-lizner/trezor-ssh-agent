@@ -5,6 +5,8 @@ import com.google.protobuf.Message;
 import org.multibit.hd.hardware.core.HardwareWalletSpecification;
 import org.multibit.hd.hardware.core.events.MessageEvent;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * <p>Interface to provide the following to applications:</p>
  * <ul>
@@ -45,8 +47,10 @@ public interface HardwareWallet extends Connectable {
    * <p>Forcing early adaption to a message event eases the implementation in many ways.</p>
    *
    * @return The low level message event wrapping the adapted protobuf message read from the hardware wallet if present
+   * @param duration
+   * @param timeUnit
    */
-  public Optional<MessageEvent> readMessage();
+  public Optional<MessageEvent> readMessage(int duration, TimeUnit timeUnit);
 
   /**
    * <p>Send a message to the hardware wallet using the generated protocol buffer classes</p>

@@ -50,6 +50,9 @@ public class HardwareWalletService {
    */
   public static final EventBus messageEventBus = new EventBus();
 
+  /**
+   * Monitors the hardware client to manage state transitions in response to incoming messages
+   */
   private final ListeningExecutorService clientMonitorService = SafeExecutors.newSingleThreadExecutor("monitor-hw-client");
 
   /**
