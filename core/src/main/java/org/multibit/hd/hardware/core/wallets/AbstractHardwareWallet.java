@@ -5,9 +5,6 @@ import org.multibit.hd.hardware.core.HardwareWalletSpecification;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 /**
  * <p>
  * Abstract base class to provide the following to {@link HardwareWallet}s:
@@ -20,9 +17,6 @@ import java.util.concurrent.Executors;
 public abstract class AbstractHardwareWallet implements HardwareWallet {
 
   private static final Logger log = LoggerFactory.getLogger(AbstractHardwareWallet.class);
-
-  // Provide a few threads for monitoring for specialised cases
-  protected final ExecutorService hardwareWalletMonitorService = Executors.newFixedThreadPool(5);
 
   protected HardwareWalletSpecification specification;
 

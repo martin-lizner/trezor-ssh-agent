@@ -18,7 +18,8 @@ import java.util.concurrent.TimeUnit;
  * <li>Provides high level accessor methods based on common use cases</li>
  * </ul>
  * <p>This is intended as a high level API to the Trezor device. Developers who need more control over the
- * responses and events are advised to study the Examples project.</p>
+ * responses and events are advised to study the Examples project and use the <code>TrezorHardwareWallet</code>
+ * implementations.</p>
  *
  * @since 0.0.1
  *  
@@ -31,9 +32,12 @@ public class TrezorHardwareWalletClient extends AbstractTrezorHardwareWalletClie
   private boolean isTrezorValid = false;
 
   /**
-   * @param trezor The Trezor device
+   * @param trezor The Trezor hardware wallet
    */
   public TrezorHardwareWalletClient(AbstractTrezorHardwareWallet trezor) {
+
+    Preconditions.checkNotNull(trezor, "'trezor' must be present");
+
     this.trezor = trezor;
   }
 
@@ -56,19 +60,21 @@ public class TrezorHardwareWalletClient extends AbstractTrezorHardwareWalletClie
   @Override
   public void softDetach() {
 
-    log.debug("Detaching...");
+    log.debug("Performing client soft detach...");
 
-    disconnect();
+    isTrezorValid = false;
+
     trezor.softDetach();
-
   }
 
   @Override
   public void hardDetach() {
 
-    log.debug("Hard detach...");
+    log.debug("Performing client hard detach...");
 
-    disconnect();
+    isTrezorValid = false;
+
+    // A hard detach includes a disconnect
     trezor.hardDetach();
 
   }
@@ -89,8 +95,9 @@ public class TrezorHardwareWalletClient extends AbstractTrezorHardwareWalletClie
 
   @Override
   public void disconnect() {
-    isTrezorValid = false;
-    trezor.disconnect();
+
+    // A disconnect has the same behaviour as a soft detach
+    softDetach();
   }
 
   @Override

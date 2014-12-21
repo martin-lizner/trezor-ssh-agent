@@ -21,8 +21,18 @@ import java.util.concurrent.TimeUnit;
 /**
  * <p>Verify Trezor exists on USB and service can be stopped cleanly</p>
  * <p>Requires Trezor V1 production device plugged into a USB HID interface.</p>
+ * <p>Do the following:</p>
+ * <ol>
+ *   <li>Start with the Trezor detached</li>
+ *   <li>Attach the Trezor, observe the Feature message</li>
+ *   <li>Detach the Trezor, observe the service shutdown</li>
+ *   <li>Type something to initiate the service restart</li>
+ *   <li>Attach the Trezor, observe the Feature message</li>
+ * </ol>
+ *
  * <p>This example demonstrates the initial verification of recognising insertion and removal of a Trezor following by restarting
  * the service cleanly.</p>
+ *
  *
  * @since 0.0.1
  *  

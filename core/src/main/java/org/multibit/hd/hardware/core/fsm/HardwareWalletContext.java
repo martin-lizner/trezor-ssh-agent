@@ -223,7 +223,7 @@ public class HardwareWalletContext {
   }
 
   /**
-   * <p>Reset the context into a stopped state (</p>
+   * <p>Reset the context into a stopped state (the service will have to be stopped and a new one started)</p>
    */
   public void resetToStopped() {
 

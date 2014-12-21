@@ -136,18 +136,20 @@ public class TrezorV1HidHardwareWallet extends AbstractTrezorHardwareWallet impl
   }
 
   @Override
-  public synchronized void softDetach() {
+  public void softDetach() {
 
-    log.debug("Reset endpoints");
-    if (locatedDevice.isPresent()) {
+    if (locatedDevice != null && locatedDevice.isPresent()) {
+      log.debug("Closing device on HID API...");
       locatedDevice.get().close();
     } else {
       // Already closed
       return;
     }
 
+    log.debug("Removing device reference");
     locatedDevice = Optional.absent();
 
+    log.debug("Shutdown HID monitoring");
     monitorHidExecutorService.shutdownNow();
 
     try {
@@ -156,20 +158,19 @@ public class TrezorV1HidHardwareWallet extends AbstractTrezorHardwareWallet impl
       log.error("Could not cleanly shutdown the low level monitor executor service during soft detach");
     }
 
-    log.info("Detached from Trezor");
+    log.info("Detached from Trezor. HID events remain available.");
 
   }
 
   @Override
   public void hardDetach() {
 
-    log.debug("Hard detach");
-
     softDetach();
 
+    log.debug("Shutdown HID events");
     hidServices.removeUsbServicesListener(this);
 
-    log.info("Hard detach complete");
+    log.info("Hard detach complete. HID events are stopped.");
 
     // Let everyone know
     MessageEvents.fireMessageEvent(MessageEventType.DEVICE_DETACHED_HARD);

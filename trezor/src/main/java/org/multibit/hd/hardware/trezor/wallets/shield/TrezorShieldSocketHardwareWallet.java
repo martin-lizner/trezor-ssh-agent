@@ -81,7 +81,7 @@ public class TrezorShieldSocketHardwareWallet extends AbstractTrezorHardwareWall
   }
 
   @Override
-  public synchronized void softDetach() {
+  public void softDetach() {
 
     if (socket == null) {
       return;

@@ -35,10 +35,10 @@ public abstract class AbstractTrezorHardwareWallet extends AbstractHardwareWalle
   }
 
   @Override
-  public synchronized void disconnect() {
+  public void disconnect() {
 
+    // A disconnect has the same behaviour as a soft detach
     softDetach();
-    hardwareWalletMonitorService.shutdownNow();
 
   }
 
