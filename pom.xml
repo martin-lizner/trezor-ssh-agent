@@ -118,7 +118,6 @@
   <modules>
     <module>core</module>
     <module>trezor</module>
-    <module>emulators</module>
   </modules>
 
   <profiles>
@@ -224,7 +223,7 @@
       <dependency>
         <groupId>org.hid4java</groupId>
         <artifactId>hid4java</artifactId>
-        <version>0.1.0</version>
+        <version>0.2.0</version>
       </dependency>
 
       <!-- Bitcoinj for Bitcoin operations (alice is custom fork with BIP44) -->
