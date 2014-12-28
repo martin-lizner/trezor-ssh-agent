@@ -5,6 +5,8 @@ import java.util.concurrent.*;
 /**
  * <p>Wrapper to provide standard exception handling</p>
  *
+ * <p>This is a candidate for MultiBit Commons</p>
+ *
  * @since 0.0.1
  *  
  */

@@ -5,11 +5,12 @@ import java.util.concurrent.*;
 /**
  * <p>Wrapper to provide standard exception handling</p>
  *
+ * <p>This is a candidate for MultiBit Commons</p>
+ *
  * @since 0.0.1
  *  
  */
 public class SafeThreadPoolExecutor extends ThreadPoolExecutor {
-
 
   public SafeThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, BlockingQueue<Runnable> workQueue) {
     super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue);

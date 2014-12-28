@@ -3,6 +3,7 @@ package org.multibit.hd.hardware.core.messages;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.multibit.hd.hardware.core.utils.HexUtils;
 
 import java.util.List;
 
@@ -189,8 +190,8 @@ public class Features implements HardwareWalletMessage {
       .append("label", label)
       .append("coins", coins)
       .append("initialized", initialized)
-      .append("revision", revision)
-      .append("bootloaderHash", bootloaderHash)
+      .append("revision", HexUtils.toHexBytes(revision))
+      .append("bootloaderHash", HexUtils.toHexBytes(bootloaderHash))
       .append("imported", imported)
       .toString();
   }

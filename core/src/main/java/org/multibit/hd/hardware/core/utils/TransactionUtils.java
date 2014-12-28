@@ -1,9 +1,9 @@
 package org.multibit.hd.hardware.core.utils;
 
+import com.google.common.base.Optional;
 import org.bitcoinj.core.Transaction;
 import org.bitcoinj.core.TransactionInput;
 import org.bitcoinj.core.Utils;
-import com.google.common.base.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.Arrays;

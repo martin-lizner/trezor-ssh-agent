@@ -15,6 +15,8 @@ import java.util.concurrent.TimeUnit;
  * <p>Factory that partially wraps the standard Java Executors concurrency to allow any runtime exceptions to be passed
  * to the ExceptionHandler.</p>
  *
+ * <p>This is a candidate for MultiBit Commons</p>
+ *
  * @since 0.0.1
  *  
  */
@@ -66,7 +68,7 @@ public class SafeExecutors {
 
     log.debug("New fixed thread pool with {} threads: '{}'", nThreads, poolName);
 
-    ThreadFactory threadFactory = new ThreadFactoryBuilder().setNameFormat("safe-fixed-"+poolName+"-%d").build();
+    ThreadFactory threadFactory = new ThreadFactoryBuilder().setNameFormat("safe-fixed-" + poolName + "-%d").build();
 
     return newFixedThreadPool(nThreads, threadFactory);
   }
@@ -143,7 +145,7 @@ public class SafeExecutors {
 
     log.debug("New scheduled thread pool with {} threads: '{}'", corePoolSize, poolName);
 
-    ThreadFactory threadFactory = new ThreadFactoryBuilder().setNameFormat("safe-scheduled-"+poolName+"-%d").build();
+    ThreadFactory threadFactory = new ThreadFactoryBuilder().setNameFormat("safe-scheduled-" + poolName + "-%d").build();
 
     return newScheduledThreadPool(corePoolSize, threadFactory);
   }
