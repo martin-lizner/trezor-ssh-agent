@@ -394,6 +394,7 @@ public class HardwareWalletContext {
   }
 
   public void setDeterministicKey(DeterministicKey deterministicKey) {
+    log.debug("Setting deterministic key to be {}", deterministicKey);
     this.deterministicKey = Optional.fromNullable(deterministicKey);
   }
 
@@ -709,9 +710,6 @@ public class HardwareWalletContext {
   ) {
 
     log.debug("Begin 'cipher key' use case");
-
-    // Clear relevant information
-    resetAllButFeatures();
 
     // Track the use case
     currentUseCase = ContextUseCase.REQUEST_CIPHER_KEY;
