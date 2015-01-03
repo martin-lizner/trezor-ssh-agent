@@ -124,6 +124,11 @@ public class HardwareWalletContext {
   private Optional<DeterministicHierarchy> deterministicHierarchy = Optional.absent();
 
   /**
+   * Entropy returned from the Trezor (result of encryption of fixed text
+   */
+  private Optional<byte[]> entropy = Optional.absent();
+
+  /**
    * @param client The hardware wallet client
    */
   public HardwareWalletContext(HardwareWalletClient client) {
@@ -206,6 +211,8 @@ public class HardwareWalletContext {
     childNumbers = Optional.absent();
     deterministicKey = Optional.absent();
     deterministicHierarchy = Optional.absent();
+
+    entropy = Optional.absent();
 
   }
 
@@ -911,5 +918,13 @@ public class HardwareWalletContext {
     // Issue starting message to elicit the event
     client.pinMatrixAck(pin);
 
+  }
+
+  public Optional<byte[]> getEntropy() {
+    return entropy;
+  }
+
+  public void setEntropy(Optional<byte[]> entropy) {
+    this.entropy = entropy;
   }
 }
