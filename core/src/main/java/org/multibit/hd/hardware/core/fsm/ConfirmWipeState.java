@@ -43,7 +43,8 @@ public class ConfirmWipeState extends AbstractHardwareWalletState {
           default:
             // No wallet creation required so we're done
             HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_OPERATION_SUCCEEDED, event.getMessage().get());
-            context.resetToInitialised();
+            // Ensure the Features are updated
+            context.resetToConnected();
             break;
         }
         break;

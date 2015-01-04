@@ -39,7 +39,8 @@ public class ConfirmLoadState extends AbstractHardwareWalletState {
       case SUCCESS:
         // Device has completed the operation and is loaded with the given seed
         HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_OPERATION_SUCCEEDED, event.getMessage().get());
-        context.resetToInitialised();
+        // Ensure the Features are updated
+        context.resetToConnected();
         break;
       case FAILURE:
         // User has cancelled or operation failed
