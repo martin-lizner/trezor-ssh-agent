@@ -140,9 +140,18 @@ public class HardwareWalletService {
   }
 
   /**
+   * @return True if the hardware wallet has been attached and a successful connection made
+   */
+  public boolean isDeviceReady() {
+
+    return context.getFeatures().isPresent();
+
+  }
+
+  /**
    * @return True if the hardware wallet has been initialised with a seed phrase, PIN, passphrase etc.
    *
-   * @throws IllegalStateException If called when the device is not ready
+   * @throws IllegalStateException If called when the device is not ready (see <code>isDeviceReady()</code>)
    */
   public boolean isWalletPresent() {
 
