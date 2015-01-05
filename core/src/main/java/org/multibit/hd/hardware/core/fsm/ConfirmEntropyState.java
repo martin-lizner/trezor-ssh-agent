@@ -35,8 +35,7 @@ public class ConfirmEntropyState extends AbstractHardwareWalletState {
       case SUCCESS:
         // Device has completed the operation
         HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_OPERATION_SUCCEEDED, event.getMessage().get());
-        // Ensure the Features are updated
-        context.resetToConnected();
+        // No reset required
         break;
       case FAILURE:
         // User has cancelled or operation failed
