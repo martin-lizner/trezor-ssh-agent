@@ -1,10 +1,12 @@
 package org.multibit.hd.hardware.trezor.utils;
 
+import com.google.common.base.Optional;
 import com.google.protobuf.ByteString;
 import com.satoshilabs.trezor.protobuf.TrezorType;
 import org.apache.commons.lang3.SystemUtils;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.bitcoinj.core.Utils;
+import org.multibit.hd.hardware.core.messages.HDNodeType;
 
 /**
  * <p>Apache Commons ToStringStyle extension to provide the following to logging:</p>
@@ -31,6 +33,13 @@ public class TrezorMessageToStringStyle extends ToStringStyle {
 
   protected void appendDetail(StringBuffer buffer, String fieldName, Object value) {
 
+    // Unwrap Optional
+    if (value instanceof Optional) {
+
+      value = ((Optional) value).orNull();
+    }
+
+
     if (value instanceof byte[]) {
 
       byte[] bytes = (byte[]) value;
@@ -56,9 +65,9 @@ public class TrezorMessageToStringStyle extends ToStringStyle {
       TrezorType.TransactionType txType = ((TrezorType.TransactionType) value);
       appendTransactionType(buffer, txType);
 
-    } else if (value instanceof TrezorType.HDNodeType) {
+    } else if (value instanceof HDNodeType) {
 
-      TrezorType.HDNodeType hdNodeType = ((TrezorType.HDNodeType) value);
+      HDNodeType hdNodeType = ((HDNodeType) value);
       appendHDNodeType(buffer, hdNodeType);
 
     } else {
@@ -113,22 +122,22 @@ public class TrezorMessageToStringStyle extends ToStringStyle {
 
   }
 
-  private void appendHDNodeType(StringBuffer buffer, TrezorType.HDNodeType hdNodeType) {
+  private void appendHDNodeType(StringBuffer buffer, HDNodeType hdNodeType) {
 
     buffer
       .append("\n    public_key: ");
-    appendHexBytes(buffer, hdNodeType.getPublicKey().toByteArray());
+    appendHexBytes(buffer, hdNodeType.getPublicKey().or(new byte[] {}));
 
     buffer
       .append("\n    private_key: *****");
 
     buffer
       .append("\n    chain_code: ");
-    appendHexBytes(buffer, hdNodeType.getChainCode().toByteArray());
+    appendHexBytes(buffer, hdNodeType.getChainCode().or(new byte[] {}));
 
     buffer
       .append("\n    child_num: ")
-      .append(Integer.toHexString(hdNodeType.getChildNum()));
+      .append(Integer.toHexString(hdNodeType.getChildNum().or(-1)));
 
     buffer
       .append("\n    depth: ")
@@ -136,7 +145,7 @@ public class TrezorMessageToStringStyle extends ToStringStyle {
 
     buffer
       .append("\n    fingerprint: ")
-      .append(Integer.toHexString(hdNodeType.getFingerprint()));
+      .append(Integer.toHexString(hdNodeType.getFingerprint().or(-1)));
 
   }
 
@@ -155,7 +164,7 @@ public class TrezorMessageToStringStyle extends ToStringStyle {
     buffer
       .append("\n    tx_hash: ");
     byte[] bytes = detail.getTxHash().toByteArray();
-    if (bytes.length>0) {
+    if (bytes.length > 0) {
       buffer.append(Utils.HEX.encode(bytes));
     }
   }
@@ -168,7 +177,7 @@ public class TrezorMessageToStringStyle extends ToStringStyle {
     buffer
       .append("\n    serialized_tx: ");
     byte[] bytes = serialized.getSerializedTx().toByteArray();
-    if (bytes.length>0) {
+    if (bytes.length > 0) {
       buffer.append(Utils.HEX.encode(bytes));
     }
 
@@ -184,7 +193,7 @@ public class TrezorMessageToStringStyle extends ToStringStyle {
     buffer
       .append("\n    signature: ");
     bytes = serialized.getSignature().toByteArray();
-    if (bytes.length>0) {
+    if (bytes.length > 0) {
       buffer.append(Utils.HEX.encode(bytes));
     }
 
@@ -196,13 +205,13 @@ public class TrezorMessageToStringStyle extends ToStringStyle {
       .append("\n      sequence: ")
       .append(txInput.getSequence());
 
-    for (Integer addressN: txInput.getAddressNList()) {
+    for (Integer addressN : txInput.getAddressNList()) {
       buffer
         .append("\n      address_n: ")
         .append(String.format("%02x", addressN));
     }
     byte[] bytes = txInput.getPrevHash().toByteArray();
-    if (bytes.length>0) {
+    if (bytes.length > 0) {
       buffer
         .append("\n      prev_hash: ")
         .append(Utils.HEX.encode(bytes));
@@ -217,7 +226,7 @@ public class TrezorMessageToStringStyle extends ToStringStyle {
       .append(txInput.getScriptType());
 
     bytes = txInput.getScriptSig().toByteArray();
-    if (bytes.length>0) {
+    if (bytes.length > 0) {
       buffer
         .append("\n      script_sig: ")
         .append(Utils.HEX.encode(bytes));
@@ -227,7 +236,7 @@ public class TrezorMessageToStringStyle extends ToStringStyle {
   private void appendTxOutputType(StringBuffer buffer, TrezorType.TxOutputType txOutput) {
 
     byte[] bytes = txOutput.getAddressBytes().toByteArray();
-    if (bytes.length>0) {
+    if (bytes.length > 0) {
       buffer
         .append("\n      address_bytes: ")
         .append(Utils.HEX.encode(bytes));
@@ -241,7 +250,7 @@ public class TrezorMessageToStringStyle extends ToStringStyle {
       .append("\n      address_n_count: ")
       .append(txOutput.getAddressNCount());
 
-    for (Integer addressN: txOutput.getAddressNList()) {
+    for (Integer addressN : txOutput.getAddressNList()) {
       buffer
         .append("\n      address_n: ")
         .append(String.format("%02x", addressN));
@@ -260,7 +269,7 @@ public class TrezorMessageToStringStyle extends ToStringStyle {
   private void appendTxOutputBinType(StringBuffer buffer, TrezorType.TxOutputBinType txOutput) {
 
     byte[] bytes = txOutput.getScriptPubkey().toByteArray();
-    if (bytes.length>0) {
+    if (bytes.length > 0) {
       buffer
         .append("\n      script_pubkey: ")
         .append(Utils.HEX.encode(bytes));
