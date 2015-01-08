@@ -116,6 +116,17 @@ public class TrezorMessageToStringStyle extends ToStringStyle {
   private void appendHDNodeType(StringBuffer buffer, TrezorType.HDNodeType hdNodeType) {
 
     buffer
+      .append("\n    public_key: ");
+    appendHexBytes(buffer, hdNodeType.getPublicKey().toByteArray());
+
+    buffer
+      .append("\n    private_key: *****");
+
+    buffer
+      .append("\n    chain_code: ");
+    appendHexBytes(buffer, hdNodeType.getChainCode().toByteArray());
+
+    buffer
       .append("\n    child_num: ")
       .append(Integer.toHexString(hdNodeType.getChildNum()));
 
@@ -126,18 +137,6 @@ public class TrezorMessageToStringStyle extends ToStringStyle {
     buffer
       .append("\n    fingerprint: ")
       .append(Integer.toHexString(hdNodeType.getFingerprint()));
-
-    buffer
-      .append("\n    chain_code: ");
-    appendHexBytes(buffer, hdNodeType.getChainCode().toByteArray());
-
-    buffer
-      .append("\n    private_key: *****");
-    //appendHexBytes(buffer, hdNodeType.getPrivateKey().toByteArray());
-
-    buffer
-      .append("\n    public_key: ");
-    appendHexBytes(buffer, hdNodeType.getPublicKey().toByteArray());
 
   }
 
