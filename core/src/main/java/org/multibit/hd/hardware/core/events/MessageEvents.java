@@ -85,6 +85,7 @@ public class MessageEvents {
       } catch (IllegalArgumentException e) {
         log.warn("Unexpected failure to unregister");
       }
+      messageEventBusSubscribers.remove(subscriber);
     } else {
       log.warn("Subscriber already unregistered: " + subscriber.getClass().getSimpleName());
     }
@@ -95,11 +96,15 @@ public class MessageEvents {
    * <p>Unsubscribe all subscribers from events</p>
    * <p>This approach ensures all subscribers will be correctly removed during a shutdown</p>
    */
+  @SuppressWarnings("unchecked")
   public static void unsubscribeAll() {
 
-    for (Object subscriber : messageEventBusSubscribers) {
+    Set allSubscribers = Sets.newHashSet();
+    allSubscribers.addAll(messageEventBusSubscribers);
+    for (Object subscriber : allSubscribers) {
       unsubscribe(subscriber);
     }
+    allSubscribers.clear();
     log.info("All subscribers removed");
 
   }
