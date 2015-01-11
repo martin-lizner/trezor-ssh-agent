@@ -12,10 +12,10 @@ import org.bitcoinj.crypto.DeterministicHierarchy;
 import org.bitcoinj.crypto.DeterministicKey;
 import org.bitcoinj.wallet.KeyChain;
 import org.multibit.hd.hardware.core.HardwareWalletClient;
-import org.multibit.hd.hardware.core.HardwareWalletService;
 import org.multibit.hd.hardware.core.events.HardwareWalletEventType;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
 import org.multibit.hd.hardware.core.events.MessageEvent;
+import org.multibit.hd.hardware.core.events.MessageEvents;
 import org.multibit.hd.hardware.core.messages.Features;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -135,9 +135,8 @@ public class HardwareWalletContext {
 
     this.client = client;
 
-    // Ensure the service is subscribed to low level message events
-    // from the client
-    HardwareWalletService.messageEventBus.register(this);
+    // Ensure the service is subscribed to low level message events from the client
+    MessageEvents.subscribe(this);
 
     // Verify the environment
     if (!client.attach()) {
@@ -241,7 +240,9 @@ public class HardwareWalletContext {
 
     // Issue a hard detach - we are done
     client.hardDetach();
-    HardwareWalletService.messageEventBus.unregister(this);
+
+    // Unsubscribe from events
+    MessageEvents.unsubscribe(this);
 
     // Perform the state change
     currentState = HardwareWalletStates.newStoppedState();

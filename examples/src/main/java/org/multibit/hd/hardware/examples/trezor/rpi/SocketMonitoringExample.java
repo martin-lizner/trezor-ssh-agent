@@ -1,9 +1,9 @@
 package org.multibit.hd.hardware.examples.trezor.rpi;
 
-import org.bitcoinj.core.AddressFormatException;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.Uninterruptibles;
-import org.multibit.hd.hardware.core.HardwareWalletService;
+import org.bitcoinj.core.AddressFormatException;
+import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
 import org.multibit.hd.hardware.core.wallets.HardwareWallets;
 import org.multibit.hd.hardware.trezor.clients.AbstractTrezorHardwareWalletClient;
 import org.multibit.hd.hardware.trezor.clients.TrezorHardwareWalletClient;
@@ -41,7 +41,7 @@ public class SocketMonitoringExample {
     SocketMonitoringExample example = new SocketMonitoringExample();
 
     // Subscribe to hardware wallet events
-    HardwareWalletService.hardwareWalletEventBus.register(example);
+    HardwareWalletEvents.subscribe(example);
 
     example.executeExample(args[0], Integer.parseInt(args[1]));
 

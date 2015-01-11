@@ -40,7 +40,7 @@ HardwareWalletClient client = new TrezorHardwareWalletClient(wallet);
 hardwareWalletService = new HardwareWalletService(client);
 
 // Register for the high level hardware wallet events
-HardwareWalletService.hardwareWalletEventBus.register(this);
+HardwareWalletEvents.subscribe(this);
 
 // Start the service
 hardwareWalletService.start();

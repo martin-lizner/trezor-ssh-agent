@@ -1,10 +1,11 @@
 package org.multibit.hd.hardware.examples.trezor.relay;
 
-import org.bitcoinj.core.AddressFormatException;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.Uninterruptibles;
+import org.bitcoinj.core.AddressFormatException;
 import org.multibit.hd.hardware.core.HardwareWalletService;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvent;
+import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
 import org.multibit.hd.hardware.core.messages.Features;
 
 import java.io.IOException;
@@ -78,7 +79,7 @@ public class RelayToTrezorV1FeaturesExample extends AbstractRelayExample {
     hardwareWalletService = new HardwareWalletService(client);
 
     // Register for the high level hardware wallet events
-    HardwareWalletService.hardwareWalletEventBus.register(this);
+    HardwareWalletEvents.subscribe(this);
 
     // Start the service
     hardwareWalletService.start();

@@ -7,6 +7,7 @@ import org.bitcoinj.core.AddressFormatException;
 import org.multibit.hd.hardware.core.HardwareWalletClient;
 import org.multibit.hd.hardware.core.HardwareWalletService;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvent;
+import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
 import org.multibit.hd.hardware.core.messages.Features;
 import org.multibit.hd.hardware.core.wallets.HardwareWallets;
 import org.multibit.hd.hardware.trezor.clients.TrezorHardwareWalletClient;
@@ -58,7 +59,7 @@ public class TrezorV1StopExample {
     TrezorV1StopExample example = new TrezorV1StopExample();
 
     // Subscribe to hardware wallet events
-    HardwareWalletService.hardwareWalletEventBus.register(example);
+    HardwareWalletEvents.subscribe(example);
 
     example.executeExample();
 
@@ -114,7 +115,7 @@ public class TrezorV1StopExample {
       case SHOW_DEVICE_STOPPED:
 
         // Deregister for events to avoid dangling references to listeners
-        HardwareWalletService.hardwareWalletEventBus.unregister(this);
+        HardwareWalletEvents.unsubscribe(this);
 
         // Create a daemon thread since we're on an event thread
         final Thread thread = new Thread(
@@ -163,7 +164,7 @@ public class TrezorV1StopExample {
     hardwareWalletService = new HardwareWalletService(client);
 
     // Register for the high level hardware wallet events
-    HardwareWalletService.hardwareWalletEventBus.register(this);
+    HardwareWalletEvents.subscribe(this);
 
     hardwareWalletService.start();
   }

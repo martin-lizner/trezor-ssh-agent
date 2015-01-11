@@ -2,13 +2,14 @@ package org.multibit.hd.hardware.core;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import com.google.common.eventbus.EventBus;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import org.bitcoinj.core.Address;
 import org.bitcoinj.core.Transaction;
 import org.bitcoinj.crypto.ChildNumber;
 import org.bitcoinj.wallet.KeyChain;
 import org.multibit.hd.hardware.core.concurrent.SafeExecutors;
+import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
+import org.multibit.hd.hardware.core.events.MessageEvents;
 import org.multibit.hd.hardware.core.fsm.CreateWalletSpecification;
 import org.multibit.hd.hardware.core.fsm.HardwareWalletContext;
 import org.multibit.hd.hardware.core.fsm.LoadWalletSpecification;
@@ -37,18 +38,6 @@ import java.util.concurrent.TimeUnit;
 public class HardwareWalletService {
 
   private static final Logger log = LoggerFactory.getLogger(HardwareWalletService.class);
-
-  /**
-   * <p>The EventBus for distributing the high level hardware wallet events</p>
-   * Downstream consumers are expected to use this
-   */
-  public static final EventBus hardwareWalletEventBus = new EventBus();
-
-  /**
-   * <p>The EventBus for distributing the low level hardware wallet events</p>
-   * <p>Downstream consumers <strong>should not use this</strong> </p>
-   */
-  public static final EventBus messageEventBus = new EventBus();
 
   /**
    * Monitors the hardware client to manage state transitions in response to incoming messages
@@ -114,6 +103,11 @@ public class HardwareWalletService {
     log.debug("Service {} stopping...", this.getClass().getSimpleName());
 
     context.resetToStopped();
+
+    // Ensure downstream subscribers are purged
+    HardwareWalletEvents.unsubscribeAll();
+    MessageEvents.unsubscribeAll();
+
     try {
       clientMonitorService.awaitTermination(1, TimeUnit.SECONDS);
     } catch (InterruptedException e) {

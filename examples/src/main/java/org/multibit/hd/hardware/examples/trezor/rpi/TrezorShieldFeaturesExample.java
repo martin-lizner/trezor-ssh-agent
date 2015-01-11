@@ -1,8 +1,8 @@
 package org.multibit.hd.hardware.examples.trezor.rpi;
 
-import org.bitcoinj.core.AddressFormatException;
 import com.google.common.base.Optional;
-import org.multibit.hd.hardware.core.HardwareWalletService;
+import org.bitcoinj.core.AddressFormatException;
+import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
 import org.multibit.hd.hardware.core.wallets.HardwareWallets;
 import org.multibit.hd.hardware.trezor.clients.AbstractTrezorHardwareWalletClient;
 import org.multibit.hd.hardware.trezor.clients.TrezorHardwareWalletClient;
@@ -42,7 +42,7 @@ public class TrezorShieldFeaturesExample {
     TrezorShieldFeaturesExample example = new TrezorShieldFeaturesExample();
 
     // Subscribe to hardware wallet events
-    HardwareWalletService.hardwareWalletEventBus.register(example);
+    HardwareWalletEvents.subscribe(example);
 
     example.executeExample();
 

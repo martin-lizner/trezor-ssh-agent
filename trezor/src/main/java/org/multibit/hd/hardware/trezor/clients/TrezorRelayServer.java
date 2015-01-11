@@ -5,8 +5,8 @@ import com.google.common.collect.Queues;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.Uninterruptibles;
 import com.google.protobuf.Message;
-import org.multibit.hd.hardware.core.HardwareWalletService;
 import org.multibit.hd.hardware.core.concurrent.SafeExecutors;
+import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
 import org.multibit.hd.hardware.core.events.MessageEvent;
 import org.multibit.hd.hardware.core.events.MessageEventType;
 import org.multibit.hd.hardware.core.wallets.HardwareWallet;
@@ -90,7 +90,8 @@ public class TrezorRelayServer {
     this.hardwareWallet = hardwareWallet;
     this.portNumber = portNumber;
 
-    HardwareWalletService.hardwareWalletEventBus.register(this);
+    // Subscribe to the high level events from the client
+    HardwareWalletEvents.subscribe(this);
 
     serverExecutorService.submit(
       new Runnable() {

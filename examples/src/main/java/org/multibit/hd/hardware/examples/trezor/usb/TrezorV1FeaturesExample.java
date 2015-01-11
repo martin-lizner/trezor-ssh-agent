@@ -7,6 +7,7 @@ import com.google.common.util.concurrent.Uninterruptibles;
 import org.multibit.hd.hardware.core.HardwareWalletClient;
 import org.multibit.hd.hardware.core.HardwareWalletService;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvent;
+import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
 import org.multibit.hd.hardware.core.messages.Features;
 import org.multibit.hd.hardware.core.wallets.HardwareWallets;
 import org.multibit.hd.hardware.trezor.clients.TrezorHardwareWalletClient;
@@ -44,7 +45,7 @@ public class TrezorV1FeaturesExample {
     TrezorV1FeaturesExample example = new TrezorV1FeaturesExample();
 
     // Subscribe to hardware wallet events
-    HardwareWalletService.hardwareWalletEventBus.register(example);
+    HardwareWalletEvents.subscribe(example);
 
     example.executeExample();
 
@@ -70,7 +71,7 @@ public class TrezorV1FeaturesExample {
     hardwareWalletService = new HardwareWalletService(client);
 
     // Register for the high level hardware wallet events
-    HardwareWalletService.hardwareWalletEventBus.register(this);
+    HardwareWalletEvents.subscribe(this);
 
     // Start the service
     hardwareWalletService.start();
