@@ -275,10 +275,13 @@ public final class TrezorMessageUtils {
       }
 
       // Must be OK to be here
-      log.debug("< Message: {}", ToStringBuilder.reflectionToString(message, new TrezorMessageToStringStyle()));
 
       if (hardwareWalletMessage == null) {
         log.warn("Could not adapt message to Core.");
+        log.debug("< Message:\n{}", ToStringBuilder.reflectionToString(message, new TrezorMessageToStringStyle()));
+
+      } else {
+        log.debug("< HardwareMessage:\n{}", ToStringBuilder.reflectionToString(hardwareWalletMessage, new TrezorMessageToStringStyle()));
       }
 
       // Wrap the type and message into an event

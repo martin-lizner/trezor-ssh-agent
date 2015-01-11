@@ -39,7 +39,7 @@
 
   <!-- The default logging behaviour for third-party applications (Spring,
     Hibernate etc) -->
-  <root level="WARN">
+  <root level="DEBUG">
     <appender-ref ref="CONSOLE_APPENDER" />
     <appender-ref ref="DETAIL_APPENDER" />
   </root>

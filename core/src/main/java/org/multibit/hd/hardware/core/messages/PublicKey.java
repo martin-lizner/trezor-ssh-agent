@@ -60,8 +60,8 @@ public class PublicKey implements HardwareWalletMessage {
   @Override
   public String toString() {
     return new ToStringBuilder(this)
-      .append("xpub", xpub)
-      .append("xpubBytes", xpubBytes)
+      .append("xpub", xpub.orNull())
+      .append("xpubBytes", xpubBytes.orNull())
       .append("hdNodeType", hdNodeType)
       .toString();
   }
