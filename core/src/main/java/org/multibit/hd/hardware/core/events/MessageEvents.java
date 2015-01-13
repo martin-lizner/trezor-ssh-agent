@@ -4,13 +4,19 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
 import com.google.common.eventbus.EventBus;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.protobuf.Message;
 import org.multibit.hd.hardware.core.ExceptionHandler;
+import org.multibit.hd.hardware.core.concurrent.SafeExecutors;
 import org.multibit.hd.hardware.core.messages.HardwareWalletMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Set;
+import java.util.concurrent.Callable;
 
 /**
  * <p>Factory to provide the following to application API:</p>
@@ -28,6 +34,11 @@ import java.util.Set;
 public class MessageEvents {
 
   private static final Logger log = LoggerFactory.getLogger(MessageEvents.class);
+
+  /**
+   * Dedicated thread for low level messages for asynchronous transmission
+   */
+  private static final ListeningExecutorService messageEventService = SafeExecutors.newSingleThreadExecutor("message-events");
 
   /**
    * Use Guava to handle subscribers to events
@@ -118,8 +129,30 @@ public class MessageEvents {
 
     Preconditions.checkNotNull(event, "'messageType' must be present");
 
-    log.debug("Firing 'message' event: {}", event.getEventType().name());
-    messageEventBus.post(event);
+    final ListenableFuture<Boolean> future = messageEventService.submit(
+      new Callable<Boolean>() {
+        @Override
+        public Boolean call() {
+          log.debug("Firing 'message' event: {}", event.getEventType().name());
+          messageEventBus.post(event);
+
+          // Must be OK to be here
+          return true;
+        }
+      });
+
+    Futures.addCallback(
+      future, new FutureCallback<Boolean>() {
+        @Override
+        public void onSuccess(Boolean result) {
+          log.debug("Completed 'message' event: {}", event.getEventType().name());
+        }
+
+        @Override
+        public void onFailure(Throwable t) {
+          log.error("Failed to complete 'message' event: {}", event.getEventType().name(), t);
+        }
+      });
 
   }
 
@@ -132,13 +165,35 @@ public class MessageEvents {
 
     Preconditions.checkNotNull(messageEventType, "'messageType' must be present");
 
-    log.debug("Firing 'message' event: {}", messageEventType.name());
-    messageEventBus.post(
-      new MessageEvent(
-        messageEventType,
-        Optional.<HardwareWalletMessage>absent(),
-        Optional.<Message>absent()
-      ));
+    final ListenableFuture<Boolean> future = messageEventService.submit(
+      new Callable<Boolean>() {
+        @Override
+        public Boolean call() {
+          log.debug("Firing 'message' event: {}", messageEventType.name());
+          messageEventBus.post(
+            new MessageEvent(
+              messageEventType,
+              Optional.<HardwareWalletMessage>absent(),
+              Optional.<Message>absent()
+            ));
+
+          // Must be OK to be here
+          return true;
+        }
+      });
+
+    Futures.addCallback(
+      future, new FutureCallback<Boolean>() {
+        @Override
+        public void onSuccess(Boolean result) {
+          log.debug("Completed 'hardware wallet' event: {}", messageEventType.name());
+        }
+
+        @Override
+        public void onFailure(Throwable t) {
+          log.error("Failed to complete 'hardware wallet' event: {}", messageEventType.name(), t);
+        }
+      });
 
   }
 

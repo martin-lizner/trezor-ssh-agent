@@ -4,12 +4,18 @@ import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
 import com.google.common.eventbus.EventBus;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListeningExecutorService;
 import org.multibit.hd.hardware.core.ExceptionHandler;
+import org.multibit.hd.hardware.core.concurrent.SafeExecutors;
 import org.multibit.hd.hardware.core.messages.HardwareWalletMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Set;
+import java.util.concurrent.Callable;
 
 /**
  * <p>Factory to provide the following to application API:</p>
@@ -23,6 +29,11 @@ import java.util.Set;
 public class HardwareWalletEvents {
 
   private static final Logger log = LoggerFactory.getLogger(HardwareWalletEvents.class);
+
+  /**
+   * Dedicated thread for high level messages for asynchronous transmission
+   */
+  private static final ListeningExecutorService hardwareWalletEventService = SafeExecutors.newSingleThreadExecutor("hardware-wallet-events");
 
   /**
    * Use Guava to handle subscribers to events
@@ -116,11 +127,34 @@ public class HardwareWalletEvents {
     Preconditions.checkNotNull(eventType, "'messageType' must be present");
     Preconditions.checkNotNull(message, "'message' must be present");
 
-    log.debug("Firing 'hardware wallet' event: {}", eventType.name());
-    hardwareWalletEventBus.post(new HardwareWalletEvent(
-      eventType,
-      Optional.of(message)
-    ));
+    final ListenableFuture<Boolean> future = hardwareWalletEventService.submit(
+      new Callable<Boolean>() {
+        @Override
+        public Boolean call() {
+          log.debug("Firing 'hardware wallet' event: {}", eventType.name());
+          hardwareWalletEventBus.post(
+            new HardwareWalletEvent(
+              eventType,
+              Optional.of(message)
+            ));
+
+          // Must be OK to be here
+          return true;
+        }
+      });
+
+    Futures.addCallback(
+      future, new FutureCallback<Boolean>() {
+        @Override
+        public void onSuccess(Boolean result) {
+          log.debug("Completed 'hardware wallet' event: {}", eventType.name());
+        }
+
+        @Override
+        public void onFailure(Throwable t) {
+          log.error("Failed to complete 'hardware wallet' event: {}", eventType.name(), t);
+        }
+      });
 
   }
 
@@ -133,11 +167,34 @@ public class HardwareWalletEvents {
 
     Preconditions.checkNotNull(eventType, "'eventType' must be present");
 
-    log.debug("Firing 'hardware wallet' event: {}", eventType.name());
-    hardwareWalletEventBus.post(new HardwareWalletEvent(
-      eventType,
-      Optional.<HardwareWalletMessage>absent()
-    ));
+    final ListenableFuture<Boolean> future = hardwareWalletEventService.submit(
+      new Callable<Boolean>() {
+        @Override
+        public Boolean call() {
+          log.debug("Firing 'hardware wallet' event: {}", eventType.name());
+          hardwareWalletEventBus.post(
+            new HardwareWalletEvent(
+              eventType,
+              Optional.<HardwareWalletMessage>absent()
+            ));
+
+          // Must be OK to be here
+          return true;
+        }
+      });
+
+    Futures.addCallback(
+      future, new FutureCallback<Boolean>() {
+        @Override
+        public void onSuccess(Boolean result) {
+          log.debug("Completed 'hardware wallet' event: {}", eventType.name());
+        }
+
+        @Override
+        public void onFailure(Throwable t) {
+          log.error("Failed to complete 'hardware wallet' event: {}", eventType.name(), t);
+        }
+      });
 
   }
 
