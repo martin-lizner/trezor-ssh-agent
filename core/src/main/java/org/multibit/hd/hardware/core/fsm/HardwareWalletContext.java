@@ -21,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -127,6 +128,11 @@ public class HardwareWalletContext {
    * Entropy returned from the Trezor (result of encryption of fixed text
    */
   private Optional<byte[]> entropy = Optional.absent();
+
+  /**
+   * The time when the device was last wiped by MBHD
+   */
+  private Optional<Date> lastWipeTime = Optional.absent();
 
   /**
    * @param client The hardware wallet client
@@ -928,4 +934,14 @@ public class HardwareWalletContext {
   public void setEntropy(Optional<byte[]> entropy) {
     this.entropy = entropy;
   }
+
+
+  public Optional<Date> getLastWipeTime() {
+    return lastWipeTime;
+  }
+
+  public void setLastWipeTime(Optional<Date> lastWipeTime) {
+    this.lastWipeTime = lastWipeTime;
+  }
+
 }
