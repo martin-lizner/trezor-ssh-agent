@@ -118,7 +118,8 @@ public class TrezorV1GetDeterministicHierarchyExample {
             ));
 
         } else {
-          log.info("You need to have created a wallet before running this example");
+          log.warn("You need to have created a wallet before running this example");
+          System.exit(-1);
         }
 
         break;
@@ -145,6 +146,10 @@ public class TrezorV1GetDeterministicHierarchyExample {
         Address walletKeyAddress = new Address(MainNetParams.get(), seedKey.getPubKeyHash());
 
         log.info("Path {}/0/0 has address: '{}'", parentKey.getPathAsString(), walletKeyAddress.toString());
+
+        if ("1LqBGSKuX5yYUonjxT5qGfpUsXKYYWeabA".equals(walletKeyAddress.toString())) {
+          log.warn("This corresponds to the 'abandon' wallet");
+        }
 
         // Treat as end of example
         System.exit(0);
