@@ -2,7 +2,7 @@ package org.multibit.hd.hardware.core;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.ListeningScheduledExecutorService;
 import org.bitcoinj.core.Address;
 import org.bitcoinj.core.Transaction;
 import org.bitcoinj.crypto.ChildNumber;
@@ -42,7 +42,7 @@ public class HardwareWalletService {
   /**
    * Monitors the hardware client to manage state transitions in response to incoming messages
    */
-  private final ListeningExecutorService clientMonitorService = SafeExecutors.newSingleThreadExecutor("monitor-hw-client");
+  private final ListeningScheduledExecutorService clientMonitorService = SafeExecutors.newSingleThreadScheduledExecutor("monitor-hw-client");
 
   /**
    * The current hardware wallet context
@@ -74,24 +74,25 @@ public class HardwareWalletService {
     }
 
     // Start the hardware wallet state machine
-    clientMonitorService.submit(
+    clientMonitorService.scheduleAtFixedRate(
       new Runnable() {
         @Override
         public void run() {
 
-          while (true) {
-            context.getState().await(context);
+          // It if we are in the await state then we use a client
+          // call (e.g. initialise()) to poke the device to elicit
+          // a low level message response
+          context.getState().await(context);
 
-            // Allow interruptions
-            try {
-              Thread.sleep(200);
-            } catch (InterruptedException e) {
-              Thread.currentThread().interrupt();
-            }
-
-          }
         }
-      }
+      },
+      0, // Immediate start
+      // Polling time in order to progress the state
+      // Devices will respond with some kind of event within 500ms for states that are
+      // awaiting progression (e.g. Connected -> Initialised)
+      // Setting this lower has no effect on speed of operations and may introduce
+      // instability with overlapping calls due to "impatience"
+      1, TimeUnit.SECONDS
     );
   }
 
@@ -451,7 +452,10 @@ public class HardwareWalletService {
    * @param receivingAddressPathMap The paths to the receiving addresses for this transaction keyed by input index
    * @param changeAddressPathMap    The paths to the change address for this transaction keyed by Address
    */
-  public void simpleSignTx(Transaction transaction, Map<Integer, ImmutableList<ChildNumber>> receivingAddressPathMap, Map<Address, ImmutableList<ChildNumber>> changeAddressPathMap) {
+  public void simpleSignTx(
+    Transaction transaction,
+    Map<Integer, ImmutableList<ChildNumber>> receivingAddressPathMap,
+    Map<Address, ImmutableList<ChildNumber>> changeAddressPathMap) {
 
     throw new UnsupportedOperationException("Not yet supported. Use signTx instead.");
 
