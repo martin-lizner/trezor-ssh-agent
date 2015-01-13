@@ -142,7 +142,8 @@ public class TrezorV1CipherKeyExample {
         }
         break;
       case SHOW_OPERATION_SUCCEEDED:
-        byte[] payload = ((Success) event.getMessage().get()).getPayload();
+        // Check that the service has the entropy
+        byte[] payload = hardwareWalletService.getContext().getEntropy().get();
         String message = ((Success) event.getMessage().get()).getMessage();
 
         // Requires the MultiBit Dev wallet to resolve as deterministic

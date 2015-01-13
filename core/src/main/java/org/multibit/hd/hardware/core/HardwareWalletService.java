@@ -143,7 +143,7 @@ public class HardwareWalletService {
   }
 
   /**
-   * @return True if the hardware wallet has been initialised with a seed phrase, PIN, passphrase etc.
+   * @return True if the hardware wallet has been initialised with a seed phrase (<code>Features.isInitialised()</code>)
    *
    * @throws IllegalStateException If called when the device is not ready (see <code>isDeviceReady()</code>)
    */

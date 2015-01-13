@@ -21,7 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -125,14 +124,9 @@ public class HardwareWalletContext {
   private Optional<DeterministicHierarchy> deterministicHierarchy = Optional.absent();
 
   /**
-   * Entropy returned from the Trezor (result of encryption of fixed text
+   * Entropy returned from the Trezor (result of encryption of fixed text)
    */
   private Optional<byte[]> entropy = Optional.absent();
-
-  /**
-   * The time when the device was last wiped by MBHD
-   */
-  private Optional<Date> lastWipeTime = Optional.absent();
 
   /**
    * @param client The hardware wallet client
@@ -885,7 +879,10 @@ public class HardwareWalletContext {
    * @param receivingAddressPathMap The map of paths for our receiving addresses
    * @param changeAddressPathMap    The map paths for our change address
    */
-  public void beginSignTxUseCase(Transaction transaction, Map<Integer, ImmutableList<ChildNumber>> receivingAddressPathMap, Map<Address, ImmutableList<ChildNumber>> changeAddressPathMap) {
+  public void beginSignTxUseCase(
+    Transaction transaction,
+    Map<Integer, ImmutableList<ChildNumber>> receivingAddressPathMap,
+    Map<Address, ImmutableList<ChildNumber>> changeAddressPathMap) {
 
     log.debug("Begin 'sign transaction' use case");
 
@@ -927,21 +924,20 @@ public class HardwareWalletContext {
 
   }
 
+  /**
+   * @return Entropy returned from the Trezor (result of encryption of fixed text)
+   */
   public Optional<byte[]> getEntropy() {
     return entropy;
   }
 
-  public void setEntropy(Optional<byte[]> entropy) {
-    this.entropy = entropy;
-  }
-
-
-  public Optional<Date> getLastWipeTime() {
-    return lastWipeTime;
-  }
-
-  public void setLastWipeTime(Optional<Date> lastWipeTime) {
-    this.lastWipeTime = lastWipeTime;
+  /**
+   * <p>This is normally called after a successful cipher key operation</p>
+   *
+   * @param entropy The entropy to set
+   */
+  public void setEntropy(byte[] entropy) {
+    this.entropy = Optional.fromNullable(entropy);
   }
 
 }
