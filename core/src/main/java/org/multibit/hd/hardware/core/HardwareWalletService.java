@@ -79,6 +79,8 @@ public class HardwareWalletService {
         @Override
         public void run() {
 
+          // Note: If an error occurs all future requests are suppressed
+
           // It if we are in the await state then we use a client
           // call (e.g. initialise()) to poke the device to elicit
           // a low level message response

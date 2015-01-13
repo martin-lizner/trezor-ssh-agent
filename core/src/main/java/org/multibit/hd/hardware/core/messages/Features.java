@@ -46,7 +46,7 @@ public class Features implements HardwareWalletMessage {
   }
 
   /**
-   * @return The version of the device (e.g. "1.2.3.4")
+   * @return The version of the device (e.g. "1.2.3")
    */
   public String getVersion() {
     return version;
@@ -68,6 +68,9 @@ public class Features implements HardwareWalletMessage {
   }
 
   /**
+   * <p>The device ID is regenerated randomly each time <code>initialise()</code> is called.</p>
+   * <p>It is therefore not useful as a "power cycle" or "wipe" detector.</p>
+   *
    * @return The device unique identifier
    */
   public String getDeviceId() {
