@@ -74,7 +74,7 @@ public class HardwareWalletService {
     }
 
     // Start the hardware wallet state machine
-    clientMonitorService.scheduleAtFixedRate(
+    clientMonitorService.scheduleWithFixedDelay(
       new Runnable() {
         @Override
         public void run() {
@@ -89,8 +89,8 @@ public class HardwareWalletService {
         }
       },
       0, // Immediate start
-      // Polling time in order to progress the state
-      // Devices will respond with some kind of event within 500ms for states that are
+      // Delay time in order to progress the state
+      // Devices will respond with some kind of event within 1 second for states that are
       // awaiting progression (e.g. Connected -> Initialised)
       // Setting this lower has no effect on speed of operations and may introduce
       // instability with overlapping calls due to "impatience"
