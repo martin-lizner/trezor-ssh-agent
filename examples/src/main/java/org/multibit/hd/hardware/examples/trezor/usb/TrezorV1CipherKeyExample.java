@@ -1,5 +1,6 @@
 package org.multibit.hd.hardware.examples.trezor.usb;
 
+import com.google.common.base.Charsets;
 import org.bitcoinj.core.Utils;
 import org.bitcoinj.wallet.KeyChain;
 import com.google.common.base.Optional;
@@ -104,9 +105,8 @@ public class TrezorV1CipherKeyExample {
 
           log.debug("Wallet is present. Request cipher key");
 
-          byte[] key = "MultiBit HD     Wallet ID".getBytes();
-          byte[] keyValue = "0123456789abcdef".getBytes();
-
+          byte[] key = "MultiBit HD     Unlock".getBytes(Charsets.UTF_8);
+          byte[] keyValue = "0123456789abcdef".getBytes(Charsets.UTF_8);
           // Request an address from the device using BIP-44 chain code:
           hardwareWalletService.requestCipherKey(
             0,
