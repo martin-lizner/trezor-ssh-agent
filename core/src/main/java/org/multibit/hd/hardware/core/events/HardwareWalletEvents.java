@@ -198,4 +198,38 @@ public class HardwareWalletEvents {
 
   }
 
+  /**
+    * <p>A hardware event can wrap a hardware wallet message adapted from a protocol buffer message</p>
+    *
+    * @param event The event
+    */
+   public static void fireHardwareWalletEvent(final HardwareWalletEvent event) {
+
+     Preconditions.checkNotNull(event, "'event' must be present");
+
+     final ListenableFuture<Boolean> future = hardwareWalletEventService.submit(
+       new Callable<Boolean>() {
+         @Override
+         public Boolean call() {
+           log.debug("Firing 'hardware wallet' event: {}", event);
+           hardwareWalletEventBus.post(event);
+
+           // Must be OK to be here
+           return true;
+         }
+       });
+
+     Futures.addCallback(
+       future, new FutureCallback<Boolean>() {
+         @Override
+         public void onSuccess(Boolean result) {
+           log.debug("Completed 'hardware wallet' event: {}", event);
+         }
+
+         @Override
+         public void onFailure(Throwable t) {
+           log.error("Failed to complete 'hardware wallet' event: {}", event, t);
+         }
+       });
+   }
 }
