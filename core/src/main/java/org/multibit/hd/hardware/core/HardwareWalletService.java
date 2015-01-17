@@ -79,12 +79,22 @@ public class HardwareWalletService {
         @Override
         public void run() {
 
-          // Note: If an error occurs all future requests are suppressed
+          // Note: If an unhandled error occurs in a scheduled exception
+          // it causes all future requests to be suppressed
+          // We want to alert the user to a failure and keep active
+          // to avoid "silent failures"
 
-          // It if we are in the await state then we use a client
-          // call (e.g. initialise()) to poke the device to elicit
-          // a low level message response
-          context.getState().await(context);
+          try {
+
+            // It if we are in the await state then we use a client
+            // call (e.g. initialise()) to poke the device to elicit
+            // a low level message response
+            context.getState().await(context);
+          } catch (RuntimeException e) {
+            log.error("Unexpected error transitioning between states", e);
+            // Trigger a failure mode
+            context.resetToFailed();
+          }
 
         }
       },
