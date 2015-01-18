@@ -101,9 +101,9 @@ public class HDNodeType implements HardwareWalletMessage {
   @Override
   public String toString() {
     return new ToStringBuilder(this)
-      .append("publicKey", publicKey)
-      .append("privateKey", "***")
-      .append("chainCode", chainCode)
+      .append("publicKey", "****") // Avoid logging this information
+      .append("privateKey", "****") // Avoid logging this information
+      .append("chainCode", "****") // Avoid logging this information
       .append("childNum", childNum)
       .append("depth", depth)
       .append("fingerprint", fingerprint)

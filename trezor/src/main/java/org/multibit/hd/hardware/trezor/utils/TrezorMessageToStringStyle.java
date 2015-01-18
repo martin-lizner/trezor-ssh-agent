@@ -54,6 +54,10 @@ public class TrezorMessageToStringStyle extends ToStringStyle {
       buffer.append("****");
       return;
     }
+    if (fieldName.equals("payload")) {
+      buffer.append("****");
+      return;
+    }
 
     // Unwrap Optional
     if (value instanceof Optional) {

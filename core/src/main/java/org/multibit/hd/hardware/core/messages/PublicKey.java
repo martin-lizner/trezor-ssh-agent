@@ -15,7 +15,6 @@ import com.google.common.base.Optional;
  */
 public class PublicKey implements HardwareWalletMessage {
 
-
   private final Optional<String> xpub;
   private final Optional<byte[]> xpubBytes;
   private final Optional<HDNodeType> hdNodeType;

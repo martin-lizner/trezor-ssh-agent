@@ -45,7 +45,7 @@ public class Success implements HardwareWalletMessage {
   public String toString() {
     return new ToStringBuilder(this)
       .append("message", message)
-      .append("payload", payload)
+      .append("payload", "****") // Payload allows a replay attack
       .toString();
   }
 }
