@@ -71,7 +71,8 @@ public abstract class AbstractTrezorHardwareWallet extends AbstractHardwareWalle
         s += String.format(" %02x", buffer[j]);
       }
 
-      log.debug("> {}", s);
+      // There is a security risk to raising this logging level beyond trace
+      log.trace("> {}", s);
 
       writeToDevice(buffer);
 

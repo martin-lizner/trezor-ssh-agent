@@ -1,7 +1,6 @@
 package org.multibit.hd.hardware.core.messages;
 
 import com.google.common.base.Optional;
-import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
  * <p>Value object to provide the following to downstream API consumers:</p>
@@ -57,12 +56,4 @@ public class PublicKey implements HardwareWalletMessage {
     return hdNodeType;
   }
 
-  @Override
-  public String toString() {
-    return new ToStringBuilder(this)
-      .append("xpub", xpub.orNull())
-      .append("xpubBytes", xpubBytes.orNull())
-      .append("hdNodeType", hdNodeType)
-      .toString();
-  }
 }

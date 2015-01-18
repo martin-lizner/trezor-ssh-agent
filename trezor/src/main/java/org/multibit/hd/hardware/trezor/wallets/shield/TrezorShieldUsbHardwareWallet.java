@@ -179,17 +179,20 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
     // Reset the device
     featureReport = new byte[]{0x00};
     int bytesSent = device.sendFeatureReport(featureReport, (byte) 0x040);
-    log.debug("> UART Reset: {} '{}'", bytesSent, featureReport);
+    // There is a security risk to raising this logging level beyond trace
+    log.trace("> UART Reset: {} '{}'", bytesSent, featureReport);
 
     // Enable the UART
     featureReport = new byte[]{0x01};
     bytesSent = device.sendFeatureReport(featureReport, (byte) 0x041);
-    log.debug("> UART Enable: {} '{}'", bytesSent, featureReport);
+    // There is a security risk to raising this logging level beyond trace
+    log.trace("> UART Enable: {} '{}'", bytesSent, featureReport);
 
     // Purge Rx and Tx buffers
     featureReport = new byte[]{0x03};
     bytesSent = device.sendFeatureReport(featureReport, (byte) 0x043);
-    log.debug("> Purge RxTx: {} '{}'", bytesSent, featureReport);
+    // There is a security risk to raising this logging level beyond trace
+    log.trace("> Purge RxTx: {} '{}'", bytesSent, featureReport);
 
     // Must have connected to be here
     MessageEvents.fireMessageEvent(MessageEventType.DEVICE_CONNECTED);
@@ -254,7 +257,8 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
         return null;
       }
 
-      log.debug("< {} bytes", received);
+      // There is a security risk to raising this logging level beyond trace
+      log.trace("< {} bytes", received);
       TrezorMessageUtils.logPacket("<", 0, buffer);
 
       if (received < 9) {
@@ -277,7 +281,8 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
       break;
     }
 
-    log.debug("< Type: '{}' Message size: '{}' bytes", type.name(), msgSize);
+    // There is a security risk to raising this logging level beyond trace
+    log.trace("< Type: '{}' Message size: '{}' bytes", type.name(), msgSize);
 
     int packet = 0;
     while (messageBuffer.position() < msgSize) {
@@ -286,7 +291,8 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
       received = locatedDevice.get().read(buffer);
       packet++;
 
-      log.debug("< (cont) {} bytes", received);
+      // There is a security risk to raising this logging level beyond trace
+      log.trace("< (cont) {} bytes", received);
       TrezorMessageUtils.logPacket("<", packet, buffer);
 
       if (buffer[0] != (byte) '?') {
