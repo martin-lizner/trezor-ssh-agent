@@ -302,7 +302,8 @@ public class TrezorV1HidHardwareWallet extends AbstractTrezorHardwareWallet impl
         received = locatedDevice.get().read(buffer);
       }
 
-      log.debug("< {} bytes", received);
+      // There is a security risk to raising this logging level beyond trace
+      log.trace("< {} bytes", received);
 
       if (received == -1) {
         // Hardware problem
@@ -341,7 +342,8 @@ public class TrezorV1HidHardwareWallet extends AbstractTrezorHardwareWallet impl
       break;
     }
 
-    log.debug("< Type: '{}' Message size: '{}' bytes", type.name(), msgSize);
+    // There is a security risk to raising this logging level beyond trace
+    log.trace("< Type: '{}' Message size: '{}' bytes", type.name(), msgSize);
 
     int packet = 0;
     while (messageBuffer.position() < msgSize) {
@@ -350,7 +352,8 @@ public class TrezorV1HidHardwareWallet extends AbstractTrezorHardwareWallet impl
       received = locatedDevice.get().read(buffer);
       packet++;
 
-      log.debug("< (cont) {} bytes", received);
+      // There is a security risk to raising this logging level beyond trace
+      log.trace("< (cont) {} bytes", received);
       TrezorMessageUtils.logPacket("<", packet, buffer);
 
       if (buffer[0] != (byte) '?') {

@@ -402,7 +402,7 @@ public class HardwareWalletContext {
   }
 
   public void setDeterministicKey(DeterministicKey deterministicKey) {
-    log.debug("Setting deterministic key to be {}", deterministicKey);
+    log.debug("Setting deterministic key"); // Avoid logging the deterministic key
     this.deterministicKey = Optional.fromNullable(deterministicKey);
   }
 
@@ -430,7 +430,7 @@ public class HardwareWalletContext {
   @Subscribe
   public void onMessageEvent(MessageEvent event) {
 
-    log.debug("Received message event: '{}'.'{}'", event.getEventType().name(), event.getMessage());
+    log.debug("Received message event: '{}'", event.getEventType().name());
 
     // Perform a state transition as a result of this event
     try {

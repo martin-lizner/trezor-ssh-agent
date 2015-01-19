@@ -278,10 +278,10 @@ public final class TrezorMessageUtils {
 
       if (hardwareWalletMessage == null) {
         log.warn("Could not adapt message to Core.");
-        log.debug("< Message:\n{}", ToStringBuilder.reflectionToString(message, new TrezorMessageToStringStyle()));
+        log.trace("< Message:\n{}", ToStringBuilder.reflectionToString(message, new TrezorMessageToStringStyle()));
 
       } else {
-        log.debug("< HardwareMessage:\n{}", ToStringBuilder.reflectionToString(hardwareWalletMessage, new TrezorMessageToStringStyle()));
+        log.trace("< HardwareMessage:\n{}", ToStringBuilder.reflectionToString(hardwareWalletMessage, new TrezorMessageToStringStyle()));
       }
 
       // Wrap the type and message into an event
@@ -304,12 +304,14 @@ public final class TrezorMessageUtils {
   public static void logPacket(String prefix, int count, byte[] buffer) {
 
     // Only do work if required
-    if (log.isDebugEnabled()) {
+    // There is a security issue to revealing this information for certain packets
+    // so be cautious in raising it in Production
+    if (log.isTraceEnabled()) {
       String s = prefix + " Packet [" + count + "]:";
       for (byte b : buffer) {
         s += String.format(" %02x", b);
       }
-      log.debug("{}", s);
+      log.trace("{}", s);
     }
 
   }
@@ -369,7 +371,8 @@ public final class TrezorMessageUtils {
     String msgName = message.getClass().getSimpleName();
     int msgId = TrezorMessage.MessageType.valueOf("MessageType_" + msgName).getNumber();
 
-    log.debug("> Message: {}, ({} bytes)", ToStringBuilder.reflectionToString(message, new TrezorMessageToStringStyle()), msgSize);
+    // There is a security risk to raising this logging level beyond trace
+    log.trace("> Message: {}, ({} bytes)", ToStringBuilder.reflectionToString(message, new TrezorMessageToStringStyle()), msgSize);
 
     // Create the header
     ByteBuffer messageBuffer = ByteBuffer.allocate(32768);
@@ -424,7 +427,8 @@ public final class TrezorMessageUtils {
         throw new IOException("Read buffer is closed");
       }
 
-      log.debug("< {} bytes", received);
+      // There is a security risk to raising this logging level beyond trace
+      log.trace("< {} bytes", received);
       TrezorMessageUtils.logPacket("<", 0, buffer);
 
       if (received < 9) {
@@ -447,7 +451,8 @@ public final class TrezorMessageUtils {
       break;
     }
 
-    log.debug("< Type: '{}' Message size: '{}' bytes", type.name(), msgSize);
+    // There is a security risk to raising this logging level beyond trace
+    log.trace("< Type: '{}' Message size: '{}' bytes", type.name(), msgSize);
 
     int packet = 0;
     while (messageBuffer.position() < msgSize) {
@@ -456,7 +461,8 @@ public final class TrezorMessageUtils {
       received = in.read(buffer);
       packet++;
 
-      log.debug("< (cont) {} bytes", received);
+      // There is a security risk to raising this logging level beyond trace
+      log.trace("< (cont) {} bytes", received);
       TrezorMessageUtils.logPacket("<", packet, buffer);
 
       if (buffer[0] != (byte) '?') {

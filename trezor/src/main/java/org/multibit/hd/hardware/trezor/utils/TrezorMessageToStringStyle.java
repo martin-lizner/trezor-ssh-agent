@@ -33,6 +33,32 @@ public class TrezorMessageToStringStyle extends ToStringStyle {
 
   protected void appendDetail(StringBuffer buffer, String fieldName, Object value) {
 
+    // Avoid writing out certain fields for security reasons
+    if (fieldName.equals("xpub")) {
+      buffer.append("****");
+      return;
+    }
+    if (fieldName.equals("xpubBytes")) {
+      buffer.append("****");
+      return;
+    }
+    if (fieldName.equals("private_key")) {
+      buffer.append("****");
+      return;
+    }
+    if (fieldName.equals("public_key")) {
+      buffer.append("****");
+      return;
+    }
+    if (fieldName.equals("chain_code")) {
+      buffer.append("****");
+      return;
+    }
+    if (fieldName.equals("payload")) {
+      buffer.append("****");
+      return;
+    }
+
     // Unwrap Optional
     if (value instanceof Optional) {
 
@@ -124,16 +150,19 @@ public class TrezorMessageToStringStyle extends ToStringStyle {
 
   private void appendHDNodeType(StringBuffer buffer, HDNodeType hdNodeType) {
 
-    buffer
-      .append("\n    public_key: ");
-    appendHexBytes(buffer, hdNodeType.getPublicKey().or(new byte[] {}));
+    // Avoid logging some fields for security reasons
+    // The original code is left in place to assist debugging
 
     buffer
-      .append("\n    private_key: *****");
+      .append("\n    public_key: ****");
+    // appendHexBytes(buffer, hdNodeType.getPublicKey().or(new byte[] {}));
 
     buffer
-      .append("\n    chain_code: ");
-    appendHexBytes(buffer, hdNodeType.getChainCode().or(new byte[] {}));
+      .append("\n    private_key: ****");
+
+    buffer
+      .append("\n    chain_code: ****");
+    //appendHexBytes(buffer, hdNodeType.getChainCode().or(new byte[] {}));
 
     buffer
       .append("\n    child_num: ")
