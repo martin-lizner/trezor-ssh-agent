@@ -1,5 +1,6 @@
 package org.multibit.hd.hardware.trezor.wallets.shield;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import org.multibit.hd.hardware.core.HardwareWalletSpecification;
 import org.multibit.hd.hardware.core.events.MessageEvent;
@@ -156,7 +157,7 @@ public class TrezorShieldSocketHardwareWallet extends AbstractTrezorHardwareWall
 
     // TODO Implement this using the Trezor V1 as a template
 
-    return null;
+    return Optional.absent();
   }
 
   @Override

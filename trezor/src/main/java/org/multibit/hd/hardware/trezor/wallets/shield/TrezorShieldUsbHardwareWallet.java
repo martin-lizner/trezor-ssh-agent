@@ -254,7 +254,7 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
       received = locatedDevice.get().read(buffer);
 
       if (received == -1) {
-        return null;
+        return Optional.absent();
       }
 
       // There is a security risk to raising this logging level beyond trace
