@@ -19,6 +19,8 @@
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <!-- Library versions -->
     <slf4j.version>1.7.2</slf4j.version>
+    <findbugs.version>3.0.0</findbugs.version>
+
   </properties>
 
   <url>http://github.com/bitcoin-solutions/mbhd-hardware</url>
@@ -168,6 +170,31 @@
         </configuration>
       </plugin>
 
+      <!-- Findbugs
+           Notes:
+           See target/findBugs.xml for report
+           Use Findbugs-IDEA plugin with "Medium" (default) or "Low" (recommended) threshold
+      -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>findbugs-maven-plugin</artifactId>
+        <version>${findbugs.version}</version>
+        <configuration>
+          <effort>Max</effort>
+          <!-- The project currently passes with Medium but Low is desired -->
+          <threshold>Medium</threshold>
+          <xmlOutput>true</xmlOutput>
+        </configuration>
+        <executions>
+          <execution>
+            <phase>verify</phase>
+            <goals>
+              <goal>check</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
       <!-- Filter out functional tests by Maven (an IDE will run all tests including functional) -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -233,6 +260,13 @@
         <version>0.13-alice-SNAPSHOT</version>
       </dependency>
 
+      <!-- Findbugs annotations -->
+      <dependency>
+        <groupId>com.google.code.findbugs</groupId>
+        <artifactId>annotations</artifactId>
+        <version>2.0.1</version>
+      </dependency>
+
       <!-- Testing -->
 
       <!-- JUnit for testing -->
@@ -275,6 +309,12 @@
     <dependency>
       <groupId>org.bitcoinj</groupId>
       <artifactId>bitcoinj-core</artifactId>
+    </dependency>
+
+    <!-- Findbugs annotations -->
+    <dependency>
+      <groupId>com.google.code.findbugs</groupId>
+      <artifactId>annotations</artifactId>
     </dependency>
 
     <!-- Apache Commons for utilities not in Guava -->
