@@ -2,6 +2,8 @@ package org.multibit.hd.hardware.core.messages;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import java.util.Arrays;
+
 /**
  * <p>Value object to provide the following to downstream API consumers:</p>
  * <ul>
@@ -21,7 +23,7 @@ public class MessageSignature implements HardwareWalletMessage {
   public MessageSignature(String address, byte[] signature) {
 
     this.address = address;
-    this.signature = signature;
+    this.signature = Arrays.copyOf(signature, signature.length);
 
   }
 
@@ -36,7 +38,7 @@ public class MessageSignature implements HardwareWalletMessage {
    * @return The signature
    */
   public byte[] getSignature() {
-    return signature;
+    return Arrays.copyOf(signature, signature.length);
   }
 
   @Override

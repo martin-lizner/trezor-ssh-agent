@@ -5,6 +5,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.multibit.hd.hardware.core.utils.HexUtils;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -151,22 +152,22 @@ public class Features implements HardwareWalletMessage {
    * @return The SCM revision of the firmware
    */
   public byte[] getRevision() {
-    return revision;
+    return Arrays.copyOf(revision, revision.length);
   }
 
   public void setRevision(byte[] revision) {
-    this.revision = revision;
+    this.revision = Arrays.copyOf(revision, revision.length);
   }
 
   /**
    * @return The bootloader hash
    */
   public byte[] getBootloaderHash() {
-    return bootloaderHash;
+    return Arrays.copyOf(bootloaderHash, bootloaderHash.length);
   }
 
   public void setBootloaderHash(byte[] bootloaderHash) {
-    this.bootloaderHash = bootloaderHash;
+    this.bootloaderHash = Arrays.copyOf(bootloaderHash, bootloaderHash.length);
   }
 
   /**

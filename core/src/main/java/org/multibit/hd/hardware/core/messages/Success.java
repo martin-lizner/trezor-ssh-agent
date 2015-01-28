@@ -2,6 +2,8 @@ package org.multibit.hd.hardware.core.messages;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import java.util.Arrays;
+
 /**
  * <p>Value object to provide the following to downstream API consumers:</p>
  * <ul>
@@ -24,7 +26,7 @@ public class Success implements HardwareWalletMessage {
    */
   public Success(String message, byte[] payload) {
     this.message = message;
-    this.payload = payload;
+    this.payload = Arrays.copyOf(payload, payload.length);
   }
 
   /**
@@ -38,7 +40,7 @@ public class Success implements HardwareWalletMessage {
    * @return The payload
    */
   public byte[] getPayload() {
-    return payload;
+    return Arrays.copyOf(payload, payload.length);
   }
 
   @Override
