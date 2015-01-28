@@ -184,6 +184,8 @@
           <!-- The project currently passes with Medium but Low is desired -->
           <threshold>Medium</threshold>
           <xmlOutput>true</xmlOutput>
+          <!-- Skip the protobuf generated files -->
+          <onlyAnalyze>org.multibit.*</onlyAnalyze>
         </configuration>
         <executions>
           <execution>
