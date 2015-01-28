@@ -1,7 +1,6 @@
 package org.multibit.hd.hardware.core;
 
 import com.google.common.base.Optional;
-import com.google.protobuf.ByteString;
 import org.multibit.hd.hardware.core.wallets.HardwareWallet;
 
 import java.util.HashMap;
@@ -22,11 +21,6 @@ public class HardwareWalletSpecification {
   private String name;
 
   private String description;
-
-  /**
-   * The session ID is normally transmitted over the wire using protobuf
-   */
-  private ByteString sessionId;
 
   private boolean isUsb = false;
 
