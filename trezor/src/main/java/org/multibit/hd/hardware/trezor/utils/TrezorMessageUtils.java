@@ -9,6 +9,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
 import com.satoshilabs.trezor.protobuf.TrezorMessage;
 import com.satoshilabs.trezor.protobuf.TrezorType;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.bitcoinj.core.Address;
 import org.bitcoinj.core.Transaction;
@@ -301,6 +302,7 @@ public final class TrezorMessageUtils {
    * @param count  The packet count
    * @param buffer The buffer containing the packet to log
    */
+  @SuppressFBWarnings(value = {"SBSC_USE_STRINGBUFFER_CONCATENATION"}, justification = "Only occurs at trace")
   public static void logPacket(String prefix, int count, byte[] buffer) {
 
     // Only do work if required
@@ -324,7 +326,7 @@ public final class TrezorMessageUtils {
    *
    * @throws java.io.IOException If the device disconnects during IO
    */
-
+  @SuppressFBWarnings(value = {"SBSC_USE_STRINGBUFFER_CONCATENATION"}, justification = "Only occurs at trace")
   public static void writeAsHIDPackets(Message message, OutputStream out) throws IOException {
 
     // The message presented as a collection of HID packets
@@ -341,13 +343,15 @@ public final class TrezorMessageUtils {
       buffer[0] = 63; // Length
       messageBuffer.get(buffer, 1, 63); // Payload
 
-      // Describe the packet
-      String s = "> Packet [" + i + "]: ";
-      for (int j = 0; j < 64; j++) {
-        s += String.format(" %02x", buffer[j]);
-      }
+      if (log.isTraceEnabled()) {
+        // Describe the packet
+        String s = "> Packet [" + i + "]: ";
+        for (int j = 0; j < 64; j++) {
+          s += String.format(" %02x", buffer[j]);
+        }
 
-      log.info(s);
+        log.trace(s);
+      }
 
       out.write(buffer);
 

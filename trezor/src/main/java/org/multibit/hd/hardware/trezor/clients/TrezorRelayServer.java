@@ -5,6 +5,7 @@ import com.google.common.collect.Queues;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.Uninterruptibles;
 import com.google.protobuf.Message;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.multibit.hd.hardware.core.concurrent.SafeExecutors;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
 import org.multibit.hd.hardware.core.events.MessageEvent;
@@ -221,6 +222,7 @@ public class TrezorRelayServer {
    *
    * @param message the message to serialise and send to the OutputStream
    */
+  @SuppressFBWarnings(value = {"SBSC_USE_STRINGBUFFER_CONCATENATION"}, justification = "Only occurs at trace")
   public void writeMessage(Message message, OutputStream out) {
 
     ByteBuffer messageBuffer = TrezorMessageUtils.formatAsHIDPackets(message);
@@ -236,14 +238,16 @@ public class TrezorRelayServer {
       buffer[0] = 63; // Length
       messageBuffer.get(buffer, 1, 63); // Payload
 
-      // Describe the packet
-      String s = "Packet [" + i + "]: ";
-      for (int j = 0; j < 64; j++) {
-        s += String.format(" %02x", buffer[j]);
-      }
+      if (log.isTraceEnabled()) {
+        // Describe the packet
+        String s = "Packet [" + i + "]: ";
+        for (int j = 0; j < 64; j++) {
+          s += String.format(" %02x", buffer[j]);
+        }
 
-      // There is a security risk to raising this logging level beyond trace
-      log.trace("> Client {}", s);
+        // There is a security risk to raising this logging level beyond trace
+        log.trace("> Client {}", s);
+      }
 
       try {
         out.write(buffer);
