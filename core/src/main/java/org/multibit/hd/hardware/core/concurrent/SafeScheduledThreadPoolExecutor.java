@@ -38,11 +38,8 @@ public class SafeScheduledThreadPoolExecutor extends ScheduledThreadPoolExecutor
         if (future.isDone()) {
           future.get();
         }
-      } catch (CancellationException ce) {
+      } catch (CancellationException | ExecutionException ce) {
         // Do nothing - deliberately cancelled
-      } catch (ExecutionException ee) {
-        // Exception generated
-        t = ee.getCause();
       } catch (InterruptedException ie) {
         // Shutdown occurring
         Thread.currentThread().interrupt();

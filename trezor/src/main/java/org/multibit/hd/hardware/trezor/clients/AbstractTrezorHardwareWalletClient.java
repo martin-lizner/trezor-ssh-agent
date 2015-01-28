@@ -111,15 +111,6 @@ public abstract class AbstractTrezorHardwareWalletClient implements HardwareWall
     String pin
   ) {
 
-    // Define the node
-    TrezorType.HDNodeType nodeType = TrezorType.HDNodeType
-      .newBuilder()
-      .setChainCode(ByteString.copyFromUtf8(""))
-      .setChildNum(0)
-      .setDepth(0)
-      .setFingerprint(0)
-      .build();
-
     // A load normally takes about 10 seconds to complete
     return sendMessage(
       TrezorMessage.LoadDevice
