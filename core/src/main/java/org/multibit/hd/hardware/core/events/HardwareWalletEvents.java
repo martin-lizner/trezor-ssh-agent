@@ -63,7 +63,7 @@ public class HardwareWalletEvents {
     Preconditions.checkNotNull(subscriber, "'subscriber' must be present");
 
     if (hardwareWalletEventBusSubscribers.add(subscriber)) {
-      log.debug("Register: " + subscriber.getClass().getSimpleName());
+      log.trace("Register: " + subscriber.getClass().getSimpleName());
       try {
         hardwareWalletEventBus.register(subscriber);
       } catch (IllegalArgumentException e) {
@@ -86,7 +86,7 @@ public class HardwareWalletEvents {
     Preconditions.checkNotNull(subscriber, "'subscriber' must be present");
 
     if (hardwareWalletEventBusSubscribers.contains(subscriber)) {
-      log.debug("Unregister: " + subscriber.getClass().getSimpleName());
+      log.trace("Unregister: " + subscriber.getClass().getSimpleName());
       try {
         hardwareWalletEventBus.unregister(subscriber);
       } catch (IllegalArgumentException e) {
