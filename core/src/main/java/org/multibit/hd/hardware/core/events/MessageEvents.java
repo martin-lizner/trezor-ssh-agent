@@ -67,7 +67,7 @@ public class MessageEvents {
     Preconditions.checkNotNull(subscriber, "'subscriber' must be present");
 
     if (messageEventBusSubscribers.add(subscriber)) {
-      log.debug("Register: " + subscriber.getClass().getSimpleName());
+      log.trace("Register: " + subscriber.getClass().getSimpleName());
       try {
         messageEventBus.register(subscriber);
       } catch (IllegalArgumentException e) {
@@ -90,7 +90,7 @@ public class MessageEvents {
     Preconditions.checkNotNull(subscriber, "'subscriber' must be present");
 
     if (messageEventBusSubscribers.contains(subscriber)) {
-      log.debug("Unregister: " + subscriber.getClass().getSimpleName());
+      log.trace("Unregister: " + subscriber.getClass().getSimpleName());
       try {
         messageEventBus.unregister(subscriber);
       } catch (IllegalArgumentException e) {
