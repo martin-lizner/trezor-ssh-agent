@@ -375,7 +375,7 @@ public class TrezorV1HidHardwareWallet extends AbstractTrezorHardwareWallet impl
   @Override
   public void hidDeviceAttached(HidServicesEvent event) {
 
-    HidDeviceInfo attachedDevice = event.getHidDeviceInfo();
+    HidDevice attachedDevice = event.getHidDevice();
 
     int attachedVendorId = (int) attachedDevice.getVendorId();
     int attachedProductId = (int) attachedDevice.getProductId();
@@ -392,7 +392,7 @@ public class TrezorV1HidHardwareWallet extends AbstractTrezorHardwareWallet impl
   @Override
   public void hidDeviceDetached(HidServicesEvent event) {
 
-    HidDeviceInfo attachedDevice = event.getHidDeviceInfo();
+    HidDevice attachedDevice = event.getHidDevice();
 
     int detachedVendorId = (int) attachedDevice.getVendorId();
     int detachedProductId = (int) attachedDevice.getProductId();
