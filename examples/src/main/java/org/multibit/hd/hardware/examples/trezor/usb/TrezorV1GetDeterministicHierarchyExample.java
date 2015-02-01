@@ -82,8 +82,9 @@ public class TrezorV1GetDeterministicHierarchyExample {
 
     // Simulate the main thread continuing with other unrelated work
     // We don't terminate main since we're using safe executors
-    Uninterruptibles.sleepUninterruptibly(1, TimeUnit.HOURS);
+    Uninterruptibles.sleepUninterruptibly(1, TimeUnit.MINUTES);
 
+    hardwareWalletService.stopAndWait();
   }
 
   /**

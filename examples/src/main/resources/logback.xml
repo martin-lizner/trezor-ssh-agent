@@ -48,11 +48,7 @@
     if required -->
   <logger name="org.bitcoinj" level="WARN" />
 
-  <!-- Wire and Context logging for the HttpClient -->
-  <logger name="org.apache.http.wire" level="DEBUG" />
-  <logger name="org.apache.http.impl.client" level="DEBUG" />
-
   <!-- Define logging for organisation applications only -->
-  <logger name="org.multibit" level="DEBUG" />
+  <logger name="org.multibit" level="TRACE" />
 
 </configuration>

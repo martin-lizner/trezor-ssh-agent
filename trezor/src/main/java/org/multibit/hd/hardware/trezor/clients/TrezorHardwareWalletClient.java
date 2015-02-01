@@ -110,7 +110,10 @@ public class TrezorHardwareWalletClient extends AbstractTrezorHardwareWalletClie
   @Override
   protected Optional<MessageEvent> sendMessage(Message message, int duration, TimeUnit timeUnit) {
 
-    Preconditions.checkState(isTrezorValid, "Trezor device is not valid. Try connecting or start a new session after a disconnect.");
+    if (!isTrezorValid) {
+      log.warn("Trezor is not valid.");
+      return Optional.absent();
+    }
 
     // Write the message
     trezor.writeMessage(message);
