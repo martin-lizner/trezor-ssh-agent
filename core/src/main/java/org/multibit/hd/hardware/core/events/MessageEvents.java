@@ -169,7 +169,7 @@ public class MessageEvents {
       new Callable<Boolean>() {
         @Override
         public Boolean call() {
-          log.debug("Firing 'message' event: {}", messageEventType.name());
+          log.debug("Firing 'message' event type: {}", messageEventType.name());
           messageEventBus.post(
             new MessageEvent(
               messageEventType,
@@ -186,12 +186,12 @@ public class MessageEvents {
       future, new FutureCallback<Boolean>() {
         @Override
         public void onSuccess(Boolean result) {
-          log.debug("Completed 'hardware wallet' event: {}", messageEventType.name());
+          log.debug("Completed 'message' event: {}", messageEventType.name());
         }
 
         @Override
         public void onFailure(Throwable t) {
-          log.error("Failed to complete 'hardware wallet' event: {}", messageEventType.name(), t);
+          log.error("Failed to complete 'message' event: {}", messageEventType.name(), t);
         }
       });
 

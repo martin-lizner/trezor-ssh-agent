@@ -252,7 +252,7 @@
       <dependency>
         <groupId>org.hid4java</groupId>
         <artifactId>hid4java</artifactId>
-        <version>0.3.0</version>
+        <version>0.3.1</version>
       </dependency>
 
       <!-- Bitcoinj for Bitcoin operations (alice is custom fork with BIP44) -->
