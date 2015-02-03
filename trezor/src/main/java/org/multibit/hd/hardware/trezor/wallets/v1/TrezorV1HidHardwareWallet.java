@@ -221,9 +221,9 @@ public class TrezorV1HidHardwareWallet extends AbstractTrezorHardwareWallet impl
         @Override
         public void run() {
 
-          while (true) {
-            // Wait forever for a response
-            Optional<MessageEvent> messageEvent = readMessage(0, TimeUnit.SECONDS);
+          while (!(monitorHidExecutorService.isShutdown() || monitorHidExecutorService.isTerminated())) {
+            // Wait for 10 seconds for a response (this is so that the monitorExecutorService can shut down cleanly)
+            Optional<MessageEvent> messageEvent = readMessage(10, TimeUnit.SECONDS);
 
             if (messageEvent.isPresent()) {
               if (MessageEventType.DEVICE_FAILED.equals(messageEvent.get().getEventType())) {
