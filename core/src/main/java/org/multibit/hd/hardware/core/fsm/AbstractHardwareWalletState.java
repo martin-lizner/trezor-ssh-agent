@@ -4,7 +4,6 @@ import org.multibit.hd.hardware.core.HardwareWalletClient;
 import org.multibit.hd.hardware.core.events.HardwareWalletEventType;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
 import org.multibit.hd.hardware.core.events.MessageEvent;
-import org.multibit.hd.hardware.core.wallets.AbstractHardwareWallet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +20,10 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractHardwareWalletState implements HardwareWalletState {
 
-  private static final Logger log = LoggerFactory.getLogger(AbstractHardwareWallet.class);
+  /**
+   * Non-static to allow for custom message from subclasses
+   */
+  private final Logger log = LoggerFactory.getLogger(this.getClass());
 
   @Override
   public void await(HardwareWalletContext context) {

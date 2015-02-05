@@ -27,6 +27,11 @@ public class ConfirmGetAddressState extends AbstractHardwareWalletState {
   protected void internalTransition(HardwareWalletClient client, HardwareWalletContext context, MessageEvent event) {
 
     switch (event.getEventType()) {
+      case BUTTON_REQUEST:
+        // Device is asking for button press (address display, confirmation of reset etc)
+        HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_BUTTON_PRESS, event.getMessage().get());
+        client.buttonAck();
+        break;
       case ADDRESS:
         // Device has completed the operation and provided an address
         HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.ADDRESS, event.getMessage().get());
