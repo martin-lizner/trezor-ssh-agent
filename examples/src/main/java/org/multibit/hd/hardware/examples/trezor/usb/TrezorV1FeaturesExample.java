@@ -1,9 +1,9 @@
 package org.multibit.hd.hardware.examples.trezor.usb;
 
-import org.bitcoinj.core.AddressFormatException;
 import com.google.common.base.Optional;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.Uninterruptibles;
+import org.bitcoinj.core.AddressFormatException;
 import org.multibit.hd.hardware.core.HardwareWalletClient;
 import org.multibit.hd.hardware.core.HardwareWalletService;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvent;
@@ -49,6 +49,10 @@ public class TrezorV1FeaturesExample {
 
     example.executeExample();
 
+    // Simulate the main thread continuing with other unrelated work
+    // We don't terminate main since we're using safe executors
+    Uninterruptibles.sleepUninterruptibly(5, TimeUnit.MINUTES);
+
   }
 
   /**
@@ -75,10 +79,6 @@ public class TrezorV1FeaturesExample {
 
     // Start the service
     hardwareWalletService.start();
-
-    // Simulate the main thread continuing with other unrelated work
-    // We don't terminate main since we're using safe executors
-    Uninterruptibles.sleepUninterruptibly(1, TimeUnit.HOURS);
 
   }
 

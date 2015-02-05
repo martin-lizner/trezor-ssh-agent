@@ -55,6 +55,10 @@ public class TrezorV1WipeAndCreateWalletExample {
 
     example.executeExample();
 
+    // Simulate the main thread continuing with other unrelated work
+    // We don't terminate main since we're using safe executors
+    Uninterruptibles.sleepUninterruptibly(5, TimeUnit.MINUTES);
+
   }
 
   /**
@@ -80,10 +84,6 @@ public class TrezorV1WipeAndCreateWalletExample {
     HardwareWalletEvents.subscribe(this);
 
     hardwareWalletService.start();
-
-    // Simulate the main thread continuing with other unrelated work
-    // We don't terminate main since we're using safe executors
-    Uninterruptibles.sleepUninterruptibly(1, TimeUnit.HOURS);
 
   }
 
