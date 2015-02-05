@@ -2,10 +2,12 @@ package org.multibit.hd.hardware.core.messages;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+import java.util.Arrays;
+
 /**
  * <p>Value object to provide the following to downstream API consumers:</p>
  * <ul>
- * <li>Indication of successful completion of operation</li>
+ * <li>Carries result of cipher key operation</li>
  * </ul>
  *
  * <p>This object is typically built from a hardware wallet specific adapter</p>
@@ -13,15 +15,18 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
  * @since 0.0.1
  *  
  */
-public class Success implements HardwareWalletMessage {
+public class CipheredKeyValue implements HardwareWalletMessage {
 
   private final String message;
+  private final byte[] payload;
 
   /**
    * @param message The message
+   * @param payload The payload
    */
-  public Success(String message) {
+  public CipheredKeyValue(String message, byte[] payload) {
     this.message = message;
+    this.payload = Arrays.copyOf(payload, payload.length);
   }
 
   /**
@@ -37,4 +42,12 @@ public class Success implements HardwareWalletMessage {
       .append("message", message)
       .toString();
   }
+
+  /**
+   * @return The cipher key payload
+   */
+  public byte[] getPayload() {
+    return Arrays.copyOf(payload, payload.length);
+  }
+
 }

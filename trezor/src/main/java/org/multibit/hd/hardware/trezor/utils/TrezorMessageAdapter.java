@@ -31,7 +31,7 @@ public class TrezorMessageAdapter {
    */
   public static Success adaptSuccess(TrezorMessage.Success source) {
 
-    return new Success(source.getMessage(), source.getPayload().toByteArray());
+    return new Success(source.getMessage());
 
   }
 

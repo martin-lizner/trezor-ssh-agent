@@ -216,6 +216,24 @@ public final class TrezorStorage {
      * </pre>
      */
     boolean getImported();
+
+    // optional bytes homescreen = 10;
+    /**
+     * <code>optional bytes homescreen = 10;</code>
+     *
+     * <pre>
+     * image used as homescreen (logo + label is used when not set)
+     * </pre>
+     */
+    boolean hasHomescreen();
+    /**
+     * <code>optional bytes homescreen = 10;</code>
+     *
+     * <pre>
+     * image used as homescreen (logo + label is used when not set)
+     * </pre>
+     */
+    com.google.protobuf.ByteString getHomescreen();
   }
   /**
    * Protobuf type {@code Storage}
@@ -324,6 +342,11 @@ public final class TrezorStorage {
             case 72: {
               bitField0_ |= 0x00000100;
               imported_ = input.readBool();
+              break;
+            }
+            case 82: {
+              bitField0_ |= 0x00000200;
+              homescreen_ = input.readBytes();
               break;
             }
           }
@@ -716,6 +739,30 @@ public final class TrezorStorage {
       return imported_;
     }
 
+    // optional bytes homescreen = 10;
+    public static final int HOMESCREEN_FIELD_NUMBER = 10;
+    private com.google.protobuf.ByteString homescreen_;
+    /**
+     * <code>optional bytes homescreen = 10;</code>
+     *
+     * <pre>
+     * image used as homescreen (logo + label is used when not set)
+     * </pre>
+     */
+    public boolean hasHomescreen() {
+      return ((bitField0_ & 0x00000200) == 0x00000200);
+    }
+    /**
+     * <code>optional bytes homescreen = 10;</code>
+     *
+     * <pre>
+     * image used as homescreen (logo + label is used when not set)
+     * </pre>
+     */
+    public com.google.protobuf.ByteString getHomescreen() {
+      return homescreen_;
+    }
+
     private void initFields() {
       version_ = 0;
       node_ = com.satoshilabs.trezor.protobuf.TrezorType.HDNodeType.getDefaultInstance();
@@ -726,6 +773,7 @@ public final class TrezorStorage {
       language_ = "";
       label_ = "";
       imported_ = false;
+      homescreen_ = com.google.protobuf.ByteString.EMPTY;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -776,6 +824,9 @@ public final class TrezorStorage {
       if (((bitField0_ & 0x00000100) == 0x00000100)) {
         output.writeBool(9, imported_);
       }
+      if (((bitField0_ & 0x00000200) == 0x00000200)) {
+        output.writeBytes(10, homescreen_);
+      }
       getUnknownFields().writeTo(output);
     }
 
@@ -820,6 +871,10 @@ public final class TrezorStorage {
       if (((bitField0_ & 0x00000100) == 0x00000100)) {
         size += com.google.protobuf.CodedOutputStream
           .computeBoolSize(9, imported_);
+      }
+      if (((bitField0_ & 0x00000200) == 0x00000200)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBytesSize(10, homescreen_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -965,6 +1020,8 @@ public final class TrezorStorage {
         bitField0_ = (bitField0_ & ~0x00000080);
         imported_ = false;
         bitField0_ = (bitField0_ & ~0x00000100);
+        homescreen_ = com.google.protobuf.ByteString.EMPTY;
+        bitField0_ = (bitField0_ & ~0x00000200);
         return this;
       }
 
@@ -1033,6 +1090,10 @@ public final class TrezorStorage {
           to_bitField0_ |= 0x00000100;
         }
         result.imported_ = imported_;
+        if (((from_bitField0_ & 0x00000200) == 0x00000200)) {
+          to_bitField0_ |= 0x00000200;
+        }
+        result.homescreen_ = homescreen_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -1083,6 +1144,9 @@ public final class TrezorStorage {
         }
         if (other.hasImported()) {
           setImported(other.getImported());
+        }
+        if (other.hasHomescreen()) {
+          setHomescreen(other.getHomescreen());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -1862,6 +1926,58 @@ public final class TrezorStorage {
         return this;
       }
 
+      // optional bytes homescreen = 10;
+      private com.google.protobuf.ByteString homescreen_ = com.google.protobuf.ByteString.EMPTY;
+      /**
+       * <code>optional bytes homescreen = 10;</code>
+       *
+       * <pre>
+       * image used as homescreen (logo + label is used when not set)
+       * </pre>
+       */
+      public boolean hasHomescreen() {
+        return ((bitField0_ & 0x00000200) == 0x00000200);
+      }
+      /**
+       * <code>optional bytes homescreen = 10;</code>
+       *
+       * <pre>
+       * image used as homescreen (logo + label is used when not set)
+       * </pre>
+       */
+      public com.google.protobuf.ByteString getHomescreen() {
+        return homescreen_;
+      }
+      /**
+       * <code>optional bytes homescreen = 10;</code>
+       *
+       * <pre>
+       * image used as homescreen (logo + label is used when not set)
+       * </pre>
+       */
+      public Builder setHomescreen(com.google.protobuf.ByteString value) {
+        if (value == null) {
+    throw new NullPointerException();
+  }
+  bitField0_ |= 0x00000200;
+        homescreen_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional bytes homescreen = 10;</code>
+       *
+       * <pre>
+       * image used as homescreen (logo + label is used when not set)
+       * </pre>
+       */
+      public Builder clearHomescreen() {
+        bitField0_ = (bitField0_ & ~0x00000200);
+        homescreen_ = getDefaultInstance().getHomescreen();
+        onChanged();
+        return this;
+      }
+
       // @@protoc_insertion_point(builder_scope:Storage)
     }
 
@@ -1887,13 +2003,14 @@ public final class TrezorStorage {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\rstorage.proto\032\013types.proto\"\303\001\n\007Storage" +
+      "\n\rstorage.proto\032\013types.proto\"\327\001\n\007Storage" +
       "\022\017\n\007version\030\001 \002(\r\022\031\n\004node\030\002 \001(\0132\013.HDNode" +
       "Type\022\020\n\010mnemonic\030\003 \001(\t\022\035\n\025passphrase_pro" +
       "tection\030\004 \001(\010\022\033\n\023pin_failed_attempts\030\005 \001" +
       "(\r\022\013\n\003pin\030\006 \001(\t\022\020\n\010language\030\007 \001(\t\022\r\n\005lab" +
-      "el\030\010 \001(\t\022\020\n\010imported\030\t \001(\010B0\n\037com.satosh" +
-      "ilabs.trezor.protobufB\rTrezorStorage"
+      "el\030\010 \001(\t\022\020\n\010imported\030\t \001(\010\022\022\n\nhomescreen" +
+      "\030\n \001(\014B0\n\037com.satoshilabs.trezor.protobu" +
+      "fB\rTrezorStorage"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -1905,7 +2022,7 @@ public final class TrezorStorage {
           internal_static_Storage_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_Storage_descriptor,
-              new java.lang.String[] { "Version", "Node", "Mnemonic", "PassphraseProtection", "PinFailedAttempts", "Pin", "Language", "Label", "Imported", });
+              new java.lang.String[] { "Version", "Node", "Mnemonic", "PassphraseProtection", "PinFailedAttempts", "Pin", "Language", "Label", "Imported", "Homescreen", });
           return null;
         }
       };

@@ -4,6 +4,7 @@ import org.multibit.hd.hardware.core.HardwareWalletClient;
 import org.multibit.hd.hardware.core.events.HardwareWalletEventType;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
 import org.multibit.hd.hardware.core.events.MessageEvent;
+import org.multibit.hd.hardware.core.messages.CipheredKeyValue;
 import org.multibit.hd.hardware.core.messages.Success;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,9 +40,9 @@ public class ConfirmCipherKeyState extends AbstractHardwareWalletState {
         HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_BUTTON_PRESS, event.getMessage().get());
         client.buttonAck();
         break;
-      case SUCCESS:
+      case CIPHERED_KEY_VALUE:
         // Device has completed the operation and provided a cipher key value
-        final Success message = (Success) event.getMessage().get();
+        final CipheredKeyValue message = (CipheredKeyValue) event.getMessage().get();
         context.setEntropy(message.getPayload());
         // Once the context is updated inform downstream consumers
         HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_OPERATION_SUCCEEDED, event.getMessage().get());

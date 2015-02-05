@@ -159,11 +159,18 @@ public enum MessageEventType {
 
   // Cipher key
   /**
-   *
+   * Client request. Client requires symmetric en/decryption (deterministic) of payload
    */
   CIPHER_KEY_VALUE,
+  /**
+   * Device response. Device provides payload.
+   */
+  CIPHERED_KEY_VALUE,
 
   // Settings
+  /**
+   * Client request. Apply the settings to the device.
+   */
   APPLY_SETTINGS,
 
   // Buttons
@@ -206,9 +213,17 @@ public enum MessageEventType {
    */
   ENCRYPT_MESSAGE,
   /**
+   * Device response. Device provides payload.
+   */
+  ENCRYPTED_MESSAGE,
+  /**
    * Client request. Device should decrypt message using given parameters.
    */
   DECRYPT_MESSAGE,
+  /**
+   * Device response. Device provides payload.
+   */
+  DECRYPTED_MESSAGE,
 
   // Passphrase
   /**
