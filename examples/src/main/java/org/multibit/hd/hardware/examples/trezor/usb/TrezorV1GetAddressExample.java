@@ -3,6 +3,7 @@ package org.multibit.hd.hardware.examples.trezor.usb;
 import com.google.common.base.Optional;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.Uninterruptibles;
+import org.bitcoinj.core.Address;
 import org.bitcoinj.wallet.KeyChain;
 import org.multibit.hd.hardware.core.HardwareWalletClient;
 import org.multibit.hd.hardware.core.HardwareWalletService;
@@ -113,7 +114,11 @@ public class TrezorV1GetAddressExample {
 
         break;
       case ADDRESS:
-        log.info("Device provided address: '{}'", ((MainNetAddress) event.getMessage().get()).getAddress().get());
+        Address address = ((MainNetAddress) event.getMessage().get()).getAddress().get();
+        log.info("Device provided address: '{}'", address.toString());
+        if ("1LqBGSKuX5yYUonjxT5qGfpUsXKYYWeabA".equals(address.toString())) {
+          log.warn("This corresponds to the 'abandon' wallet");
+        }
         // Treat as end of example
         System.exit(0);
         break;
