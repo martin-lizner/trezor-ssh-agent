@@ -49,9 +49,10 @@ public class ConnectedState extends AbstractHardwareWalletState {
           || version.startsWith("0.")
           ) {
           log.warn("Incompatible firmware: {}", version);
-          HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_DEVICE_FAILED, event.getMessage().get());
+          context.resetToFailed();
+        } else {
+          context.resetToInitialised();
         }
-        context.resetToInitialised();
         break;
       case FAILURE:
         HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_OPERATION_FAILED, event.getMessage().get());
