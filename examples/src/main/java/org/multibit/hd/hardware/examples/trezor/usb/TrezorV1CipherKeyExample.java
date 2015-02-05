@@ -144,11 +144,11 @@ public class TrezorV1CipherKeyExample {
         // Check that the service has the entropy
         byte[] payload = hardwareWalletService.getContext().getEntropy().get();
 
-        // Requires the MultiBit Dev wallet to resolve as deterministic
+        // Requires the MultiBit "Abandon" wallet to resolve as deterministic
         log.info(
-          "Payload: {} (Deterministic: {})",
+          "Payload: {} (Deterministic on 'Abandon': {})",
           Utils.HEX.encode(payload),
-          Utils.HEX.encode(payload).equals("be3c43189407284bb3fd1ac0040db1e0")
+          Utils.HEX.encode(payload).equals("ec406a3c796099050400f65ab311363e")
         );
         // Treat as end of example
         System.exit(0);
