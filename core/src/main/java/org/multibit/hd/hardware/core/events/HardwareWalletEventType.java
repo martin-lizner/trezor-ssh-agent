@@ -62,7 +62,7 @@ public enum HardwareWalletEventType {
   SHOW_OPERATION_SUCCEEDED,
 
   /**
-   * The UI should show a message telling the user that the operation failed to complete (could be their cancellation etc).
+   * The UI should show a message telling the user that the operation failed to complete (could be their cancellation, unexpected message etc).
    */
   SHOW_OPERATION_FAILED,
 

@@ -42,8 +42,7 @@ public class ConfirmPINState extends AbstractHardwareWalletState {
         context.resetToInitialised();
         break;
       default:
-        log.warn("Unexpected message event '{}'", event.getEventType().name());
-        context.resetToConnected();
+        handleUnexpectedMessageEvent(context, event);
     }
 
   }

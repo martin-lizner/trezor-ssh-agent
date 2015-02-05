@@ -28,9 +28,9 @@ public class InitialisedState extends AbstractHardwareWalletState {
     switch (event.getEventType()) {
       // TODO Implement
       default:
-        log.warn("Unexpected message event '{}'", event.getEventType().name());
-        context.resetToConnected();
+        handleUnexpectedMessageEvent(context, event);
     }
 
   }
+
 }

@@ -1,6 +1,8 @@
 package org.multibit.hd.hardware.core.fsm;
 
 import org.multibit.hd.hardware.core.HardwareWalletClient;
+import org.multibit.hd.hardware.core.events.HardwareWalletEventType;
+import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
 import org.multibit.hd.hardware.core.events.MessageEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,8 +27,7 @@ public class DisconnectedState extends AbstractHardwareWalletState {
     switch (event.getEventType()) {
       // TODO Implement
       default:
-        log.warn("Unexpected message event '{}'", event.getEventType().name());
-        context.resetToConnected();
+        handleUnexpectedMessageEvent(context, event);
     }
   }
 }
