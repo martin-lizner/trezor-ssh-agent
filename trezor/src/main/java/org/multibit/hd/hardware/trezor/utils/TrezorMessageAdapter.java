@@ -79,7 +79,7 @@ public class TrezorMessageAdapter {
    *
    * @return The adapted Core message
    */
-  public static HardwareWalletMessage adaptFailure(TrezorMessage.Failure source) {
+  public static Failure adaptFailure(TrezorMessage.Failure source) {
 
     FailureType failureType = adaptFailureType(source.getCode());
 
@@ -130,7 +130,7 @@ public class TrezorMessageAdapter {
    *
    * @return The adapted Core message
    */
-  public static HardwareWalletMessage adaptButtonRequest(TrezorMessage.ButtonRequest source) {
+  public static ButtonRequest adaptButtonRequest(TrezorMessage.ButtonRequest source) {
 
     ButtonRequestType buttonRequestType = adaptButtonRequestType(source.getCode());
 
@@ -177,7 +177,7 @@ public class TrezorMessageAdapter {
    *
    * @return The adapted Core message
    */
-  public static HardwareWalletMessage adaptPinMatrixRequest(TrezorMessage.PinMatrixRequest source) {
+  public static PinMatrixRequest adaptPinMatrixRequest(TrezorMessage.PinMatrixRequest source) {
 
     PinMatrixRequestType pinMatrixRequestType = adaptPinMatrixRequestType(source.getType());
 
@@ -247,14 +247,12 @@ public class TrezorMessageAdapter {
         byte[] checksum = Utils.doubleDigest(input);
         System.arraycopy(checksum, 0, checksummed, inputLength, 4);
 
-        byte[] xpubBytes = checksummed;
-
-        String xpub = Base58.encode(xpubBytes);
+        String xpub = Base58.encode(checksummed);
 
         return new PublicKey(
           true,
           xpub,
-          xpubBytes,
+          checksummed,
           source.hasNode(),
           hdNodeType
         );
@@ -301,7 +299,7 @@ public class TrezorMessageAdapter {
    *
    * @return The adapted Core message
    */
-  public static HardwareWalletMessage adaptTxRequest(TrezorMessage.TxRequest source) {
+  public static TxRequest adaptTxRequest(TrezorMessage.TxRequest source) {
 
     TxRequestType txRequestType = adaptTxRequestType(source.getRequestType());
     TxRequestDetailsType txRequestDetailsType = adaptTxRequestDetailsType(source.getDetails());
@@ -366,14 +364,12 @@ public class TrezorMessageAdapter {
     );
   }
 
-
   /**
    * @param source The source message
    *
    * @return The adapted Core message
    */
-  public static HardwareWalletMessage adaptMessageSignature(TrezorMessage.MessageSignature source) {
-
+  public static MessageSignature adaptMessageSignature(TrezorMessage.MessageSignature source) {
     return new MessageSignature(
       source.getAddress(),
       source.getSignature().toByteArray()
@@ -381,4 +377,15 @@ public class TrezorMessageAdapter {
 
   }
 
+  /**
+   * @param source The source message
+   *
+   * @return The adapted Core message
+   */
+  public static CipheredKeyValue adaptCipheredKeyValue(TrezorMessage.CipheredKeyValue source) {
+    return new CipheredKeyValue(
+      source.hasValue(),
+      source.getValue().toByteArray()
+    );
+  }
 }

@@ -168,6 +168,11 @@ public final class TrezorMessageUtils {
           message = TrezorMessage.CipherKeyValue.parseFrom(buffer);
           messageEventType = MessageEventType.CIPHER_KEY_VALUE;
           break;
+        case MessageType_CipheredKeyValue:
+          message = TrezorMessage.CipheredKeyValue.parseFrom(buffer);
+          messageEventType = MessageEventType.CIPHERED_KEY_VALUE;
+          hardwareWalletMessage = TrezorMessageAdapter.adaptCipheredKeyValue((TrezorMessage.CipheredKeyValue) message);
+          break;
         case MessageType_ClearSession:
           message = TrezorMessage.ClearSession.parseFrom(buffer);
           messageEventType = MessageEventType.CLEAR_SESSION;
@@ -219,9 +224,17 @@ public final class TrezorMessageUtils {
           message = TrezorMessage.EncryptMessage.parseFrom(buffer);
           messageEventType = MessageEventType.ENCRYPT_MESSAGE;
           break;
+        case MessageType_EncryptedMessage:
+          message = TrezorMessage.EncryptedMessage.parseFrom(buffer);
+          messageEventType = MessageEventType.ENCRYPTED_MESSAGE;
+          break;
         case MessageType_DecryptMessage:
           message = TrezorMessage.DecryptMessage.parseFrom(buffer);
           messageEventType = MessageEventType.DECRYPT_MESSAGE;
+          break;
+        case MessageType_DecryptedMessage:
+          message = TrezorMessage.DecryptedMessage.parseFrom(buffer);
+          messageEventType = MessageEventType.DECRYPTED_MESSAGE;
           break;
         case MessageType_PassphraseRequest:
           message = TrezorMessage.PassphraseRequest.parseFrom(buffer);

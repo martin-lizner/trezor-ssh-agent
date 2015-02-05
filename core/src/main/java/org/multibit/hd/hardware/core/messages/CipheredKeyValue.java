@@ -1,8 +1,7 @@
 package org.multibit.hd.hardware.core.messages;
 
+import com.google.common.base.Optional;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-
-import java.util.Arrays;
 
 /**
  * <p>Value object to provide the following to downstream API consumers:</p>
@@ -17,37 +16,34 @@ import java.util.Arrays;
  */
 public class CipheredKeyValue implements HardwareWalletMessage {
 
-  private final String message;
-  private final byte[] payload;
+  private final Optional<byte[]> payload;
 
   /**
-   * @param message The message
-   * @param payload The payload
+   * @param hasPayload True if the payload is present
+   * @param payload    The payload
    */
-  public CipheredKeyValue(String message, byte[] payload) {
-    this.message = message;
-    this.payload = Arrays.copyOf(payload, payload.length);
+  public CipheredKeyValue(boolean hasPayload, byte[] payload) {
+
+    // Drive presence/absence from the flags rather than content
+    if (hasPayload) {
+      this.payload = Optional.of(payload);
+    } else {
+      this.payload = Optional.absent();
+    }
   }
 
   /**
-   * @return The message
+   * @return The payload
    */
-  public String getMessage() {
-    return message;
+  public Optional<byte[]> getPayload() {
+    return payload;
   }
 
   @Override
   public String toString() {
     return new ToStringBuilder(this)
-      .append("message", message)
+      .append("payload", payload)
       .toString();
-  }
-
-  /**
-   * @return The cipher key payload
-   */
-  public byte[] getPayload() {
-    return Arrays.copyOf(payload, payload.length);
   }
 
 }
