@@ -21,7 +21,7 @@ public enum HardwareWalletEventType {
 
   // Device connectivity and communication
   /**
-   * Indicates there is a problem with the hardware wallet.
+   * Indicates there is a problem with the hardware wallet (incompatible firmware, USB environment etc)
    */
   SHOW_DEVICE_FAILED,
 

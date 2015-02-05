@@ -39,7 +39,18 @@ public class ConnectedState extends AbstractHardwareWalletState {
 
     switch (event.getEventType()) {
       case FEATURES:
-        context.setFeatures((Features) event.getMessage().get());
+        Features features = (Features) event.getMessage().get();
+        context.setFeatures(features);
+        String version = features.getVersion();
+        // Test for firmware compatibility
+        if (version.startsWith("1.2.")
+          || version.startsWith("1.1.")
+          || version.startsWith("1.0.")
+          || version.startsWith("0.")
+          ) {
+          log.warn("Incompatible firmware: {}", version);
+          HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_DEVICE_FAILED, event.getMessage().get());
+        }
         context.resetToInitialised();
         break;
       case FAILURE:
