@@ -48,9 +48,11 @@ public class ConnectedState extends AbstractHardwareWalletState {
           || version.startsWith("1.0.")
           || version.startsWith("0.")
           ) {
-          log.warn("Incompatible firmware: {}", version);
+          log.warn("Unsupported firmware: {}", version);
+          features.setSupported(false);
           context.resetToFailed();
         } else {
+          features.setSupported(true);
           context.resetToInitialised();
         }
         break;

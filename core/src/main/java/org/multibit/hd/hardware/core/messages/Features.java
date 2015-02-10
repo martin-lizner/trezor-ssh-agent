@@ -34,6 +34,7 @@ public class Features implements HardwareWalletMessage {
   private byte[] revision;
   private byte[] bootloaderHash;
   private boolean imported;
+  private boolean supported = true;
 
   /**
    * @return The name of the manufacturer, e.g. "bitcointrezor.com"
@@ -181,6 +182,17 @@ public class Features implements HardwareWalletMessage {
     this.imported = imported;
   }
 
+  /**
+   * @return True if the device firmware is supported (usually set in ConnectedState)
+   */
+  public boolean isSupported() {
+    return supported;
+  }
+
+  public void setSupported(boolean supported) {
+    this.supported = supported;
+  }
+
   @Override
   public String toString() {
     return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE)
@@ -197,6 +209,7 @@ public class Features implements HardwareWalletMessage {
       .append("revision", HexUtils.toHexBytes(revision))
       .append("bootloaderHash", HexUtils.toHexBytes(bootloaderHash))
       .append("imported", imported)
+      .append("supported", supported)
       .toString();
   }
 }
