@@ -259,7 +259,7 @@
       <dependency>
         <groupId>org.bitcoinj</groupId>
         <artifactId>bitcoinj-core</artifactId>
-        <version>0.13-alice-SNAPSHOT</version>
+        <version>0.13-alice-develop-SNAPSHOT</version>
       </dependency>
 
       <!-- Findbugs annotations -->
