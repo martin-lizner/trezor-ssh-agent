@@ -33,7 +33,7 @@ public class WatchingPeerEventListener implements PeerEventListener {
   }
 
   @Override
-  public void onBlocksDownloaded(Peer peer, Block block, int blocksLeft) {
+  public void onBlocksDownloaded(Peer peer, Block block, @Nullable FilteredBlock filteredBlock, int blocksLeft) {
     if (blocksLeft % 100 == 0) {
       log.debug("Blocks left: {}", blocksLeft);
     }

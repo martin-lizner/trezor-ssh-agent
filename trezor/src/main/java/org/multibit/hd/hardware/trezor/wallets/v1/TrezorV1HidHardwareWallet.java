@@ -279,7 +279,7 @@ public class TrezorV1HidHardwareWallet extends AbstractTrezorHardwareWallet impl
   @Override
   protected synchronized Optional<MessageEvent> readFromDevice(int duration, TimeUnit timeUnit) {
 
-    log.debug("Reading from hardware device");
+    log.trace("Reading from hardware device");
 
     if (!locatedDevice.isPresent()) {
       log.warn("Attempting to read from a device that is not present");
