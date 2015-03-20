@@ -79,7 +79,11 @@ public abstract class AbstractHardwareWalletState implements HardwareWalletState
   protected void handleUnexpectedMessageEvent(HardwareWalletContext context, MessageEvent event) {
 
     log.warn("Unexpected message event '{}'", event.getEventType().name());
-    HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_OPERATION_FAILED, event.getMessage().get());
+    if (event.getMessage().isPresent()) {
+      HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_OPERATION_FAILED, event.getMessage().get());
+    } else {
+      HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_OPERATION_FAILED);
+    }
     context.resetToConnected();
 
   }
