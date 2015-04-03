@@ -36,6 +36,11 @@ public class ConfirmGetDeterministicHierarchyState extends AbstractHardwareWalle
   protected void internalTransition(HardwareWalletClient client, HardwareWalletContext context, MessageEvent event) {
 
     switch (event.getEventType()) {
+      case PIN_MATRIX_REQUEST:
+        // Device is asking for a PIN matrix to be displayed (user must read the screen carefully)
+        HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_PIN_ENTRY, event.getMessage().get());
+        // Further state transitions will occur after the user has provided the PIN via the service
+        break;
       case PUBLIC_KEY:
         // Device has completed the operation and provided a public key
         PublicKey publicKey = (PublicKey) event.getMessage().get();

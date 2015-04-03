@@ -4,8 +4,6 @@ import org.multibit.hd.hardware.core.HardwareWalletClient;
 import org.multibit.hd.hardware.core.events.HardwareWalletEventType;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
 import org.multibit.hd.hardware.core.events.MessageEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * <p>State to provide the following to hardware wallet clients:</p>
@@ -21,12 +19,15 @@ import org.slf4j.LoggerFactory;
  */
 public class ConfirmGetPublicKeyState extends AbstractHardwareWalletState {
 
-  private static final Logger log = LoggerFactory.getLogger(ConfirmGetPublicKeyState.class);
-
   @Override
   protected void internalTransition(HardwareWalletClient client, HardwareWalletContext context, MessageEvent event) {
 
     switch (event.getEventType()) {
+      case PIN_MATRIX_REQUEST:
+        // Device is asking for a PIN matrix to be displayed (user must read the screen carefully)
+        HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_PIN_ENTRY, event.getMessage().get());
+        // Further state transitions will occur after the user has provided the PIN via the service
+        break;
       case PUBLIC_KEY:
         // Device has completed the operation and provided a public key
         HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.PUBLIC_KEY, event.getMessage().get());
