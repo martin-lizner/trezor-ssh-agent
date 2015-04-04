@@ -284,6 +284,12 @@ public class HardwareWalletService {
       case SIGN_TX:
         context.continueSignTx_PIN(pin);
         break;
+      case REQUEST_PUBLIC_KEY:
+        context.continueGetPublicKeyUseCase_PIN(pin);
+        break;
+      case REQUEST_DETERMINISTIC_HIERARCHY:
+        context.continueGetDeterministicHierarchyUseCase_PIN(pin);
+        break;
       case REQUEST_CIPHER_KEY:
         context.continueCipherKey_PIN(pin);
         break;

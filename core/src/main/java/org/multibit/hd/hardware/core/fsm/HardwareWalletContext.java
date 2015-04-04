@@ -611,6 +611,25 @@ public class HardwareWalletContext {
   }
 
   /**
+   * <p>Continue the "get public key" use case with the provision of the current PIN</p>
+   *
+   * @param pin The PIN
+   */
+  public void continueGetPublicKeyUseCase_PIN(String pin) {
+
+    log.debug("Continue 'get public key' use case (provide PIN)");
+
+    // Store the overall context parameters
+
+    // Set the event receiving state
+    currentState = HardwareWalletStates.newConfirmGetPublicKeyState();
+
+      // Issue starting message to elicit the event
+    client.pinMatrixAck(pin);
+
+  }
+
+  /**
    * <p>Begin the "get deterministic hierarchy" use case</p>
    *
    * @param childNumbers The child numbers describing the required chain from the master node including hardening bits
@@ -635,6 +654,25 @@ public class HardwareWalletContext {
     // In this case we start with the master node (empty list) to enable building up a complete
     // hierarchy in case of hardened child numbers that require private keys to create
     client.getDeterministicHierarchy(Lists.<ChildNumber>newArrayList());
+
+  }
+
+  /**
+   * <p>Continue the "get deterministic hierarchy" use case with the provision of the current PIN</p>
+   *
+   * @param pin The PIN
+   */
+  public void continueGetDeterministicHierarchyUseCase_PIN(String pin) {
+
+    log.debug("Continue 'get deterministic hierarchy' use case (provide PIN)");
+
+    // Store the overall context parameters
+
+    // Set the event receiving state
+    currentState = HardwareWalletStates.newConfirmGetDeterministicHierarchyState();
+
+    // Issue starting message to elicit the event
+    client.pinMatrixAck(pin);
 
   }
 
