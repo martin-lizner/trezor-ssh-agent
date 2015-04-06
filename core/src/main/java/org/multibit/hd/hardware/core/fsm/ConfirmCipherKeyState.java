@@ -31,8 +31,8 @@ public class ConfirmCipherKeyState extends AbstractHardwareWalletState {
         // Further state transitions will occur after the user has provided the PIN via the service
         break;
       case PASSPHRASE_REQUEST:
-        // Device is asking for a passphrase screen to be displayed (not support)
-        HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_PASSPHRASE_ENTRY, event.getMessage().get());
+        // Device is asking for a passphrase screen to be displayed
+        HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_PASSPHRASE_ENTRY);
         // Further state transitions will occur after the user has provided the passphrase via the service
         break;
       case BUTTON_REQUEST:
