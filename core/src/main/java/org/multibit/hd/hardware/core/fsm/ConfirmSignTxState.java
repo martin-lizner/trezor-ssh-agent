@@ -55,6 +55,11 @@ public class ConfirmSignTxState extends AbstractHardwareWalletState {
         HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_PIN_ENTRY, event.getMessage().get());
         // Further state transitions will occur after the user has provided the PIN via the service
         break;
+      case PASSPHRASE_REQUEST:
+        // Device is asking for a passphrase screen to be displayed (not support)
+        HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_PASSPHRASE_ENTRY, event.getMessage().get());
+        // Further state transitions will occur after the user has provided the passphrase via the service
+        break;
       case TX_REQUEST:
         // Device is requesting a transaction input or output
         Transaction transaction = context.getTransaction().get();

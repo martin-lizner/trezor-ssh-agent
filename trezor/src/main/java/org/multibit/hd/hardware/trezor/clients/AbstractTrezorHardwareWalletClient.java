@@ -382,6 +382,18 @@ public abstract class AbstractTrezorHardwareWalletClient implements HardwareWall
   }
 
   @Override
+  public Optional<MessageEvent> passphraseAck(String passphrase) {
+    return sendMessage(
+      TrezorMessage.PassphraseAck
+        .newBuilder()
+        .setPassphrase(passphrase)
+        .build(),
+      // No immediate response expected
+      2, TimeUnit.SECONDS
+    );
+  }
+
+  @Override
   public Optional<MessageEvent> buttonAck() {
     return sendMessage(
       TrezorMessage.ButtonAck

@@ -281,6 +281,20 @@ public interface HardwareWalletClient extends Connectable {
   Optional<MessageEvent> pinMatrixAck(String pin);
 
   /**
+   * <p>Send the PASSPHRASE_ACK message to the device in response to a PASSPHRASE_REQUEST.</p>
+   * <p>Implementers are expected to show a passphrase dialog on the UI.</p>
+   * <p>Expected response events are:</p>
+   * <ul>
+   * <li>FAILURE if the operation was unsuccessful</li>
+   * </ul>
+   *
+   * @param passphrase The passphrase as entered by the user (not obfuscated)
+   *
+   * @return The response event if implementation is blocking. Absent if non-blocking or device failure.
+   */
+  Optional<MessageEvent> passphraseAck(String passphrase);
+
+  /**
    * <p>Send the CANCEL message to the device in response to a BUTTON_REQUEST, PIN_MATRIX_REQUEST or PASSPHRASE_REQUEST. </p>
    * <p>Expected response events are:</p>
    * <ul>

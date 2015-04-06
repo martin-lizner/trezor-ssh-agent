@@ -27,6 +27,11 @@ public class ConfirmPINState extends AbstractHardwareWalletState {
         HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_PIN_ENTRY, event.getMessage().get());
         // Further state transitions will occur after the user has provided the PIN via the service
         break;
+      case PASSPHRASE_REQUEST:
+        // Device is asking for a passphrase screen to be displayed (not support)
+        HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_PASSPHRASE_ENTRY, event.getMessage().get());
+        // Further state transitions will occur after the user has provided the passphrase via the service
+        break;
       case ENTROPY_REQUEST:
         // Device is asking for additional entropy from the user
         HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.PROVIDE_ENTROPY);

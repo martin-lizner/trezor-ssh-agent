@@ -57,6 +57,11 @@ public enum HardwareWalletEventType {
   SHOW_PIN_ENTRY,
 
   /**
+   * The UI should show a dialog asking the user to enter their passphrase.
+   */
+  SHOW_PASSPHRASE_ENTRY,
+
+  /**
    * The UI should show a message telling the user that the operation completed successfully.
    */
   SHOW_OPERATION_SUCCEEDED,
