@@ -2,7 +2,7 @@ Status: [![Build Status](https://travis-ci.org/bitcoin-solutions/multibit-hardwa
 
 ### Project status
 
-Late-Beta: Expect minimal API changes. Suitable for production and developers should start integrating.
+Released: Verified working with various Trezor firmware editions across Windows, Mac and Linux.
 
 ### MultiBit Hardware
 
