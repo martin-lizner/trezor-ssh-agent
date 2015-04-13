@@ -44,8 +44,8 @@ public class ConnectedState extends AbstractHardwareWalletState {
         String version = features.getVersion();
         // Test for firmware compatibility
         if (version.equals("1.3.0")
-                || version.equals("1.3.1")
-          || version.equals("1.3.2")  /* Never released by SatoshiLabs but added for completeness */
+          || version.equals("1.3.1")
+          || version.equals("1.3.2")  // Never released by SatoshiLabs but added for completeness
           || version.startsWith("1.2.")
           || version.startsWith("1.1.")
           || version.startsWith("1.0.")
