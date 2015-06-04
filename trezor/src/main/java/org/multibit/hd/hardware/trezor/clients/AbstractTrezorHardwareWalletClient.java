@@ -233,8 +233,10 @@ public abstract class AbstractTrezorHardwareWalletClient implements HardwareWall
       // Is it pay-to-script-hash (P2SH) or pay-to-address (P2PKH)?
       final TrezorType.OutputScriptType outputScriptType;
       if (address.isP2SHAddress()) {
+        // Paying to "multisig" P2SH address (3...)
         outputScriptType = TrezorType.OutputScriptType.PAYTOSCRIPTHASH;
       } else {
+        // Paying to "standard" P2PKH address (1...)
         outputScriptType = TrezorType.OutputScriptType.PAYTOADDRESS;
       }
 
@@ -251,10 +253,21 @@ public abstract class AbstractTrezorHardwareWalletClient implements HardwareWall
     // Explore the current tx inputs
     for (TransactionInput input : tx.getInputs()) {
 
+      // Fail fast
+      if (input.getOutpoint() == null) {
+        throw new IllegalArgumentException("Malformed input (no output)");
+      }
+      if (input.getOutpoint().getConnectedOutput() == null) {
+        throw new IllegalArgumentException("Malformed input (no connected output to outpoint)");
+      }
+      if (input.getOutpoint().getConnectedOutput().getParentTransaction() == null) {
+        throw new IllegalArgumentException("Malformed input (connected output to outpoint has no parent)");
+      }
+
       // Get the previous Tx
       Transaction prevTx = input.getOutpoint().getConnectedOutput().getParentTransaction();
 
-      // No multisig support in MBHD yet
+      // Previous Tx builder
       TrezorType.TransactionType.Builder prevBuilder = TrezorType.TransactionType.newBuilder();
 
       // Explore the current tx inputs
@@ -265,7 +278,7 @@ public abstract class AbstractTrezorHardwareWalletClient implements HardwareWall
         int prevIndex = (int) prevInput.getOutpoint().getIndex();
         byte[] prevHash = prevInput.getOutpoint().getHash().getBytes();
 
-        // No multisig support in MBHD yet
+        // No multisig support in MBHD yet so all input scripts will be to addresses (P2PKH)
         TrezorType.InputScriptType inputScriptType = TrezorType.InputScriptType.SPENDADDRESS;
 
         TrezorType.TxInputType txInputType = TrezorType.TxInputType

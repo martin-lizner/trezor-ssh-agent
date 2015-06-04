@@ -624,10 +624,14 @@ public final class TrezorMessageUtils {
 
     // Build a TxOutputType representing the current transaction
 
-    // Address
+    // P2PKH are the most common addresses so try that first
     Address address = output.getAddressFromP2PKHScript(MainNetParams.get());
     if (address == null) {
-      throw new IllegalArgumentException("TxOutput " + requestIndex + " has no address.");
+      // Fall back to P2SH
+      address = output.getAddressFromP2SH(MainNetParams.get());
+    }
+    if (address == null) {
+      throw new IllegalArgumentException("TxOutput " + requestIndex + " does not resolve to P2PKH or P2SH.");
     }
 
     // Is it pay-to-script-hash (P2SH) or pay-to-address (P2PKH)?
