@@ -238,7 +238,7 @@
       <dependency>
         <groupId>org.bitcoinj</groupId>
         <artifactId>bitcoinj-core</artifactId>
-        <version>0.13-alice-develop-SNAPSHOT</version>
+        <version>0.13-SNAPSHOT-alice-0.1.0</version>
       </dependency>
 
       <!-- Findbugs annotations -->
