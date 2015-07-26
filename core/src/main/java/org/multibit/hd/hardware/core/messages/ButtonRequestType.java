@@ -12,52 +12,52 @@ package org.multibit.hd.hardware.core.messages;
 public enum ButtonRequestType {
 
   /**
-   * 
+   * Catch-all for messages
    */
   OTHER,
 
   /**
-   * 
+   * Unexpectedly high fee
    */
   FEE_OVER_THRESHOLD,
 
   /**
-   * 
+   * Confirm an output
    */
   CONFIRM_OUTPUT,
 
   /**
-   * 
+   * Confirm reset device
    */
   RESET_DEVICE,
 
   /**
-   * 
+   * Confirm a word
    */
   CONFIRM_WORD,
 
   /**
-   * 
+   * Confirm wipe device
    */
   WIPE_DEVICE,
 
   /**
-   *
+   * Protected call confirm action
    */
   PROTECT_CALL,
 
   /**
-   * 
+   * Confirm sign transaction
    */
   SIGN_TX,
 
   /**
-   *
+   * Confirm firmware check
    */
   FIRMWARE_CHECK,
 
   /**
-   *
+   * Confirm address generation
    */
   ADDRESS,
   ;
