@@ -227,18 +227,19 @@
         <version>${slf4j.version}</version>
       </dependency>
 
+
+      <!-- MultiBit Commons for Bitcoin support -->
+      <dependency>
+        <groupId>org.multibit</groupId>
+        <artifactId>commons</artifactId>
+        <version>1.0.0</version>
+      </dependency>
+
       <!-- hid4java for HID USB -->
       <dependency>
         <groupId>org.hid4java</groupId>
         <artifactId>hid4java</artifactId>
         <version>develop-SNAPSHOT</version>
-      </dependency>
-
-      <!-- Bitcoinj for Bitcoin operations (alice is custom fork with BIP44) -->
-      <dependency>
-        <groupId>org.bitcoinj</groupId>
-        <artifactId>bitcoinj-core</artifactId>
-        <version>0.13-SNAPSHOT-alice-0.1.0</version>
       </dependency>
 
       <!-- Findbugs annotations -->
@@ -280,16 +281,15 @@
   <!-- All modules will have these dependencies -->
   <dependencies>
 
+    <dependency>
+      <groupId>org.multibit</groupId>
+      <artifactId>commons</artifactId>
+    </dependency>
+
     <!-- All logging is through SLF4J -->
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-    </dependency>
-
-    <!-- Bitcoinj for Bitcoin operations -->
-    <dependency>
-      <groupId>org.bitcoinj</groupId>
-      <artifactId>bitcoinj-core</artifactId>
     </dependency>
 
     <!-- Findbugs annotations -->

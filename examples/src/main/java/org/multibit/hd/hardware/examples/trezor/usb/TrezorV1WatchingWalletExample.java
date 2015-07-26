@@ -19,9 +19,9 @@ import org.bitcoinj.store.BlockStoreException;
 import org.bitcoinj.store.SPVBlockStore;
 import org.bitcoinj.wallet.DeterministicKeyChain;
 import org.bitcoinj.wallet.KeyChainGroup;
+import org.multibit.commons.concurrent.SafeExecutors;
 import org.multibit.hd.hardware.core.HardwareWalletClient;
 import org.multibit.hd.hardware.core.HardwareWalletService;
-import org.multibit.hd.hardware.core.concurrent.SafeExecutors;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvent;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
 import org.multibit.hd.hardware.core.messages.PinMatrixRequest;
@@ -296,15 +296,15 @@ public class TrezorV1WatchingWalletExample {
 
       } else {
 
-        DeterministicKey rootNodePubOnly = hierarchy.getRootKey().getPubOnly();
+        DeterministicKey rootKey = hierarchy.getRootKey();
 
         // Get the root public key and share the reference with the wallet since it will update
         // the known key search space which will be handy later
         KeyChainGroup keyChainGroup = new KeyChainGroup(
           networkParameters,
-          rootNodePubOnly,
+          rootKey,
           (long) (replayDate.getTime() * 0.001),
-          rootNodePubOnly.getPath()
+          rootKey.getPath()
         );
 
         // Using this key chain group will result in a watching wallet

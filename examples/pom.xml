@@ -35,11 +35,11 @@
   <!-- Examples are a standalone downstream project so must provide the dependencies -->
   <dependencies>
 
-    <!-- Emulators -->
+    <!-- MultiBit Commons for Bitcoin support -->
     <dependency>
-      <groupId>org.multibit.hd.hardware</groupId>
-      <artifactId>emulators</artifactId>
-      <version>develop-SNAPSHOT</version>
+      <groupId>org.multibit</groupId>
+      <artifactId>commons</artifactId>
+      <version>1.0.0</version>
     </dependency>
 
     <!-- Trezor (brings in most dependencies transitively) -->
