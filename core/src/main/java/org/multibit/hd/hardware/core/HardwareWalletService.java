@@ -171,6 +171,18 @@ public class HardwareWalletService {
   }
 
   /**
+   * <p>Ping the device</p>
+   *
+   * <p>This will trigger a SHOW_OPERATION_SUCCEEDED</p>
+   */
+  public void requestPing() {
+
+    // Let the state changes occur as a result of the internal messages
+    context.getClient().ping();
+
+  }
+
+  /**
    * <p>Cancel the current operation and return to the initialised state</p>
    *
    * <p>This will trigger a SHOW_OPERATION_FAILED and a DEVICE_READY event during the reset phase</p>

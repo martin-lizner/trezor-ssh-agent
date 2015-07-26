@@ -1,6 +1,8 @@
 package org.multibit.hd.hardware.core.fsm;
 
 import org.multibit.hd.hardware.core.HardwareWalletClient;
+import org.multibit.hd.hardware.core.events.HardwareWalletEventType;
+import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
 import org.multibit.hd.hardware.core.events.MessageEvent;
 
 /**
@@ -23,6 +25,12 @@ public class InitialisedState extends AbstractHardwareWalletState {
 
     // We don't expect any messages
     switch (event.getEventType()) {
+      case SUCCESS:
+        // Possible Ping
+        HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_OPERATION_SUCCEEDED, event.getMessage().get());
+        // Ensure the Features are updated
+        context.resetToConnected();
+        break;
       default:
         handleUnexpectedMessageEvent(context, event);
     }
