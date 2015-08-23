@@ -3,7 +3,7 @@ package org.multibit.hd.hardware.trezor.utils;
 import com.satoshilabs.trezor.protobuf.TrezorMessage;
 import com.satoshilabs.trezor.protobuf.TrezorType;
 import org.bitcoinj.core.Base58;
-import org.bitcoinj.core.Utils;
+import org.bitcoinj.core.Sha256Hash;
 import org.multibit.hd.hardware.core.messages.*;
 
 import java.nio.ByteBuffer;
@@ -244,7 +244,7 @@ public class TrezorMessageAdapter {
         int inputLength = input.length;
         byte[] checksummed = new byte[inputLength + 4];
         System.arraycopy(input, 0, checksummed, 0, inputLength);
-        byte[] checksum = Utils.doubleDigest(input);
+        byte[] checksum = Sha256Hash.hashTwice(input);
         System.arraycopy(checksum, 0, checksummed, inputLength, 4);
 
         String xpub = Base58.encode(checksummed);
