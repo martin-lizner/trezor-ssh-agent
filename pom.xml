@@ -239,7 +239,7 @@
       <dependency>
         <groupId>org.hid4java</groupId>
         <artifactId>hid4java</artifactId>
-        <version>develop-SNAPSHOT</version>
+        <version>0.4.0</version>
       </dependency>
 
       <!-- Findbugs annotations -->
