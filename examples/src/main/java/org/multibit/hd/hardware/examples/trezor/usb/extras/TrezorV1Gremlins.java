@@ -1,5 +1,6 @@
-package org.multibit.hd.hardware.examples.trezor.usb;
+package org.multibit.hd.hardware.examples.trezor.usb.extras;
 
+import org.multibit.hd.hardware.examples.trezor.usb.step1.TrezorV1FeaturesExample;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

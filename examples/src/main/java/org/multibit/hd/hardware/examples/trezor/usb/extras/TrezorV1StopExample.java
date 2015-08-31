@@ -1,4 +1,4 @@
-package org.multibit.hd.hardware.examples.trezor.usb;
+package org.multibit.hd.hardware.examples.trezor.usb.extras;
 
 import com.google.common.base.Optional;
 import com.google.common.eventbus.Subscribe;

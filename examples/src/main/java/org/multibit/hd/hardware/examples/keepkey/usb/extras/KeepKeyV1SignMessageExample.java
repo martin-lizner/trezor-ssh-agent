@@ -1,45 +1,43 @@
-package org.multibit.hd.hardware.examples.keepkey.usb;
+package org.multibit.hd.hardware.examples.keepkey.usb.extras;
 
 import com.google.common.base.Optional;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.Uninterruptibles;
 import org.bitcoinj.core.Address;
+import org.bitcoinj.core.ECKey;
+import org.bitcoinj.core.Utils;
+import org.bitcoinj.params.MainNetParams;
 import org.bitcoinj.wallet.KeyChain;
 import org.multibit.hd.hardware.core.HardwareWalletClient;
 import org.multibit.hd.hardware.core.HardwareWalletService;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvent;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
-import org.multibit.hd.hardware.core.messages.MainNetAddress;
+import org.multibit.hd.hardware.core.messages.MessageSignature;
 import org.multibit.hd.hardware.core.messages.PinMatrixRequest;
 import org.multibit.hd.hardware.core.wallets.HardwareWallets;
 import org.multibit.hd.hardware.keepkey.clients.KeepKeyHardwareWalletClient;
 import org.multibit.hd.hardware.keepkey.wallets.v1.KeepKeyV1HidHardwareWallet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.spongycastle.util.encoders.Base64;
 
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
 /**
- * <p>Step 3 - Wipe the device to factory defaults and securely create seed phrase on device</p>
+ * <p>Sign a message</p>
  * <p>Requires KeepKey V1 production device plugged into a USB HID interface.</p>
- * <p>This example demonstrates the message sequence to wipe a KeepKey device back to its fresh out of the box
- * state and then set it up using a seed phrase it generates itself.</p>
- *
- * <h3>Only perform this example on a KeepKey that you are using for test and development!</h3>
+ * <p>This example demonstrates the sequence to Bitcoin sign a message.</p>
  *
  * @since 0.0.1
  *  
  */
-public class KeepKeyV1WipeAndCreateWalletExample {
+public class KeepKeyV1SignMessageExample {
 
-  private static final Logger log = LoggerFactory.getLogger(KeepKeyV1WipeAndCreateWalletExample.class);
+  private static final Logger log = LoggerFactory.getLogger(KeepKeyV1SignMessageExample.class);
 
   private HardwareWalletService hardwareWalletService;
-
-  // Some state variables to allow second use case to follow
-  private boolean isWiped = false;
-  private boolean isAddressReady = false;
+  private String message;
 
   /**
    * <p>Main entry point to the example</p>
@@ -51,7 +49,7 @@ public class KeepKeyV1WipeAndCreateWalletExample {
   public static void main(String[] args) throws Exception {
 
     // All the work is done in the class
-    KeepKeyV1WipeAndCreateWalletExample example = new KeepKeyV1WipeAndCreateWalletExample();
+    KeepKeyV1SignMessageExample example = new KeepKeyV1SignMessageExample();
 
     example.executeExample();
 
@@ -68,7 +66,7 @@ public class KeepKeyV1WipeAndCreateWalletExample {
 
     // Use factory to statically bind the specific hardware wallet
     KeepKeyV1HidHardwareWallet wallet = HardwareWallets.newUsbInstance(
-      KeepKeyV1HidHardwareWallet.class,
+            KeepKeyV1HidHardwareWallet.class,
       Optional.<Integer>absent(),
       Optional.<Integer>absent(),
       Optional.<String>absent()
@@ -106,83 +104,69 @@ public class KeepKeyV1WipeAndCreateWalletExample {
         // Can simply wait for another device to be connected again
         break;
       case SHOW_DEVICE_READY:
-        if (!isWiped) {
+        message = "Hello World!";
+        if (hardwareWalletService.isWalletPresent()) {
 
-          // Device is not wiped so start with that
-
-          // Force creation of the wallet (wipe then reset)
-          // Select the use of PIN protection and displaying entropy on the device
-          // This is the most secure way to create a wallet
-          hardwareWalletService.secureCreateWallet(
-            "english",
-            "Aardvark",
-            false,
-            true,
-            128
-          );
-
-        } else {
-
-          // Device is wiped so on to getting the address
-
-          // Request address 0'/0/0 from the device and show it on the screen
-          // to ensure no trickery is taking place
-          hardwareWalletService.requestAddress(
+          // Request a message signature from the device
+          // The response will contain the address used
+          hardwareWalletService.signMessage(
             0,
             KeyChain.KeyPurpose.RECEIVE_FUNDS,
             0,
-            true
+            message.getBytes()
           );
 
+        } else {
+          log.info("You need to have created a wallet before running this example");
         }
 
         break;
+
       case SHOW_PIN_ENTRY:
-        // Determine if this is the first or second PIN entry
+        // Device requires the current PIN to proceed
         PinMatrixRequest request = (PinMatrixRequest) event.getMessage().get();
         Scanner keyboard = new Scanner(System.in);
         String pin;
         switch (request.getPinMatrixRequestType()) {
-          case NEW_FIRST:
+          case CURRENT:
             System.err.println(
-              "Choose a PIN (e.g. '1' for simplicity).\n" +
+              "Recall your PIN (e.g. '1').\n" +
                 "Look at the device screen and type in the numerical position of each of the digits\n" +
                 "with 1 being in the bottom left and 9 being in the top right (numeric keypad style) then press ENTER."
             );
             pin = keyboard.next();
             hardwareWalletService.providePIN(pin);
             break;
-          case NEW_SECOND:
-            System.err.println(
-              "Recall your PIN (e.g. '1').\n" +
-                "Look at the device screen once more and type in the numerical position of each of the digits\n" +
-                "with 1 being in the bottom left and 9 being in the top right (numeric keypad style) then press ENTER."
-            );
-            pin = keyboard.next();
-            hardwareWalletService.providePIN(pin);
-            break;
         }
         break;
-      case PROVIDE_ENTROPY:
-        // Generate 256 bits of entropy (32 bytes) using the utility method
-        byte[] entropy = hardwareWalletService.generateEntropy();
-        // Provide it to the device
-        hardwareWalletService.provideEntropy(entropy);
-        break;
-      case SHOW_OPERATION_SUCCEEDED:
-        System.err.println("Wallet was created.");
-        if (!isWiped) {
-          isWiped = true;
+      case MESSAGE_SIGNATURE:
+        // Successful message signature
+        MessageSignature signature = (MessageSignature) event.getMessage().get();
+
+        try {
+          log.info("Signature:\n{}", Utils.HEX.encode(signature.getSignature()));
+
+          // Verify the signature
+          String base64Signature = Base64.toBase64String(signature.getSignature());
+
+          ECKey key = ECKey.signedMessageToKey(message, base64Signature);
+          Address gotAddress = key.toAddress(MainNetParams.get());
+
+          if (gotAddress.toString().equals(signature.getAddress())) {
+            log.info("Verified the signature");
+            // Treat as end of example
+            System.exit(0);
+          }
+
+        } catch (Exception e) {
+          log.error("deviceTx FAILED.", e);
         }
-        break;
-      case ADDRESS:
-        Address address = ((MainNetAddress) event.getMessage().get()).getAddress().get();
-        log.info("Device provided address 0'/0/0: '{}'", address.toString());
 
-        // We're done
-        System.exit(0);
-
+        // Must have failed to be here
+        // Treat as end of example
+        System.exit(-1);
         break;
+
       case SHOW_OPERATION_FAILED:
         // Treat as end of example
         System.exit(-1);

@@ -1,4 +1,4 @@
-package org.multibit.hd.hardware.examples.trezor.usb;
+package org.multibit.hd.hardware.examples.keepkey.usb.extras;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
@@ -15,8 +15,8 @@ import org.multibit.hd.hardware.core.HardwareWalletService;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvent;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
 import org.multibit.hd.hardware.core.wallets.HardwareWallets;
-import org.multibit.hd.hardware.trezor.clients.TrezorHardwareWalletClient;
-import org.multibit.hd.hardware.trezor.wallets.v1.TrezorV1HidHardwareWallet;
+import org.multibit.hd.hardware.keepkey.clients.KeepKeyHardwareWalletClient;
+import org.multibit.hd.hardware.keepkey.wallets.v1.KeepKeyV1HidHardwareWallet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,19 +24,19 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * <p>Get a deterministic hierarchy based on the master extended public key (xpub)</p>
- * <p>Requires Trezor V1 production device plugged into a USB HID interface.</p>
+ * <p>Requires KeepKey V1 production device plugged into a USB HID interface.</p>
  * <p>This example demonstrates the message sequence to get a Bitcoinj deterministic hierarchy
- * from a Trezor that has an active wallet to enable a "watching wallet" to be created.</p>
+ * from a KeepKey that has an active wallet to enable a "watching wallet" to be created.</p>
  *
- * <h3>Only perform this example on a Trezor that you are using for test and development!</h3>
+ * <h3>Only perform this example on a KeepKey that you are using for test and development!</h3>
  * <h3>Do not send funds to any addresses generated from this xpub unless you have a copy of the seed phrase written down!</h3>
  *
  * @since 0.0.1
  *  
  */
-public class TrezorV1GetDeterministicHierarchyExample {
+public class KeepKeyV1GetDeterministicHierarchyExample {
 
-  private static final Logger log = LoggerFactory.getLogger(TrezorV1GetDeterministicHierarchyExample.class);
+  private static final Logger log = LoggerFactory.getLogger(KeepKeyV1GetDeterministicHierarchyExample.class);
 
   private HardwareWalletService hardwareWalletService;
 
@@ -50,7 +50,7 @@ public class TrezorV1GetDeterministicHierarchyExample {
   public static void main(String[] args) throws Exception {
 
     // All the work is done in the class
-    TrezorV1GetDeterministicHierarchyExample example = new TrezorV1GetDeterministicHierarchyExample();
+    KeepKeyV1GetDeterministicHierarchyExample example = new KeepKeyV1GetDeterministicHierarchyExample();
 
     example.executeExample();
 
@@ -66,15 +66,15 @@ public class TrezorV1GetDeterministicHierarchyExample {
   public void executeExample() {
 
     // Use factory to statically bind the specific hardware wallet
-    TrezorV1HidHardwareWallet wallet = HardwareWallets.newUsbInstance(
-      TrezorV1HidHardwareWallet.class,
+    KeepKeyV1HidHardwareWallet wallet = HardwareWallets.newUsbInstance(
+      KeepKeyV1HidHardwareWallet.class,
       Optional.<Integer>absent(),
       Optional.<Integer>absent(),
       Optional.<String>absent()
     );
 
     // Wrap the hardware wallet in a suitable client to simplify message API
-    HardwareWalletClient client = new TrezorHardwareWalletClient(wallet);
+    HardwareWalletClient client = new KeepKeyHardwareWalletClient(wallet);
 
     // Wrap the client in a service for high level API suitable for downstream applications
     hardwareWalletService = new HardwareWalletService(client);

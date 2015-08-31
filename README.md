@@ -20,7 +20,11 @@ One example of a supported hardware wallet is the Trezor and full examples and d
 * [Google Guava](https://code.google.com/p/guava-libraries/wiki/GuavaExplained) - for excellent Java support features
 * Java 7+ - to remove dependencies on JVMs that have reached end of life
 
-### Code example
+### Code examples
+
+The code example below is for a Trezor hardware wallet. You can replace `Trezor` with `KeepKey` if you are using one instead.
+
+#### Trezor
 
 Configure and start the hardware wallet service as follows:
 
@@ -75,6 +79,13 @@ public void onHardwareWalletEvent(HardwareWalletEvent event) {
 
 ### Frequently asked questions (FAQ)
 
+#### What hardware wallets do you support ?
+
+At present we support
+
+* [Trezor](https://buytrezor.com/?a=multibit.org)
+* [KeepKey](https://keepkey.com)
+
 #### What use cases do you support ?
 
 At present there is support and examples for the following high level use cases:
@@ -93,10 +104,10 @@ At present there is support and examples for the following high level use cases:
 Not supported since it's not on our critical path. If you really want it to be included then please raise an issue stating your case
 and perhaps offering a Bitcoin bounty to give us an incentive.
 
-* Recover device (just visit myTrezor.com) 
-* Upload firmware (better to use myTrezor.com to be sure)
+* Recover device (just visit myTrezor.com or keepkey.com) 
+* Upload firmware (better to use vendor's own website to be sure)
 * Verify message using chain code (MultiBit HD already supports this)
-* Encrypt/decrypt based on AES key
+* Encrypt/decrypt based on AES key (we are not a message client)
 
 #### Why Google Protocol Buffers ?
 
@@ -113,7 +124,7 @@ You are also free to offer up your `.proto` files as common libraries that remai
  and enables them to retain complete control over the wire protocol, while allowing MultiBit Hardware to implement support in a phased
  approach.
 
-#### Why no listeners ?
+#### Why no `Listener` pattern ?
 
 The Guava library offers the [EventBus](https://code.google.com/p/guava-libraries/wiki/EventBusExplained) which is a much simpler way to
  manage events within an application. Since MultiBit HD uses this internally and will be the primary consumer of this library it makes
@@ -121,15 +132,17 @@ The Guava library offers the [EventBus](https://code.google.com/p/guava-librarie
 
 #### How do I get my hardware included ?
 
-While we welcome a wide variety of hardware wallet devices into the Bitcoin ecosystem supporting them all through MultiBit HD gives rise 
+While we welcome a wide variety of hardware wallet devices into the Bitcoin ecosystem, supporting them all through MultiBit HD gives rise 
 to some obvious problems:
 
 * maintaining compatibility for legacy versions (variants, quirks, deprecated functionality etc)
 * verifying the security of the wallet (robust enough for mainstream users, entropy source etc)
 * simplicity of use (mainstream users must find it easy to obtain and use) 
 
-Thus the current situation is that the MultiBit Hardware development team is only supporting the Trezor device, but in time we would like to
-open up support for other leading hardware wallet vendors.
+Thus the current situation is that the MultiBit Hardware development team is only supporting devices very closely modelled on the Trezor 
+device, but in time we would like to open up support for other leading hardware wallet vendors.
+
+Please feel free to [raise an issue](https://github.com/bitcoin-solutions/multibit-hardware/issues/new) to discuss your requirements. 
 
 ### Getting started
 
@@ -140,7 +153,7 @@ $ cd <project directory>
 $ mvn clean install
 ```
 
-and you're good to go. Your next step is to explore the examples.
+and you're good to go. Your next step is to explore the examples (see later for details).
 
 #### Collaborators and the protobuf files
 
@@ -176,19 +189,34 @@ owner of the repo.
 Have a read of [the wiki pages](https://github.com/bitcoin-solutions/mbhd-hardware/wiki/_pages) which gives comprehensive
 instructions for a variety of environments.
 
-### Working with a production Trezor device (recommended)
+### Working with a production Trezor device
 
-After [purchasing a production Trezor device](https://www.buytrezor.com/) do the following (assuming a completely new :
+After [purchasing a production Trezor device](https://www.buytrezor.com/) do the following:
 
 Plug in the device to the USB port and wait for initialisation to complete.
 
 Attempt to discover the device using the `TrezorV1FeaturesExample` through the command line not the IDE:
 ```
 cd examples
-mvn clean compile exec:java -Dexec.mainClass="org.multibit.hd.hardware.examples.trezor.usb.TrezorV1FeaturesExample"
+mvn clean compile exec:java -Dexec.mainClass="org.multibit.hd.hardware.examples.trezor.usb.step1.TrezorV1FeaturesExample"
 ```
 
 This will list available devices on the USB and select a Trezor if present. It relies on the MultiBit Hardware project
+JARs being installed into the local repository (e.g. built with `mvn clean install`).
+
+### Working with a production KeepKey device
+
+After [purchasing a production KeepKey device](https://keepkey.com/) do the following:
+
+Plug in the device to the USB port and wait for initialisation to complete.
+
+Attempt to discover the device using the `KeepKeyV1FeaturesExample` through the command line not the IDE:
+```
+cd examples
+mvn clean compile exec:java -Dexec.mainClass="org.multibit.hd.hardware.examples.keepkey.usb.step1.KeepKeyV1FeaturesExample"
+```
+
+This will list available devices on the USB and select a KeepKey if present. It relies on the MultiBit Hardware project
 JARs being installed into the local repository (e.g. built with `mvn clean install`).
 
 ### Working with a Raspberry Pi emulation device
@@ -265,7 +293,7 @@ $ sudo update-rc.d trezor defaults
 
 The following are known issues and their solutions or workarounds.
 
-#### My production Trezor doesn't work on Ubuntu
+#### My production Trezor/KeepKey doesn't work on Ubuntu
 
 Out of the box Ubuntu classifies HID devices as belonging to root. You can override this rule by creating your own under `/etc/udev/rules.d`:
 
@@ -278,9 +306,11 @@ Make the content of this file as below:
 ```
 # Trezor HID device
 ATTRS{idProduct}=="0001", ATTRS{idVendor}=="534c", MODE="0660", GROUP="plugdev"
+# KeepKey HID device
+ATTRS{idProduct}=="0001", ATTRS{idVendor}=="2b24", MODE="0660", GROUP="plugdev"
 ```
 
-Save and exit from root, then unplug and replug your production Trezor. The rules should take effect immediately. If they're still not 
+Save and exit from root, then unplug and replug your production device. The rules should take effect immediately. If they're still not 
 running it may that you're not a member of the `plugdev` group. You can fix this as follows (assuming that `plugdev` is not present on 
 your system):
 

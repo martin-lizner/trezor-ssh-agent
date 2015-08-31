@@ -1,5 +1,6 @@
-package org.multibit.hd.hardware.examples.keepkey.usb;
+package org.multibit.hd.hardware.examples.keepkey.usb.extras;
 
+import org.multibit.hd.hardware.examples.keepkey.usb.step1.KeepKeyV1FeaturesExample;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

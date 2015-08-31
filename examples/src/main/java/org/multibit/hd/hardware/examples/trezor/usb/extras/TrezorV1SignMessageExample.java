@@ -1,4 +1,4 @@
-package org.multibit.hd.hardware.examples.keepkey.usb;
+package org.multibit.hd.hardware.examples.trezor.usb.extras;
 
 import com.google.common.base.Optional;
 import com.google.common.eventbus.Subscribe;
@@ -15,8 +15,8 @@ import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
 import org.multibit.hd.hardware.core.messages.MessageSignature;
 import org.multibit.hd.hardware.core.messages.PinMatrixRequest;
 import org.multibit.hd.hardware.core.wallets.HardwareWallets;
-import org.multibit.hd.hardware.keepkey.clients.KeepKeyHardwareWalletClient;
-import org.multibit.hd.hardware.keepkey.wallets.v1.KeepKeyV1HidHardwareWallet;
+import org.multibit.hd.hardware.trezor.clients.TrezorHardwareWalletClient;
+import org.multibit.hd.hardware.trezor.wallets.v1.TrezorV1HidHardwareWallet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Base64;
@@ -26,15 +26,15 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * <p>Sign a message</p>
- * <p>Requires KeepKey V1 production device plugged into a USB HID interface.</p>
+ * <p>Requires Trezor V1 production device plugged into a USB HID interface.</p>
  * <p>This example demonstrates the sequence to Bitcoin sign a message.</p>
  *
  * @since 0.0.1
  *  
  */
-public class KeepKeyV1SignMessageExample {
+public class TrezorV1SignMessageExample {
 
-  private static final Logger log = LoggerFactory.getLogger(KeepKeyV1SignMessageExample.class);
+  private static final Logger log = LoggerFactory.getLogger(TrezorV1SignMessageExample.class);
 
   private HardwareWalletService hardwareWalletService;
   private String message;
@@ -49,7 +49,7 @@ public class KeepKeyV1SignMessageExample {
   public static void main(String[] args) throws Exception {
 
     // All the work is done in the class
-    KeepKeyV1SignMessageExample example = new KeepKeyV1SignMessageExample();
+    TrezorV1SignMessageExample example = new TrezorV1SignMessageExample();
 
     example.executeExample();
 
@@ -65,15 +65,15 @@ public class KeepKeyV1SignMessageExample {
   public void executeExample() {
 
     // Use factory to statically bind the specific hardware wallet
-    KeepKeyV1HidHardwareWallet wallet = HardwareWallets.newUsbInstance(
-            KeepKeyV1HidHardwareWallet.class,
+    TrezorV1HidHardwareWallet wallet = HardwareWallets.newUsbInstance(
+            TrezorV1HidHardwareWallet.class,
       Optional.<Integer>absent(),
       Optional.<Integer>absent(),
       Optional.<String>absent()
     );
 
     // Wrap the hardware wallet in a suitable client to simplify message API
-    HardwareWalletClient client = new KeepKeyHardwareWalletClient(wallet);
+    HardwareWalletClient client = new TrezorHardwareWalletClient(wallet);
 
     // Wrap the client in a service for high level API suitable for downstream applications
     hardwareWalletService = new HardwareWalletService(client);

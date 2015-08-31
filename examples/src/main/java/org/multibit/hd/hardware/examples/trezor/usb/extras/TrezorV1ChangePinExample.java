@@ -1,38 +1,35 @@
-package org.multibit.hd.hardware.examples.trezor.usb;
+package org.multibit.hd.hardware.examples.trezor.usb.extras;
 
 import com.google.common.base.Optional;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.Uninterruptibles;
-import org.bitcoinj.core.Address;
-import org.bitcoinj.wallet.KeyChain;
 import org.multibit.hd.hardware.core.HardwareWalletClient;
 import org.multibit.hd.hardware.core.HardwareWalletService;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvent;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
-import org.multibit.hd.hardware.core.messages.MainNetAddress;
+import org.multibit.hd.hardware.core.messages.PinMatrixRequest;
 import org.multibit.hd.hardware.core.wallets.HardwareWallets;
 import org.multibit.hd.hardware.trezor.clients.TrezorHardwareWalletClient;
 import org.multibit.hd.hardware.trezor.wallets.v1.TrezorV1HidHardwareWallet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
 /**
- * <p>Step 4 - Get a receiving address</p>
+ * <p>Securely change the PIN on the device</p>
  * <p>Requires Trezor V1 production device plugged into a USB HID interface.</p>
- * <p>This example demonstrates the message sequence to get a receiving address
- * from a Trezor that has an active wallet.</p>
+ * <p>This example demonstrates the message sequence to change the PIN for the device.</p>
  *
  * <h3>Only perform this example on a Trezor that you are using for test and development!</h3>
- * <h3>Do not send funds to the address unless you have a copy of the seed phrase written down!</h3>
  *
  * @since 0.0.1
  *  
  */
-public class TrezorV1GetAddressExample {
+public class TrezorV1ChangePinExample {
 
-  private static final Logger log = LoggerFactory.getLogger(TrezorV1GetAddressExample.class);
+  private static final Logger log = LoggerFactory.getLogger(TrezorV1ChangePinExample.class);
 
   private HardwareWalletService hardwareWalletService;
 
@@ -46,7 +43,7 @@ public class TrezorV1GetAddressExample {
   public static void main(String[] args) throws Exception {
 
     // All the work is done in the class
-    TrezorV1GetAddressExample example = new TrezorV1GetAddressExample();
+    TrezorV1ChangePinExample example = new TrezorV1ChangePinExample();
 
     example.executeExample();
 
@@ -102,23 +99,50 @@ public class TrezorV1GetAddressExample {
         break;
       case SHOW_DEVICE_READY:
         if (hardwareWalletService.isWalletPresent()) {
-
-          log.debug("Wallet is present. Requesting an address...");
-
-          // Request an address from the device using BIP-44 chain code:
-          hardwareWalletService.requestAddress(0, KeyChain.KeyPurpose.RECEIVE_FUNDS, 0, true);
-
-        } else {
-          log.info("You need to have created a wallet before running this example");
+          // We could choose to bypass the whole wallet creation process
+          // but for this example we'll fall through to the forced creation
+          log.debug("Ignoring the wallet is already present flag");
         }
 
+        // Change the PIN rather than remove it
+        hardwareWalletService.changePIN(false);
         break;
-      case ADDRESS:
-        Address address = ((MainNetAddress) event.getMessage().get()).getAddress().get();
-        log.info("Device provided address: '{}'", address.toString());
-        if ("1LqBGSKuX5yYUonjxT5qGfpUsXKYYWeabA".equals(address.toString())) {
-          log.warn("This corresponds to the 'abandon' wallet");
+      case SHOW_PIN_ENTRY:
+        // Determine if this is the first or second PIN entry
+        PinMatrixRequest request = (PinMatrixRequest) event.getMessage().get();
+        Scanner keyboard = new Scanner(System.in);
+        String pin;
+        switch (request.getPinMatrixRequestType()) {
+          case CURRENT:
+            System.err.println(
+              "Recall your current PIN (e.g. '1').\n" +
+                "Look at the device screen once more and type in the numerical position of each of the digits\n" +
+                "with 1 being in the bottom left and 9 being in the top right (numeric keypad style) then press ENTER."
+            );
+            pin = keyboard.next();
+            hardwareWalletService.providePIN(pin);
+            break;
+          case NEW_FIRST:
+            System.err.println(
+              "Choose a PIN (e.g. '1' for simplicity).\n" +
+                "Look at the device screen and type in the numerical position of each of the digits\n" +
+                "with 1 being in the bottom left and 9 being in the top right (numeric keypad style) then press ENTER."
+            );
+            pin = keyboard.next();
+            hardwareWalletService.providePIN(pin);
+            break;
+          case NEW_SECOND:
+            System.err.println(
+              "Recall your new PIN (e.g. '1').\n" +
+                "Look at the device screen once more and type in the numerical position of each of the digits\n" +
+                "with 1 being in the bottom left and 9 being in the top right (numeric keypad style) then press ENTER."
+            );
+            pin = keyboard.next();
+            hardwareWalletService.providePIN(pin);
+            break;
         }
+        break;
+      case SHOW_OPERATION_SUCCEEDED:
         // Treat as end of example
         System.exit(0);
         break;

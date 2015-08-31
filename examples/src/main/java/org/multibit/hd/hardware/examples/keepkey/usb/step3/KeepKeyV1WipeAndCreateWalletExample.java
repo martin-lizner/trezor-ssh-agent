@@ -1,12 +1,15 @@
-package org.multibit.hd.hardware.examples.keepkey.usb;
+package org.multibit.hd.hardware.examples.keepkey.usb.step3;
 
 import com.google.common.base.Optional;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.Uninterruptibles;
+import org.bitcoinj.core.Address;
+import org.bitcoinj.wallet.KeyChain;
 import org.multibit.hd.hardware.core.HardwareWalletClient;
 import org.multibit.hd.hardware.core.HardwareWalletService;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvent;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
+import org.multibit.hd.hardware.core.messages.MainNetAddress;
 import org.multibit.hd.hardware.core.messages.PinMatrixRequest;
 import org.multibit.hd.hardware.core.wallets.HardwareWallets;
 import org.multibit.hd.hardware.keepkey.clients.KeepKeyHardwareWalletClient;
@@ -18,20 +21,25 @@ import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
 /**
- * <p>Securely change the PIN on the device</p>
+ * <p>Step 3 - Wipe the device to factory defaults and securely create seed phrase on device</p>
  * <p>Requires KeepKey V1 production device plugged into a USB HID interface.</p>
- * <p>This example demonstrates the message sequence to change the PIN for the device.</p>
+ * <p>This example demonstrates the message sequence to wipe a KeepKey device back to its fresh out of the box
+ * state and then set it up using a seed phrase it generates itself.</p>
  *
  * <h3>Only perform this example on a KeepKey that you are using for test and development!</h3>
  *
  * @since 0.0.1
  *  
  */
-public class KeepKeyV1ChangePinExample {
+public class KeepKeyV1WipeAndCreateWalletExample {
 
-  private static final Logger log = LoggerFactory.getLogger(KeepKeyV1ChangePinExample.class);
+  private static final Logger log = LoggerFactory.getLogger(KeepKeyV1WipeAndCreateWalletExample.class);
 
   private HardwareWalletService hardwareWalletService;
+
+  // Some state variables to allow second use case to follow
+  private boolean isWiped = false;
+  private boolean isAddressReady = false;
 
   /**
    * <p>Main entry point to the example</p>
@@ -43,7 +51,7 @@ public class KeepKeyV1ChangePinExample {
   public static void main(String[] args) throws Exception {
 
     // All the work is done in the class
-    KeepKeyV1ChangePinExample example = new KeepKeyV1ChangePinExample();
+    KeepKeyV1WipeAndCreateWalletExample example = new KeepKeyV1WipeAndCreateWalletExample();
 
     example.executeExample();
 
@@ -98,14 +106,36 @@ public class KeepKeyV1ChangePinExample {
         // Can simply wait for another device to be connected again
         break;
       case SHOW_DEVICE_READY:
-        if (hardwareWalletService.isWalletPresent()) {
-          // We could choose to bypass the whole wallet creation process
-          // but for this example we'll fall through to the forced creation
-          log.debug("Ignoring the wallet is already present flag");
+        if (!isWiped) {
+
+          // Device is not wiped so start with that
+
+          // Force creation of the wallet (wipe then reset)
+          // Select the use of PIN protection and displaying entropy on the device
+          // This is the most secure way to create a wallet
+          hardwareWalletService.secureCreateWallet(
+            "english",
+            "Aardvark",
+            false,
+            true,
+            128
+          );
+
+        } else {
+
+          // Device is wiped so on to getting the address
+
+          // Request address 0'/0/0 from the device and show it on the screen
+          // to ensure no trickery is taking place
+          hardwareWalletService.requestAddress(
+            0,
+            KeyChain.KeyPurpose.RECEIVE_FUNDS,
+            0,
+            true
+          );
+
         }
 
-        // Change the PIN rather than remove it
-        hardwareWalletService.changePIN(false);
         break;
       case SHOW_PIN_ENTRY:
         // Determine if this is the first or second PIN entry
@@ -113,15 +143,6 @@ public class KeepKeyV1ChangePinExample {
         Scanner keyboard = new Scanner(System.in);
         String pin;
         switch (request.getPinMatrixRequestType()) {
-          case CURRENT:
-            System.err.println(
-              "Recall your current PIN (e.g. '1').\n" +
-                "Look at the device screen once more and type in the numerical position of each of the digits\n" +
-                "with 1 being in the bottom left and 9 being in the top right (numeric keypad style) then press ENTER."
-            );
-            pin = keyboard.next();
-            hardwareWalletService.providePIN(pin);
-            break;
           case NEW_FIRST:
             System.err.println(
               "Choose a PIN (e.g. '1' for simplicity).\n" +
@@ -133,7 +154,7 @@ public class KeepKeyV1ChangePinExample {
             break;
           case NEW_SECOND:
             System.err.println(
-              "Recall your new PIN (e.g. '1').\n" +
+              "Recall your PIN (e.g. '1').\n" +
                 "Look at the device screen once more and type in the numerical position of each of the digits\n" +
                 "with 1 being in the bottom left and 9 being in the top right (numeric keypad style) then press ENTER."
             );
@@ -142,9 +163,25 @@ public class KeepKeyV1ChangePinExample {
             break;
         }
         break;
+      case PROVIDE_ENTROPY:
+        // Generate 256 bits of entropy (32 bytes) using the utility method
+        byte[] entropy = hardwareWalletService.generateEntropy();
+        // Provide it to the device
+        hardwareWalletService.provideEntropy(entropy);
+        break;
       case SHOW_OPERATION_SUCCEEDED:
-        // Treat as end of example
+        System.err.println("Wallet was created.");
+        if (!isWiped) {
+          isWiped = true;
+        }
+        break;
+      case ADDRESS:
+        Address address = ((MainNetAddress) event.getMessage().get()).getAddress().get();
+        log.info("Device provided address 0'/0/0: '{}'", address.toString());
+
+        // We're done
         System.exit(0);
+
         break;
       case SHOW_OPERATION_FAILED:
         // Treat as end of example

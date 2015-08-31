@@ -1,4 +1,4 @@
-package org.multibit.hd.hardware.examples.keepkey.usb;
+package org.multibit.hd.hardware.examples.keepkey.usb.step1;
 
 import com.google.common.base.Optional;
 import com.google.common.eventbus.Subscribe;

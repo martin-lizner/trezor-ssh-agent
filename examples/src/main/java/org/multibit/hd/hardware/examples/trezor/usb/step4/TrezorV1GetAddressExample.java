@@ -1,33 +1,38 @@
-package org.multibit.hd.hardware.examples.trezor.usb;
+package org.multibit.hd.hardware.examples.trezor.usb.step4;
 
 import com.google.common.base.Optional;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.Uninterruptibles;
-import org.bitcoinj.core.AddressFormatException;
+import org.bitcoinj.core.Address;
+import org.bitcoinj.wallet.KeyChain;
 import org.multibit.hd.hardware.core.HardwareWalletClient;
 import org.multibit.hd.hardware.core.HardwareWalletService;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvent;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
+import org.multibit.hd.hardware.core.messages.MainNetAddress;
 import org.multibit.hd.hardware.core.wallets.HardwareWallets;
 import org.multibit.hd.hardware.trezor.clients.TrezorHardwareWalletClient;
 import org.multibit.hd.hardware.trezor.wallets.v1.TrezorV1HidHardwareWallet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
 /**
- * <p>Ping device</p>
+ * <p>Step 4 - Get a receiving address</p>
  * <p>Requires Trezor V1 production device plugged into a USB HID interface.</p>
- * <p>This example demonstrates the initial verification of recognising insertion and removal of a Trezor.</p>
+ * <p>This example demonstrates the message sequence to get a receiving address
+ * from a Trezor that has an active wallet.</p>
+ *
+ * <h3>Only perform this example on a Trezor that you are using for test and development!</h3>
+ * <h3>Do not send funds to the address unless you have a copy of the seed phrase written down!</h3>
  *
  * @since 0.0.1
  *  
  */
-public class TrezorV1PingExample {
+public class TrezorV1GetAddressExample {
 
-  private static final Logger log = LoggerFactory.getLogger(TrezorV1PingExample.class);
+  private static final Logger log = LoggerFactory.getLogger(TrezorV1GetAddressExample.class);
 
   private HardwareWalletService hardwareWalletService;
 
@@ -41,10 +46,7 @@ public class TrezorV1PingExample {
   public static void main(String[] args) throws Exception {
 
     // All the work is done in the class
-    TrezorV1PingExample example = new TrezorV1PingExample();
-
-    // Subscribe to hardware wallet events
-    HardwareWalletEvents.subscribe(example);
+    TrezorV1GetAddressExample example = new TrezorV1GetAddressExample();
 
     example.executeExample();
 
@@ -55,13 +57,13 @@ public class TrezorV1PingExample {
   }
 
   /**
-   * @throws IOException If something goes wrong
+   * Execute the example
    */
-  public void executeExample() throws IOException, InterruptedException, AddressFormatException {
+  public void executeExample() {
 
     // Use factory to statically bind the specific hardware wallet
     TrezorV1HidHardwareWallet wallet = HardwareWallets.newUsbInstance(
-      TrezorV1HidHardwareWallet.class,
+            TrezorV1HidHardwareWallet.class,
       Optional.<Integer>absent(),
       Optional.<Integer>absent(),
       Optional.<String>absent()
@@ -76,7 +78,6 @@ public class TrezorV1PingExample {
     // Register for the high level hardware wallet events
     HardwareWalletEvents.subscribe(this);
 
-    // Start the service
     hardwareWalletService.start();
 
   }
@@ -89,7 +90,7 @@ public class TrezorV1PingExample {
   @Subscribe
   public void onHardwareWalletEvent(HardwareWalletEvent event) {
 
-    log.debug("Received hardware event: '{}'", event.getEventType().name());
+    log.debug("Received hardware event: '{}'.{}", event.getEventType().name(), event.getMessage());
 
     switch (event.getEventType()) {
       case SHOW_DEVICE_FAILED:
@@ -100,17 +101,36 @@ public class TrezorV1PingExample {
         // Can simply wait for another device to be connected again
         break;
       case SHOW_DEVICE_READY:
-        // Get some information about the device
-        hardwareWalletService.requestPing();
+        if (hardwareWalletService.isWalletPresent()) {
+
+          log.debug("Wallet is present. Requesting an address...");
+
+          // Request an address from the device using BIP-44 chain code:
+          hardwareWalletService.requestAddress(0, KeyChain.KeyPurpose.RECEIVE_FUNDS, 0, true);
+
+        } else {
+          log.info("You need to have created a wallet before running this example");
+        }
+
         break;
-      case SHOW_OPERATION_SUCCEEDED:
-        log.info("Ping successful");
+      case ADDRESS:
+        Address address = ((MainNetAddress) event.getMessage().get()).getAddress().get();
+        log.info("Device provided address: '{}'", address.toString());
+        if ("1LqBGSKuX5yYUonjxT5qGfpUsXKYYWeabA".equals(address.toString())) {
+          log.warn("This corresponds to the 'abandon' wallet");
+        }
         // Treat as end of example
         System.exit(0);
+        break;
+      case SHOW_OPERATION_FAILED:
+        // Treat as end of example
+        System.exit(-1);
         break;
       default:
         // Ignore
     }
 
+
   }
+
 }

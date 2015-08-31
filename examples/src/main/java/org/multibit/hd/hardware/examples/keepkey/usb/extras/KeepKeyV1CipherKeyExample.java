@@ -1,4 +1,4 @@
-package org.multibit.hd.hardware.examples.trezor.usb;
+package org.multibit.hd.hardware.examples.keepkey.usb.extras;
 
 import com.google.common.base.Charsets;
 import com.google.common.base.Optional;
@@ -12,8 +12,8 @@ import org.multibit.hd.hardware.core.events.HardwareWalletEvent;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
 import org.multibit.hd.hardware.core.messages.PinMatrixRequest;
 import org.multibit.hd.hardware.core.wallets.HardwareWallets;
-import org.multibit.hd.hardware.trezor.clients.TrezorHardwareWalletClient;
-import org.multibit.hd.hardware.trezor.wallets.v1.TrezorV1HidHardwareWallet;
+import org.multibit.hd.hardware.keepkey.clients.KeepKeyHardwareWalletClient;
+import org.multibit.hd.hardware.keepkey.wallets.v1.KeepKeyV1HidHardwareWallet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,16 +22,16 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * <p>Encrypt some data using the private key of an address</p>
- * <p>Requires Trezor V1 production device plugged into a USB HID interface.</p>
+ * <p>Requires KeepKey V1 production device plugged into a USB HID interface.</p>
  * <p>This example demonstrates the message sequence to use a receiving address
  * to encrypt some data.</p>
  *
  * @since 0.0.1
  *  
  */
-public class TrezorV1CipherKeyExample {
+public class KeepKeyV1CipherKeyExample {
 
-  private static final Logger log = LoggerFactory.getLogger(TrezorV1CipherKeyExample.class);
+  private static final Logger log = LoggerFactory.getLogger(KeepKeyV1CipherKeyExample.class);
 
   private HardwareWalletService hardwareWalletService;
 
@@ -45,7 +45,7 @@ public class TrezorV1CipherKeyExample {
   public static void main(String[] args) throws Exception {
 
     // All the work is done in the class
-    TrezorV1CipherKeyExample example = new TrezorV1CipherKeyExample();
+    KeepKeyV1CipherKeyExample example = new KeepKeyV1CipherKeyExample();
 
     example.executeExample();
 
@@ -61,15 +61,15 @@ public class TrezorV1CipherKeyExample {
   public void executeExample() {
 
     // Use factory to statically bind the specific hardware wallet
-    TrezorV1HidHardwareWallet wallet = HardwareWallets.newUsbInstance(
-            TrezorV1HidHardwareWallet.class,
+    KeepKeyV1HidHardwareWallet wallet = HardwareWallets.newUsbInstance(
+            KeepKeyV1HidHardwareWallet.class,
       Optional.<Integer>absent(),
       Optional.<Integer>absent(),
       Optional.<String>absent()
     );
 
     // Wrap the hardware wallet in a suitable client to simplify message API
-    HardwareWalletClient client = new TrezorHardwareWalletClient(wallet);
+    HardwareWalletClient client = new KeepKeyHardwareWalletClient(wallet);
 
     // Wrap the client in a service for high level API suitable for downstream applications
     hardwareWalletService = new HardwareWalletService(client);
