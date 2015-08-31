@@ -8,6 +8,7 @@ import org.multibit.hd.hardware.core.HardwareWalletException;
 import org.multibit.hd.hardware.core.events.MessageEvent;
 import org.multibit.hd.hardware.core.events.MessageEventType;
 import org.multibit.hd.hardware.core.events.MessageEvents;
+import org.multibit.hd.hardware.core.messages.Features;
 import org.multibit.hd.hardware.trezor.utils.TrezorMessageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -234,5 +235,10 @@ public class TrezorRelayClient extends AbstractTrezorHardwareWalletClient {
     }
 
     return Optional.absent();
+  }
+
+  @Override
+  public boolean verifyFeatures(Features features) {
+    return true;
   }
 }

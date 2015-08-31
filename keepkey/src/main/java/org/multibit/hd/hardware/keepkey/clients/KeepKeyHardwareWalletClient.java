@@ -6,6 +6,7 @@ import com.google.protobuf.Message;
 import org.multibit.hd.hardware.core.events.MessageEvent;
 import org.multibit.hd.hardware.core.events.MessageEventType;
 import org.multibit.hd.hardware.core.events.MessageEvents;
+import org.multibit.hd.hardware.core.messages.Features;
 import org.multibit.hd.hardware.keepkey.wallets.AbstractKeepKeyHardwareWallet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -120,6 +121,20 @@ public class KeepKeyHardwareWalletClient extends AbstractKeepKeyHardwareWalletCl
 
     return Optional.absent();
 
+  }
+
+  @Override
+  public boolean verifyFeatures(Features features) {
+
+    String version = features.getVersion();
+    // Test for firmware compatibility
+    if (version.startsWith("0.")) {
+      log.warn("Unsupported firmware: {}", version);
+      return false;
+    }
+
+    // Must be OK to be here
+    return true;
   }
 
 }

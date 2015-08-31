@@ -7,6 +7,7 @@ import org.bitcoinj.core.Transaction;
 import org.bitcoinj.crypto.ChildNumber;
 import org.bitcoinj.wallet.KeyChain;
 import org.multibit.hd.hardware.core.events.MessageEvent;
+import org.multibit.hd.hardware.core.messages.Features;
 import org.multibit.hd.hardware.core.messages.TxRequest;
 import org.multibit.hd.hardware.core.wallets.Connectable;
 
@@ -516,5 +517,13 @@ public interface HardwareWalletClient extends Connectable {
    */
   Optional<MessageEvent> estimateTxSize(Transaction tx);
 
+  /**
+   * <p>Verify the contents of the Features message in accordance with client-specific rules (e.g. firmware)</p>
+   *
+   * @param features The Features from the device
+   *
+   * @return True if the Features are compatible with this version of MultiBit Hardware
+   */
+  boolean verifyFeatures(Features features);
 
 }
