@@ -5,7 +5,7 @@
 
   <groupId>org.multibit.hd.hardware</groupId>
   <artifactId>parent</artifactId>
-  <version>develop-SNAPSHOT</version>
+  <version>keepkey-develop-SNAPSHOT</version>
 
   <packaging>pom</packaging>
 
@@ -99,6 +99,7 @@
   <modules>
     <module>core</module>
     <module>trezor</module>
+    <module>keepkey</module>
   </modules>
 
   <profiles>
