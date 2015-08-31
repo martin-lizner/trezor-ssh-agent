@@ -155,8 +155,8 @@ $ git submodule update
 This will bring down the `.proto` files referenced in the submodules and allow you to select which tagged commit to use when generating
 the protobuf files. See the "Updating protobuf files" section later.
 
-MultiBit Hardware does not maintain `.proto` files other than for our emulator. Periodically we will update the protobuf files through
- the following process (assuming an update to the Trezor protobuf):
+MultiBit Hardware does not maintain `.proto` files. Periodically we will update the protobuf files through the following process 
+(based on an update to the Trezor protobuf):
 ```
 $ cd trezor/src/main/trezor-common
 $ git checkout master

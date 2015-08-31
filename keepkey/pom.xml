@@ -9,10 +9,10 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
 
-  <artifactId>trezor</artifactId>
+  <artifactId>keepkey</artifactId>
 
-  <name>Trezor</name>
-  <description>MBHD Hardware wrapper for Trezor device</description>
+  <name>KeepKey</name>
+  <description>MBHD Hardware wrapper for KeepKey device</description>
 
   <!-- Ensure that you have correctly installed protoc 2.5.0
 
@@ -50,7 +50,9 @@
 
         <plugins>
 
-          <!-- Build the protobuf file -->
+          <!-- Build the protobuf file
+
+          -->
           <plugin>
             <artifactId>maven-antrun-plugin</artifactId>
             <executions>
@@ -60,14 +62,14 @@
                 <configuration>
                   <tasks>
                     <path id="proto.path">
-                      <!-- Include Trezor Common files -->
-                      <fileset dir="src/main/trezor-common/protob">
+                      <!-- Include KeepKey Common files -->
+                      <fileset dir="src/main/keepkey-common/protob">
                         <include name="**/*.proto"/>
                       </fileset>
                     </path>
                     <pathconvert pathsep=" " property="proto.files" refid="proto.path"/>
                     <exec executable="/usr/local/bin/protoc" failonerror="true">
-                      <arg value="-I=${project.basedir}/src/main/trezor-common/protob"/>
+                      <arg value="-I=${project.basedir}/src/main/keepkey-common/protob"/>
                       <arg value="--java_out=${project.basedir}/src/main/java"/>
                       <arg line="${proto.files}"/>
                     </exec>
