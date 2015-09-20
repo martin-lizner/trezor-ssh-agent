@@ -430,6 +430,12 @@ public class HardwareWalletContext {
   @Subscribe
   public void onMessageEvent(MessageEvent event) {
 
+    // Filter messages not associated with this context
+    if (!getClient().name().equalsIgnoreCase(event.getSource())) {
+      log.debug("Rejected message event: '{}'", event.getEventType().name());
+      return;
+    }
+
     log.debug("Received message event: '{}'", event.getEventType().name());
 
     // Perform a state transition as a result of this event
