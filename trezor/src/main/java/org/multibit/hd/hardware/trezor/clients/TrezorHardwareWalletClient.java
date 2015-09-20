@@ -30,6 +30,7 @@ public class TrezorHardwareWalletClient extends AbstractTrezorHardwareWalletClie
   private static final Logger log = LoggerFactory.getLogger(TrezorHardwareWalletClient.class);
 
   private final AbstractTrezorHardwareWallet trezor;
+
   private boolean isTrezorValid = false;
 
   /**
@@ -40,6 +41,11 @@ public class TrezorHardwareWalletClient extends AbstractTrezorHardwareWalletClie
     Preconditions.checkNotNull(trezor, "'trezor' must be present");
 
     this.trezor = trezor;
+  }
+
+  @Override
+  public String name() {
+    return "TREZOR";
   }
 
   @Override

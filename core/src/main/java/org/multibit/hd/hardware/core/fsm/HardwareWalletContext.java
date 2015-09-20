@@ -248,7 +248,7 @@ public class HardwareWalletContext {
     currentState = HardwareWalletStates.newStoppedState();
 
     // Fire the high level event
-    HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_DEVICE_STOPPED);
+    HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_DEVICE_STOPPED, client.name());
 
   }
 
@@ -266,7 +266,7 @@ public class HardwareWalletContext {
     currentState = HardwareWalletStates.newFailedState();
 
     // Fire the high level event
-    HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_DEVICE_FAILED);
+    HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_DEVICE_FAILED, client.name());
   }
 
   /**
@@ -283,7 +283,7 @@ public class HardwareWalletContext {
     currentState = HardwareWalletStates.newDetachedState();
 
     // Fire the high level event
-    HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_DEVICE_DETACHED);
+    HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_DEVICE_DETACHED, client.name());
   }
 
   /**
@@ -349,7 +349,7 @@ public class HardwareWalletContext {
     currentState = HardwareWalletStates.newInitialisedState();
 
     // Fire the high level event
-    HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_DEVICE_READY, features.get());
+    HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_DEVICE_READY, features.get(), client.name());
   }
 
   /**

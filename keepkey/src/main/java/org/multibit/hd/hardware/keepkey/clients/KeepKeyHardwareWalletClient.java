@@ -43,6 +43,11 @@ public class KeepKeyHardwareWalletClient extends AbstractKeepKeyHardwareWalletCl
   }
 
   @Override
+  public String name() {
+    return "KEEP_KEY";
+  }
+
+  @Override
   public boolean attach() {
 
     log.debug("Verifying environment...");

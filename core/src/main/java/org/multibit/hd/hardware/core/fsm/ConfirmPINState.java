@@ -24,22 +24,22 @@ public class ConfirmPINState extends AbstractHardwareWalletState {
     switch (event.getEventType()) {
       case PIN_MATRIX_REQUEST:
         // Device is asking for a PIN matrix to be displayed (user must read the screen carefully)
-        HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_PIN_ENTRY, event.getMessage().get());
+        HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_PIN_ENTRY, event.getMessage().get(), client.name());
         // Further state transitions will occur after the user has provided the PIN via the service
         break;
       case PASSPHRASE_REQUEST:
         // Device is asking for a passphrase screen to be displayed
-        HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_PASSPHRASE_ENTRY);
+        HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_PASSPHRASE_ENTRY, client.name());
         // Further state transitions will occur after the user has provided the passphrase via the service
         break;
       case ENTROPY_REQUEST:
         // Device is asking for additional entropy from the user
-        HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.PROVIDE_ENTROPY);
+        HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.PROVIDE_ENTROPY, client.name());
         // Further state transitions will occur after the user has provided the entropy via the service
         break;
       case FAILURE:
         // User has cancelled or operation failed
-        HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_OPERATION_FAILED, event.getMessage().get());
+        HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_OPERATION_FAILED, event.getMessage().get(), client.name());
         context.resetToInitialised();
         break;
       default:

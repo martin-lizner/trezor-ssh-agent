@@ -24,7 +24,7 @@ public class ConfirmWipeState extends AbstractHardwareWalletState {
     switch (event.getEventType()) {
       case BUTTON_REQUEST:
         // Device is asking for confirmation to wipe
-        HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_BUTTON_PRESS, event.getMessage().get());
+        HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_BUTTON_PRESS, event.getMessage().get(), client.name());
         client.buttonAck();
         break;
       case SUCCESS:
@@ -40,7 +40,7 @@ public class ConfirmWipeState extends AbstractHardwareWalletState {
             break;
           default:
             // No wallet creation required so we're done
-            HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_OPERATION_SUCCEEDED, event.getMessage().get());
+            HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_OPERATION_SUCCEEDED, event.getMessage().get(), client.name());
             // Ensure the Features are updated
             context.resetToConnected();
             break;
@@ -48,7 +48,7 @@ public class ConfirmWipeState extends AbstractHardwareWalletState {
         break;
       case FAILURE:
         // User has cancelled or operation failed
-        HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_OPERATION_FAILED, event.getMessage().get());
+        HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_OPERATION_FAILED, event.getMessage().get(), client.name());
         context.resetToInitialised();
         break;
       default:

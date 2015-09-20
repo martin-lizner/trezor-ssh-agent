@@ -18,17 +18,20 @@ import org.multibit.hd.hardware.core.messages.HardwareWalletMessage;
 public class HardwareWalletEvent {
 
   private final HardwareWalletEventType eventType;
-
   private final Optional<HardwareWalletMessage> message;
+  private final String source;
 
   /**
    * @param eventType The hardware wallet event type
    * @param message   The hardware wallet message adapted from the wire
+   * @param source    The client name acting as the source (e.g. "TREZOR", "KEEP_KEY" etc)
    */
-  public HardwareWalletEvent(HardwareWalletEventType eventType, Optional<HardwareWalletMessage> message) {
+  public HardwareWalletEvent(HardwareWalletEventType eventType, Optional<HardwareWalletMessage> message, String source) {
 
     this.eventType = eventType;
     this.message = message;
+    this.source = source;
+
   }
 
   /**
@@ -45,4 +48,10 @@ public class HardwareWalletEvent {
     return message;
   }
 
+  /**
+   * @return The client name acting as the source (e.g. "TREZOR", "KEEP_KEY" etc)
+   */
+  public String getSource() {
+    return source;
+  }
 }

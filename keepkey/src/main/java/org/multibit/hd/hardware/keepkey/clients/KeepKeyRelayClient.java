@@ -73,6 +73,11 @@ public class KeepKeyRelayClient extends AbstractKeepKeyHardwareWalletClient {
   }
 
   @Override
+  public String name() {
+    return "KEEP_KEY_RELAY";
+  }
+
+  @Override
   public boolean attach() {
     try {
       socket = new Socket(relayServerLocation, relayServerPort);

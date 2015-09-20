@@ -52,7 +52,7 @@ public class ConnectedState extends AbstractHardwareWalletState {
         }
         break;
       case FAILURE:
-        HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_OPERATION_FAILED, event.getMessage().get());
+        HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_OPERATION_FAILED, event.getMessage().get(), client.name());
         context.resetToInitialised();
         break;
       default:

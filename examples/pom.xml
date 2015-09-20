@@ -46,14 +46,14 @@
     <dependency>
       <groupId>org.multibit.hd.hardware</groupId>
       <artifactId>trezor</artifactId>
-      <version>develop-SNAPSHOT</version>
+      <version>keepkey-develop-SNAPSHOT</version>
     </dependency>
 
     <!-- KeepKey -->
     <dependency>
       <groupId>org.multibit.hd.hardware</groupId>
       <artifactId>keepkey</artifactId>
-      <version>develop-SNAPSHOT</version>
+      <version>keepkey-develop-SNAPSHOT</version>
     </dependency>
 
     <!-- Logback for logging within the Examples -->

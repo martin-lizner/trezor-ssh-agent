@@ -25,18 +25,18 @@ public class ConfirmEntropyState extends AbstractHardwareWalletState {
     switch (event.getEventType()) {
       case BUTTON_REQUEST:
         // Device is asking for the user to acknowledge a word display
-        HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_BUTTON_PRESS, event.getMessage().get());
+        HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_BUTTON_PRESS, event.getMessage().get(), client.name());
         client.buttonAck();
         break;
       case SUCCESS:
         // Device has completed the create wallet operation
-        HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_OPERATION_SUCCEEDED, event.getMessage().get());
+        HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_OPERATION_SUCCEEDED, event.getMessage().get(), client.name());
         // Ensure the Features are updated
         context.resetToConnected();
         break;
       case FAILURE:
         // User has cancelled or operation failed
-        HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_OPERATION_FAILED, event.getMessage().get());
+        HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_OPERATION_FAILED, event.getMessage().get(), client.name());
         context.resetToInitialised();
         break;
       default:

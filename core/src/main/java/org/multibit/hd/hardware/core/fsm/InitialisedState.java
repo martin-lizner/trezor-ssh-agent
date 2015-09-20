@@ -27,7 +27,7 @@ public class InitialisedState extends AbstractHardwareWalletState {
     switch (event.getEventType()) {
       case SUCCESS:
         // Possible Ping
-        HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_OPERATION_SUCCEEDED, event.getMessage().get());
+        HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_OPERATION_SUCCEEDED, event.getMessage().get(), client.name());
         // Ensure the Features are updated
         context.resetToConnected();
         break;

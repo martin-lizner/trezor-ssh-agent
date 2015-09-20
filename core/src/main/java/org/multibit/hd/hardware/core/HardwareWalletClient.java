@@ -526,4 +526,11 @@ public interface HardwareWalletClient extends Connectable {
    */
   boolean verifyFeatures(Features features);
 
+  /**
+   * <p>Assist downstream API consumers with identifying the source of events</p>
+   *
+   * @return The client name in an enum format (e.g. "TREZOR", "KEEP_KEY" etc)
+   */
+  String name();
+
 }

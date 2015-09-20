@@ -121,8 +121,9 @@ public class HardwareWalletEvents {
    *
    * @param eventType The event type (e.g. SHOW_DEVICE_READY)
    * @param message   The message itself (from protocol buffers)
+   * @param source    The client name acting as the source (e.g. "TREZOR", "KEEP_KEY" etc)
    */
-  public static void fireHardwareWalletEvent(final HardwareWalletEventType eventType, final HardwareWalletMessage message) {
+  public static void fireHardwareWalletEvent(final HardwareWalletEventType eventType, final HardwareWalletMessage message, final String source) {
 
     Preconditions.checkNotNull(eventType, "'messageType' must be present");
     Preconditions.checkNotNull(message, "'message' must be present");
@@ -135,8 +136,8 @@ public class HardwareWalletEvents {
           hardwareWalletEventBus.post(
             new HardwareWalletEvent(
               eventType,
-              Optional.of(message)
-            ));
+              Optional.of(message),
+              source));
 
           // Must be OK to be here
           return true;
@@ -162,8 +163,9 @@ public class HardwareWalletEvents {
    * <p>A hardware event can have no further information</p>
    *
    * @param eventType The event type (e.g. SHOW_DEVICE_READY)
+   * @param source    The client name acting as the source (e.g. "TREZOR", "KEEP_KEY" etc)
    */
-  public static void fireHardwareWalletEvent(final HardwareWalletEventType eventType) {
+  public static void fireHardwareWalletEvent(final HardwareWalletEventType eventType, final String source) {
 
     Preconditions.checkNotNull(eventType, "'eventType' must be present");
 
@@ -175,8 +177,8 @@ public class HardwareWalletEvents {
           hardwareWalletEventBus.post(
             new HardwareWalletEvent(
               eventType,
-              Optional.<HardwareWalletMessage>absent()
-            ));
+              Optional.<HardwareWalletMessage>absent(),
+              source));
 
           // Must be OK to be here
           return true;
@@ -199,37 +201,37 @@ public class HardwareWalletEvents {
   }
 
   /**
-    * <p>A hardware event can wrap a hardware wallet message adapted from a protocol buffer message</p>
-    *
-    * @param event The event
-    */
-   public static void fireHardwareWalletEvent(final HardwareWalletEvent event) {
+   * <p>A hardware event can wrap a hardware wallet message adapted from a protocol buffer message</p>
+   *
+   * @param event The event
+   */
+  public static void fireHardwareWalletEvent(final HardwareWalletEvent event) {
 
-     Preconditions.checkNotNull(event, "'event' must be present");
+    Preconditions.checkNotNull(event, "'event' must be present");
 
-     final ListenableFuture<Boolean> future = hardwareWalletEventService.submit(
-       new Callable<Boolean>() {
-         @Override
-         public Boolean call() {
-           log.debug("Firing 'hardware wallet' event: {}", event);
-           hardwareWalletEventBus.post(event);
+    final ListenableFuture<Boolean> future = hardwareWalletEventService.submit(
+      new Callable<Boolean>() {
+        @Override
+        public Boolean call() {
+          log.debug("Firing 'hardware wallet' event: {}", event);
+          hardwareWalletEventBus.post(event);
 
-           // Must be OK to be here
-           return true;
-         }
-       });
+          // Must be OK to be here
+          return true;
+        }
+      });
 
-     Futures.addCallback(
-       future, new FutureCallback<Boolean>() {
-         @Override
-         public void onSuccess(Boolean result) {
-           log.debug("Completed 'hardware wallet' event: {}", event);
-         }
+    Futures.addCallback(
+      future, new FutureCallback<Boolean>() {
+        @Override
+        public void onSuccess(Boolean result) {
+          log.debug("Completed 'hardware wallet' event: {}", event);
+        }
 
-         @Override
-         public void onFailure(Throwable t) {
-           log.error("Failed to complete 'hardware wallet' event: {}", event, t);
-         }
-       });
-   }
+        @Override
+        public void onFailure(Throwable t) {
+          log.error("Failed to complete 'hardware wallet' event: {}", event, t);
+        }
+      });
+  }
 }

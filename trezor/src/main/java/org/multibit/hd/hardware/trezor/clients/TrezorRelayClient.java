@@ -73,6 +73,11 @@ public class TrezorRelayClient extends AbstractTrezorHardwareWalletClient {
   }
 
   @Override
+  public String name() {
+    return "TREZOR_RELAY";
+  }
+
+  @Override
   public boolean attach() {
     try {
       socket = new Socket(relayServerLocation, relayServerPort);
