@@ -155,12 +155,14 @@ public class KeepKeyV1HidHardwareWallet extends AbstractKeepKeyHardwareWallet im
     locatedDevice = Optional.absent();
 
     log.debug("Shutdown HID monitoring");
-    monitorHidExecutorService.shutdownNow();
+    if (monitorHidExecutorService != null) {
+      monitorHidExecutorService.shutdownNow();
 
-    try {
-      monitorHidExecutorService.awaitTermination(1, TimeUnit.SECONDS);
-    } catch (InterruptedException e) {
-      log.error("Could not cleanly shutdown the low level monitor executor service during soft detach");
+      try {
+        monitorHidExecutorService.awaitTermination(1, TimeUnit.SECONDS);
+      } catch (InterruptedException e) {
+        log.error("Could not cleanly shutdown the low level monitor executor service during soft detach");
+      }
     }
 
     log.info("Detached from KeepKey. HID events remain available.");
@@ -378,7 +380,7 @@ public class KeepKeyV1HidHardwareWallet extends AbstractKeepKeyHardwareWallet im
     log.debug("Packet complete");
 
     // Parse the message
-    return Optional.of(KeepKeyMessageUtils.parse(type, Arrays.copyOfRange(messageBuffer.array(), 0, msgSize)));
+    return Optional.fromNullable(KeepKeyMessageUtils.parse(type, Arrays.copyOfRange(messageBuffer.array(), 0, msgSize)));
 
   }
 

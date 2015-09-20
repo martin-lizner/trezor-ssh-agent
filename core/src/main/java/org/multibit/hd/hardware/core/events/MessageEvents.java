@@ -133,7 +133,7 @@ public class MessageEvents {
       new Callable<Boolean>() {
         @Override
         public Boolean call() {
-          log.debug("Firing 'message' event: {}", event.getEventType().name());
+          log.debug("Firing 'message' event: {} for {}", event.getEventType().name(), event.getSource());
           messageEventBus.post(event);
 
           // Must be OK to be here
@@ -170,7 +170,7 @@ public class MessageEvents {
       new Callable<Boolean>() {
         @Override
         public Boolean call() {
-          log.debug("Firing 'message' event type: {}", messageEventType.name());
+          log.debug("Firing 'message' event type: {} for {}", messageEventType.name(), source);
           messageEventBus.post(
             new MessageEvent(
               messageEventType,

@@ -132,7 +132,7 @@ public class HardwareWalletEvents {
       new Callable<Boolean>() {
         @Override
         public Boolean call() {
-          log.debug("Firing 'hardware wallet' event: {}", eventType.name());
+          log.debug("Firing 'hardware wallet' event: {} for {}", eventType.name(), source);
           hardwareWalletEventBus.post(
             new HardwareWalletEvent(
               eventType,
@@ -173,7 +173,7 @@ public class HardwareWalletEvents {
       new Callable<Boolean>() {
         @Override
         public Boolean call() {
-          log.debug("Firing 'hardware wallet' event: {}", eventType.name());
+          log.debug("Firing 'hardware wallet' event: {} for {}", eventType.name(), source);
           hardwareWalletEventBus.post(
             new HardwareWalletEvent(
               eventType,
@@ -213,7 +213,7 @@ public class HardwareWalletEvents {
       new Callable<Boolean>() {
         @Override
         public Boolean call() {
-          log.debug("Firing 'hardware wallet' event: {}", event);
+          log.debug("Firing 'hardware wallet' event: {} for {}", event, event.getSource());
           hardwareWalletEventBus.post(event);
 
           // Must be OK to be here

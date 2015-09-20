@@ -59,7 +59,7 @@ public class TrezorV1HidHardwareWallet extends AbstractTrezorHardwareWallet impl
    * Monitor the USB HID read buffer and handle the firing of low level messages when a message is found
    * A new one is required after a detach
    */
-  private ExecutorService monitorHidExecutorService;
+  private ExecutorService monitorHidExecutorService= null;
 
   /**
    * Default constructor for use with dynamic binding
@@ -155,12 +155,13 @@ public class TrezorV1HidHardwareWallet extends AbstractTrezorHardwareWallet impl
     locatedDevice = Optional.absent();
 
     log.debug("Shutdown HID monitoring");
-    monitorHidExecutorService.shutdownNow();
-
-    try {
-      monitorHidExecutorService.awaitTermination(1, TimeUnit.SECONDS);
-    } catch (InterruptedException e) {
-      log.error("Could not cleanly shutdown the low level monitor executor service during soft detach");
+    if (monitorHidExecutorService != null) {
+      monitorHidExecutorService.shutdownNow();
+      try {
+        monitorHidExecutorService.awaitTermination(1, TimeUnit.SECONDS);
+      } catch (InterruptedException e) {
+        log.error("Could not cleanly shutdown the low level monitor executor service during soft detach");
+      }
     }
 
     log.info("Detached from Trezor. HID events remain available.");
@@ -378,7 +379,7 @@ public class TrezorV1HidHardwareWallet extends AbstractTrezorHardwareWallet impl
     log.debug("Packet complete");
 
     // Parse the message
-    return Optional.of(TrezorMessageUtils.parse(type, Arrays.copyOfRange(messageBuffer.array(), 0, msgSize)));
+    return Optional.fromNullable(TrezorMessageUtils.parse(type, Arrays.copyOfRange(messageBuffer.array(), 0, msgSize)));
 
   }
 
