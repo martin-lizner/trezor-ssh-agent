@@ -45,7 +45,7 @@ public class TrezorHardwareWalletClient extends AbstractTrezorHardwareWalletClie
 
   @Override
   public String name() {
-    return "TREZOR";
+    return trezor.name();
   }
 
   @Override
@@ -93,7 +93,7 @@ public class TrezorHardwareWalletClient extends AbstractTrezorHardwareWalletClie
     isTrezorValid = trezor.connect();
 
     if (isTrezorValid) {
-      MessageEvents.fireMessageEvent(MessageEventType.DEVICE_CONNECTED);
+      MessageEvents.fireMessageEvent(MessageEventType.DEVICE_CONNECTED, name());
     }
 
     return isTrezorValid;

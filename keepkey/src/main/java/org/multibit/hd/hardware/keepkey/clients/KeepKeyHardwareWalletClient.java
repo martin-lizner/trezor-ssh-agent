@@ -92,7 +92,7 @@ public class KeepKeyHardwareWalletClient extends AbstractKeepKeyHardwareWalletCl
     isKeepKeyValid = keepKey.connect();
 
     if (isKeepKeyValid) {
-      MessageEvents.fireMessageEvent(MessageEventType.DEVICE_CONNECTED);
+      MessageEvents.fireMessageEvent(MessageEventType.DEVICE_CONNECTED, name());
     }
 
     return isKeepKeyValid;

@@ -110,6 +110,11 @@ public class TrezorV1HidHardwareWallet extends AbstractTrezorHardwareWallet impl
   }
 
   @Override
+  public String name() {
+    return "TREZOR";
+  }
+
+  @Override
   public boolean attach() {
 
     // Ensure we close any earlier connections
@@ -176,7 +181,7 @@ public class TrezorV1HidHardwareWallet extends AbstractTrezorHardwareWallet impl
     log.info("Hard detach complete. HID events are stopped.");
 
     // Let everyone know
-    MessageEvents.fireMessageEvent(MessageEventType.DEVICE_DETACHED_HARD);
+    MessageEvents.fireMessageEvent(MessageEventType.DEVICE_DETACHED_HARD, name());
 
   }
 
@@ -194,7 +199,7 @@ public class TrezorV1HidHardwareWallet extends AbstractTrezorHardwareWallet impl
 
       if (!locatedDevice.isPresent()) {
         log.debug("Failed to locate. Device must be detached.");
-        MessageEvents.fireMessageEvent(MessageEventType.DEVICE_DETACHED);
+        MessageEvents.fireMessageEvent(MessageEventType.DEVICE_DETACHED, name());
         return false;
       }
 
@@ -316,8 +321,8 @@ public class TrezorV1HidHardwareWallet extends AbstractTrezorHardwareWallet impl
           new MessageEvent(
             MessageEventType.DEVICE_FAILED,
             Optional.<HardwareWalletMessage>absent(),
-            Optional.<Message>absent()
-          ));
+            Optional.<Message>absent(),
+            name()));
       }
 
       if (received == 0) {
@@ -389,7 +394,7 @@ public class TrezorV1HidHardwareWallet extends AbstractTrezorHardwareWallet impl
     if (vendorId.get().equals(attachedVendorId) &&
       productId.get().equals(attachedProductId)) {
       // Inform others of this event
-      MessageEvents.fireMessageEvent(MessageEventType.DEVICE_ATTACHED);
+      MessageEvents.fireMessageEvent(MessageEventType.DEVICE_ATTACHED, name());
     }
 
   }
@@ -406,7 +411,7 @@ public class TrezorV1HidHardwareWallet extends AbstractTrezorHardwareWallet impl
     if (vendorId.get().equals(detachedVendorId) &&
       productId.get().equals(detachedProductId)) {
       // Inform others of this event
-      MessageEvents.fireMessageEvent(MessageEventType.DEVICE_DETACHED);
+      MessageEvents.fireMessageEvent(MessageEventType.DEVICE_DETACHED, name());
     }
 
   }
@@ -414,7 +419,7 @@ public class TrezorV1HidHardwareWallet extends AbstractTrezorHardwareWallet impl
   @Override
   public void hidFailure(HidServicesEvent event) {
 
-    MessageEvents.fireMessageEvent(MessageEventType.DEVICE_FAILED);
+    MessageEvents.fireMessageEvent(MessageEventType.DEVICE_FAILED, name());
 
   }
 }

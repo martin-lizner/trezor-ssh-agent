@@ -146,10 +146,10 @@ public class KeepKeyRelayClient extends AbstractKeepKeyHardwareWalletClient {
   public boolean connect() {
 
     if (socket != null) {
-      MessageEvents.fireMessageEvent(MessageEventType.DEVICE_CONNECTED);
+      MessageEvents.fireMessageEvent(MessageEventType.DEVICE_CONNECTED, name());
       return true;
     } else {
-      MessageEvents.fireMessageEvent(MessageEventType.DEVICE_DISCONNECTED);
+      MessageEvents.fireMessageEvent(MessageEventType.DEVICE_DISCONNECTED, name());
       return false;
     }
 

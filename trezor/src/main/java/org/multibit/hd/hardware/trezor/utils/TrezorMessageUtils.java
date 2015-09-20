@@ -299,7 +299,7 @@ public final class TrezorMessageUtils {
       }
 
       // Wrap the type and message into an event
-      return new MessageEvent(messageEventType, Optional.fromNullable(hardwareWalletMessage), Optional.of(message));
+      return new MessageEvent(messageEventType, Optional.fromNullable(hardwareWalletMessage), Optional.of(message), "TREZOR");
 
     } catch (InvalidProtocolBufferException e) {
       log.error("Could not parse message", e);

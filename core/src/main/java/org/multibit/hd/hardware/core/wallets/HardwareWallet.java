@@ -47,10 +47,10 @@ public interface HardwareWallet extends Connectable {
    * <p>Forcing early adaption to a message event eases the implementation in many ways.</p>
    *
    * @return The low level message event wrapping the adapted protobuf message read from the hardware wallet if present
-   * @param duration
-   * @param timeUnit
+   * @param duration The duration
+   * @param timeUnit The time unit
    */
-  public Optional<MessageEvent> readMessage(int duration, TimeUnit timeUnit);
+  Optional<MessageEvent> readMessage(int duration, TimeUnit timeUnit);
 
   /**
    * <p>Send a message to the hardware wallet using the generated protocol buffer classes</p>
@@ -59,5 +59,13 @@ public interface HardwareWallet extends Connectable {
    *
    * @param message A generated protocol buffer message (e.g. Message.Initialize)
    */
-  public void writeMessage(Message message);
+  void writeMessage(Message message);
+
+  /**
+   * <p>Assist downstream API consumers with identifying the source of events</p>
+   *
+   * @return The client name in an enum format (e.g. "TREZOR", "KEEP_KEY" etc)
+   */
+  String name();
+
 }

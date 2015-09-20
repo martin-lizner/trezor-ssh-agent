@@ -160,8 +160,9 @@ public class MessageEvents {
    * <p>A message event without a protobuf message is used for communicating system status changes (e.g. DISCONNECT)</p>
    *
    * @param messageEventType The message type (e.g. DEVICE_CONNECTED)
+   * @param source           The client name acting as the source (e.g. "TREZOR", "KEEP_KEY" etc)
    */
-  public static void fireMessageEvent(final MessageEventType messageEventType) {
+  public static void fireMessageEvent(final MessageEventType messageEventType, final String source) {
 
     Preconditions.checkNotNull(messageEventType, "'messageType' must be present");
 
@@ -174,8 +175,8 @@ public class MessageEvents {
             new MessageEvent(
               messageEventType,
               Optional.<HardwareWalletMessage>absent(),
-              Optional.<Message>absent()
-            ));
+              Optional.<Message>absent(),
+              source));
 
           // Must be OK to be here
           return true;

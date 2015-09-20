@@ -74,6 +74,11 @@ public class TrezorShieldSocketHardwareWallet extends AbstractTrezorHardwareWall
   }
 
   @Override
+  public String name() {
+    return "TREZOR";
+  }
+
+  @Override
   public boolean attach() {
 
     // Socket library will work
@@ -94,10 +99,10 @@ public class TrezorShieldSocketHardwareWallet extends AbstractTrezorHardwareWall
       log.info("Detached from Trezor");
 
       // Must have disconnected to be here
-      MessageEvents.fireMessageEvent(MessageEventType.DEVICE_DETACHED);
+      MessageEvents.fireMessageEvent(MessageEventType.DEVICE_DETACHED, name());
 
     } catch (IOException e) {
-      MessageEvents.fireMessageEvent(MessageEventType.DEVICE_FAILED);
+      MessageEvents.fireMessageEvent(MessageEventType.DEVICE_FAILED, name());
     }
   }
 
@@ -114,10 +119,10 @@ public class TrezorShieldSocketHardwareWallet extends AbstractTrezorHardwareWall
       log.info("Hard detach from Trezor");
 
       // Must have detached to be here
-      MessageEvents.fireMessageEvent(MessageEventType.DEVICE_DETACHED);
+      MessageEvents.fireMessageEvent(MessageEventType.DEVICE_DETACHED, name());
 
     } catch (IOException e) {
-      MessageEvents.fireMessageEvent(MessageEventType.DEVICE_FAILED);
+      MessageEvents.fireMessageEvent(MessageEventType.DEVICE_FAILED, name());
     }
 
   }
@@ -140,12 +145,12 @@ public class TrezorShieldSocketHardwareWallet extends AbstractTrezorHardwareWall
       //monitorDataInputStream(in);
 
       // Must have connected to be here
-      MessageEvents.fireMessageEvent(MessageEventType.DEVICE_CONNECTED);
+      MessageEvents.fireMessageEvent(MessageEventType.DEVICE_CONNECTED, name());
 
       return true;
 
     } catch (IOException e) {
-      MessageEvents.fireMessageEvent(MessageEventType.DEVICE_FAILED);
+      MessageEvents.fireMessageEvent(MessageEventType.DEVICE_FAILED, name());
     }
 
     // Must have failed to be here
@@ -174,7 +179,7 @@ public class TrezorShieldSocketHardwareWallet extends AbstractTrezorHardwareWall
       log.warn("I/O error during write. Closing socket.", e);
 
       // Must have disconnected to be here
-      MessageEvents.fireMessageEvent(MessageEventType.DEVICE_DETACHED);
+      MessageEvents.fireMessageEvent(MessageEventType.DEVICE_DETACHED, name());
     }
 
     // Must have failed to be here

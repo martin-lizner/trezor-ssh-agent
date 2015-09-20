@@ -110,6 +110,11 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
   }
 
   @Override
+  public String name() {
+    return "TREZOR";
+  }
+
+  @Override
   public boolean attach() {
 
     // Ensure we close any earlier connections
@@ -155,7 +160,7 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
       return attachDevice(device);
     } catch (IOException e) {
       log.error("Failed to attach device due to problem reading UART data stream", e);
-      MessageEvents.fireMessageEvent(MessageEventType.DEVICE_FAILED);
+      MessageEvents.fireMessageEvent(MessageEventType.DEVICE_FAILED, name());
     }
 
     // Must have failed to be here
@@ -195,7 +200,7 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
     log.trace("> Purge RxTx: {} '{}'", bytesSent, featureReport);
 
     // Must have connected to be here
-    MessageEvents.fireMessageEvent(MessageEventType.DEVICE_CONNECTED);
+    MessageEvents.fireMessageEvent(MessageEventType.DEVICE_CONNECTED, name());
 
     return true;
 
@@ -213,7 +218,7 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
     log.info("Disconnected from Trezor");
 
     // Let everyone know
-    MessageEvents.fireMessageEvent(MessageEventType.DEVICE_DETACHED);
+    MessageEvents.fireMessageEvent(MessageEventType.DEVICE_DETACHED, name());
   }
 
   @Override
@@ -234,7 +239,7 @@ public class TrezorShieldUsbHardwareWallet extends AbstractTrezorHardwareWallet 
     log.info("Hard detach complete");
 
     // Let everyone know
-    MessageEvents.fireMessageEvent(MessageEventType.DEVICE_DETACHED_HARD);
+    MessageEvents.fireMessageEvent(MessageEventType.DEVICE_DETACHED_HARD, name());
 
   }
 

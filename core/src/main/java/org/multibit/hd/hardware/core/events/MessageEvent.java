@@ -19,21 +19,22 @@ import org.multibit.hd.hardware.core.messages.HardwareWalletMessage;
 public class MessageEvent {
 
   private final MessageEventType eventType;
-
   private final Optional<HardwareWalletMessage> message;
-
   private final Optional<Message> rawMessage;
+  private final String source;
 
   /**
    * @param eventType  The message event type (e.g. INITIALISE, PING etc)
    * @param message    The adapted hardware wallet message
    * @param rawMessage The raw protobuf message from the hardware wallet
+   * @param source     The client name acting as the source (e.g. "TREZOR", "KEEP_KEY" etc)
    */
-  public MessageEvent(MessageEventType eventType, Optional<HardwareWalletMessage> message, Optional<Message> rawMessage) {
+  public MessageEvent(MessageEventType eventType, Optional<HardwareWalletMessage> message, Optional<Message> rawMessage, String source) {
 
     this.eventType = eventType;
     this.message = message;
     this.rawMessage = rawMessage;
+    this.source = source;
   }
 
   /**
@@ -56,4 +57,12 @@ public class MessageEvent {
   public Optional<Message> getRawMessage() {
     return rawMessage;
   }
+
+  /**
+   * @return The client name acting as the source (e.g. "TREZOR", "KEEP_KEY" etc)
+   */
+  public String getSource() {
+    return source;
+  }
+
 }

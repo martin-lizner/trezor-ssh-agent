@@ -299,7 +299,7 @@ public final class KeepKeyMessageUtils {
       }
 
       // Wrap the type and message into an event
-      return new MessageEvent(messageEventType, Optional.fromNullable(hardwareWalletMessage), Optional.of(message));
+      return new MessageEvent(messageEventType, Optional.fromNullable(hardwareWalletMessage), Optional.of(message), "KEEP_KEY");
 
     } catch (InvalidProtocolBufferException e) {
       log.error("Could not parse message", e);
