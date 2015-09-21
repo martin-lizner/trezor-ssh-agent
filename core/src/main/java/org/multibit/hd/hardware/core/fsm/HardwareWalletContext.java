@@ -432,7 +432,7 @@ public class HardwareWalletContext {
 
     // Filter messages not associated with this context
     if (!getClient().name().equalsIgnoreCase(event.getSource())) {
-      log.debug("Rejected message event: '{}'", event.getEventType().name());
+      log.debug("Discarded message event: '{}' (different device)", event.getEventType().name());
       return;
     }
 
