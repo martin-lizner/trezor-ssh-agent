@@ -5,7 +5,7 @@
 
   <groupId>org.multibit.hd.hardware</groupId>
   <artifactId>parent</artifactId>
-  <version>keepkey-develop-SNAPSHOT</version>
+  <version>develop-SNAPSHOT</version>
 
   <packaging>pom</packaging>
 
