@@ -293,6 +293,12 @@ $ sudo update-rc.d trezor defaults
 
 The following are known issues and their solutions or workarounds.
 
+#### I'm seeing `Device not connected` in the logs
+
+Check that you don't have an open browser window to myTrezor.com or perhaps another application (such as MultiBit HD) that is holding a connection
+to the device open. 
+
+
 #### My production Trezor/KeepKey doesn't work on Ubuntu
 
 Out of the box Ubuntu classifies HID devices as belonging to root. You can override this rule by creating your own under `/etc/udev/rules.d`:
