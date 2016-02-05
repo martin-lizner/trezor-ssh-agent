@@ -6,6 +6,7 @@ import org.bitcoinj.core.Address;
 import org.bitcoinj.core.Transaction;
 import org.bitcoinj.crypto.ChildNumber;
 import org.bitcoinj.wallet.KeyChain;
+import org.multibit.hd.hardware.core.domain.Identity;
 import org.multibit.hd.hardware.core.events.MessageEvent;
 import org.multibit.hd.hardware.core.messages.Features;
 import org.multibit.hd.hardware.core.messages.TxRequest;
@@ -516,6 +517,19 @@ public interface HardwareWalletClient extends Connectable {
    * @return The response event if implementation is blocking. Absent if non-blocking or device failure.
    */
   Optional<MessageEvent> estimateTxSize(Transaction tx);
+
+  /**
+   * <p>Send the SIGN_IDENTITY message to the device to sign the identity information.</p>
+   * <p>Expected response events are:</p>
+   * <ul>
+   * <li>SIGNED_IDENTITY if the operation succeeded</li>
+   * <li>FAILURE if the operation was unsuccessful</li>
+   * </ul>
+   *
+   * @return The response event if implementation is blocking. Absent if non-blocking or device failure.
+   * @param identity The identity information to sign and how to present it to the user
+   */
+  Optional<MessageEvent> signIdentity(Identity identity);
 
   /**
    * <p>Verify the contents of the Features message in accordance with client-specific rules (e.g. firmware)</p>

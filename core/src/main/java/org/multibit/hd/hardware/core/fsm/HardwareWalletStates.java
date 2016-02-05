@@ -231,4 +231,9 @@ public class HardwareWalletStates {
 
   }
 
+  public static ConfirmSignIdentityState newConfirmSignIdentityState() {
+    log.debug("Transitioning to 'confirm sign identity' state");
+
+    return new ConfirmSignIdentityState();
+  }
 }

@@ -8,6 +8,7 @@ import org.bitcoinj.core.Transaction;
 import org.bitcoinj.crypto.ChildNumber;
 import org.bitcoinj.wallet.KeyChain;
 import org.multibit.commons.concurrent.SafeExecutors;
+import org.multibit.hd.hardware.core.domain.Identity;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
 import org.multibit.hd.hardware.core.events.MessageEvents;
 import org.multibit.hd.hardware.core.fsm.CreateWalletSpecification;
@@ -311,6 +312,9 @@ public class HardwareWalletService {
       case CHANGE_PIN:
         context.continueChangePIN_PIN(pin);
         break;
+      case SIGN_IDENTITY:
+        context.continueChangePIN_PIN(pin);
+        break;
       default:
         log.warn("Unknown PIN request use case: {}", context.getCurrentUseCase().name());
     }
@@ -536,4 +540,24 @@ public class HardwareWalletService {
 
     return bytes;
   }
+
+  /**
+   * <p>Request some identity data to be signed using an address key from the device. The device will respond by providing
+   * the signed data based on the key derived using the <a href="https://en.bitcoin.it/wiki/BIP_0044">BIP-44</a> deterministic
+   * wallet approach from the master node.</p>
+   *
+   * <p>Notes:</p>
+   * <ol>
+   * <li>Provide a hidden challenge as random data used as a nonce</li>
+   * <li></li>
+   * </ol>
+   *
+   * @param identity The identity information to sign
+   */
+  public void signIdentity(Identity identity) {
+
+    // Set the FSM context
+    context.beginSignIdentityUseCase(identity);
+  }
+
 }

@@ -10,13 +10,14 @@ import org.multibit.hd.hardware.core.events.MessageEvent;
  * <ul>
  * <li>State transitions based on low level message events</li>
  * </ul>
- * <p>The "confirm PIN" state occurs in response to a CONFIRM_PIN message and handles button
- * requests, success and failure messages coming from the device.</p>
+ * <p>The "confirm sign message" state occurs in response to a SIGN_MESSAGE
+ * message and handles the ongoing button requests, success and failure messages
+ * coming from the device as it provides the signed data using the provided address.</p>
  *
  * @since 0.0.1
  *  
  */
-public class ConfirmPINState extends AbstractHardwareWalletState {
+public class ConfirmSignIdentityState extends AbstractHardwareWalletState {
 
   @Override
   protected void internalTransition(HardwareWalletClient client, HardwareWalletContext context, MessageEvent event) {
@@ -32,10 +33,14 @@ public class ConfirmPINState extends AbstractHardwareWalletState {
         HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_PASSPHRASE_ENTRY, client.name());
         // Further state transitions will occur after the user has provided the passphrase via the service
         break;
-      case ENTROPY_REQUEST:
-        // Device is asking for additional entropy from the user
-        HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.PROVIDE_ENTROPY, client.name());
-        // Further state transitions will occur after the user has provided the entropy via the service
+      case BUTTON_REQUEST:
+        // Device is requesting a button press
+        HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SHOW_BUTTON_PRESS, event.getMessage().get(), client.name());
+        client.buttonAck();
+        break;
+      case SIGNED_IDENTITY:
+        // Device has completed the operation and provided a signed identity
+        HardwareWalletEvents.fireHardwareWalletEvent(HardwareWalletEventType.SIGNED_IDENTITY, event.getMessage().get(), client.name());
         break;
       case FAILURE:
         // User has cancelled or operation failed

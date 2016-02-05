@@ -166,6 +166,8 @@ public class TrezorMessageAdapter {
         return ButtonRequestType.SIGN_TX;
       case ButtonRequest_WipeDevice:
         return ButtonRequestType.WIPE_DEVICE;
+      case ButtonRequest_PublicKey:
+        return ButtonRequestType.PUBLIC_KEY;
       default:
         return null;
     }
@@ -386,6 +388,22 @@ public class TrezorMessageAdapter {
     return new CipheredKeyValue(
       source.hasValue(),
       source.getValue().toByteArray()
+    );
+  }
+
+  /**
+   * @param source The source message
+   *
+   * @return The adapted Core message
+   */
+  public static HardwareWalletMessage adaptSignedIdentity(TrezorMessage.SignedIdentity source) {
+    return new SignedIdentity(
+      source.hasAddress(),
+      source.getAddressBytes().toByteArray(),
+      source.hasPublicKey(),
+      source.getPublicKey().toByteArray(),
+      source.hasSignature(),
+      source.getSignature().toByteArray()
     );
   }
 }

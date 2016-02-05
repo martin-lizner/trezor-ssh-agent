@@ -60,6 +60,11 @@ public enum ButtonRequestType {
    * Confirm address generation
    */
   ADDRESS,
+
+  /**
+   * Confirm public key request
+   */
+  PUBLIC_KEY,
   ;
 
   // End of enum

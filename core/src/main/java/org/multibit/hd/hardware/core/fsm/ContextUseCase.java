@@ -26,7 +26,8 @@ public enum ContextUseCase {
   DECRYPT_MESSAGE,
   SIGN_MESSAGE,
   VERIFY_MESSAGE,
-  CHANGE_PIN
+  CHANGE_PIN,
+  SIGN_IDENTITY,
 
   // End of enum
   ;

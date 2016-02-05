@@ -12,6 +12,7 @@ import org.bitcoinj.crypto.ChildNumber;
 import org.bitcoinj.params.MainNetParams;
 import org.bitcoinj.wallet.KeyChain;
 import org.multibit.hd.hardware.core.HardwareWalletClient;
+import org.multibit.hd.hardware.core.domain.Identity;
 import org.multibit.hd.hardware.core.events.MessageEvent;
 import org.multibit.hd.hardware.core.messages.TxRequest;
 import org.multibit.hd.hardware.core.utils.TransactionUtils;
@@ -605,6 +606,31 @@ public abstract class AbstractTrezorHardwareWalletClient implements HardwareWall
         .setCoinName("Bitcoin")
         .setInputsCount(inputsCount)
         .setOutputsCount(outputsCount)
+        .build()
+    );
+  }
+
+  @Override
+  public Optional<MessageEvent> signIdentity(Identity identity) {
+
+    // Build the identity type
+    TrezorType.IdentityType identityType = TrezorType.IdentityType
+      .newBuilder()
+      .setHost(identity.getHost())
+      .setPath(identity.getPath())
+      .setPort(identity.getPort())
+      .setProto(identity.getProto())
+      .setUser(identity.getUser())
+      .setIndex(identity.getIndex())
+      .build();
+
+    return sendMessage(
+      TrezorMessage.SignIdentity
+        .newBuilder()
+        .setChallengeHidden(ByteString.copyFrom(identity.getChallengeHidden()))
+        .setChallengeVisual(identity.getChallengeVisual())
+        .setEcdsaCurveName(identity.getEcdsaCurveName())
+        .setIdentity(identityType)
         .build()
     );
   }

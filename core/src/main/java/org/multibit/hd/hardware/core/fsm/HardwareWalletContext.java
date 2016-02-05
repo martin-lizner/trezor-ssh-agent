@@ -12,6 +12,7 @@ import org.bitcoinj.crypto.DeterministicHierarchy;
 import org.bitcoinj.crypto.DeterministicKey;
 import org.bitcoinj.wallet.KeyChain;
 import org.multibit.hd.hardware.core.HardwareWalletClient;
+import org.multibit.hd.hardware.core.domain.Identity;
 import org.multibit.hd.hardware.core.events.HardwareWalletEventType;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
 import org.multibit.hd.hardware.core.events.MessageEvent;
@@ -127,6 +128,11 @@ public class HardwareWalletContext {
    * Entropy returned from the Trezor (result of encryption of fixed text)
    */
   private Optional<byte[]> entropy = Optional.absent();
+
+  /**
+   * Identity being signed
+   */
+  private Optional<Identity> identity;
 
   /**
    * @param client The hardware wallet client
@@ -984,4 +990,24 @@ public class HardwareWalletContext {
     this.entropy = Optional.fromNullable(entropy);
   }
 
+  public void beginSignIdentityUseCase(Identity identity) {
+
+    log.debug("Begin 'sign identity' use case");
+
+    // Clear relevant information
+    resetAllButFeatures();
+
+    // Track the use case
+    currentUseCase = ContextUseCase.SIGN_IDENTITY;
+
+    // Store the overall context parameters
+    this.identity = Optional.of(identity);
+
+    // Set the event receiving state
+    currentState = HardwareWalletStates.newConfirmSignIdentityState();
+
+    // Issue starting message to elicit the event
+    client.signIdentity(identity);
+
+  }
 }

@@ -264,6 +264,19 @@ public final class TrezorMessageUtils {
           message = TrezorMessage.WordAck.parseFrom(buffer);
           messageEventType = MessageEventType.WORD_ACK;
           break;
+        case MessageType_SignIdentity:
+          message = TrezorMessage.SignIdentity.parseFrom(buffer);
+          messageEventType = MessageEventType.SIGN_IDENTITY;
+          break;
+        case MessageType_SignedIdentity:
+          message = TrezorMessage.SignedIdentity.parseFrom(buffer);
+          messageEventType = MessageEventType.SIGNED_IDENTITY;
+          hardwareWalletMessage = TrezorMessageAdapter.adaptSignedIdentity((TrezorMessage.SignedIdentity) message);
+          break;
+        case MessageType_GetFeatures:
+          message = TrezorMessage.GetFeatures.parseFrom(buffer);
+          messageEventType = MessageEventType.GET_FEATURES;
+          break;
         case MessageType_DebugLinkDecision:
           message = TrezorMessage.DebugLinkDecision.parseFrom(buffer);
           messageEventType = MessageEventType.DEBUG_LINK_DECISION;
