@@ -11760,6 +11760,24 @@ public final class TrezorMessage {
      */
     com.google.protobuf.ByteString
         getEcdsaCurveNameBytes();
+
+    // optional bool show_display = 3;
+    /**
+     * <code>optional bool show_display = 3;</code>
+     *
+     * <pre>
+     * optionally show on display before sending the result
+     * </pre>
+     */
+    boolean hasShowDisplay();
+    /**
+     * <code>optional bool show_display = 3;</code>
+     *
+     * <pre>
+     * optionally show on display before sending the result
+     * </pre>
+     */
+    boolean getShowDisplay();
   }
   /**
    * Protobuf type {@code GetPublicKey}
@@ -11844,6 +11862,11 @@ public final class TrezorMessage {
             case 18: {
               bitField0_ |= 0x00000001;
               ecdsaCurveName_ = input.readBytes();
+              break;
+            }
+            case 24: {
+              bitField0_ |= 0x00000002;
+              showDisplay_ = input.readBool();
               break;
             }
           }
@@ -11979,9 +12002,34 @@ public final class TrezorMessage {
       }
     }
 
+    // optional bool show_display = 3;
+    public static final int SHOW_DISPLAY_FIELD_NUMBER = 3;
+    private boolean showDisplay_;
+    /**
+     * <code>optional bool show_display = 3;</code>
+     *
+     * <pre>
+     * optionally show on display before sending the result
+     * </pre>
+     */
+    public boolean hasShowDisplay() {
+      return ((bitField0_ & 0x00000002) == 0x00000002);
+    }
+    /**
+     * <code>optional bool show_display = 3;</code>
+     *
+     * <pre>
+     * optionally show on display before sending the result
+     * </pre>
+     */
+    public boolean getShowDisplay() {
+      return showDisplay_;
+    }
+
     private void initFields() {
       addressN_ = java.util.Collections.emptyList();
       ecdsaCurveName_ = "";
+      showDisplay_ = false;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -12000,6 +12048,9 @@ public final class TrezorMessage {
       }
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         output.writeBytes(2, getEcdsaCurveNameBytes());
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        output.writeBool(3, showDisplay_);
       }
       getUnknownFields().writeTo(output);
     }
@@ -12022,6 +12073,10 @@ public final class TrezorMessage {
       if (((bitField0_ & 0x00000001) == 0x00000001)) {
         size += com.google.protobuf.CodedOutputStream
           .computeBytesSize(2, getEcdsaCurveNameBytes());
+      }
+      if (((bitField0_ & 0x00000002) == 0x00000002)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeBoolSize(3, showDisplay_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -12151,6 +12206,8 @@ public final class TrezorMessage {
         bitField0_ = (bitField0_ & ~0x00000001);
         ecdsaCurveName_ = "";
         bitField0_ = (bitField0_ & ~0x00000002);
+        showDisplay_ = false;
+        bitField0_ = (bitField0_ & ~0x00000004);
         return this;
       }
 
@@ -12188,6 +12245,10 @@ public final class TrezorMessage {
           to_bitField0_ |= 0x00000001;
         }
         result.ecdsaCurveName_ = ecdsaCurveName_;
+        if (((from_bitField0_ & 0x00000004) == 0x00000004)) {
+          to_bitField0_ |= 0x00000002;
+        }
+        result.showDisplay_ = showDisplay_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -12218,6 +12279,9 @@ public final class TrezorMessage {
           bitField0_ |= 0x00000002;
           ecdsaCurveName_ = other.ecdsaCurveName_;
           onChanged();
+        }
+        if (other.hasShowDisplay()) {
+          setShowDisplay(other.getShowDisplay());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -12434,6 +12498,55 @@ public final class TrezorMessage {
   }
   bitField0_ |= 0x00000002;
         ecdsaCurveName_ = value;
+        onChanged();
+        return this;
+      }
+
+      // optional bool show_display = 3;
+      private boolean showDisplay_ ;
+      /**
+       * <code>optional bool show_display = 3;</code>
+       *
+       * <pre>
+       * optionally show on display before sending the result
+       * </pre>
+       */
+      public boolean hasShowDisplay() {
+        return ((bitField0_ & 0x00000004) == 0x00000004);
+      }
+      /**
+       * <code>optional bool show_display = 3;</code>
+       *
+       * <pre>
+       * optionally show on display before sending the result
+       * </pre>
+       */
+      public boolean getShowDisplay() {
+        return showDisplay_;
+      }
+      /**
+       * <code>optional bool show_display = 3;</code>
+       *
+       * <pre>
+       * optionally show on display before sending the result
+       * </pre>
+       */
+      public Builder setShowDisplay(boolean value) {
+        bitField0_ |= 0x00000004;
+        showDisplay_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional bool show_display = 3;</code>
+       *
+       * <pre>
+       * optionally show on display before sending the result
+       * </pre>
+       */
+      public Builder clearShowDisplay() {
+        bitField0_ = (bitField0_ & ~0x00000004);
+        showDisplay_ = false;
         onChanged();
         return this;
       }
@@ -13295,10 +13408,18 @@ public final class TrezorMessage {
     // optional bool show_display = 3;
     /**
      * <code>optional bool show_display = 3;</code>
+     *
+     * <pre>
+     * optionally show on display before sending the result
+     * </pre>
      */
     boolean hasShowDisplay();
     /**
      * <code>optional bool show_display = 3;</code>
+     *
+     * <pre>
+     * optionally show on display before sending the result
+     * </pre>
      */
     boolean getShowDisplay();
 
@@ -13557,12 +13678,20 @@ public final class TrezorMessage {
     private boolean showDisplay_;
     /**
      * <code>optional bool show_display = 3;</code>
+     *
+     * <pre>
+     * optionally show on display before sending the result
+     * </pre>
      */
     public boolean hasShowDisplay() {
       return ((bitField0_ & 0x00000002) == 0x00000002);
     }
     /**
      * <code>optional bool show_display = 3;</code>
+     *
+     * <pre>
+     * optionally show on display before sending the result
+     * </pre>
      */
     public boolean getShowDisplay() {
       return showDisplay_;
@@ -14096,18 +14225,30 @@ public final class TrezorMessage {
       private boolean showDisplay_ ;
       /**
        * <code>optional bool show_display = 3;</code>
+       *
+       * <pre>
+       * optionally show on display before sending the result
+       * </pre>
        */
       public boolean hasShowDisplay() {
         return ((bitField0_ & 0x00000004) == 0x00000004);
       }
       /**
        * <code>optional bool show_display = 3;</code>
+       *
+       * <pre>
+       * optionally show on display before sending the result
+       * </pre>
        */
       public boolean getShowDisplay() {
         return showDisplay_;
       }
       /**
        * <code>optional bool show_display = 3;</code>
+       *
+       * <pre>
+       * optionally show on display before sending the result
+       * </pre>
        */
       public Builder setShowDisplay(boolean value) {
         bitField0_ |= 0x00000004;
@@ -14117,6 +14258,10 @@ public final class TrezorMessage {
       }
       /**
        * <code>optional bool show_display = 3;</code>
+       *
+       * <pre>
+       * optionally show on display before sending the result
+       * </pre>
        */
       public Builder clearShowDisplay() {
         bitField0_ = (bitField0_ & ~0x00000004);
@@ -40446,125 +40591,125 @@ public final class TrezorMessage {
       "xAck\022\013\n\003pin\030\001 \002(\t\"\010\n\006Cancel\"\023\n\021Passphras" +
       "eRequest\"#\n\rPassphraseAck\022\022\n\npassphrase\030" +
       "\001 \002(\t\"\032\n\nGetEntropy\022\014\n\004size\030\001 \002(\r\"\032\n\007Ent" +
-      "ropy\022\017\n\007entropy\030\001 \002(\014\";\n\014GetPublicKey\022\021\n" +
+      "ropy\022\017\n\007entropy\030\001 \002(\014\"Q\n\014GetPublicKey\022\021\n" +
       "\taddress_n\030\001 \003(\r\022\030\n\020ecdsa_curve_name\030\002 \001" +
-      "(\t\"4\n\tPublicKey\022\031\n\004node\030\001 \002(\0132\013.HDNodeTy" +
-      "pe\022\014\n\004xpub\030\002 \001(\t\"~\n\nGetAddress\022\021\n\taddres",
-      "s_n\030\001 \003(\r\022\032\n\tcoin_name\030\002 \001(\t:\007Bitcoin\022\024\n" +
-      "\014show_display\030\003 \001(\010\022+\n\010multisig\030\004 \001(\0132\031." +
-      "MultisigRedeemScriptType\"\032\n\007Address\022\017\n\007a" +
-      "ddress\030\001 \002(\t\"\014\n\nWipeDevice\"\246\001\n\nLoadDevic" +
-      "e\022\020\n\010mnemonic\030\001 \001(\t\022\031\n\004node\030\002 \001(\0132\013.HDNo" +
-      "deType\022\013\n\003pin\030\003 \001(\t\022\035\n\025passphrase_protec" +
-      "tion\030\004 \001(\010\022\031\n\010language\030\005 \001(\t:\007english\022\r\n" +
-      "\005label\030\006 \001(\t\022\025\n\rskip_checksum\030\007 \001(\010\"\235\001\n\013" +
-      "ResetDevice\022\026\n\016display_random\030\001 \001(\010\022\025\n\010s" +
-      "trength\030\002 \001(\r:\003256\022\035\n\025passphrase_protect",
-      "ion\030\003 \001(\010\022\026\n\016pin_protection\030\004 \001(\010\022\031\n\010lan" +
-      "guage\030\005 \001(\t:\007english\022\r\n\005label\030\006 \001(\t\"\020\n\016E" +
-      "ntropyRequest\"\035\n\nEntropyAck\022\017\n\007entropy\030\001" +
-      " \001(\014\"\237\001\n\016RecoveryDevice\022\022\n\nword_count\030\001 " +
-      "\001(\r\022\035\n\025passphrase_protection\030\002 \001(\010\022\026\n\016pi" +
-      "n_protection\030\003 \001(\010\022\031\n\010language\030\004 \001(\t:\007en" +
-      "glish\022\r\n\005label\030\005 \001(\t\022\030\n\020enforce_wordlist" +
-      "\030\006 \001(\010\"\r\n\013WordRequest\"\027\n\007WordAck\022\014\n\004word" +
-      "\030\001 \002(\t\"M\n\013SignMessage\022\021\n\taddress_n\030\001 \003(\r" +
-      "\022\017\n\007message\030\002 \002(\014\022\032\n\tcoin_name\030\003 \001(\t:\007Bi",
-      "tcoin\"D\n\rVerifyMessage\022\017\n\007address\030\001 \001(\t\022" +
-      "\021\n\tsignature\030\002 \001(\014\022\017\n\007message\030\003 \001(\014\"6\n\020M" +
-      "essageSignature\022\017\n\007address\030\001 \001(\t\022\021\n\tsign" +
-      "ature\030\002 \001(\014\"v\n\016EncryptMessage\022\016\n\006pubkey\030" +
-      "\001 \001(\014\022\017\n\007message\030\002 \001(\014\022\024\n\014display_only\030\003" +
-      " \001(\010\022\021\n\taddress_n\030\004 \003(\r\022\032\n\tcoin_name\030\005 \001" +
-      "(\t:\007Bitcoin\"@\n\020EncryptedMessage\022\r\n\005nonce" +
-      "\030\001 \001(\014\022\017\n\007message\030\002 \001(\014\022\014\n\004hmac\030\003 \001(\014\"Q\n" +
-      "\016DecryptMessage\022\021\n\taddress_n\030\001 \003(\r\022\r\n\005no" +
-      "nce\030\002 \001(\014\022\017\n\007message\030\003 \001(\014\022\014\n\004hmac\030\004 \001(\014",
-      "\"4\n\020DecryptedMessage\022\017\n\007message\030\001 \001(\014\022\017\n" +
-      "\007address\030\002 \001(\t\"\214\001\n\016CipherKeyValue\022\021\n\tadd" +
-      "ress_n\030\001 \003(\r\022\013\n\003key\030\002 \001(\t\022\r\n\005value\030\003 \001(\014" +
-      "\022\017\n\007encrypt\030\004 \001(\010\022\026\n\016ask_on_encrypt\030\005 \001(" +
-      "\010\022\026\n\016ask_on_decrypt\030\006 \001(\010\022\n\n\002iv\030\007 \001(\014\"!\n" +
-      "\020CipheredKeyValue\022\r\n\005value\030\001 \001(\014\"Y\n\016Esti" +
-      "mateTxSize\022\025\n\routputs_count\030\001 \002(\r\022\024\n\014inp" +
-      "uts_count\030\002 \002(\r\022\032\n\tcoin_name\030\003 \001(\t:\007Bitc" +
-      "oin\"\031\n\006TxSize\022\017\n\007tx_size\030\001 \001(\r\"Q\n\006SignTx" +
-      "\022\025\n\routputs_count\030\001 \002(\r\022\024\n\014inputs_count\030",
-      "\002 \002(\r\022\032\n\tcoin_name\030\003 \001(\t:\007Bitcoin\"\220\001\n\014Si" +
-      "mpleSignTx\022\034\n\006inputs\030\001 \003(\0132\014.TxInputType" +
-      "\022\036\n\007outputs\030\002 \003(\0132\r.TxOutputType\022&\n\014tran" +
-      "sactions\030\003 \003(\0132\020.TransactionType\022\032\n\tcoin" +
-      "_name\030\004 \001(\t:\007Bitcoin\"\205\001\n\tTxRequest\022\"\n\014re" +
-      "quest_type\030\001 \001(\0162\014.RequestType\022&\n\007detail" +
-      "s\030\002 \001(\0132\025.TxRequestDetailsType\022,\n\nserial" +
-      "ized\030\003 \001(\0132\030.TxRequestSerializedType\"%\n\005" +
-      "TxAck\022\034\n\002tx\030\001 \001(\0132\020.TransactionType\"}\n\014S" +
-      "ignIdentity\022\037\n\010identity\030\001 \001(\0132\r.Identity",
-      "Type\022\030\n\020challenge_hidden\030\002 \001(\014\022\030\n\020challe" +
-      "nge_visual\030\003 \001(\t\022\030\n\020ecdsa_curve_name\030\004 \001" +
-      "(\t\"H\n\016SignedIdentity\022\017\n\007address\030\001 \001(\t\022\022\n" +
-      "\npublic_key\030\002 \001(\014\022\021\n\tsignature\030\003 \001(\014\"\017\n\r" +
-      "FirmwareErase\"!\n\016FirmwareUpload\022\017\n\007paylo" +
-      "ad\030\001 \002(\014\"#\n\021DebugLinkDecision\022\016\n\006yes_no\030" +
-      "\001 \002(\010\"\023\n\021DebugLinkGetState\"\353\001\n\016DebugLink" +
-      "State\022\016\n\006layout\030\001 \001(\014\022\013\n\003pin\030\002 \001(\t\022\016\n\006ma" +
-      "trix\030\003 \001(\t\022\020\n\010mnemonic\030\004 \001(\t\022\031\n\004node\030\005 \001" +
-      "(\0132\013.HDNodeType\022\035\n\025passphrase_protection",
-      "\030\006 \001(\010\022\022\n\nreset_word\030\007 \001(\t\022\025\n\rreset_entr" +
-      "opy\030\010 \001(\014\022\032\n\022recovery_fake_word\030\t \001(\t\022\031\n" +
-      "\021recovery_word_pos\030\n \001(\r\"\017\n\rDebugLinkSto" +
-      "p\";\n\014DebugLinkLog\022\r\n\005level\030\001 \001(\r\022\016\n\006buck" +
-      "et\030\002 \001(\t\022\014\n\004text\030\003 \001(\t*\206\017\n\013MessageType\022 " +
-      "\n\026MessageType_Initialize\020\000\032\004\220\265\030\001\022\032\n\020Mess" +
-      "ageType_Ping\020\001\032\004\220\265\030\001\022\035\n\023MessageType_Succ" +
-      "ess\020\002\032\004\230\265\030\001\022\035\n\023MessageType_Failure\020\003\032\004\230\265" +
-      "\030\001\022\037\n\025MessageType_ChangePin\020\004\032\004\220\265\030\001\022 \n\026M" +
-      "essageType_WipeDevice\020\005\032\004\220\265\030\001\022#\n\031Message",
-      "Type_FirmwareErase\020\006\032\004\220\265\030\001\022$\n\032MessageTyp" +
-      "e_FirmwareUpload\020\007\032\004\220\265\030\001\022 \n\026MessageType_" +
-      "GetEntropy\020\t\032\004\220\265\030\001\022\035\n\023MessageType_Entrop" +
-      "y\020\n\032\004\230\265\030\001\022\"\n\030MessageType_GetPublicKey\020\013\032" +
-      "\004\220\265\030\001\022\037\n\025MessageType_PublicKey\020\014\032\004\230\265\030\001\022 " +
-      "\n\026MessageType_LoadDevice\020\r\032\004\220\265\030\001\022!\n\027Mess" +
-      "ageType_ResetDevice\020\016\032\004\220\265\030\001\022\034\n\022MessageTy" +
-      "pe_SignTx\020\017\032\004\220\265\030\001\022\"\n\030MessageType_SimpleS" +
-      "ignTx\020\020\032\004\220\265\030\001\022\036\n\024MessageType_Features\020\021\032" +
-      "\004\230\265\030\001\022&\n\034MessageType_PinMatrixRequest\020\022\032",
-      "\004\230\265\030\001\022\"\n\030MessageType_PinMatrixAck\020\023\032\004\220\265\030" +
-      "\001\022\034\n\022MessageType_Cancel\020\024\032\004\220\265\030\001\022\037\n\025Messa" +
-      "geType_TxRequest\020\025\032\004\230\265\030\001\022\033\n\021MessageType_" +
-      "TxAck\020\026\032\004\220\265\030\001\022$\n\032MessageType_CipherKeyVa" +
-      "lue\020\027\032\004\220\265\030\001\022\"\n\030MessageType_ClearSession\020" +
-      "\030\032\004\220\265\030\001\022#\n\031MessageType_ApplySettings\020\031\032\004" +
-      "\220\265\030\001\022#\n\031MessageType_ButtonRequest\020\032\032\004\230\265\030" +
-      "\001\022\037\n\025MessageType_ButtonAck\020\033\032\004\220\265\030\001\022 \n\026Me" +
-      "ssageType_GetAddress\020\035\032\004\220\265\030\001\022\035\n\023MessageT" +
-      "ype_Address\020\036\032\004\230\265\030\001\022$\n\032MessageType_Entro",
-      "pyRequest\020#\032\004\230\265\030\001\022 \n\026MessageType_Entropy" +
-      "Ack\020$\032\004\220\265\030\001\022!\n\027MessageType_SignMessage\020&" +
-      "\032\004\220\265\030\001\022#\n\031MessageType_VerifyMessage\020\'\032\004\220" +
-      "\265\030\001\022&\n\034MessageType_MessageSignature\020(\032\004\230" +
-      "\265\030\001\022\'\n\035MessageType_PassphraseRequest\020)\032\004" +
-      "\230\265\030\001\022#\n\031MessageType_PassphraseAck\020*\032\004\220\265\030" +
-      "\001\022$\n\032MessageType_EstimateTxSize\020+\032\004\220\265\030\001\022" +
-      "\034\n\022MessageType_TxSize\020,\032\004\230\265\030\001\022$\n\032Message" +
-      "Type_RecoveryDevice\020-\032\004\220\265\030\001\022!\n\027MessageTy" +
-      "pe_WordRequest\020.\032\004\230\265\030\001\022\035\n\023MessageType_Wo",
-      "rdAck\020/\032\004\220\265\030\001\022&\n\034MessageType_CipheredKey" +
-      "Value\0200\032\004\230\265\030\001\022$\n\032MessageType_EncryptMess" +
-      "age\0201\032\004\220\265\030\001\022&\n\034MessageType_EncryptedMess" +
-      "age\0202\032\004\230\265\030\001\022$\n\032MessageType_DecryptMessag" +
-      "e\0203\032\004\220\265\030\001\022&\n\034MessageType_DecryptedMessag" +
-      "e\0204\032\004\230\265\030\001\022\"\n\030MessageType_SignIdentity\0205\032" +
-      "\004\220\265\030\001\022$\n\032MessageType_SignedIdentity\0206\032\004\230" +
-      "\265\030\001\022!\n\027MessageType_GetFeatures\0207\032\004\220\265\030\001\022\'" +
-      "\n\035MessageType_DebugLinkDecision\020d\032\004\240\265\030\001\022" +
-      "\'\n\035MessageType_DebugLinkGetState\020e\032\004\240\265\030\001",
-      "\022$\n\032MessageType_DebugLinkState\020f\032\004\250\265\030\001\022#" +
-      "\n\031MessageType_DebugLinkStop\020g\032\004\240\265\030\001\022\"\n\030M" +
-      "essageType_DebugLinkLog\020h\032\004\250\265\030\001B0\n\037com.s" +
-      "atoshilabs.trezor.protobufB\rTrezorMessag" +
-      "e"
+      "(\t\022\024\n\014show_display\030\003 \001(\010\"4\n\tPublicKey\022\031\n" +
+      "\004node\030\001 \002(\0132\013.HDNodeType\022\014\n\004xpub\030\002 \001(\t\"~",
+      "\n\nGetAddress\022\021\n\taddress_n\030\001 \003(\r\022\032\n\tcoin_" +
+      "name\030\002 \001(\t:\007Bitcoin\022\024\n\014show_display\030\003 \001(" +
+      "\010\022+\n\010multisig\030\004 \001(\0132\031.MultisigRedeemScri" +
+      "ptType\"\032\n\007Address\022\017\n\007address\030\001 \002(\t\"\014\n\nWi" +
+      "peDevice\"\246\001\n\nLoadDevice\022\020\n\010mnemonic\030\001 \001(" +
+      "\t\022\031\n\004node\030\002 \001(\0132\013.HDNodeType\022\013\n\003pin\030\003 \001(" +
+      "\t\022\035\n\025passphrase_protection\030\004 \001(\010\022\031\n\010lang" +
+      "uage\030\005 \001(\t:\007english\022\r\n\005label\030\006 \001(\t\022\025\n\rsk" +
+      "ip_checksum\030\007 \001(\010\"\235\001\n\013ResetDevice\022\026\n\016dis" +
+      "play_random\030\001 \001(\010\022\025\n\010strength\030\002 \001(\r:\003256",
+      "\022\035\n\025passphrase_protection\030\003 \001(\010\022\026\n\016pin_p" +
+      "rotection\030\004 \001(\010\022\031\n\010language\030\005 \001(\t:\007engli" +
+      "sh\022\r\n\005label\030\006 \001(\t\"\020\n\016EntropyRequest\"\035\n\nE" +
+      "ntropyAck\022\017\n\007entropy\030\001 \001(\014\"\237\001\n\016RecoveryD" +
+      "evice\022\022\n\nword_count\030\001 \001(\r\022\035\n\025passphrase_" +
+      "protection\030\002 \001(\010\022\026\n\016pin_protection\030\003 \001(\010" +
+      "\022\031\n\010language\030\004 \001(\t:\007english\022\r\n\005label\030\005 \001" +
+      "(\t\022\030\n\020enforce_wordlist\030\006 \001(\010\"\r\n\013WordRequ" +
+      "est\"\027\n\007WordAck\022\014\n\004word\030\001 \002(\t\"M\n\013SignMess" +
+      "age\022\021\n\taddress_n\030\001 \003(\r\022\017\n\007message\030\002 \002(\014\022",
+      "\032\n\tcoin_name\030\003 \001(\t:\007Bitcoin\"D\n\rVerifyMes" +
+      "sage\022\017\n\007address\030\001 \001(\t\022\021\n\tsignature\030\002 \001(\014" +
+      "\022\017\n\007message\030\003 \001(\014\"6\n\020MessageSignature\022\017\n" +
+      "\007address\030\001 \001(\t\022\021\n\tsignature\030\002 \001(\014\"v\n\016Enc" +
+      "ryptMessage\022\016\n\006pubkey\030\001 \001(\014\022\017\n\007message\030\002" +
+      " \001(\014\022\024\n\014display_only\030\003 \001(\010\022\021\n\taddress_n\030" +
+      "\004 \003(\r\022\032\n\tcoin_name\030\005 \001(\t:\007Bitcoin\"@\n\020Enc" +
+      "ryptedMessage\022\r\n\005nonce\030\001 \001(\014\022\017\n\007message\030" +
+      "\002 \001(\014\022\014\n\004hmac\030\003 \001(\014\"Q\n\016DecryptMessage\022\021\n" +
+      "\taddress_n\030\001 \003(\r\022\r\n\005nonce\030\002 \001(\014\022\017\n\007messa",
+      "ge\030\003 \001(\014\022\014\n\004hmac\030\004 \001(\014\"4\n\020DecryptedMessa" +
+      "ge\022\017\n\007message\030\001 \001(\014\022\017\n\007address\030\002 \001(\t\"\214\001\n" +
+      "\016CipherKeyValue\022\021\n\taddress_n\030\001 \003(\r\022\013\n\003ke" +
+      "y\030\002 \001(\t\022\r\n\005value\030\003 \001(\014\022\017\n\007encrypt\030\004 \001(\010\022" +
+      "\026\n\016ask_on_encrypt\030\005 \001(\010\022\026\n\016ask_on_decryp" +
+      "t\030\006 \001(\010\022\n\n\002iv\030\007 \001(\014\"!\n\020CipheredKeyValue\022" +
+      "\r\n\005value\030\001 \001(\014\"Y\n\016EstimateTxSize\022\025\n\routp" +
+      "uts_count\030\001 \002(\r\022\024\n\014inputs_count\030\002 \002(\r\022\032\n" +
+      "\tcoin_name\030\003 \001(\t:\007Bitcoin\"\031\n\006TxSize\022\017\n\007t" +
+      "x_size\030\001 \001(\r\"Q\n\006SignTx\022\025\n\routputs_count\030",
+      "\001 \002(\r\022\024\n\014inputs_count\030\002 \002(\r\022\032\n\tcoin_name" +
+      "\030\003 \001(\t:\007Bitcoin\"\220\001\n\014SimpleSignTx\022\034\n\006inpu" +
+      "ts\030\001 \003(\0132\014.TxInputType\022\036\n\007outputs\030\002 \003(\0132" +
+      "\r.TxOutputType\022&\n\014transactions\030\003 \003(\0132\020.T" +
+      "ransactionType\022\032\n\tcoin_name\030\004 \001(\t:\007Bitco" +
+      "in\"\205\001\n\tTxRequest\022\"\n\014request_type\030\001 \001(\0162\014" +
+      ".RequestType\022&\n\007details\030\002 \001(\0132\025.TxReques" +
+      "tDetailsType\022,\n\nserialized\030\003 \001(\0132\030.TxReq" +
+      "uestSerializedType\"%\n\005TxAck\022\034\n\002tx\030\001 \001(\0132" +
+      "\020.TransactionType\"}\n\014SignIdentity\022\037\n\010ide",
+      "ntity\030\001 \001(\0132\r.IdentityType\022\030\n\020challenge_" +
+      "hidden\030\002 \001(\014\022\030\n\020challenge_visual\030\003 \001(\t\022\030" +
+      "\n\020ecdsa_curve_name\030\004 \001(\t\"H\n\016SignedIdenti" +
+      "ty\022\017\n\007address\030\001 \001(\t\022\022\n\npublic_key\030\002 \001(\014\022" +
+      "\021\n\tsignature\030\003 \001(\014\"\017\n\rFirmwareErase\"!\n\016F" +
+      "irmwareUpload\022\017\n\007payload\030\001 \002(\014\"#\n\021DebugL" +
+      "inkDecision\022\016\n\006yes_no\030\001 \002(\010\"\023\n\021DebugLink" +
+      "GetState\"\353\001\n\016DebugLinkState\022\016\n\006layout\030\001 " +
+      "\001(\014\022\013\n\003pin\030\002 \001(\t\022\016\n\006matrix\030\003 \001(\t\022\020\n\010mnem" +
+      "onic\030\004 \001(\t\022\031\n\004node\030\005 \001(\0132\013.HDNodeType\022\035\n",
+      "\025passphrase_protection\030\006 \001(\010\022\022\n\nreset_wo" +
+      "rd\030\007 \001(\t\022\025\n\rreset_entropy\030\010 \001(\014\022\032\n\022recov" +
+      "ery_fake_word\030\t \001(\t\022\031\n\021recovery_word_pos" +
+      "\030\n \001(\r\"\017\n\rDebugLinkStop\";\n\014DebugLinkLog\022" +
+      "\r\n\005level\030\001 \001(\r\022\016\n\006bucket\030\002 \001(\t\022\014\n\004text\030\003" +
+      " \001(\t*\206\017\n\013MessageType\022 \n\026MessageType_Init" +
+      "ialize\020\000\032\004\220\265\030\001\022\032\n\020MessageType_Ping\020\001\032\004\220\265" +
+      "\030\001\022\035\n\023MessageType_Success\020\002\032\004\230\265\030\001\022\035\n\023Mes" +
+      "sageType_Failure\020\003\032\004\230\265\030\001\022\037\n\025MessageType_" +
+      "ChangePin\020\004\032\004\220\265\030\001\022 \n\026MessageType_WipeDev",
+      "ice\020\005\032\004\220\265\030\001\022#\n\031MessageType_FirmwareErase" +
+      "\020\006\032\004\220\265\030\001\022$\n\032MessageType_FirmwareUpload\020\007" +
+      "\032\004\220\265\030\001\022 \n\026MessageType_GetEntropy\020\t\032\004\220\265\030\001" +
+      "\022\035\n\023MessageType_Entropy\020\n\032\004\230\265\030\001\022\"\n\030Messa" +
+      "geType_GetPublicKey\020\013\032\004\220\265\030\001\022\037\n\025MessageTy" +
+      "pe_PublicKey\020\014\032\004\230\265\030\001\022 \n\026MessageType_Load" +
+      "Device\020\r\032\004\220\265\030\001\022!\n\027MessageType_ResetDevic" +
+      "e\020\016\032\004\220\265\030\001\022\034\n\022MessageType_SignTx\020\017\032\004\220\265\030\001\022" +
+      "\"\n\030MessageType_SimpleSignTx\020\020\032\004\220\265\030\001\022\036\n\024M" +
+      "essageType_Features\020\021\032\004\230\265\030\001\022&\n\034MessageTy",
+      "pe_PinMatrixRequest\020\022\032\004\230\265\030\001\022\"\n\030MessageTy" +
+      "pe_PinMatrixAck\020\023\032\004\220\265\030\001\022\034\n\022MessageType_C" +
+      "ancel\020\024\032\004\220\265\030\001\022\037\n\025MessageType_TxRequest\020\025" +
+      "\032\004\230\265\030\001\022\033\n\021MessageType_TxAck\020\026\032\004\220\265\030\001\022$\n\032M" +
+      "essageType_CipherKeyValue\020\027\032\004\220\265\030\001\022\"\n\030Mes" +
+      "sageType_ClearSession\020\030\032\004\220\265\030\001\022#\n\031Message" +
+      "Type_ApplySettings\020\031\032\004\220\265\030\001\022#\n\031MessageTyp" +
+      "e_ButtonRequest\020\032\032\004\230\265\030\001\022\037\n\025MessageType_B" +
+      "uttonAck\020\033\032\004\220\265\030\001\022 \n\026MessageType_GetAddre" +
+      "ss\020\035\032\004\220\265\030\001\022\035\n\023MessageType_Address\020\036\032\004\230\265\030",
+      "\001\022$\n\032MessageType_EntropyRequest\020#\032\004\230\265\030\001\022" +
+      " \n\026MessageType_EntropyAck\020$\032\004\220\265\030\001\022!\n\027Mes" +
+      "sageType_SignMessage\020&\032\004\220\265\030\001\022#\n\031MessageT" +
+      "ype_VerifyMessage\020\'\032\004\220\265\030\001\022&\n\034MessageType" +
+      "_MessageSignature\020(\032\004\230\265\030\001\022\'\n\035MessageType" +
+      "_PassphraseRequest\020)\032\004\230\265\030\001\022#\n\031MessageTyp" +
+      "e_PassphraseAck\020*\032\004\220\265\030\001\022$\n\032MessageType_E" +
+      "stimateTxSize\020+\032\004\220\265\030\001\022\034\n\022MessageType_TxS" +
+      "ize\020,\032\004\230\265\030\001\022$\n\032MessageType_RecoveryDevic" +
+      "e\020-\032\004\220\265\030\001\022!\n\027MessageType_WordRequest\020.\032\004",
+      "\230\265\030\001\022\035\n\023MessageType_WordAck\020/\032\004\220\265\030\001\022&\n\034M" +
+      "essageType_CipheredKeyValue\0200\032\004\230\265\030\001\022$\n\032M" +
+      "essageType_EncryptMessage\0201\032\004\220\265\030\001\022&\n\034Mes" +
+      "sageType_EncryptedMessage\0202\032\004\230\265\030\001\022$\n\032Mes" +
+      "sageType_DecryptMessage\0203\032\004\220\265\030\001\022&\n\034Messa" +
+      "geType_DecryptedMessage\0204\032\004\230\265\030\001\022\"\n\030Messa" +
+      "geType_SignIdentity\0205\032\004\220\265\030\001\022$\n\032MessageTy" +
+      "pe_SignedIdentity\0206\032\004\230\265\030\001\022!\n\027MessageType" +
+      "_GetFeatures\0207\032\004\220\265\030\001\022\'\n\035MessageType_Debu" +
+      "gLinkDecision\020d\032\004\240\265\030\001\022\'\n\035MessageType_Deb",
+      "ugLinkGetState\020e\032\004\240\265\030\001\022$\n\032MessageType_De" +
+      "bugLinkState\020f\032\004\250\265\030\001\022#\n\031MessageType_Debu" +
+      "gLinkStop\020g\032\004\240\265\030\001\022\"\n\030MessageType_DebugLi" +
+      "nkLog\020h\032\004\250\265\030\001B0\n\037com.satoshilabs.trezor." +
+      "protobufB\rTrezorMessage"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -40684,7 +40829,7 @@ public final class TrezorMessage {
           internal_static_GetPublicKey_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_GetPublicKey_descriptor,
-              new java.lang.String[] { "AddressN", "EcdsaCurveName", });
+              new java.lang.String[] { "AddressN", "EcdsaCurveName", "ShowDisplay", });
           internal_static_PublicKey_descriptor =
             getDescriptor().getMessageTypes().get(19);
           internal_static_PublicKey_fieldAccessorTable = new

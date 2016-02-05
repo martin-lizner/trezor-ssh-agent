@@ -234,6 +234,24 @@ public final class TrezorStorage {
      * </pre>
      */
     com.google.protobuf.ByteString getHomescreen();
+
+    // optional uint32 u2f_counter = 11;
+    /**
+     * <code>optional uint32 u2f_counter = 11;</code>
+     *
+     * <pre>
+     * sequence number for u2f authentications
+     * </pre>
+     */
+    boolean hasU2FCounter();
+    /**
+     * <code>optional uint32 u2f_counter = 11;</code>
+     *
+     * <pre>
+     * sequence number for u2f authentications
+     * </pre>
+     */
+    int getU2FCounter();
   }
   /**
    * Protobuf type {@code Storage}
@@ -347,6 +365,11 @@ public final class TrezorStorage {
             case 82: {
               bitField0_ |= 0x00000200;
               homescreen_ = input.readBytes();
+              break;
+            }
+            case 88: {
+              bitField0_ |= 0x00000400;
+              u2FCounter_ = input.readUInt32();
               break;
             }
           }
@@ -763,6 +786,30 @@ public final class TrezorStorage {
       return homescreen_;
     }
 
+    // optional uint32 u2f_counter = 11;
+    public static final int U2F_COUNTER_FIELD_NUMBER = 11;
+    private int u2FCounter_;
+    /**
+     * <code>optional uint32 u2f_counter = 11;</code>
+     *
+     * <pre>
+     * sequence number for u2f authentications
+     * </pre>
+     */
+    public boolean hasU2FCounter() {
+      return ((bitField0_ & 0x00000400) == 0x00000400);
+    }
+    /**
+     * <code>optional uint32 u2f_counter = 11;</code>
+     *
+     * <pre>
+     * sequence number for u2f authentications
+     * </pre>
+     */
+    public int getU2FCounter() {
+      return u2FCounter_;
+    }
+
     private void initFields() {
       version_ = 0;
       node_ = com.satoshilabs.trezor.protobuf.TrezorType.HDNodeType.getDefaultInstance();
@@ -774,6 +821,7 @@ public final class TrezorStorage {
       label_ = "";
       imported_ = false;
       homescreen_ = com.google.protobuf.ByteString.EMPTY;
+      u2FCounter_ = 0;
     }
     private byte memoizedIsInitialized = -1;
     public final boolean isInitialized() {
@@ -827,6 +875,9 @@ public final class TrezorStorage {
       if (((bitField0_ & 0x00000200) == 0x00000200)) {
         output.writeBytes(10, homescreen_);
       }
+      if (((bitField0_ & 0x00000400) == 0x00000400)) {
+        output.writeUInt32(11, u2FCounter_);
+      }
       getUnknownFields().writeTo(output);
     }
 
@@ -875,6 +926,10 @@ public final class TrezorStorage {
       if (((bitField0_ & 0x00000200) == 0x00000200)) {
         size += com.google.protobuf.CodedOutputStream
           .computeBytesSize(10, homescreen_);
+      }
+      if (((bitField0_ & 0x00000400) == 0x00000400)) {
+        size += com.google.protobuf.CodedOutputStream
+          .computeUInt32Size(11, u2FCounter_);
       }
       size += getUnknownFields().getSerializedSize();
       memoizedSerializedSize = size;
@@ -1022,6 +1077,8 @@ public final class TrezorStorage {
         bitField0_ = (bitField0_ & ~0x00000100);
         homescreen_ = com.google.protobuf.ByteString.EMPTY;
         bitField0_ = (bitField0_ & ~0x00000200);
+        u2FCounter_ = 0;
+        bitField0_ = (bitField0_ & ~0x00000400);
         return this;
       }
 
@@ -1094,6 +1151,10 @@ public final class TrezorStorage {
           to_bitField0_ |= 0x00000200;
         }
         result.homescreen_ = homescreen_;
+        if (((from_bitField0_ & 0x00000400) == 0x00000400)) {
+          to_bitField0_ |= 0x00000400;
+        }
+        result.u2FCounter_ = u2FCounter_;
         result.bitField0_ = to_bitField0_;
         onBuilt();
         return result;
@@ -1147,6 +1208,9 @@ public final class TrezorStorage {
         }
         if (other.hasHomescreen()) {
           setHomescreen(other.getHomescreen());
+        }
+        if (other.hasU2FCounter()) {
+          setU2FCounter(other.getU2FCounter());
         }
         this.mergeUnknownFields(other.getUnknownFields());
         return this;
@@ -1978,6 +2042,55 @@ public final class TrezorStorage {
         return this;
       }
 
+      // optional uint32 u2f_counter = 11;
+      private int u2FCounter_ ;
+      /**
+       * <code>optional uint32 u2f_counter = 11;</code>
+       *
+       * <pre>
+       * sequence number for u2f authentications
+       * </pre>
+       */
+      public boolean hasU2FCounter() {
+        return ((bitField0_ & 0x00000400) == 0x00000400);
+      }
+      /**
+       * <code>optional uint32 u2f_counter = 11;</code>
+       *
+       * <pre>
+       * sequence number for u2f authentications
+       * </pre>
+       */
+      public int getU2FCounter() {
+        return u2FCounter_;
+      }
+      /**
+       * <code>optional uint32 u2f_counter = 11;</code>
+       *
+       * <pre>
+       * sequence number for u2f authentications
+       * </pre>
+       */
+      public Builder setU2FCounter(int value) {
+        bitField0_ |= 0x00000400;
+        u2FCounter_ = value;
+        onChanged();
+        return this;
+      }
+      /**
+       * <code>optional uint32 u2f_counter = 11;</code>
+       *
+       * <pre>
+       * sequence number for u2f authentications
+       * </pre>
+       */
+      public Builder clearU2FCounter() {
+        bitField0_ = (bitField0_ & ~0x00000400);
+        u2FCounter_ = 0;
+        onChanged();
+        return this;
+      }
+
       // @@protoc_insertion_point(builder_scope:Storage)
     }
 
@@ -2003,14 +2116,14 @@ public final class TrezorStorage {
       descriptor;
   static {
     java.lang.String[] descriptorData = {
-      "\n\rstorage.proto\032\013types.proto\"\327\001\n\007Storage" +
+      "\n\rstorage.proto\032\013types.proto\"\354\001\n\007Storage" +
       "\022\017\n\007version\030\001 \002(\r\022\031\n\004node\030\002 \001(\0132\013.HDNode" +
       "Type\022\020\n\010mnemonic\030\003 \001(\t\022\035\n\025passphrase_pro" +
       "tection\030\004 \001(\010\022\033\n\023pin_failed_attempts\030\005 \001" +
       "(\r\022\013\n\003pin\030\006 \001(\t\022\020\n\010language\030\007 \001(\t\022\r\n\005lab" +
       "el\030\010 \001(\t\022\020\n\010imported\030\t \001(\010\022\022\n\nhomescreen" +
-      "\030\n \001(\014B0\n\037com.satoshilabs.trezor.protobu" +
-      "fB\rTrezorStorage"
+      "\030\n \001(\014\022\023\n\013u2f_counter\030\013 \001(\rB0\n\037com.satos" +
+      "hilabs.trezor.protobufB\rTrezorStorage"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
@@ -2022,7 +2135,7 @@ public final class TrezorStorage {
           internal_static_Storage_fieldAccessorTable = new
             com.google.protobuf.GeneratedMessage.FieldAccessorTable(
               internal_static_Storage_descriptor,
-              new java.lang.String[] { "Version", "Node", "Mnemonic", "PassphraseProtection", "PinFailedAttempts", "Pin", "Language", "Label", "Imported", "Homescreen", });
+              new java.lang.String[] { "Version", "Node", "Mnemonic", "PassphraseProtection", "PinFailedAttempts", "Pin", "Language", "Label", "Imported", "Homescreen", "U2FCounter", });
           return null;
         }
       };

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <parent>
+    <groupId>org.multibit.hd.hardware</groupId>
+    <artifactId>parent</artifactId>
+    <version>0.5.0</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+
+  <artifactId>trezor</artifactId>
+
+  <name>Trezor</name>
+  <description>MBHD Hardware wrapper for Trezor device</description>
+
+  <!-- Ensure that you have correctly updated the protobuf submodule using
+
+      $ cd <submodule directory>
+      $ git checkout master
+      $ git pull origin master
+      $ cd <project directory>
+      $ git add <submodule directory>
+      $ git commit -m "Updating protobuf for '<submodule>'"
+      $ git push
+
+      Then use
+
+      $ mvn -DupdateProtobuf=true clean compile
+
+      to perform the actual update and make the necessary code changes
+
+   -->
+  <profiles>
+    <profile>
+      <id>update-protobuf</id>
+      <activation>
+        <property>
+          <name>updateProtobuf</name>
+          <value>true</value>
+        </property>
+      </activation>
+      <build>
+
+        <plugins>
+
+          <!-- Build the protobuf file -->
+          <plugin>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>compile-protoc</id>
+                <phase>generate-sources</phase>
+                <configuration>
+                  <tasks>
+                    <path id="proto.path">
+                      <!-- Include Trezor Common files -->
+                      <fileset dir="src/main/trezor-common/protob">
+                        <include name="**/*.proto"/>
+                      </fileset>
+                    </path>
+                    <pathconvert pathsep=" " property="proto.files" refid="proto.path"/>
+                    <exec executable="/usr/local/bin/protoc" failonerror="true">
+                      <arg value="-I=${project.basedir}/src/main/trezor-common/protob"/>
+                      <arg value="--java_out=${project.basedir}/src/main/java"/>
+                      <arg line="${proto.files}"/>
+                    </exec>
+                  </tasks>
+                </configuration>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+
+  <!-- Parent provides default configuration for most dependencies -->
+  <dependencies>
+
+    <!-- MBHD Hardware Core -->
+    <dependency>
+      <groupId>org.multibit.hd.hardware</groupId>
+      <artifactId>core</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <!-- hid4java for HID USB -->
+    <dependency>
+      <groupId>org.hid4java</groupId>
+      <artifactId>hid4java</artifactId>
+    </dependency>
+
+  </dependencies>
+
+</project>

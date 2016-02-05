@@ -541,6 +541,10 @@ public final class TrezorType {
      * <code>ButtonRequest_Address = 10;</code>
      */
     ButtonRequest_Address(9, 10),
+    /**
+     * <code>ButtonRequest_PublicKey = 11;</code>
+     */
+    ButtonRequest_PublicKey(10, 11),
     ;
 
     /**
@@ -583,6 +587,10 @@ public final class TrezorType {
      * <code>ButtonRequest_Address = 10;</code>
      */
     public static final int ButtonRequest_Address_VALUE = 10;
+    /**
+     * <code>ButtonRequest_PublicKey = 11;</code>
+     */
+    public static final int ButtonRequest_PublicKey_VALUE = 11;
 
 
     public final int getNumber() { return value; }
@@ -599,6 +607,7 @@ public final class TrezorType {
         case 8: return ButtonRequest_SignTx;
         case 9: return ButtonRequest_FirmwareCheck;
         case 10: return ButtonRequest_Address;
+        case 11: return ButtonRequest_PublicKey;
         default: return null;
       }
     }
@@ -12307,7 +12316,7 @@ public final class TrezorType {
       "PAYTOOPRETURN\020\003*6\n\017InputScriptType\022\020\n\014SP" +
       "ENDADDRESS\020\000\022\021\n\rSPENDMULTISIG\020\001*D\n\013Reque" +
       "stType\022\013\n\007TXINPUT\020\000\022\014\n\010TXOUTPUT\020\001\022\n\n\006TXM" +
-      "ETA\020\002\022\016\n\nTXFINISHED\020\003*\302\002\n\021ButtonRequestT" +
+      "ETA\020\002\022\016\n\nTXFINISHED\020\003*\337\002\n\021ButtonRequestT" +
       "ype\022\027\n\023ButtonRequest_Other\020\001\022\"\n\036ButtonRe",
       "quest_FeeOverThreshold\020\002\022\037\n\033ButtonReques" +
       "t_ConfirmOutput\020\003\022\035\n\031ButtonRequest_Reset" +
@@ -12315,17 +12324,18 @@ public final class TrezorType {
       "\034\n\030ButtonRequest_WipeDevice\020\006\022\035\n\031ButtonR" +
       "equest_ProtectCall\020\007\022\030\n\024ButtonRequest_Si" +
       "gnTx\020\010\022\037\n\033ButtonRequest_FirmwareCheck\020\t\022" +
-      "\031\n\025ButtonRequest_Address\020\n*\177\n\024PinMatrixR" +
-      "equestType\022 \n\034PinMatrixRequestType_Curre" +
-      "nt\020\001\022!\n\035PinMatrixRequestType_NewFirst\020\002\022" +
-      "\"\n\036PinMatrixRequestType_NewSecond\020\003:4\n\007w",
-      "ire_in\022!.google.protobuf.EnumValueOption" +
-      "s\030\322\206\003 \001(\010:5\n\010wire_out\022!.google.protobuf." +
-      "EnumValueOptions\030\323\206\003 \001(\010::\n\rwire_debug_i" +
-      "n\022!.google.protobuf.EnumValueOptions\030\324\206\003" +
-      " \001(\010:;\n\016wire_debug_out\022!.google.protobuf" +
-      ".EnumValueOptions\030\325\206\003 \001(\010B-\n\037com.satoshi" +
-      "labs.trezor.protobufB\nTrezorType"
+      "\031\n\025ButtonRequest_Address\020\n\022\033\n\027ButtonRequ" +
+      "est_PublicKey\020\013*\177\n\024PinMatrixRequestType\022" +
+      " \n\034PinMatrixRequestType_Current\020\001\022!\n\035Pin" +
+      "MatrixRequestType_NewFirst\020\002\022\"\n\036PinMatri",
+      "xRequestType_NewSecond\020\003:4\n\007wire_in\022!.go" +
+      "ogle.protobuf.EnumValueOptions\030\322\206\003 \001(\010:5" +
+      "\n\010wire_out\022!.google.protobuf.EnumValueOp" +
+      "tions\030\323\206\003 \001(\010::\n\rwire_debug_in\022!.google." +
+      "protobuf.EnumValueOptions\030\324\206\003 \001(\010:;\n\016wir" +
+      "e_debug_out\022!.google.protobuf.EnumValueO" +
+      "ptions\030\325\206\003 \001(\010B-\n\037com.satoshilabs.trezor" +
+      ".protobufB\nTrezorType"
     };
     com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner assigner =
       new com.google.protobuf.Descriptors.FileDescriptor.InternalDescriptorAssigner() {
