@@ -3,7 +3,6 @@ package org.multibit.hd.hardware.keepkey.clients;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.protobuf.Message;
-import org.multibit.hd.hardware.core.domain.Identity;
 import org.multibit.hd.hardware.core.events.MessageEvent;
 import org.multibit.hd.hardware.core.events.MessageEventType;
 import org.multibit.hd.hardware.core.events.MessageEvents;
@@ -127,11 +126,6 @@ public class KeepKeyHardwareWalletClient extends AbstractKeepKeyHardwareWalletCl
 
     return Optional.absent();
 
-  }
-
-  @Override
-  public Optional<MessageEvent> signIdentity(Identity identity) {
-    throw new UnsupportedOperationException("This operation is not yet available for KeepKey devices");
   }
 
   @Override

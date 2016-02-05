@@ -388,4 +388,21 @@ public class KeepKeyMessageAdapter {
       source.getValue().toByteArray()
     );
   }
+
+  /**
+   * @param source The source message
+   *
+   * @return The adapted Core message
+   */
+  public static HardwareWalletMessage adaptSignedIdentity(KeepKeyMessage.SignedIdentity source) {
+    return new SignedIdentity(
+      source.hasAddress(),
+      source.getAddressBytes().toByteArray(),
+      source.hasPublicKey(),
+      source.getPublicKey().toByteArray(),
+      source.hasSignature(),
+      source.getSignature().toByteArray()
+    );
+  }
+
 }

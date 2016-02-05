@@ -264,6 +264,19 @@ public final class KeepKeyMessageUtils {
           message = KeepKeyMessage.WordAck.parseFrom(buffer);
           messageEventType = MessageEventType.WORD_ACK;
           break;
+        case MessageType_SignIdentity:
+          message = KeepKeyMessage.SignIdentity.parseFrom(buffer);
+          messageEventType = MessageEventType.SIGN_IDENTITY;
+          break;
+        case MessageType_SignedIdentity:
+          message = KeepKeyMessage.SignedIdentity.parseFrom(buffer);
+          messageEventType = MessageEventType.SIGNED_IDENTITY;
+          hardwareWalletMessage = KeepKeyMessageAdapter.adaptSignedIdentity((KeepKeyMessage.SignedIdentity) message);
+          break;
+        case MessageType_GetFeatures:
+          message = KeepKeyMessage.GetFeatures.parseFrom(buffer);
+          messageEventType = MessageEventType.GET_FEATURES;
+          break;
         case MessageType_DebugLinkDecision:
           message = KeepKeyMessage.DebugLinkDecision.parseFrom(buffer);
           messageEventType = MessageEventType.DEBUG_LINK_DECISION;
