@@ -138,9 +138,7 @@ public class KeepKeyV1GetPublicKeyForIdentityExample {
         try {
           log.info("Public key xpub:\n{}", Utils.HEX.encode(pubKey.getXpubBytes().get()));
 
-          // TODO Verify the signature against the challenge using the nist256p1 curve somehow
-
-          // Treat as end of example
+            // Treat as end of example
           System.exit(0);
 
         } catch (Exception e) {
