@@ -1,4 +1,4 @@
-package org.multibit.hd.hardware.examples.trezor.usb.extras;
+package org.multibit.hd.hardware.examples.keepkey.usb.extras;
 
 import com.google.common.base.Optional;
 import com.google.common.eventbus.Subscribe;
@@ -11,8 +11,8 @@ import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
 import org.multibit.hd.hardware.core.messages.PinMatrixRequest;
 import org.multibit.hd.hardware.core.messages.PublicKey;
 import org.multibit.hd.hardware.core.wallets.HardwareWallets;
-import org.multibit.hd.hardware.trezor.clients.TrezorHardwareWalletClient;
-import org.multibit.hd.hardware.trezor.wallets.v1.TrezorV1HidHardwareWallet;
+import org.multibit.hd.hardware.keepkey.clients.KeepKeyHardwareWalletClient;
+import org.multibit.hd.hardware.keepkey.wallets.v1.KeepKeyV1HidHardwareWallet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,9 +28,9 @@ import java.util.concurrent.TimeUnit;
  * @since 0.8.0
  *  
  */
-public class TrezorV1GetPublicKeyForIdentityExample {
+public class KeepKeyV1GetPublicKeyForIdentityExample {
 
-  private static final Logger log = LoggerFactory.getLogger(TrezorV1GetPublicKeyForIdentityExample.class);
+  private static final Logger log = LoggerFactory.getLogger(KeepKeyV1GetPublicKeyForIdentityExample.class);
 
   private HardwareWalletService hardwareWalletService;
 
@@ -44,7 +44,7 @@ public class TrezorV1GetPublicKeyForIdentityExample {
   public static void main(String[] args) throws Exception {
 
     // All the work is done in the class
-    TrezorV1GetPublicKeyForIdentityExample example = new TrezorV1GetPublicKeyForIdentityExample();
+    KeepKeyV1GetPublicKeyForIdentityExample example = new KeepKeyV1GetPublicKeyForIdentityExample();
 
     example.executeExample();
 
@@ -60,15 +60,15 @@ public class TrezorV1GetPublicKeyForIdentityExample {
   public void executeExample() {
 
     // Use factory to statically bind the specific hardware wallet
-    TrezorV1HidHardwareWallet wallet = HardwareWallets.newUsbInstance(
-      TrezorV1HidHardwareWallet.class,
+    KeepKeyV1HidHardwareWallet wallet = HardwareWallets.newUsbInstance(
+      KeepKeyV1HidHardwareWallet.class,
       Optional.<Integer>absent(),
       Optional.<Integer>absent(),
       Optional.<String>absent()
     );
 
     // Wrap the hardware wallet in a suitable client to simplify message API
-    HardwareWalletClient client = new TrezorHardwareWalletClient(wallet);
+    HardwareWalletClient client = new KeepKeyHardwareWalletClient(wallet);
 
     // Wrap the client in a service for high level API suitable for downstream applications
     hardwareWalletService = new HardwareWalletService(client);
@@ -105,8 +105,8 @@ public class TrezorV1GetPublicKeyForIdentityExample {
           URI uri = URI.create("https://user@multibit.org/trezor-connect");
           int index = 0;
 
-          // Request an identity public key from the device
-          hardwareWalletService.requestPublicKeyForIdentity(uri, index, "nist256p1", true);
+          // Request an identity public key from the device (no screen support at present)
+          hardwareWalletService.requestPublicKeyForIdentity(uri, index, "nist256p1", false);
 
         } else {
           log.info("You need to have created a wallet before running this example");
