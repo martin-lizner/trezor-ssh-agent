@@ -990,6 +990,9 @@ public class HardwareWalletContext {
     this.entropy = Optional.fromNullable(entropy);
   }
 
+  /**
+   * @param identity The identity to be signed
+   */
   public void beginSignIdentityUseCase(Identity identity) {
 
     log.debug("Begin 'sign identity' use case");
@@ -1010,4 +1013,24 @@ public class HardwareWalletContext {
     client.signIdentity(identity);
 
   }
+
+  /**
+   * <p>Continue the "sign identity" use case with the provision of the current PIN</p>
+   *
+   * @param pin The PIN
+   */
+  public void continueSignIdentity_PIN(String pin) {
+
+    log.debug("Continue 'sign identity' use case (provide PIN)");
+
+    // Store the overall context parameters
+
+    // Set the event receiving state
+    currentState = HardwareWalletStates.newConfirmSignIdentityState();
+
+    // Issue starting message to elicit the event
+    client.pinMatrixAck(pin);
+
+  }
+
 }

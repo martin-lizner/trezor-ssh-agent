@@ -313,7 +313,7 @@ public class HardwareWalletService {
         context.continueChangePIN_PIN(pin);
         break;
       case SIGN_IDENTITY:
-        context.continueChangePIN_PIN(pin);
+        context.continueSignIdentity_PIN(pin);
         break;
       default:
         log.warn("Unknown PIN request use case: {}", context.getCurrentUseCase().name());
