@@ -106,7 +106,7 @@ public class TrezorV1SignIdentityExample {
 
           // Create an identity
           URI uri =URI.create("https://user@multibit.org/trezor-connect");
-          Identity identity = new Identity(uri, challengeHidden, challengeVisual, null, 0);
+          Identity identity = new Identity(uri, 0, challengeHidden, challengeVisual, null);
 
           // Request an identity signature from the device
           // The response will contain the address used
