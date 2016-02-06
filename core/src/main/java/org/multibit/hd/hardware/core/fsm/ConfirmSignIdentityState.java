@@ -10,11 +10,11 @@ import org.multibit.hd.hardware.core.events.MessageEvent;
  * <ul>
  * <li>State transitions based on low level message events</li>
  * </ul>
- * <p>The "confirm sign message" state occurs in response to a SIGN_MESSAGE
+ * <p>The "confirm sign identity" state occurs in response to a SIGN_IDENTITY
  * message and handles the ongoing button requests, success and failure messages
  * coming from the device as it provides the signed data using the provided address.</p>
  *
- * @since 0.0.1
+ * @since 0.8.0
  *  
  */
 public class ConfirmSignIdentityState extends AbstractHardwareWalletState {

@@ -32,7 +32,27 @@
 
   </build>
 
-  <!-- Examples are a standalone downstream project so must provide the dependencies -->
+  <!-- Examples is standalone so requires its own reference to upstream repositories -->
+  <repositories>
+    <!-- Define the MultiBit staging repository for releases and snapshots -->
+    <!-- Use https://raw.github.com to provide a consistent result -->
+    <repository>
+      <id>mbhd-maven-release</id>
+      <url>https://raw.github.com/bitcoin-solutions/mbhd-maven/master/releases</url>
+      <releases/>
+    </repository>
+    <repository>
+      <id>mbhd-maven-snapshot</id>
+      <url>https://raw.github.com/bitcoin-solutions/mbhd-maven/master/snapshots</url>
+      <!-- These artifacts change frequently during development iterations -->
+      <snapshots>
+        <updatePolicy>always</updatePolicy>
+      </snapshots>
+    </repository>
+
+  </repositories>
+
+  <!-- Examples is standalone so must provide the dependencies -->
   <dependencies>
 
     <!-- MultiBit Commons for Bitcoin support -->
