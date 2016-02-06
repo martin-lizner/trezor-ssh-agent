@@ -125,9 +125,13 @@ public enum MessageEventType {
    */
   GET_PUBLIC_KEY,
   /**
-   * Device response. Provide the master public key.
+   * Device response. Provide the master public key for BIP44.
    */
   PUBLIC_KEY,
+  /**
+   * Device response. Provide the master public key for identity.
+   */
+  PUBLIC_KEY_FOR_IDENTITY,
 
   // Transaction signing
   /**

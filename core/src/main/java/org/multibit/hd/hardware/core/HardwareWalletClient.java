@@ -12,6 +12,7 @@ import org.multibit.hd.hardware.core.messages.Features;
 import org.multibit.hd.hardware.core.messages.TxRequest;
 import org.multibit.hd.hardware.core.wallets.Connectable;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
@@ -526,10 +527,21 @@ public interface HardwareWalletClient extends Connectable {
    * <li>FAILURE if the operation was unsuccessful</li>
    * </ul>
    *
-   * @return The response event if implementation is blocking. Absent if non-blocking or device failure.
    * @param identity The identity information to sign and how to present it to the user
+   *
+   * @return The response event if implementation is blocking. Absent if non-blocking or device failure.
    */
   Optional<MessageEvent> signIdentity(Identity identity);
+
+  /**
+   * @param identityUri    The identity URI (e.g. "https://user@multibit.org/trezor-connect")
+   * @param index          The index of the identity to use (default is zero) to allow for multiple identities on same path
+   * @param ecdsaCurveName The ECDSA curve name to use for TLS (e.g. "nist256p1") leave null to use default
+   * @param showDisplay    True if the result should only be given on the device display
+   *
+   * @return The response event if implementation is blocking. Absent if non-blocking or device failure.
+   */
+  Optional<MessageEvent> getPublicKeyForIdentity(URI identityUri, int index, String ecdsaCurveName, boolean showDisplay);
 
   /**
    * <p>Verify the contents of the Features message in accordance with client-specific rules (e.g. firmware)</p>
@@ -546,5 +558,4 @@ public interface HardwareWalletClient extends Connectable {
    * @return The client name in an enum format (e.g. "TREZOR", "KEEP_KEY" etc)
    */
   String name();
-
 }

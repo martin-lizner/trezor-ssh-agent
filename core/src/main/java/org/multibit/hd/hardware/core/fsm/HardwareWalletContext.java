@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
@@ -637,6 +638,58 @@ public class HardwareWalletContext {
     currentState = HardwareWalletStates.newConfirmGetPublicKeyState();
 
       // Issue starting message to elicit the event
+    client.pinMatrixAck(pin);
+
+  }
+
+  /**
+   * <p>Begin the "get public key" use case</p>
+   *
+   * @param identityUri    The identity URI (e.g. "https://user@multibit.org/trezor-connect")
+   * @param index          The index of the identity to use (default is zero) to allow for multiple identities on same path
+   * @param ecdsaCurveName The ECDSA curve name to use for TLS (e.g. "nist256p1") leave null to use default
+   * @param showDisplay    True if the result should only be given on the device display
+   */
+  public void beginGetPublicKeyForIdentityUseCase(URI identityUri, int index, String ecdsaCurveName, boolean showDisplay) {
+
+    log.debug("Begin 'get public key for identity' use case");
+
+    // Clear relevant information
+    resetAllButFeatures();
+
+    // Track the use case
+    currentUseCase = ContextUseCase.REQUEST_PUBLIC_KEY_FOR_IDENTITY;
+
+    // Store the overall context parameters
+
+    // Set the event receiving state
+    currentState = HardwareWalletStates.newConfirmGetPublicKeyForIdentityState();
+
+    // Issue starting message to elicit the event
+    client.getPublicKeyForIdentity(
+      identityUri,
+      index,
+      ecdsaCurveName,
+      showDisplay
+    );
+
+  }
+
+  /**
+   * <p>Continue the "get public key for identity" use case with the provision of the current PIN</p>
+   *
+   * @param pin The PIN
+   */
+  public void continueGetPublicKeyForIdentityUseCase_PIN(String pin) {
+
+    log.debug("Continue 'get public key for identity' use case (provide PIN)");
+
+    // Store the overall context parameters
+
+    // Set the event receiving state
+    currentState = HardwareWalletStates.newConfirmGetPublicKeyForIdentityState();
+
+    // Issue starting message to elicit the event
     client.pinMatrixAck(pin);
 
   }

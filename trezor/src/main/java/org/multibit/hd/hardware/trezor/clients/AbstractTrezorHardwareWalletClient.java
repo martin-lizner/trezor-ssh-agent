@@ -20,6 +20,7 @@ import org.multibit.hd.hardware.trezor.utils.TrezorMessageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -461,6 +462,20 @@ public abstract class AbstractTrezorHardwareWalletClient implements HardwareWall
         .build()
     );
 
+  }
+
+  @Override
+  public Optional<MessageEvent> getPublicKeyForIdentity(URI identityUri, int index, String ecdsaCurveName, boolean showDisplay) {
+
+    return sendMessage(
+      TrezorMessage.GetPublicKey
+        .newBuilder()
+        // Build the chain code
+        .addAllAddressN(TrezorMessageUtils.buildAddressN(identityUri, index))
+        .setEcdsaCurveName(ecdsaCurveName)
+        .setShowDisplay(showDisplay)
+        .build()
+    );
   }
 
   @Override

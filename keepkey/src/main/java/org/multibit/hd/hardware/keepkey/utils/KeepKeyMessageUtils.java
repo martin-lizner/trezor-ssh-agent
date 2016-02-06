@@ -1,9 +1,11 @@
 package org.multibit.hd.hardware.keepkey.utils;
 
+import com.google.common.base.Charsets;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.google.common.primitives.Ints;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import com.google.protobuf.Message;
@@ -11,10 +13,7 @@ import com.keepkey.protobuf.KeepKeyMessage;
 import com.keepkey.protobuf.KeepKeyType;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.bitcoinj.core.Address;
-import org.bitcoinj.core.Transaction;
-import org.bitcoinj.core.TransactionInput;
-import org.bitcoinj.core.TransactionOutput;
+import org.bitcoinj.core.*;
 import org.bitcoinj.crypto.ChildNumber;
 import org.bitcoinj.params.MainNetParams;
 import org.bitcoinj.wallet.KeyChain;
@@ -28,7 +27,9 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URI;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -734,13 +735,67 @@ public final class KeepKeyMessageUtils {
     List<Integer> addressN = Lists.newArrayList();
 
     for (ChildNumber childNumber : receivingAddressPath) {
-
       addressN.add(childNumber.getI());
-
     }
 
     return addressN;
   }
 
+  /**
+   * <p>Build an AddressN chain code structure for an Identity URI</p>
+   *
+   * <p>A BIP-32 chain code is derived from a combination of the URI and the index as follows:</p>
+   * <ol>
+   * <li>Concatenate the little endian representation of index with the URI (index + URI)</li>
+   * <li>Compute the SHA256 hash of the result (256 bits)</li>
+   * <li>Take first 128 bits (32 bytes) of the hash and split it into four 32-bit numbers A, B, C, D</li>
+   * <li>Set highest bits of numbers A, B, C, D to 1</li>
+   * <li>Derive the hardened HD node m/13'/A'/B'/C'/D' according to BIP32 (e.g. bitwise-OR with 0x80000000)</li>
+   * </ol>
+   *
+   * <p>See https://github.com/satoshilabs/slips/blob/master/slip-0013.md for more details</p>
+   *
+   * @param identityUri The identity URI (e.g. "https://user@multibit.org/trezor-connect")
+   * @param index       The index of the identity to use (default is zero) to allow for multiple identities on same path
+   *
+   * @return The list representing the chain code (only a simple chain is currently supported)
+   */
+  public static List<Integer> buildAddressN(URI identityUri, int index) {
+
+    // Convert index to little endian (Java is big endian by default)
+    ByteBuffer indexBytes = ByteBuffer.wrap(Ints.toByteArray(index)).order(ByteOrder.LITTLE_ENDIAN);
+    byte[] leIndex = indexBytes.array();
+
+    // Convert URI to bytes
+    byte[] identityUriBytes = identityUri.toASCIIString().getBytes(Charsets.UTF_8);
+
+    // Concatenate index and URI
+    byte[] canonicalBytes = new byte[leIndex.length + identityUriBytes.length];
+    System.arraycopy(leIndex, 0, canonicalBytes, 0, leIndex.length);
+    System.arraycopy(identityUriBytes, 0, canonicalBytes, leIndex.length, identityUriBytes.length);
+
+    // SHA256(canonical)
+    byte[] sha256CanonicalBytes = Sha256Hash.hash(canonicalBytes);
+
+    // Truncate to first 128 bits of SHA256
+    byte[] truncatedSha256CanonicalBytes = new byte[32];
+    System.arraycopy(sha256CanonicalBytes, 0, truncatedSha256CanonicalBytes, 0, 32);
+
+    // Extract A,B,C,D
+    ByteBuffer abcdBytes = ByteBuffer.wrap(truncatedSha256CanonicalBytes);
+    int a = abcdBytes.getInt();
+    int b = abcdBytes.getInt();
+    int c = abcdBytes.getInt();
+    int d = abcdBytes.getInt();
+
+    // Build m/13'/a'/b'/c'/d'
+    return Lists.newArrayList(
+      13 | ChildNumber.HARDENED_BIT,
+      a | ChildNumber.HARDENED_BIT,
+      b | ChildNumber.HARDENED_BIT,
+      c | ChildNumber.HARDENED_BIT,
+      d | ChildNumber.HARDENED_BIT
+    );
+  }
 
 }

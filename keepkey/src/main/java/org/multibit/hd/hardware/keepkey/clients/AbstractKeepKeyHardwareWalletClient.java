@@ -20,6 +20,7 @@ import org.multibit.hd.hardware.keepkey.utils.KeepKeyMessageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -461,6 +462,19 @@ public abstract class AbstractKeepKeyHardwareWalletClient implements HardwareWal
         .build()
     );
 
+  }
+
+  @Override
+  public Optional<MessageEvent> getPublicKeyForIdentity(URI identityUri, int index, String ecdsaCurveName, boolean showDisplay) {
+
+    return sendMessage(
+      KeepKeyMessage.GetPublicKey
+        .newBuilder()
+        // Build the chain code
+        .addAllAddressN(KeepKeyMessageUtils.buildAddressN(identityUri, index))
+        .setEcdsaCurveName(ecdsaCurveName)
+        .build()
+    );
   }
 
   @Override
