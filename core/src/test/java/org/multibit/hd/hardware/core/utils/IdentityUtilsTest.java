@@ -1,4 +1,4 @@
-package org.multibit.hd.hardware.trezor.utils;
+package org.multibit.hd.hardware.core.utils;
 
 import org.junit.Test;
 
@@ -7,14 +7,14 @@ import java.util.List;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
-public class TrezorMessageUtilsTest {
+public class IdentityUtilsTest {
 
   @Test
   public void testBuildAddressN_IdentityURI() throws Exception {
 
     URI identityUri = URI.create("ssh://ssh.hostname.com");
 
-    List<Integer> addressN = TrezorMessageUtils.buildAddressN(identityUri, 0);
+    List<Integer> addressN = IdentityUtils.buildAddressN(identityUri, 0);
 
     assertThat(addressN.size()).isEqualTo(5);
     // Remove the hardening to see the underlying value

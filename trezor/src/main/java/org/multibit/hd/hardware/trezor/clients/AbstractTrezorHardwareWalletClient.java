@@ -15,6 +15,7 @@ import org.multibit.hd.hardware.core.HardwareWalletClient;
 import org.multibit.hd.hardware.core.domain.Identity;
 import org.multibit.hd.hardware.core.events.MessageEvent;
 import org.multibit.hd.hardware.core.messages.TxRequest;
+import org.multibit.hd.hardware.core.utils.IdentityUtils;
 import org.multibit.hd.hardware.core.utils.TransactionUtils;
 import org.multibit.hd.hardware.trezor.utils.TrezorMessageUtils;
 import org.slf4j.Logger;
@@ -471,7 +472,7 @@ public abstract class AbstractTrezorHardwareWalletClient implements HardwareWall
       TrezorMessage.GetPublicKey
         .newBuilder()
         // Build the chain code
-        .addAllAddressN(TrezorMessageUtils.buildAddressN(identityUri, index))
+        .addAllAddressN(IdentityUtils.buildAddressN(identityUri, index))
         .setEcdsaCurveName(ecdsaCurveName)
         .setShowDisplay(showDisplay)
         .build()
