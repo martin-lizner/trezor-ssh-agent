@@ -136,7 +136,7 @@ public class KeepKeyV1GetPublicKeyForIdentityExample {
         PublicKey pubKey = (PublicKey) event.getMessage().get();
 
         try {
-          log.info("Public key xpub:\n{}", Utils.HEX.encode(pubKey.getXpubBytes().get()));
+          log.info("Public key:\n{}", Utils.HEX.encode(pubKey.getHdNodeType().get().getPublicKey().get()));
 
             // Treat as end of example
           System.exit(0);
