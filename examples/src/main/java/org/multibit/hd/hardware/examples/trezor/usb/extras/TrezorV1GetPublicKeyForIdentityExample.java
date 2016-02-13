@@ -103,10 +103,9 @@ public class TrezorV1GetPublicKeyForIdentityExample {
 
           // Create an identity
           URI uri = URI.create("https://user@multibit.org/trezor-connect");
-          int index = 0;
 
-          // Request an identity public key from the device
-          hardwareWalletService.requestPublicKeyForIdentity(uri, index, "nist256p1", true);
+          // Request an identity public key from the device (no screen support at present)
+          hardwareWalletService.requestPublicKeyForIdentity(uri, 0, "nist256p1", false);
 
         } else {
           log.info("You need to have created a wallet before running this example");
@@ -136,7 +135,7 @@ public class TrezorV1GetPublicKeyForIdentityExample {
         PublicKey pubKey = (PublicKey) event.getMessage().get();
 
         try {
-          log.info("Public key xpub:\n{}", Utils.HEX.encode(pubKey.getXpubBytes().get()));
+          log.info("Public key:\n{}", Utils.HEX.encode(pubKey.getHdNodeType().get().getPublicKey().get()));
 
           // Treat as end of example
           System.exit(0);

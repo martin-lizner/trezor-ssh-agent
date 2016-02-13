@@ -12,17 +12,20 @@ public class IdentityUtilsTest {
   @Test
   public void testBuildAddressN_IdentityURI() throws Exception {
 
-    URI identityUri = URI.create("ssh://ssh.hostname.com");
+    // See https://github.com/trezor/python-trezor/blob/ca45019918bc4c54f1ace899a9acf397c8f4d92f/tests/test_msg_signidentity.py#L27 for details
+    URI identityUri = URI.create("https://satoshi@bitcoin.org/login");
 
     List<Integer> addressN = IdentityUtils.buildAddressN(identityUri, 0);
 
+    // m/2147483661/2637750992/2845082444/3761103859/4005495825
     assertThat(addressN.size()).isEqualTo(5);
     // Remove the hardening to see the underlying value
-    assertThat(addressN.get(0) & 0x0fffffff).isEqualTo(13);
-    assertThat(addressN.get(1) & 0x0fffffff).isEqualTo(0x1B6773C);
-    assertThat(addressN.get(2) & 0x0fffffff).isEqualTo(0x9E263FE);
-    assertThat(addressN.get(3) & 0x0fffffff).isEqualTo(0x44F6B71);
-    assertThat(addressN.get(4) & 0x0fffffff).isEqualTo(0x3A3854B);
+    assertThat(addressN.get(0) & 0x0fffffff).isEqualTo(13); // 2147483661L
+    assertThat(addressN.get(1) & 0x0fffffff).isEqualTo(221831888); // 2637750992L
+    assertThat(addressN.get(2) & 0x0fffffff).isEqualTo(160727884); // 2845082444L
+    assertThat(addressN.get(3) & 0x0fffffff).isEqualTo(3007475); // 3761103859
+    assertThat(addressN.get(4) & 0x0fffffff).isEqualTo(247399441); // 4005495825
+
 
   }
 

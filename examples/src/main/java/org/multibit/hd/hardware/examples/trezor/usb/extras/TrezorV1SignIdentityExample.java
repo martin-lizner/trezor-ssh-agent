@@ -105,8 +105,10 @@ public class TrezorV1SignIdentityExample {
         if (hardwareWalletService.isWalletPresent()) {
 
           // Create an identity
-          URI uri =URI.create("https://user@multibit.org/trezor-connect");
-          Identity identity = new Identity(uri, 0, challengeHidden, challengeVisual, null);
+          URI uri =URI.create("https://multibit.org/trezor-connect");
+          byte[] challengeHidden = Utils.parseAsHexOrBase58("cd8552569d6e4509266ef137584d1e62c7579b5b8ed69bbafa4b864c6521e7c2");
+          String challengeVisual = "2015-03-23 17:39:22";
+          Identity identity = new Identity(uri, 0, challengeHidden, challengeVisual, "nist256p1");
 
           // Request an identity signature from the device
           // The response will contain the address used
@@ -140,11 +142,10 @@ public class TrezorV1SignIdentityExample {
         SignedIdentity signature = (SignedIdentity) event.getMessage().get();
 
         try {
+          log.info("Public key:\n{}", Utils.HEX.encode(signature.getPublicKeyBytes().get()));
           log.info("Signature:\n{}", Utils.HEX.encode(signature.getSignatureBytes().get()));
 
-          // TODO Verify the signature against the challenge using the nist256p1 curve somehow
-
-          // Treat as end of example
+          // Treat as end of example (consumer must convert signature to NIST format)
           System.exit(0);
 
         } catch (Exception e) {
@@ -166,5 +167,4 @@ public class TrezorV1SignIdentityExample {
 
 
   }
-
 }

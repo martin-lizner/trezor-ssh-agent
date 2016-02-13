@@ -59,15 +59,18 @@ public class Identity {
   }
 
   public String getHost() {
+    // Trezor API demands non-null value here
     return identityUri.getHost() == null ? "" : identityUri.getHost();
   }
 
   public String getPort() {
+    // Trezor API demands non-null value here
     return identityUri.getPort() == -1 ? "" : String.valueOf(identityUri.getPort());
   }
 
   public String getPath() {
-    return identityUri.getPath() == null ? "" : identityUri.getPath();
+    // Trezor API accepts null value here
+    return identityUri.getPath();
   }
 
   public String getProto() {
@@ -75,6 +78,7 @@ public class Identity {
   }
 
   public String getUser() {
+    // Trezor API demands non-null value here
     return identityUri.getUserInfo() == null ? "" : identityUri.getUserInfo();
   }
 

@@ -103,10 +103,9 @@ public class KeepKeyV1GetPublicKeyForIdentityExample {
 
           // Create an identity
           URI uri = URI.create("https://user@multibit.org/trezor-connect");
-          int index = 0;
 
           // Request an identity public key from the device (no screen support at present)
-          hardwareWalletService.requestPublicKeyForIdentity(uri, index, "nist256p1", false);
+          hardwareWalletService.requestPublicKeyForIdentity(uri, 0, "nist256p1", false);
 
         } else {
           log.info("You need to have created a wallet before running this example");
