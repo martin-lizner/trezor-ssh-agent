@@ -3,10 +3,6 @@ package org.multibit.hd.hardware.examples.trezor.usb.extras;
 import com.google.common.base.Optional;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.Uninterruptibles;
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import org.multibit.hd.hardware.core.HardwareWalletClient;
 import org.multibit.hd.hardware.core.HardwareWalletService;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvent;
@@ -20,24 +16,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URI;
-import java.security.InvalidKeyException;
-import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.Signature;
-import java.security.SignatureException;
 import java.security.interfaces.ECPublicKey;
-import java.security.spec.ECPoint;
-import java.security.spec.ECPublicKeySpec;
-import java.security.spec.InvalidKeySpecException;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
-import javax.xml.bind.DatatypeConverter;
-import org.spongycastle.jce.ECNamedCurveTable;
-import org.spongycastle.jce.ECPointUtil;
-import org.spongycastle.jce.provider.BouncyCastleProvider;
-import org.spongycastle.jce.spec.ECNamedCurveParameterSpec;
-import org.spongycastle.jce.spec.ECNamedCurveSpec;
+import org.multibit.hd.hardware.core.utils.IdentityUtils;
 
 /**
  * <p>
@@ -68,9 +50,9 @@ public class TrezorV1GetPublicKeyForIdentityExample {
 
         // All the work is done in the class
         TrezorV1GetPublicKeyForIdentityExample example = new TrezorV1GetPublicKeyForIdentityExample();
-        
+
         example.executeExample();
-        
+
         // Simulate the main thread continuing with other unrelated work
         // We don't terminate main since we're using safe executors
         Uninterruptibles.sleepUninterruptibly(5, TimeUnit.MINUTES);
@@ -126,12 +108,7 @@ public class TrezorV1GetPublicKeyForIdentityExample {
                 if (hardwareWalletService.isWalletPresent()) {
 
                     // Create an identity
-                    URI uri = URI.create("ssh://www.seznam.cz");
-                    /*
-                    correct output should be:
-                    ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBGkoolgyOag69SvyS3+HSkDL193XuC0b73DWKOKL1fps36S09sdGXAoewN4YytAzsiUuQ/bhJGeD75a+iB0tgKY= ssh://www.seznam.cz
-                    
-                     */
+                    URI uri = URI.create("ssh://user@multibit.org/trezor-connect");
 
                     // Request an identity public key from the device (no screen support at present)
                     hardwareWalletService.requestPublicKeyForIdentity(uri, 0, "nist256p1", false);
@@ -164,21 +141,16 @@ public class TrezorV1GetPublicKeyForIdentityExample {
                 PublicKey pubKey = (PublicKey) event.getMessage().get();
 
                 try {
-                    log.info("Public key:\n{}", (pubKey.getHdNodeType().get().getPublicKey().get()));
+                    log.info("Raw Public Key:\n{}", (pubKey.getHdNodeType().get().getPublicKey().get()));
 
-                    ECPublicKey publicKey = getPublicKeyFromBytes(pubKey.getHdNodeType().get().getPublicKey().get());
+                    // first retrieve public key from node (not xpub)
+                    ECPublicKey publicKey = IdentityUtils.getPublicKeyFromBytes(pubKey.getHdNodeType().get().getPublicKey().get());
 
-                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                    DataOutputStream dos = new DataOutputStream(baos);
-                    writeStringToBuffer(dos, "ecdsa-sha2-nistp256");
-                    writeStringToBuffer(dos, "nistp256");
+                    // decompress key
+                    String decompressedSSHKey = IdentityUtils.decompressSSHKeyFromNistp256(publicKey);
 
-                    byte[] x = publicKey.getW().getAffineX().toByteArray();
-                    byte[] y = publicKey.getW().getAffineY().toByteArray();
-                    byte[] octet = {(byte) 0x04};
-                    
-                    writeByteArrayToBuffer(dos, appendByteArrays(octet, appendByteArrays(x, y)));                    
-                    log.info("SSH Key: " + DatatypeConverter.printBase64Binary(baos.toByteArray()));
+                    // convert key to openSSH format
+                    log.info("SSH Public Key:\n{}", IdentityUtils.printOpenSSHkeyNistp256(decompressedSSHKey, "User1"));
 
                     System.exit(0);
 
@@ -201,38 +173,4 @@ public class TrezorV1GetPublicKeyForIdentityExample {
 
     }
 
-    private ECPublicKey getPublicKeyFromBytes(byte[] pubKey) throws NoSuchAlgorithmException, InvalidKeySpecException {
-        ECNamedCurveParameterSpec spec = ECNamedCurveTable.getParameterSpec("P-256");
-        KeyFactory kf = KeyFactory.getInstance("ECDSA", new BouncyCastleProvider());
-        ECNamedCurveSpec params = new ECNamedCurveSpec("P-256", spec.getCurve(), spec.getG(), spec.getN());
-        ECPoint point = ECPointUtil.decodePoint(params.getCurve(), pubKey);
-        ECPublicKeySpec pubKeySpec = new ECPublicKeySpec(point, params);
-        ECPublicKey pk = (ECPublicKey) kf.generatePublic(pubKeySpec);
-        return pk;
-    }
-
-    private boolean isValidSignature(byte[] pubKey, byte[] message, byte[] signature) throws NoSuchAlgorithmException, NoSuchProviderException, InvalidKeyException, SignatureException, InvalidKeySpecException {
-        Signature ecdsaVerify = Signature.getInstance("SHA256withECDSA", new BouncyCastleProvider());
-        ecdsaVerify.initVerify(getPublicKeyFromBytes(pubKey));
-        ecdsaVerify.update(message);
-        return ecdsaVerify.verify(signature);
-    }
-
-    private void writeByteArrayToBuffer(DataOutputStream dos, byte[] data) throws IOException {
-        dos.writeInt(data.length);
-        dos.write(data);
-    }
-
-    private static void writeStringToBuffer(DataOutputStream dos, String str) throws UnsupportedEncodingException, IOException {
-        dos.writeInt(str.getBytes("ascii").length);
-        dos.write(str.getBytes("ascii"));
-    }
-
-    private static byte[] appendByteArrays(byte[] x, byte[] y) {
-        byte[] xy = new byte[x.length + y.length];
-        System.arraycopy(x, 0, xy, 0, x.length);
-        System.arraycopy(y, 0, xy, x.length, y.length);
-
-        return xy;
-    }
 }
