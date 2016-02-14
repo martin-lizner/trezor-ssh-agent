@@ -3,13 +3,13 @@ package org.multibit.hd.hardware.examples.keepkey.usb.extras;
 import com.google.common.base.Optional;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.Uninterruptibles;
-import org.bitcoinj.core.Utils;
 import org.multibit.hd.hardware.core.HardwareWalletClient;
 import org.multibit.hd.hardware.core.HardwareWalletService;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvent;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
 import org.multibit.hd.hardware.core.messages.PinMatrixRequest;
 import org.multibit.hd.hardware.core.messages.PublicKey;
+import org.multibit.hd.hardware.core.utils.IdentityUtils;
 import org.multibit.hd.hardware.core.wallets.HardwareWallets;
 import org.multibit.hd.hardware.keepkey.clients.KeepKeyHardwareWalletClient;
 import org.multibit.hd.hardware.keepkey.wallets.v1.KeepKeyV1HidHardwareWallet;
@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URI;
+import java.security.interfaces.ECPublicKey;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
@@ -102,7 +103,7 @@ public class KeepKeyV1GetPublicKeyForIdentityExample {
         if (hardwareWalletService.isWalletPresent()) {
 
           // Create an identity
-          URI uri = URI.create("https://user@multibit.org/trezor-connect");
+          URI uri = URI.create("ssh://user@multibit.org/trezor-connect");
 
           // Request an identity public key from the device (no screen support at present)
           hardwareWalletService.requestPublicKeyForIdentity(uri, 0, "nist256p1", false);
@@ -121,9 +122,9 @@ public class KeepKeyV1GetPublicKeyForIdentityExample {
         switch (request.getPinMatrixRequestType()) {
           case CURRENT:
             System.err.println(
-              "Recall your PIN (e.g. '1').\n" +
-                "Look at the device screen and type in the numerical position of each of the digits\n" +
-                "with 1 being in the bottom left and 9 being in the top right (numeric keypad style) then press ENTER."
+              "Recall your PIN (e.g. '1').\n"
+                + "Look at the device screen and type in the numerical position of each of the digits\n"
+                + "with 1 being in the bottom left and 9 being in the top right (numeric keypad style) then press ENTER."
             );
             pin = keyboard.next();
             hardwareWalletService.providePIN(pin);
@@ -135,9 +136,17 @@ public class KeepKeyV1GetPublicKeyForIdentityExample {
         PublicKey pubKey = (PublicKey) event.getMessage().get();
 
         try {
-          log.info("Public key:\n{}", Utils.HEX.encode(pubKey.getHdNodeType().get().getPublicKey().get()));
+          log.info("Raw Public Key:\n{}", (pubKey.getHdNodeType().get().getPublicKey().get()));
 
-            // Treat as end of example
+          // Retrieve public key from node (not xpub)
+          ECPublicKey publicKey = IdentityUtils.getPublicKeyFromBytes(pubKey.getHdNodeType().get().getPublicKey().get());
+
+          // Decompress key
+          String decompressedSSHKey = IdentityUtils.decompressSSHKeyFromNistp256(publicKey);
+
+          // Convert key to openSSH format
+          log.info("SSH Public Key:\n{}", IdentityUtils.printOpenSSHkeyNistp256(decompressedSSHKey, "User1"));
+
           System.exit(0);
 
         } catch (Exception e) {
@@ -157,6 +166,6 @@ public class KeepKeyV1GetPublicKeyForIdentityExample {
         // Ignore
     }
 
-
   }
+
 }
