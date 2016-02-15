@@ -1,8 +1,10 @@
 package org.multibit.hd.hardware.examples.keepkey.usb.extras;
 
+import com.google.common.base.Charsets;
 import com.google.common.base.Optional;
 import com.google.common.eventbus.Subscribe;
 import com.google.common.util.concurrent.Uninterruptibles;
+import org.bitcoinj.core.Sha256Hash;
 import org.bitcoinj.core.Utils;
 import org.multibit.hd.hardware.core.HardwareWalletClient;
 import org.multibit.hd.hardware.core.HardwareWalletService;
@@ -11,13 +13,16 @@ import org.multibit.hd.hardware.core.events.HardwareWalletEvent;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
 import org.multibit.hd.hardware.core.messages.PinMatrixRequest;
 import org.multibit.hd.hardware.core.messages.SignedIdentity;
+import org.multibit.hd.hardware.core.utils.IdentityUtils;
 import org.multibit.hd.hardware.core.wallets.HardwareWallets;
 import org.multibit.hd.hardware.keepkey.clients.KeepKeyHardwareWalletClient;
 import org.multibit.hd.hardware.keepkey.wallets.v1.KeepKeyV1HidHardwareWallet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.spongycastle.pqc.math.linearalgebra.ByteUtils;
 
 import java.net.URI;
+import java.security.interfaces.ECPublicKey;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
@@ -34,6 +39,8 @@ public class KeepKeyV1SignIdentityExample {
   private static final Logger log = LoggerFactory.getLogger(KeepKeyV1SignIdentityExample.class);
 
   private HardwareWalletService hardwareWalletService;
+  private String challengeVisual ="2015-03-23 17:39:22";
+  byte[] challengeHidden = Utils.parseAsHexOrBase58("cd8552569d6e4509266ef137584d1e62c7579b5b8ed69bbafa4b864c6521e7c2");
 
   /**
    * <p>Main entry point to the example</p>
@@ -103,9 +110,7 @@ public class KeepKeyV1SignIdentityExample {
         if (hardwareWalletService.isWalletPresent()) {
 
           // Create an identity
-          URI uri =URI.create("https://multibit.org/trezor-connect");
-          byte[] challengeHidden = Utils.parseAsHexOrBase58("cd8552569d6e4509266ef137584d1e62c7579b5b8ed69bbafa4b864c6521e7c2");
-          String challengeVisual = "2015-03-23 17:39:22";
+          URI uri =URI.create("https://user1@multibit.org/trezor-connect");
           Identity identity = new Identity(uri, 0, challengeHidden, challengeVisual, "nist256p1");
 
           // Request an identity signature from the device
@@ -139,11 +144,28 @@ public class KeepKeyV1SignIdentityExample {
         // Successful identity signature
         SignedIdentity signature = (SignedIdentity) event.getMessage().get();
 
+        // Compute the message
+        byte[] sha256Hidden = Sha256Hash.hash(challengeHidden);
+        byte[] sha256Visual = Sha256Hash.hash(challengeVisual.getBytes(Charsets.UTF_8));
+
+        byte[] message = ByteUtils.concatenate(sha256Hidden, sha256Visual);
+
         try {
           log.info("Public key:\n{}", Utils.HEX.encode(signature.getPublicKeyBytes().get()));
           log.info("Signature:\n{}", Utils.HEX.encode(signature.getSignatureBytes().get()));
 
-          // Treat as end of example (consumer must convert signature to NIST format)
+          // Retrieve public key from node (not xpub)
+          ECPublicKey publicKey = IdentityUtils.getPublicKeyFromBytes(signature.getPublicKeyBytes().get());
+
+          // Decompress key
+          String decompressedSSHKey = IdentityUtils.decompressSSHKeyFromNistp256(publicKey);
+
+          // Convert key to openSSH format
+          log.info("SSH Public Key:\n{}", IdentityUtils.printOpenSSHkeyNistp256(decompressedSSHKey, "user1"));
+
+          // TODO Verify key in OpenSSH format
+
+          // Treat as end of example
           System.exit(0);
 
         } catch (Exception e) {
@@ -165,5 +187,4 @@ public class KeepKeyV1SignIdentityExample {
 
 
   }
-
 }

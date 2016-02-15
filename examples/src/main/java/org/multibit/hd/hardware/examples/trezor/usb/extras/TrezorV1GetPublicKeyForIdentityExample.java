@@ -9,6 +9,7 @@ import org.multibit.hd.hardware.core.events.HardwareWalletEvent;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
 import org.multibit.hd.hardware.core.messages.PinMatrixRequest;
 import org.multibit.hd.hardware.core.messages.PublicKey;
+import org.multibit.hd.hardware.core.utils.IdentityUtils;
 import org.multibit.hd.hardware.core.wallets.HardwareWallets;
 import org.multibit.hd.hardware.trezor.clients.TrezorHardwareWalletClient;
 import org.multibit.hd.hardware.trezor.wallets.v1.TrezorV1HidHardwareWallet;
@@ -19,7 +20,6 @@ import java.net.URI;
 import java.security.interfaces.ECPublicKey;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
-import org.multibit.hd.hardware.core.utils.IdentityUtils;
 
 /**
  * <p>
@@ -34,143 +34,143 @@ import org.multibit.hd.hardware.core.utils.IdentityUtils;
  */
 public class TrezorV1GetPublicKeyForIdentityExample {
 
-    private static final Logger log = LoggerFactory.getLogger(TrezorV1GetPublicKeyForIdentityExample.class);
+  private static final Logger log = LoggerFactory.getLogger(TrezorV1GetPublicKeyForIdentityExample.class);
 
-    private HardwareWalletService hardwareWalletService;
+  private HardwareWalletService hardwareWalletService;
 
-    /**
-     * <p>
-     * Main entry point to the example</p>
-     *
-     * @param args None required
-     *
-     * @throws Exception If something goes wrong
-     */
-    public static void main(String[] args) throws Exception {
+  /**
+   * <p>
+   * Main entry point to the example</p>
+   *
+   * @param args None required
+   *
+   * @throws Exception If something goes wrong
+   */
+  public static void main(String[] args) throws Exception {
 
-        // All the work is done in the class
-        TrezorV1GetPublicKeyForIdentityExample example = new TrezorV1GetPublicKeyForIdentityExample();
+    // All the work is done in the class
+    TrezorV1GetPublicKeyForIdentityExample example = new TrezorV1GetPublicKeyForIdentityExample();
 
-        example.executeExample();
+    example.executeExample();
 
-        // Simulate the main thread continuing with other unrelated work
-        // We don't terminate main since we're using safe executors
-        Uninterruptibles.sleepUninterruptibly(5, TimeUnit.MINUTES);
-    }
+    // Simulate the main thread continuing with other unrelated work
+    // We don't terminate main since we're using safe executors
+    Uninterruptibles.sleepUninterruptibly(5, TimeUnit.MINUTES);
+  }
 
-    /**
-     * Execute the example
-     */
-    public void executeExample() {
+  /**
+   * Execute the example
+   */
+  public void executeExample() {
 
-        // Use factory to statically bind the specific hardware wallet
-        TrezorV1HidHardwareWallet wallet = HardwareWallets.newUsbInstance(
-                TrezorV1HidHardwareWallet.class,
-                Optional.<Integer>absent(),
-                Optional.<Integer>absent(),
-                Optional.<String>absent()
-        );
+    // Use factory to statically bind the specific hardware wallet
+    TrezorV1HidHardwareWallet wallet = HardwareWallets.newUsbInstance(
+      TrezorV1HidHardwareWallet.class,
+      Optional.<Integer>absent(),
+      Optional.<Integer>absent(),
+      Optional.<String>absent()
+    );
 
-        // Wrap the hardware wallet in a suitable client to simplify message API
-        HardwareWalletClient client = new TrezorHardwareWalletClient(wallet);
+    // Wrap the hardware wallet in a suitable client to simplify message API
+    HardwareWalletClient client = new TrezorHardwareWalletClient(wallet);
 
-        // Wrap the client in a service for high level API suitable for downstream applications
-        hardwareWalletService = new HardwareWalletService(client);
+    // Wrap the client in a service for high level API suitable for downstream applications
+    hardwareWalletService = new HardwareWalletService(client);
 
-        // Register for the high level hardware wallet events
-        HardwareWalletEvents.subscribe(this);
+    // Register for the high level hardware wallet events
+    HardwareWalletEvents.subscribe(this);
 
-        hardwareWalletService.start();
+    hardwareWalletService.start();
 
-    }
+  }
 
-    /**
-     * <p>
-     * Downstream consumer applications should respond to hardware wallet
-     * events</p>
-     *
-     * @param event The hardware wallet event indicating a state change
-     */
-    @Subscribe
-    public void onHardwareWalletEvent(HardwareWalletEvent event) {
+  /**
+   * <p>
+   * Downstream consumer applications should respond to hardware wallet
+   * events</p>
+   *
+   * @param event The hardware wallet event indicating a state change
+   */
+  @Subscribe
+  public void onHardwareWalletEvent(HardwareWalletEvent event) {
 
-        log.debug("Received hardware event: '{}'.{}", event.getEventType().name(), event.getMessage());
+    log.debug("Received hardware event: '{}'.{}", event.getEventType().name(), event.getMessage());
 
-        switch (event.getEventType()) {
-            case SHOW_DEVICE_FAILED:
-                // Treat as end of example
-                System.exit(0);
-                break;
-            case SHOW_DEVICE_DETACHED:
-                // Can simply wait for another device to be connected again
-                break;
-            case SHOW_DEVICE_READY:
-                if (hardwareWalletService.isWalletPresent()) {
+    switch (event.getEventType()) {
+      case SHOW_DEVICE_FAILED:
+        // Treat as end of example
+        System.exit(0);
+        break;
+      case SHOW_DEVICE_DETACHED:
+        // Can simply wait for another device to be connected again
+        break;
+      case SHOW_DEVICE_READY:
+        if (hardwareWalletService.isWalletPresent()) {
 
-                    // Create an identity
-                    URI uri = URI.create("ssh://user@multibit.org/trezor-connect");
+          // Create an identity
+          URI uri = URI.create("ssh://user@multibit.org/trezor-connect");
 
-                    // Request an identity public key from the device (no screen support at present)
-                    hardwareWalletService.requestPublicKeyForIdentity(uri, 0, "nist256p1", false);
+          // Request an identity public key from the device (no screen support at present)
+          hardwareWalletService.requestPublicKeyForIdentity(uri, 0, "nist256p1", false);
 
-                } else {
-                    log.info("You need to have created a wallet before running this example");
-                }
-
-                break;
-
-            case SHOW_PIN_ENTRY:
-                // Device requires the current PIN to proceed
-                PinMatrixRequest request = (PinMatrixRequest) event.getMessage().get();
-                Scanner keyboard = new Scanner(System.in);
-                String pin;
-                switch (request.getPinMatrixRequestType()) {
-                    case CURRENT:
-                        System.err.println(
-                                "Recall your PIN (e.g. '1').\n"
-                                + "Look at the device screen and type in the numerical position of each of the digits\n"
-                                + "with 1 being in the bottom left and 9 being in the top right (numeric keypad style) then press ENTER."
-                        );
-                        pin = keyboard.next();
-                        hardwareWalletService.providePIN(pin);
-                        break;
-                }
-                break;
-            case PUBLIC_KEY_FOR_IDENTITY:
-                // Successful identity public key
-                PublicKey pubKey = (PublicKey) event.getMessage().get();
-
-                try {
-                    log.info("Raw Public Key:\n{}", (pubKey.getHdNodeType().get().getPublicKey().get()));
-
-                    // first retrieve public key from node (not xpub)
-                    ECPublicKey publicKey = IdentityUtils.getPublicKeyFromBytes(pubKey.getHdNodeType().get().getPublicKey().get());
-
-                    // decompress key
-                    String decompressedSSHKey = IdentityUtils.decompressSSHKeyFromNistp256(publicKey);
-
-                    // convert key to openSSH format
-                    log.info("SSH Public Key:\n{}", IdentityUtils.printOpenSSHkeyNistp256(decompressedSSHKey, "User1"));
-
-                    System.exit(0);
-
-                } catch (Exception e) {
-                    log.error("deviceTx FAILED.", e);
-                }
-
-                // Must have failed to be here
-                // Treat as end of example
-                System.exit(-1);
-                break;
-
-            case SHOW_OPERATION_FAILED:
-                // Treat as end of example
-                System.exit(-1);
-                break;
-            default:
-            // Ignore
+        } else {
+          log.info("You need to have created a wallet before running this example");
         }
 
+        break;
+
+      case SHOW_PIN_ENTRY:
+        // Device requires the current PIN to proceed
+        PinMatrixRequest request = (PinMatrixRequest) event.getMessage().get();
+        Scanner keyboard = new Scanner(System.in);
+        String pin;
+        switch (request.getPinMatrixRequestType()) {
+          case CURRENT:
+            System.err.println(
+              "Recall your PIN (e.g. '1').\n"
+                + "Look at the device screen and type in the numerical position of each of the digits\n"
+                + "with 1 being in the bottom left and 9 being in the top right (numeric keypad style) then press ENTER."
+            );
+            pin = keyboard.next();
+            hardwareWalletService.providePIN(pin);
+            break;
+        }
+        break;
+      case PUBLIC_KEY_FOR_IDENTITY:
+        // Successful identity public key
+        PublicKey pubKey = (PublicKey) event.getMessage().get();
+
+        try {
+          log.info("Raw Public Key:\n{}", (pubKey.getHdNodeType().get().getPublicKey().get()));
+
+          // Retrieve public key from node (not xpub)
+          ECPublicKey publicKey = IdentityUtils.getPublicKeyFromBytes(pubKey.getHdNodeType().get().getPublicKey().get());
+
+          // Decompress key
+          String decompressedSSHKey = IdentityUtils.decompressSSHKeyFromNistp256(publicKey);
+
+          // Convert key to openSSH format
+          log.info("SSH Public Key:\n{}", IdentityUtils.printOpenSSHkeyNistp256(decompressedSSHKey, "User1"));
+
+          System.exit(0);
+
+        } catch (Exception e) {
+          log.error("deviceTx FAILED.", e);
+        }
+
+        // Must have failed to be here
+        // Treat as end of example
+        System.exit(-1);
+        break;
+
+      case SHOW_OPERATION_FAILED:
+        // Treat as end of example
+        System.exit(-1);
+        break;
+      default:
+        // Ignore
     }
+
+  }
 
 }

@@ -23,8 +23,8 @@ public class IdentityUtilsTest {
     assertThat(addressN.get(0) & 0x0fffffff).isEqualTo(13); // 2147483661L
     assertThat(addressN.get(1) & 0x0fffffff).isEqualTo(221831888); // 2637750992L
     assertThat(addressN.get(2) & 0x0fffffff).isEqualTo(160727884); // 2845082444L
-    assertThat(addressN.get(3) & 0x0fffffff).isEqualTo(3007475); // 3761103859
-    assertThat(addressN.get(4) & 0x0fffffff).isEqualTo(247399441); // 4005495825
+    assertThat(addressN.get(3) & 0x0fffffff).isEqualTo(3007475); // 3761103859L
+    assertThat(addressN.get(4) & 0x0fffffff).isEqualTo(247399441); // 4005495825L
 
 
   }
