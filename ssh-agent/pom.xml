@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.trezoragent</groupId>
+    <artifactId>trezor-ssh-agent</artifactId>
+    <version>0.1.0</version>
+
+    <name>trezor-ssh-agent</name>
+    <description>Provides a set of standalone examples that demonstrate how to access various devices and emulators in client applications</description>
+
+    <repositories>
+        <!-- Define the MultiBit staging repository for releases and snapshots -->
+        <!-- Use https://raw.github.com to provide a consistent result -->
+        <repository>
+            <id>mbhd-maven-release</id>
+            <url>https://raw.github.com/bitcoin-solutions/mbhd-maven/master/releases</url>
+            <releases/>
+        </repository>
+        <repository>
+            <id>mbhd-maven-snapshot</id>
+            <url>https://raw.github.com/bitcoin-solutions/mbhd-maven/master/snapshots</url>
+            <!-- These artifacts change frequently during development iterations -->
+            <snapshots>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+        </repository>
+
+    </repositories>
+
+    <build>
+
+        <plugins>
+            <!-- Ensure compilation is done under Java 7 in all environments -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
+                <configuration>
+                    <source>1.7</source>
+                    <target>1.7</target>
+                    <showDeprecation>true</showDeprecation>
+                    <showWarnings>true</showWarnings>
+                </configuration>
+            </plugin>
+
+        </plugins>
+
+    </build>
+
+    <!-- Examples are a standalone downstream project so must provide the dependencies -->
+    <dependencies>
+
+        <!-- MultiBit Commons for Bitcoin support -->
+        <dependency>
+            <groupId>org.multibit</groupId>
+            <artifactId>commons</artifactId>
+            <version>1.1.0</version>
+        </dependency>
+
+        <!-- Core -->
+        <dependency>
+            <groupId>org.multibit.hd.hardware</groupId>
+            <artifactId>core</artifactId>
+            <version>develop-SNAPSHOT</version>
+        </dependency>
+
+        <!-- Trezor -->
+        <dependency>
+            <groupId>org.multibit.hd.hardware</groupId>
+            <artifactId>trezor</artifactId>
+            <version>develop-SNAPSHOT</version>
+        </dependency>
+
+        <!-- Logback for logging within the Examples -->
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.0.10</version>
+        </dependency>
+
+        <!-- Testing -->
+
+        <!-- JUnit for testing -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.11</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- FEST for fluent test assertions -->
+        <dependency>
+            <groupId>org.easytesting</groupId>
+            <artifactId>fest-assert-core</artifactId>
+            <version>2.0M10</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Mockito for mocking -->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>1.8.5</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.java.dev.jna</groupId>
+            <artifactId>jna</artifactId>
+            <version>4.1.0</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>net.java.dev.jna</groupId>
+            <artifactId>jna-platform</artifactId>
+            <version>4.1.0</version>
+            <type>jar</type>
+        </dependency>
+    </dependencies>
+
+</project>

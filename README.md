@@ -1,3 +1,6 @@
+## UNDER CONSTRUCTION !!!
+Trezor SSH Agent for Windows (Putty, WinSCP and more) 
+
 Status: [![Build Status](https://travis-ci.org/bitcoin-solutions/multibit-hardware.png?branch=master)](https://travis-ci.org/bitcoin-solutions/multibit-hardware)
 
 ### Project status
