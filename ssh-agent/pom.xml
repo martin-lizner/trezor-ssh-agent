@@ -10,7 +10,7 @@
     <version>0.1.0</version>
 
     <name>trezor-ssh-agent</name>
-    <description>Provides a set of standalone examples that demonstrate how to access various devices and emulators in client applications</description>
+    <description>Windows Java application that emulates Pageant SSH-Agent for Trezor Bitcoin HW wallet. Thus enabling usage of applications such as Putty, WinSCP or git client with Trezor device.</description>
 
     <repositories>
         <!-- Define the MultiBit staging repository for releases and snapshots -->
