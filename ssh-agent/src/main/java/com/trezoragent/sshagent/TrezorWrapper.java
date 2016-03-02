@@ -31,19 +31,23 @@ public class TrezorWrapper {
 
     private static final Logger log = LoggerFactory.getLogger(TrezorWrapper.class);
 
-    public static List<PublicKeyDTO> getIdentities(TrezorService trezorService, Boolean stripPrefix) {
+    public static void getIdentitiesRequest(TrezorService trezorService) {
+        trezorService.getHardwareWalletService().requestPublicKeyForIdentity(AgentConstants.SSHURI, 0, AgentConstants.CURVE_NAME, false);                        
+    }
+    
+    public static List<PublicKeyDTO> getIdentitiesResponse(TrezorService trezorService, Boolean stripPrefix) {
         String trezorKey = "N/A";
         List<PublicKeyDTO> idents = new ArrayList<>();
 
         log.info("getIdentities() wallet present: " + trezorService.getHardwareWalletService().isWalletPresent());
 
-        trezorService.getHardwareWalletService().requestPublicKeyForIdentity(AgentConstants.SSHURI, 0, AgentConstants.CURVE_NAME, false);
-
+        getIdentitiesRequest(trezorService);
+                
         ExecutorService executor = Executors.newSingleThreadExecutor();
         Future<Object> future = executor.submit(trezorService.getAsyncData());
 
         try {
-            trezorKey = (String) future.get(30, TimeUnit.SECONDS);
+            trezorKey = (String) future.get(AgentConstants.KEY_WAIT_TIMEOUT, TimeUnit.SECONDS);
             if (stripPrefix) { // remove ecdsa-sha2... from beginning
                 String[] keySplit = trezorKey.split(" ");
                 if (keySplit[1] != null) {

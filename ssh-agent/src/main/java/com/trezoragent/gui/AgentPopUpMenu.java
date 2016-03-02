@@ -3,7 +3,6 @@ package com.trezoragent.gui;
 import com.trezoragent.sshagent.SSHAgent;
 import com.trezoragent.sshagent.TrezorService;
 import com.trezoragent.sshagent.TrezorWrapper;
-import com.trezoragent.struct.PublicKeyDTO;
 import com.trezoragent.utils.AgentConstants;
 import static com.trezoragent.utils.AgentConstants.*;
 import com.trezoragent.utils.LocalizedLogger;
@@ -12,18 +11,20 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
+import javax.swing.Timer;
 
 /**
  *
  * @author Martin Lizner
- * 
+ *
  * Class renders menu in System Tray
- * 
+ *
  */
 public class AgentPopUpMenu extends JPopupMenu {
 
@@ -32,11 +33,11 @@ public class AgentPopUpMenu extends JPopupMenu {
     private final String EXIT_BUTTON_LOCALIZED_KEY = "EXIT";
     private final String VIEW_KEYS_BUTTON_LOCALIZED_KEY = "VIEW_KEYS";
     private final String APPLICATION_INFO_KEY = "APPLICATION_INFO";
-    private final String DEVICE_NOT_PRESENT_KEY = "DEVICE_NOT_PRESENT";    
+    private final String DEVICE_NOT_PRESENT_KEY = "DEVICE_NOT_PRESENT";
 
     private final TrayIcon trayIcon;
     TrezorService trezorService;
-   
+
     public AgentPopUpMenu(final SystemTray tray, final TrayIcon trayIcon, final SSHAgent agent, final TrezorService trezorService) {
         this.trayIcon = trayIcon;
         this.trezorService = trezorService;
@@ -45,8 +46,8 @@ public class AgentPopUpMenu extends JPopupMenu {
         JMenuItem aboutItem = new JMenuItem(LocalizedLogger.getLocalizedMessage(ABOUT_BUTTON_LOCALIZED_KEY));
         JMenuItem exitItem = new JMenuItem(LocalizedLogger.getLocalizedMessage(EXIT_BUTTON_LOCALIZED_KEY));
         JMenuItem viewKeys = new JMenuItem(LocalizedLogger.getLocalizedMessage(VIEW_KEYS_BUTTON_LOCALIZED_KEY));
-      
-        add(viewKeys);     
+
+        add(viewKeys);
         add(viewLog);
         addSeparator();
         add(aboutItem);
@@ -61,19 +62,38 @@ public class AgentPopUpMenu extends JPopupMenu {
         viewKeys.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Logger.getLogger(SSHAgent.class.getName()).log(Level.INFO, "Request for operation: {0}","GUI_GET_IDENTITIES");
+                Logger.getLogger(SSHAgent.class.getName()).log(Level.INFO, "Request for operation: {0}", "GUI_GET_IDENTITIES");
                 try {
                     if (trezorService.getHardwareWalletService().isDeviceReady()) {
-                        java.util.List<PublicKeyDTO> ps = TrezorWrapper.getIdentities(trezorService, false);
-                        java.util.List<String> s = new ArrayList<>();
-                        s.add(ps.get(0).getsPublicKey() + " " + ps.get(0).getsComment());
-                        
-                        ShowKeysFrame frame = new ShowKeysFrame(s, ps.get(0).getsComment());
-                        frame.setVisible(true);
-                        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-                        frame.setLocation(dim.width / 2 - frame.getContentPane().getSize().width / 2, dim.height / 2 - frame.getSize().height / 2);
-                        Logger.getLogger(SSHAgent.class.getName()).log(Level.INFO, "Operation {0} executed successfully","GUI_GET_IDENTITIES");
-                } else {
+                        TrezorWrapper.getIdentitiesRequest(trezorService);
+                        final Timer timer = new Timer(AgentConstants.ASYNC_CHECK_INTERVAL, null);
+
+                        ActionListener showWindowIfKeyProvided = new ActionListener() {
+                            @Override
+                            public void actionPerformed(ActionEvent event) {
+                                if (trezorService.getTrezorKey() != null) {
+                                    List<String> s = new ArrayList<>();
+                                    s.add(trezorService.getTrezorKey() + " " + KEY_COMMENT);
+
+                                    PublicKeysFrame frame = new PublicKeysFrame(s, SSHURI.toString());
+                                    frame.setVisible(true);
+
+                                    Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+                                    frame.setLocation(dim.width / 2 - frame.getContentPane().getSize().width / 2, dim.height / 2 - frame.getSize().height / 2);
+
+                                    trezorService.setTrezorKey(null);
+                                    trezorService.getAsyncData().setTrezorData(null); // clear cache data explicitly, since they were never read by standard call()
+                                    timer.stop();
+                                }
+                            }
+                        };
+
+                        timer.addActionListener(showWindowIfKeyProvided);
+                        timer.setRepeats(true);
+                        timer.start();
+
+                        Logger.getLogger(SSHAgent.class.getName()).log(Level.INFO, "Operation {0} executed successfully", "GUI_GET_IDENTITIES");
+                    } else {
                         TrayProcess.createWarning(LocalizedLogger.getLocalizedMessage(DEVICE_NOT_PRESENT_KEY));
                     }
                 } catch (Exception ex) {

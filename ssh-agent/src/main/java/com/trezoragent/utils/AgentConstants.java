@@ -27,6 +27,11 @@ public final class AgentConstants {
     public static final String CURVE_NAME = "nist256p1";
     public static final URI SSHURI = URI.create("ssh://btc.rulez/connect");
     public static final String KEY_COMMENT = "Trezor";
+    
+    public static final String PIN_CANCELLED_MSG = "_PIN_CANCEL_";
+    public static final int PIN_WAIT_TIMEOUT = 120; //sec
+    public static final int KEY_WAIT_TIMEOUT = 120; //sec
+    public static final int ASYNC_CHECK_INTERVAL = 10; //ms    
 
 
     /*

@@ -23,12 +23,13 @@ import java.util.logging.Logger;
 
 /**
  * @author Martin Lizner
- * 
+ *
  */
 public class TrayProcess {
-    
+
     private static SSHAgent agent;
     private static TrayIcon trayIcon;
+    private static TrezorService trezorService;
 
     private static String startErrors = null;
 
@@ -62,44 +63,47 @@ public class TrayProcess {
         Logger.getLogger(TrayProcess.class.getName()).log(Level.INFO, "Java home: {0}", System.getProperty(JAVA_HOME_PROPERTY_KEY));
 
         //check if platform is supported
-        if ("32".equals(javaPlatform) && javaVersion.startsWith("1.7")
-                || javaVersion.startsWith("1.8")) {
-            // Java7 32 + Java8 32/64 is currently supported
+        /*
+        if (javaVersion.startsWith("1.7") || javaVersion.startsWith("1.8")) {
+            // Java7  Java8 is currently supported
         } else {
             createErrorWindow(LocalizedLogger.getLocalizedMessage("UNSUPPORTED_PLATFORM_ERROR", javaVersion + " (" + javaPlatform + "-bit)"));
             return;
         }
+                */
 
         agent = new SSHAgent();
 
         if (agent.isCreatedCorrectly()) {
-            final TrezorService trezorService = TrezorService.startTrezorService();
+            trezorService = TrezorService.startTrezorService();
             agent.setTrezorService(trezorService);
-            //Asynchrone spust proces GUI
+            //Start GUI
+
             SwingUtilities.invokeLater(new Runnable() {
                 @Override
                 public void run() {
-                    createAndShowGUI(trezorService);
+                    createAndShowGUI();
                 }
             });
-            
+
             //Start listening Windows requests
             agent.startMainLoop();
         }
     }
 
-    private static void createAndShowGUI(TrezorService trezorService) {
+    private static void createAndShowGUI() {
         if (!SystemTray.isSupported()) {
             Logger.getLogger(TrayProcess.class.getName()).log(Level.SEVERE, "SYSTRAY_NOT_SUPPORTED");
             agent.exitProcess();
             return;
         }
+
         trayIcon = new TrayIcon(createImage(AgentConstants.ICON16_PATH, AgentConstants.ICON_DESCRIPTION));
         final SystemTray tray = SystemTray.getSystemTray();
         final AgentPopUpMenu popUpMenu = new AgentPopUpMenu(tray, trayIcon, agent, trezorService);
         final JMenuItem abstractItem = new JMenuItem();
 
-        //Priprav kontrolu mysi        
+        //Priprav kontrolu mysi 
         MOUSE_HOOK = new JNIMouseHook(popUpMenu);
         trayIcon.addMouseListener(new MouseAdapter() {
             @Override
@@ -163,8 +167,8 @@ public class TrayProcess {
     }
 
     protected static Image createImage(String path, String description) {
-        
-        URL imageURL = TrayProcess.class.getResource(path);        
+
+        URL imageURL = TrayProcess.class.getResource(path);
         if (imageURL == null) {
             Logger.getLogger(TrayProcess.class.getName()).log(Level.SEVERE, "RESOURCE_NOT_FOUND", path);
             return null;

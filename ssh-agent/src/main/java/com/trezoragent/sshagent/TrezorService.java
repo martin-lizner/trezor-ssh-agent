@@ -2,14 +2,19 @@ package com.trezoragent.sshagent;
 
 import com.google.common.base.Optional;
 import com.google.common.eventbus.Subscribe;
+import com.trezoragent.gui.PinPad;
+import com.trezoragent.gui.TrayProcess;
 import com.trezoragent.utils.AgentConstants;
-import com.trezoragent.utils.AgentUtils;
 import java.security.interfaces.ECPublicKey;
-import java.util.Scanner;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import org.bitcoinj.core.Utils;
 import org.multibit.hd.hardware.core.HardwareWalletClient;
 import org.multibit.hd.hardware.core.HardwareWalletService;
-import org.multibit.hd.hardware.core.domain.Identity;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvent;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
 import org.multibit.hd.hardware.core.messages.PinMatrixRequest;
@@ -18,6 +23,7 @@ import org.multibit.hd.hardware.core.messages.SignedIdentity;
 import org.multibit.hd.hardware.core.utils.IdentityUtils;
 import org.multibit.hd.hardware.core.wallets.HardwareWallets;
 import org.multibit.hd.hardware.trezor.clients.TrezorHardwareWalletClient;
+import org.multibit.hd.hardware.trezor.wallets.AbstractTrezorHardwareWallet;
 import org.multibit.hd.hardware.trezor.wallets.v1.TrezorV1HidHardwareWallet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,18 +32,20 @@ import org.slf4j.LoggerFactory;
  *
  * @author martin.lizner
  */
-public class TrezorService {
+public final class TrezorService {
 
     private final HardwareWalletService hardwareWalletService;
     private final HardwareWalletClient client;
     private static final Logger log = LoggerFactory.getLogger(TrezorService.class);
-    private String trezorKey = "prazdny";
+    private String trezorKey;
     byte[] signedData;
     byte[] challengeData;
     private final ReadTrezorData asyncData;
+    private final AbstractTrezorHardwareWallet wallet;
 
     public TrezorService() {
-        TrezorV1HidHardwareWallet wallet = HardwareWallets.newUsbInstance(
+        this.trezorKey = null;
+        wallet = HardwareWallets.newUsbInstance(
                 TrezorV1HidHardwareWallet.class,
                 Optional.<Integer>absent(),
                 Optional.<Integer>absent(),
@@ -48,7 +56,7 @@ public class TrezorService {
         client = new TrezorHardwareWalletClient(wallet);
 
         // Wrap the client in a service for high level API suitable for downstream applications
-        hardwareWalletService = new HardwareWalletService(getClient());
+        hardwareWalletService = new HardwareWalletService(client);
 
         getHardwareWalletService().start();
 
@@ -68,6 +76,10 @@ public class TrezorService {
 
     public HardwareWalletClient getClient() {
         return client;
+    }
+
+    public AbstractTrezorHardwareWallet getWallet() {
+        return wallet;
     }
 
     /**
@@ -90,39 +102,41 @@ public class TrezorService {
                 // Can simply wait for another device to be connected again
                 break;
             case SHOW_DEVICE_READY:
-
-                if (false && hardwareWalletService.isWalletPresent()) {
-
-                    String challengeVisual = AgentUtils.getCurrentTimeStamp();
-                    byte[] challengeHidden = challengeData;
-
-                    // Create an identity
-                    Identity identity = new Identity(AgentConstants.SSHURI, 0, challengeHidden, challengeVisual, AgentConstants.CURVE_NAME);
-
-                    // Request an identity signature from the device
-                    // The response will contain the address used
-                    hardwareWalletService.signIdentity(identity);
-
-                } else {
-                    log.info("You need to have created a wallet before running this example");
-                }
-
                 break;
 
             case SHOW_PIN_ENTRY:
                 // Device requires the current PIN to proceed
+
                 PinMatrixRequest request = (PinMatrixRequest) event.getMessage().get();
-                Scanner keyboard = new Scanner(System.in);
-                String pin;
+                String pin = null;
                 switch (request.getPinMatrixRequestType()) {
                     case CURRENT:
-                        System.err.println(
-                                "Recall your PIN (e.g. '1').\n"
-                                + "Look at the device screen and type in the numerical position of each of the digits\n"
-                                + "with 1 being in the bottom left and 9 being in the top right (numeric keypad style) then press ENTER."
-                        );
-                        pin = keyboard.next();
+
+                        PinPad pinPad = new PinPad();
+                        pinPad.setVisible(true);
+
+                        ExecutorService executor = Executors.newSingleThreadExecutor();
+                        Future<Object> future = executor.submit(pinPad.getPinData());
+
+                        try {
+                            pin = (String) future.get(AgentConstants.PIN_WAIT_TIMEOUT, TimeUnit.SECONDS);
+                        } catch (InterruptedException | ExecutionException | TimeoutException ex) {
+                            log.error("Timeout when waiting for PIN...");                            
+                            TrayProcess.createWarning("Timeout when waiting for PIN...");
+                            hardwareWalletService.requestCancel();
+                            pinPad.dispose();
+                            break;
+                        }
+
+                        if (AgentConstants.PIN_CANCELLED_MSG.equals(pin)) {
+                            hardwareWalletService.requestCancel();
+                            //TODO: Putty stays frozen when sign cancelled
+                            break;
+                        }
+                        
                         hardwareWalletService.providePIN(pin);
+                        pinPad.setVisible(false);
+
                         break;
                 }
                 break;
@@ -142,19 +156,13 @@ public class TrezorService {
                     // Convert key to openSSH format
                     log.info("SSH Public Key:\n{}", IdentityUtils.printOpenSSHkeyNistp256(decompressedSSHKey, null));
 
-                    trezorKey = IdentityUtils.printOpenSSHkeyNistp256(decompressedSSHKey, null);
-                    asyncData.setTrezorData(trezorKey);
+                    setTrezorKey(IdentityUtils.printOpenSSHkeyNistp256(decompressedSSHKey, null));
+                    asyncData.setTrezorData(getTrezorKey());
 
-                    //HardwareWalletEvents.unsubscribeAll();
-                    //client.clearSession();
-                    //System.exit(0);
                 } catch (Exception e) {
                     log.error("deviceTx FAILED.", e);
                 }
 
-                // Must have failed to be here
-                // Treat as end of example
-                //System.exit(-1);
                 break;
 
             case SIGNED_IDENTITY:
@@ -168,8 +176,8 @@ public class TrezorService {
                 break;
 
             case SHOW_OPERATION_FAILED:
-             
-                System.exit(-1);
+
+                //System.exit(-1);
                 break;
             default:
             // Ignore
@@ -179,6 +187,14 @@ public class TrezorService {
 
     public ReadTrezorData getAsyncData() {
         return asyncData;
+    }
+
+    public String getTrezorKey() {
+        return trezorKey;
+    }
+
+    public void setTrezorKey(String trezorKey) {
+        this.trezorKey = trezorKey;
     }
 
 }

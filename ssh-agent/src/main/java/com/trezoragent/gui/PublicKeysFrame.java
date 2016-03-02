@@ -3,9 +3,9 @@ package com.trezoragent.gui;
 /**
  *
  * @author Martin Lizner
- * 
- * Show Public Keys window render
- * 
+ *
+ * Show Public Keys Window
+ *
  */
 import com.trezoragent.utils.AgentConstants;
 import com.trezoragent.utils.LocalizedLogger;
@@ -22,7 +22,7 @@ import java.util.List;
 import static javax.swing.GroupLayout.Alignment.*;
 import javax.swing.*;
 
-public class ShowKeysFrame extends JFrame {
+public class PublicKeysFrame extends JFrame {
 
     private final int DEFAULT_NUMBER_OF_ROWS = 10;
     private final int DEFAULT_NUMBER_OF_COLUMNS = 60;
@@ -36,7 +36,7 @@ public class ShowKeysFrame extends JFrame {
     private JScrollPane jScrollPane1;
     private String finalText = "";
 
-    public ShowKeysFrame(List<String> text, String title) {
+    public PublicKeysFrame(List<String> text, String title) {
 
         createTextArea(text);
         createCopyButton();
@@ -44,21 +44,22 @@ public class ShowKeysFrame extends JFrame {
         setIconImages(getAllIcons());
         setTitle(title);
         pack();
+
     }
 
     private void createTextArea(List<String> text) {
-        textArea = new JTextArea();
-        textArea.setRows(DEFAULT_NUMBER_OF_ROWS);
-        textArea.setColumns(DEFAULT_NUMBER_OF_COLUMNS);
-        textArea.setFont(DEFAULT_FONT);
-        textArea.setEditable(false);
-        
+        setTextArea(new JTextArea());
+        getTextArea().setRows(DEFAULT_NUMBER_OF_ROWS);
+        getTextArea().setColumns(DEFAULT_NUMBER_OF_COLUMNS);
+        getTextArea().setFont(DEFAULT_FONT);
+        getTextArea().setEditable(false);
+
         for (String s : text) {
-            textArea.append(s);
-            textArea.append("\n");
+            getTextArea().append(s);
+            getTextArea().append("\n");
             finalText = finalText.concat(s).concat("\n");
         }
-        jScrollPane1 = new JScrollPane(textArea);
+        jScrollPane1 = new JScrollPane(getTextArea());
 
     }
 
@@ -100,7 +101,7 @@ public class ShowKeysFrame extends JFrame {
                 .addGroup(layout.createParallelGroup(TRAILING)
                         .addComponent(bottomPanel)
                 ));
-        
+
     }
 
     private List<? extends Image> getAllIcons() {
@@ -113,6 +114,14 @@ public class ShowKeysFrame extends JFrame {
         icons.add(new ImageIcon(TrayProcess.class.getResource(AgentConstants.ICON72_PATH)).getImage());
         icons.add(new ImageIcon(TrayProcess.class.getResource(AgentConstants.ICON96_PATH)).getImage());
         return icons;
+    }
+
+    public JTextArea getTextArea() {
+        return textArea;
+    }
+
+    public void setTextArea(JTextArea textArea) {
+        this.textArea = textArea;
     }
 
 }

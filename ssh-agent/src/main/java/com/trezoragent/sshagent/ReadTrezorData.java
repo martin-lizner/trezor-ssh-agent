@@ -1,5 +1,6 @@
 package com.trezoragent.sshagent;
 
+import com.trezoragent.utils.AgentConstants;
 import java.util.concurrent.Callable;
 
 /**
@@ -20,10 +21,10 @@ public class ReadTrezorData implements Callable<Object> {
         while (true) {
             if (trezorData != null) {
                 retKey = cloneObject(trezorData);
-                trezorData = null;
+                trezorData = null; // unset data after it has been read
                 return retKey;
             }
-            Thread.sleep(100);
+            Thread.sleep(AgentConstants.ASYNC_CHECK_INTERVAL);
         }
     }
 

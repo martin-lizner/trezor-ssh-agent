@@ -36,21 +36,20 @@ import static org.multibit.hd.hardware.core.utils.IdentityUtils.KEY_PREFIX;
 import org.spongycastle.pqc.math.linearalgebra.ByteUtils;
 
 /**
- * 
+ *
  * @author Martin Lizner
- * 
+ *
  */
-
 public class SSHAgent implements WindowProc {
 
     private final int MY_WM_COPYDATA = 0x004A;
     private final String APPNAME = "Pageant";
-    
+
     /*
      * SSH-1 and OpenSSH SSH-2 protocol commons
      */
     private final int SSH_AGENT_FAILURE = 5;
-    
+
     /*
      * OpenSSH protocol SSH-2
      */
@@ -62,7 +61,7 @@ public class SSHAgent implements WindowProc {
     private User32 libU = null;
     private Kernel32 libK = null;
     private HWND hWnd = null;
-    
+
     private boolean createdCorrectly = false;
     private boolean mainLoopStarted = false;
 
@@ -205,9 +204,9 @@ public class SSHAgent implements WindowProc {
         }
     }
 
-    private void processKeysRequest(Pointer sharedMemory) {       
-        java.util.List<PublicKeyDTO> certs = TrezorWrapper.getIdentities(trezorService, true);
-            
+    private void processKeysRequest(final Pointer sharedMemory) {
+        final java.util.List<PublicKeyDTO> certs = TrezorWrapper.getIdentitiesResponse(trezorService, true);
+
         ByteBuffer ret = writeCertificatesToBuffer(certs, SSH2_AGENT_IDENTITIES_ANSWER);
         sharedMemory.write(0, ret.array(), 0, ret.array().length);
 
@@ -291,7 +290,7 @@ public class SSHAgent implements WindowProc {
             byte[] sigBytes = ByteUtils.concatenate(frameArray(xSign), frameArray(ySign));
             byte[] dataArray = frameArray(frameArray(KEY_PREFIX.getBytes(Charsets.UTF_8)), frameArray(sigBytes));
             signedData = frameArray(respCode, dataArray);
-            
+
             if (signedData == null) {
                 TrayProcess.createWarning(LocalizedLogger.getLocalizedMessage("CERT_USED_ERROR"));
             } else {
@@ -369,5 +368,8 @@ public class SSHAgent implements WindowProc {
         libU.DestroyWindow(hWnd);
         libK.CloseHandle(mutex); // just in case, mutex should be destroyed by now by process exit
         setCreatedCorrectly(false);
+
+        //trezorService.getWallet().softDetach();
+        trezorService.getWallet().disconnect();
     }
 }
