@@ -16,6 +16,7 @@ import com.sun.jna.platform.win32.WinNT.HANDLE;
 import com.sun.jna.platform.win32.WinUser;
 import com.sun.jna.platform.win32.WinUser.*;
 import com.sun.jna.platform.win32.WinUser.WindowProc;
+import com.trezoragent.exception.DeviceTimeoutException;
 import com.trezoragent.exception.KeyStoreLoadException;
 import com.trezoragent.gui.TrayProcess;
 import com.trezoragent.utils.AgentConstants;
@@ -61,6 +62,8 @@ public class SSHAgent implements WindowProc {
     private User32 libU = null;
     private Kernel32 libK = null;
     private HWND hWnd = null;
+    private WinNT.HANDLE sharedFile;
+    private Pointer sharedMemory;
 
     private boolean createdCorrectly = false;
     private boolean mainLoopStarted = false;
@@ -154,8 +157,6 @@ public class SSHAgent implements WindowProc {
     }
 
     private LRESULT processMessage(HWND hwnd, WPARAM wParam, LPARAM lParam) {
-        WinNT.HANDLE sharedFile;
-        Pointer sharedMemory;
         WinBase.SECURITY_ATTRIBUTES psa = null;
         String mapname = readFileNameFromInput(lParam);
         sharedFile
@@ -172,7 +173,7 @@ public class SSHAgent implements WindowProc {
                         0, 0, 0);
 
         int ret = answerIfDevicePresent(sharedMemory);
-        disconnectFromSharedMemory(sharedFile, sharedMemory);
+        disconnectFromSharedMemory();
 
         return new LRESULT(ret);
     }
@@ -205,7 +206,12 @@ public class SSHAgent implements WindowProc {
     }
 
     private void processKeysRequest(final Pointer sharedMemory) {
-        final java.util.List<PublicKeyDTO> certs = TrezorWrapper.getIdentitiesResponse(trezorService, true);
+        java.util.List<PublicKeyDTO> certs = null;
+        try {
+            certs = TrezorWrapper.getIdentitiesResponse(trezorService, true);
+        } catch (DeviceTimeoutException ex) {
+            TrayProcess.handleException(ex);
+        }
 
         ByteBuffer ret = writeCertificatesToBuffer(certs, SSH2_AGENT_IDENTITIES_ANSWER);
         sharedMemory.write(0, ret.array(), 0, ret.array().length);
@@ -231,7 +237,7 @@ public class SSHAgent implements WindowProc {
         return new String(ps.lpData.getString(0).getBytes(Charset.forName("US-ASCII")));
     }
 
-    private void disconnectFromSharedMemory(WinNT.HANDLE sharedFile, Pointer sharedMemory) {
+    public void disconnectFromSharedMemory() {
         if (sharedMemory != null) {
             libK.UnmapViewOfFile(sharedMemory);
         }
@@ -297,7 +303,7 @@ public class SSHAgent implements WindowProc {
                 sharedMemory.write(0, signedData, 0, signedData.length);
                 TrayProcess.createInfo(LocalizedLogger.getLocalizedMessage("CERT_USE_SUCCESS") + AgentConstants.KEY_COMMENT);
             }
-        } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException | InvalidKeyException | URISyntaxException | KeyStoreLoadException | InterruptedException ex) {
+        } catch (DeviceTimeoutException ex) {
             TrayProcess.handleException(ex);
         }
     }

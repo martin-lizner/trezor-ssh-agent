@@ -31,6 +31,7 @@ public final class AgentConstants {
     public static final String PIN_CANCELLED_MSG = "_PIN_CANCEL_";
     public static final int PIN_WAIT_TIMEOUT = 120; //sec
     public static final int KEY_WAIT_TIMEOUT = 120; //sec
+    public static final int SIGN_WAIT_TIMEOUT = 120; //sec
     public static final int ASYNC_CHECK_INTERVAL = 10; //ms    
 
 
@@ -51,6 +52,10 @@ public final class AgentConstants {
     /*
      * Error messages keys
      */
+    
+    public static final String DEVICE_TIMEOUT_KEY = "DEVICE_TIMEOUT";
+    public static final byte[] DEVICE_TIMEOUT_BYTE_KEY = {(byte) 0x00}; // for sign operation
+    
     public static final String WRONG_URI_SINTAX_KEY = "WRONG_URI_SINTAX";
     public static final String UNKNOW_ERROR_KEY = "UNKNOW_ERROR";
     public static final String NOT_SUPPORTED_ALGORITHM_KEY = "NOT_SUPPORTED_ALGORITHM";

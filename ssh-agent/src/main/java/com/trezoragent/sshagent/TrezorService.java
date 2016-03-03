@@ -2,16 +2,20 @@ package com.trezoragent.sshagent;
 
 import com.google.common.base.Optional;
 import com.google.common.eventbus.Subscribe;
+import com.trezoragent.exception.DeviceTimeoutException;
 import com.trezoragent.gui.PinPad;
 import com.trezoragent.gui.TrayProcess;
 import com.trezoragent.utils.AgentConstants;
+import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.ECPublicKey;
+import java.security.spec.InvalidKeySpecException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import javax.swing.Timer;
 import org.bitcoinj.core.Utils;
 import org.multibit.hd.hardware.core.HardwareWalletClient;
 import org.multibit.hd.hardware.core.HardwareWalletService;
@@ -42,6 +46,7 @@ public final class TrezorService {
     byte[] challengeData;
     private final ReadTrezorData asyncData;
     private final AbstractTrezorHardwareWallet wallet;
+    private Timer timer;
 
     public TrezorService() {
         this.trezorKey = null;
@@ -95,7 +100,7 @@ public final class TrezorService {
         log.debug("Received hardware event: '{}'.{}", event.getEventType().name(), event.getMessage());
         switch (event.getEventType()) {
             case SHOW_DEVICE_FAILED:
-                // Treat as end of example
+
                 System.exit(0);
                 break;
             case SHOW_DEVICE_DETACHED:
@@ -121,19 +126,24 @@ public final class TrezorService {
                         try {
                             pin = (String) future.get(AgentConstants.PIN_WAIT_TIMEOUT, TimeUnit.SECONDS);
                         } catch (InterruptedException | ExecutionException | TimeoutException ex) {
-                            log.error("Timeout when waiting for PIN...");                            
-                            TrayProcess.createWarning("Timeout when waiting for PIN...");
+                            log.error("Timeout when waiting for PIN...");
                             hardwareWalletService.requestCancel();
                             pinPad.dispose();
-                            break;
+                            TrayProcess.handleException(new DeviceTimeoutException());
+                            if (timer != null && timer.isRunning()) {
+                                timer.stop(); // stop swing timer
+                            }
                         }
 
                         if (AgentConstants.PIN_CANCELLED_MSG.equals(pin)) {
                             hardwareWalletService.requestCancel();
                             //TODO: Putty stays frozen when sign cancelled
+                            if (timer != null && timer.isRunning()) {
+                                timer.stop(); // stop swing timer
+                            }
                             break;
                         }
-                        
+
                         hardwareWalletService.providePIN(pin);
                         pinPad.setVisible(false);
 
@@ -159,7 +169,7 @@ public final class TrezorService {
                     setTrezorKey(IdentityUtils.printOpenSSHkeyNistp256(decompressedSSHKey, null));
                     asyncData.setTrezorData(getTrezorKey());
 
-                } catch (Exception e) {
+                } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
                     log.error("deviceTx FAILED.", e);
                 }
 
@@ -177,7 +187,7 @@ public final class TrezorService {
 
             case SHOW_OPERATION_FAILED:
 
-                //System.exit(-1);
+                asyncData.setTrezorData(AgentConstants.DEVICE_TIMEOUT_BYTE_KEY);
                 break;
             default:
             // Ignore
@@ -185,7 +195,8 @@ public final class TrezorService {
 
     }
 
-    public ReadTrezorData getAsyncData() {
+    public ReadTrezorData checkoutAsyncData() {
+        asyncData.setTrezorData(null);
         return asyncData;
     }
 
@@ -195,6 +206,10 @@ public final class TrezorService {
 
     public void setTrezorKey(String trezorKey) {
         this.trezorKey = trezorKey;
+    }
+
+    public void setTimer(Timer timer) {
+        this.timer = timer;
     }
 
 }

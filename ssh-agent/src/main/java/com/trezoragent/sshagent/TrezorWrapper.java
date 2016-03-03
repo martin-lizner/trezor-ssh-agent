@@ -1,13 +1,7 @@
 package com.trezoragent.sshagent;
 
+import com.trezoragent.exception.DeviceTimeoutException;
 import com.trezoragent.struct.PublicKeyDTO;
-import com.trezoragent.exception.KeyStoreLoadException;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.security.InvalidKeyException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.List;
 import org.multibit.hd.hardware.core.domain.Identity;
@@ -15,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.trezoragent.utils.AgentUtils;
 import com.trezoragent.utils.AgentConstants;
+import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -32,19 +27,19 @@ public class TrezorWrapper {
     private static final Logger log = LoggerFactory.getLogger(TrezorWrapper.class);
 
     public static void getIdentitiesRequest(TrezorService trezorService) {
-        trezorService.getHardwareWalletService().requestPublicKeyForIdentity(AgentConstants.SSHURI, 0, AgentConstants.CURVE_NAME, false);                        
+        trezorService.getHardwareWalletService().requestPublicKeyForIdentity(AgentConstants.SSHURI, 0, AgentConstants.CURVE_NAME, false);
     }
-    
-    public static List<PublicKeyDTO> getIdentitiesResponse(TrezorService trezorService, Boolean stripPrefix) {
+
+    public static List<PublicKeyDTO> getIdentitiesResponse(TrezorService trezorService, Boolean stripPrefix) throws DeviceTimeoutException {
         String trezorKey = "N/A";
         List<PublicKeyDTO> idents = new ArrayList<>();
 
         log.info("getIdentities() wallet present: " + trezorService.getHardwareWalletService().isWalletPresent());
 
         getIdentitiesRequest(trezorService);
-                
+
         ExecutorService executor = Executors.newSingleThreadExecutor();
-        Future<Object> future = executor.submit(trezorService.getAsyncData());
+        Future<Object> future = executor.submit(trezorService.checkoutAsyncData());
 
         try {
             trezorKey = (String) future.get(AgentConstants.KEY_WAIT_TIMEOUT, TimeUnit.SECONDS);
@@ -56,7 +51,7 @@ public class TrezorWrapper {
             }
         } catch (InterruptedException | ExecutionException | TimeoutException ex) {
             log.error("Timeout when waiting for Trezor...");
-            // TODO: Popup window and exit
+            throw new DeviceTimeoutException();
         }
 
         PublicKeyDTO p = new PublicKeyDTO();
@@ -69,7 +64,7 @@ public class TrezorWrapper {
         return idents;
     }
 
-    public static byte[] signChallenge(TrezorService trezorService, byte[] challengeHidden) throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException, InvalidKeyException, URISyntaxException, KeyStoreLoadException, InterruptedException {
+    public static byte[] signChallenge(TrezorService trezorService, byte[] challengeHidden) throws DeviceTimeoutException {
         byte[] signature = "N/A".getBytes();
         String challengeVisual = AgentUtils.getCurrentTimeStamp();
 
@@ -78,12 +73,17 @@ public class TrezorWrapper {
         trezorService.getHardwareWalletService().signIdentity(identity);
 
         ExecutorService executor = Executors.newSingleThreadExecutor();
-        Future<Object> future = executor.submit(trezorService.getAsyncData());
+        Future<Object> future = executor.submit(trezorService.checkoutAsyncData());
         try {
-            signature = (byte[]) future.get(30, TimeUnit.SECONDS);
+            signature = (byte[]) future.get(AgentConstants.SIGN_WAIT_TIMEOUT, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException ex) {
             log.error("Timeout when waiting for Trezor...");
-            // TODO: Popup window and exit
+            throw new DeviceTimeoutException();
+        }
+
+        if (Arrays.equals(AgentConstants.DEVICE_TIMEOUT_BYTE_KEY, signature)) {
+            log.error("Sign operation cancelled by user");
+            throw new DeviceTimeoutException();
         }
 
         return signature;

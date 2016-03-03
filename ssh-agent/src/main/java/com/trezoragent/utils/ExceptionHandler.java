@@ -4,7 +4,7 @@ package com.trezoragent.utils;
  *
  * @author martin.lizner
  */
-
+import com.trezoragent.exception.DeviceTimeoutException;
 import static com.trezoragent.utils.AgentConstants.*;
 import com.trezoragent.exception.KeyStoreLoadException;
 import java.io.IOException;
@@ -26,21 +26,21 @@ public class ExceptionHandler {
 
         try {
             throw ex;
+        } catch (DeviceTimeoutException e) {
+            key = DEVICE_TIMEOUT_KEY;
         } catch (URISyntaxException e) {
             key = WRONG_URI_SINTAX_KEY;
         } catch (IOException e) {
             key = UNKNOW_ERROR_KEY;
         } catch (NoSuchAlgorithmException e) {
             key = NOT_SUPPORTED_ALGORITHM_KEY;
-        } catch (CertificateExpiredException e){
+        } catch (CertificateExpiredException e) {
             key = CERTIFICATE_HAS_EXPIRED_KEY;
         } catch (CertificateException e) {
             key = UNABLE_TO_USE_CERTIFICATE_KEY;
         } catch (NoSuchPaddingException e) {
             key = UNKNOW_ERROR_KEY;
-        } catch (InvalidKeyException e) {
-            key = UNABLE_TO_USE_KEY_KEY;
-        } catch (UnrecoverableKeyException e) {
+        } catch (InvalidKeyException | UnrecoverableKeyException e) {
             key = UNABLE_TO_USE_KEY_KEY;
         } catch (SignatureException e) {
             key = SIGNATURE_EXCEPTION_KEY;

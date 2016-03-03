@@ -67,6 +67,7 @@ public class AgentPopUpMenu extends JPopupMenu {
                     if (trezorService.getHardwareWalletService().isDeviceReady()) {
                         TrezorWrapper.getIdentitiesRequest(trezorService);
                         final Timer timer = new Timer(AgentConstants.ASYNC_CHECK_INTERVAL, null);
+                        trezorService.setTimer(timer); // TODO: find better way how to stop timer when pubkey action is not finished
 
                         ActionListener showWindowIfKeyProvided = new ActionListener() {
                             @Override
@@ -82,7 +83,7 @@ public class AgentPopUpMenu extends JPopupMenu {
                                     frame.setLocation(dim.width / 2 - frame.getContentPane().getSize().width / 2, dim.height / 2 - frame.getSize().height / 2);
 
                                     trezorService.setTrezorKey(null);
-                                    trezorService.getAsyncData().setTrezorData(null); // clear cache data explicitly, since they were never read by standard call()
+                                    trezorService.checkoutAsyncData().setTrezorData(null); // clear cache data explicitly, since they were never read by standard call()
                                     timer.stop();
                                 }
                             }
