@@ -6,8 +6,8 @@ import com.sun.jna.Structure;
 import com.sun.jna.platform.win32.BaseTSD;
 import com.sun.jna.platform.win32.WinDef;
 import com.sun.jna.platform.win32.WinUser;
+import com.sun.jna.win32.W32APIOptions;
 import com.trezoragent.sshagent.Kernel32;
-import com.trezoragent.support.PageantConnector;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
@@ -17,15 +17,14 @@ import java.util.List;
 
 /**
  * @author Martin Lizner
- * 
- * JNI Listener to register mouse clicks on desktop.
- * If mouse click is outside of the component, {@link MouseClickOutsideComponentEvent} event is called.
- * 
+ *
+ * JNI Listener to register mouse clicks on desktop. If mouse click is outside
+ * of the component, {@link MouseClickOutsideComponentEvent} event is called.
+ *
  */
-
 public class JNIMouseHook {
 
-    private final PageantConnector.User32 USER32INST;
+    private final JNIMouseHook.User32 USER32INST;
     private final Kernel32 KERNEL32INST;
     private final Component SOURCE;
 
@@ -37,7 +36,8 @@ public class JNIMouseHook {
             throw new UnsupportedOperationException("Not supported on this platform.");
         }
         SOURCE = eventSource;
-        USER32INST = PageantConnector.User32.INSTANCE;
+        USER32INST = JNIMouseHook.User32.INSTANCE;
+
         KERNEL32INST = Kernel32.INSTANCE;
         mouseHook = hookTheMouse();
         Native.setProtected(true);
@@ -175,5 +175,14 @@ public class JNIMouseHook {
         public WinDef.HWND hwnd;
         public int wHitTestCode;
         public BaseTSD.ULONG_PTR dwExtraInfo;
+    }
+
+    public interface User32 extends com.sun.jna.platform.win32.User32 {
+
+        User32 INSTANCE = (User32) Native.loadLibrary("user32",
+                User32.class,
+                W32APIOptions.DEFAULT_OPTIONS);
+
+        WinDef.LRESULT SendMessage(WinDef.HWND hWnd, int msg, WinDef.WPARAM num1, byte[] num2);
     }
 }
