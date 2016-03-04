@@ -31,7 +31,7 @@ public class TrezorWrapper {
     }
 
     public static List<PublicKeyDTO> getIdentitiesResponse(TrezorService trezorService, Boolean stripPrefix) throws DeviceTimeoutException {
-        String trezorKey = "N/A";
+        String trezorKey;
         List<PublicKeyDTO> idents = new ArrayList<>();
 
         log.info("getIdentities() wallet present: " + trezorService.getHardwareWalletService().isWalletPresent());
@@ -39,10 +39,10 @@ public class TrezorWrapper {
         getIdentitiesRequest(trezorService);
 
         ExecutorService executor = Executors.newSingleThreadExecutor();
-        Future<Object> future = executor.submit(trezorService.checkoutAsyncData());
+        Future<String> future = executor.submit(trezorService.checkoutAsyncKeyData());
 
         try {
-            trezorKey = (String) future.get(AgentConstants.KEY_WAIT_TIMEOUT, TimeUnit.SECONDS);
+            trezorKey = future.get(AgentConstants.KEY_WAIT_TIMEOUT, TimeUnit.SECONDS);
             if (stripPrefix) { // remove ecdsa-sha2... from beginning
                 String[] keySplit = trezorKey.split(" ");
                 if (keySplit[1] != null) {
@@ -65,7 +65,7 @@ public class TrezorWrapper {
     }
 
     public static byte[] signChallenge(TrezorService trezorService, byte[] challengeHidden) throws DeviceTimeoutException {
-        byte[] signature = "N/A".getBytes();
+        byte[] signature;
         String challengeVisual = AgentUtils.getCurrentTimeStamp();
 
         Identity identity = new Identity(AgentConstants.SSHURI, 0, challengeHidden, challengeVisual, AgentConstants.CURVE_NAME);
@@ -73,9 +73,9 @@ public class TrezorWrapper {
         trezorService.getHardwareWalletService().signIdentity(identity);
 
         ExecutorService executor = Executors.newSingleThreadExecutor();
-        Future<Object> future = executor.submit(trezorService.checkoutAsyncData());
+        Future<byte[]> future = executor.submit(trezorService.checkoutAsyncSignData());
         try {
-            signature = (byte[]) future.get(AgentConstants.SIGN_WAIT_TIMEOUT, TimeUnit.SECONDS);
+            signature = future.get(AgentConstants.SIGN_WAIT_TIMEOUT, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException ex) {
             log.error("Timeout when waiting for Trezor...");
             throw new DeviceTimeoutException();

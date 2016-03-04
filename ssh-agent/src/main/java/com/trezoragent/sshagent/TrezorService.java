@@ -44,7 +44,8 @@ public final class TrezorService {
     private String trezorKey;
     byte[] signedData;
     byte[] challengeData;
-    private final ReadTrezorData asyncData;
+    private final ReadTrezorData asyncKeyData;
+    private final ReadTrezorData asyncSignData;
     private final AbstractTrezorHardwareWallet wallet;
     private Timer timer;
 
@@ -66,7 +67,9 @@ public final class TrezorService {
         getHardwareWalletService().start();
 
         HardwareWalletEvents.subscribe(this);
-        asyncData = new ReadTrezorData();
+
+        asyncKeyData = new ReadTrezorData<String>();
+        asyncSignData = new ReadTrezorData<byte[]>();
 
         log.info("Trezor Service Started");
     }
@@ -131,13 +134,12 @@ public final class TrezorService {
                             pinPad.dispose();
                             TrayProcess.handleException(new DeviceTimeoutException());
                             if (timer != null && timer.isRunning()) {
-                                timer.stop(); // stop swing timer
+                                timer.stop(); // stop swing timer since pin was cancelled and pub key frame wont be displayed
                             }
                         }
 
                         if (AgentConstants.PIN_CANCELLED_MSG.equals(pin)) {
                             hardwareWalletService.requestCancel();
-                            //TODO: Putty stays frozen when sign cancelled
                             if (timer != null && timer.isRunning()) {
                                 timer.stop(); // stop swing timer
                             }
@@ -163,14 +165,15 @@ public final class TrezorService {
                     // Decompress key
                     String decompressedSSHKey = IdentityUtils.decompressSSHKeyFromNistp256(publicKey);
 
+                    String openSSHkeyNistp256 = IdentityUtils.printOpenSSHkeyNistp256(decompressedSSHKey, null);
                     // Convert key to openSSH format
-                    log.info("SSH Public Key:\n{}", IdentityUtils.printOpenSSHkeyNistp256(decompressedSSHKey, null));
+                    log.info("SSH Public Key:\n{}", openSSHkeyNistp256);
 
-                    setTrezorKey(IdentityUtils.printOpenSSHkeyNistp256(decompressedSSHKey, null));
-                    asyncData.setTrezorData(getTrezorKey());
+                    setTrezorKey(openSSHkeyNistp256); // this is for swing timer - frame window to display pubkey scenario
+                    asyncKeyData.setTrezorData(openSSHkeyNistp256); // this is for Callable.call() - ssh server asks identities before sign
 
                 } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-                    log.error("deviceTx FAILED.", e);
+                    log.error("deviceTx FAILED.", e); // TODO: unify logs
                 }
 
                 break;
@@ -181,23 +184,17 @@ public final class TrezorService {
 
                 signedData = signature.getSignatureBytes().get();
                 log.info("Signature:\n{}", Utils.HEX.encode(signedData));
-                asyncData.setTrezorData(signedData);
+                asyncSignData.setTrezorData(signedData);
 
                 break;
 
             case SHOW_OPERATION_FAILED:
 
-                asyncData.setTrezorData(AgentConstants.DEVICE_TIMEOUT_BYTE_KEY);
+                asyncSignData.setTrezorData(AgentConstants.DEVICE_TIMEOUT_BYTE_KEY);
                 break;
             default:
             // Ignore
         }
-
-    }
-
-    public ReadTrezorData checkoutAsyncData() {
-        asyncData.setTrezorData(null);
-        return asyncData;
     }
 
     public String getTrezorKey() {
@@ -210,6 +207,16 @@ public final class TrezorService {
 
     public void setTimer(Timer timer) {
         this.timer = timer;
+    }
+
+    public ReadTrezorData checkoutAsyncKeyData() {
+        asyncKeyData.setTrezorData(null);
+        return asyncKeyData;
+    }
+
+    public ReadTrezorData checkoutAsyncSignData() {
+        asyncSignData.setTrezorData(null);
+        return asyncSignData;
     }
 
 }

@@ -10,6 +10,7 @@ package com.trezoragent.gui;
 import com.trezoragent.utils.AgentConstants;
 import com.trezoragent.utils.LocalizedLogger;
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Image;
 import java.awt.Toolkit;
@@ -44,7 +45,7 @@ public class PublicKeysFrame extends JFrame {
         setIconImages(getAllIcons());
         setTitle(title);
         pack();
-
+        positionWindow();
     }
 
     private void createTextArea(List<String> text) {
@@ -122,6 +123,11 @@ public class PublicKeysFrame extends JFrame {
 
     public void setTextArea(JTextArea textArea) {
         this.textArea = textArea;
+    }
+
+    private void positionWindow() {
+        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+        this.setLocation(dim.width / 2 - this.getContentPane().getSize().width / 2, dim.height / 2 - this.getSize().height / 2);
     }
 
 }

@@ -73,17 +73,14 @@ public class AgentPopUpMenu extends JPopupMenu {
                             @Override
                             public void actionPerformed(ActionEvent event) {
                                 if (trezorService.getTrezorKey() != null) {
-                                    List<String> s = new ArrayList<>();
-                                    s.add(trezorService.getTrezorKey() + " " + KEY_COMMENT);
+                                    List<String> pubKeys = new ArrayList<>();
+                                    pubKeys.add(trezorService.getTrezorKey() + " " + KEY_COMMENT);
 
-                                    PublicKeysFrame frame = new PublicKeysFrame(s, SSHURI.toString());
+                                    PublicKeysFrame frame = new PublicKeysFrame(pubKeys, SSHURI.toString());
                                     frame.setVisible(true);
-
-                                    Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-                                    frame.setLocation(dim.width / 2 - frame.getContentPane().getSize().width / 2, dim.height / 2 - frame.getSize().height / 2);
-
+                                    
                                     trezorService.setTrezorKey(null);
-                                    trezorService.checkoutAsyncData().setTrezorData(null); // clear cache data explicitly, since they were never read by standard call()
+                                    trezorService.checkoutAsyncKeyData(); // clear cache data explicitly, since they were never read by standard call()
                                     timer.stop();
                                 }
                             }
@@ -91,6 +88,7 @@ public class AgentPopUpMenu extends JPopupMenu {
 
                         timer.addActionListener(showWindowIfKeyProvided);
                         timer.setRepeats(true);
+                        
                         timer.start();
 
                         Logger.getLogger(SSHAgent.class.getName()).log(Level.INFO, "Operation {0} executed successfully", "GUI_GET_IDENTITIES");

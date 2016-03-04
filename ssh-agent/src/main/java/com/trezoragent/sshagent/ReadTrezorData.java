@@ -7,28 +7,28 @@ import java.util.concurrent.Callable;
  *
  * @author martin.lizner
  */
-public class ReadTrezorData implements Callable<Object> {
+public class ReadTrezorData <T extends Object> implements Callable<T> {
 
-    private Object trezorData = null;
+    private T trezorData = null;
 
     public ReadTrezorData() {
     }
 
     @Override
-    public Object call() throws Exception {
+    public T call() throws Exception {
         Object retKey;
 
         while (true) {
             if (trezorData != null) {
                 retKey = cloneObject(trezorData);
                 trezorData = null; // unset data after it has been read
-                return retKey;
+                return (T) retKey;
             }
             Thread.sleep(AgentConstants.ASYNC_CHECK_INTERVAL);
         }
     }
 
-    public void setTrezorData(Object trezorData) {
+    public void setTrezorData(T trezorData) {
         this.trezorData = trezorData;
     }
 

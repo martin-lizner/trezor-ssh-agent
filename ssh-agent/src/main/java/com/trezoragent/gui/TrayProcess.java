@@ -103,11 +103,11 @@ public class TrayProcess {
         final AgentPopUpMenu popUpMenu = new AgentPopUpMenu(tray, trayIcon, agent, trezorService);
         final JMenuItem abstractItem = new JMenuItem();
 
-        //Priprav kontrolu mysi 
+        // workaround for popup menu to disappear when clicked outside
         MOUSE_HOOK = new JNIMouseHook(popUpMenu);
         trayIcon.addMouseListener(new MouseAdapter() {
             @Override
-            public void mouseReleased(MouseEvent e) {
+            public void mouseReleased(MouseEvent e) { // clicked inside popup
                 if (e.isPopupTrigger()) {
                     popUpMenu.setLocation(e.getX(), e.getY());
                     popUpMenu.setInvoker(popUpMenu);
@@ -119,7 +119,7 @@ public class TrayProcess {
         popUpMenu.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if (e instanceof MouseClickOutsideComponentEvent) {
+                if (e instanceof MouseClickOutsideComponentEvent) { // clicked outside popup, close it
                     popUpMenu.setVisible(false);
                 }
             }
