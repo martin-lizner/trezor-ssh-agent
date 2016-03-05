@@ -12,7 +12,6 @@ import java.util.logging.LogManager;
  */
 public class LocalizedLogger {
 
-    // Aktualni locales
     private static ResourceBundle messages;
 
     public static void setUpDefault() throws URISyntaxException, IOException {

@@ -107,13 +107,13 @@ public class PublicKeysFrame extends JFrame {
 
     private List<? extends Image> getAllIcons() {
         List<Image> icons = new ArrayList<>();
-        icons.add(new ImageIcon(TrayProcess.class.getResource(AgentConstants.ICON128_PATH)).getImage());
-        icons.add(new ImageIcon(TrayProcess.class.getResource(AgentConstants.ICON16_PATH)).getImage());
-        icons.add(new ImageIcon(TrayProcess.class.getResource(AgentConstants.ICON24_PATH)).getImage());
-        icons.add(new ImageIcon(TrayProcess.class.getResource(AgentConstants.ICON48_PATH)).getImage());
-        icons.add(new ImageIcon(TrayProcess.class.getResource(AgentConstants.ICON64_PATH)).getImage());
-        icons.add(new ImageIcon(TrayProcess.class.getResource(AgentConstants.ICON72_PATH)).getImage());
-        icons.add(new ImageIcon(TrayProcess.class.getResource(AgentConstants.ICON96_PATH)).getImage());
+        icons.add(new ImageIcon(StartAgentGUI.class.getResource(AgentConstants.ICON128_PATH)).getImage());
+        icons.add(new ImageIcon(StartAgentGUI.class.getResource(AgentConstants.ICON16_PATH)).getImage());
+        icons.add(new ImageIcon(StartAgentGUI.class.getResource(AgentConstants.ICON24_PATH)).getImage());
+        icons.add(new ImageIcon(StartAgentGUI.class.getResource(AgentConstants.ICON48_PATH)).getImage());
+        icons.add(new ImageIcon(StartAgentGUI.class.getResource(AgentConstants.ICON64_PATH)).getImage());
+        icons.add(new ImageIcon(StartAgentGUI.class.getResource(AgentConstants.ICON72_PATH)).getImage());
+        icons.add(new ImageIcon(StartAgentGUI.class.getResource(AgentConstants.ICON96_PATH)).getImage());
         return icons;
     }
 

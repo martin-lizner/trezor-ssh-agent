@@ -1,6 +1,8 @@
 package com.trezoragent.sshagent;
 
 import com.trezoragent.exception.DeviceTimeoutException;
+import com.trezoragent.exception.GetIdentitiesFailedException;
+import com.trezoragent.exception.SignFailedException;
 import com.trezoragent.struct.PublicKeyDTO;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +32,7 @@ public class TrezorWrapper {
         trezorService.getHardwareWalletService().requestPublicKeyForIdentity(AgentConstants.SSHURI, 0, AgentConstants.CURVE_NAME, false);
     }
 
-    public static List<PublicKeyDTO> getIdentitiesResponse(TrezorService trezorService, Boolean stripPrefix) throws DeviceTimeoutException {
+    public static List<PublicKeyDTO> getIdentitiesResponse(TrezorService trezorService, Boolean stripPrefix) throws DeviceTimeoutException, GetIdentitiesFailedException {
         String trezorKey;
         List<PublicKeyDTO> idents = new ArrayList<>();
 
@@ -43,15 +45,21 @@ public class TrezorWrapper {
 
         try {
             trezorKey = future.get(AgentConstants.KEY_WAIT_TIMEOUT, TimeUnit.SECONDS);
-            if (stripPrefix) { // remove ecdsa-sha2... from beginning
-                String[] keySplit = trezorKey.split(" ");
-                if (keySplit[1] != null) {
-                    trezorKey = keySplit[1];
-                }
-            }
         } catch (InterruptedException | ExecutionException | TimeoutException ex) {
             log.error("Timeout when waiting for Trezor...");
             throw new DeviceTimeoutException();
+        }
+
+        if (AgentConstants.DEVICE_FAILED_STRING.equals(trezorKey)) {
+            log.error("Get identities operation failed");
+            throw new GetIdentitiesFailedException();
+        }
+
+        if (stripPrefix) { // remove ecdsa-sha2... from beginning
+            String[] keySplit = trezorKey.split(" ");
+            if (keySplit[1] != null) {
+                trezorKey = keySplit[1];
+            }
         }
 
         PublicKeyDTO p = new PublicKeyDTO();
@@ -64,7 +72,7 @@ public class TrezorWrapper {
         return idents;
     }
 
-    public static byte[] signChallenge(TrezorService trezorService, byte[] challengeHidden) throws DeviceTimeoutException {
+    public static byte[] signChallenge(TrezorService trezorService, byte[] challengeHidden) throws DeviceTimeoutException, SignFailedException {
         byte[] signature;
         String challengeVisual = AgentUtils.getCurrentTimeStamp();
 
@@ -74,6 +82,7 @@ public class TrezorWrapper {
 
         ExecutorService executor = Executors.newSingleThreadExecutor();
         Future<byte[]> future = executor.submit(trezorService.checkoutAsyncSignData());
+
         try {
             signature = future.get(AgentConstants.SIGN_WAIT_TIMEOUT, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException ex) {
@@ -81,12 +90,10 @@ public class TrezorWrapper {
             throw new DeviceTimeoutException();
         }
 
-        if (Arrays.equals(AgentConstants.DEVICE_TIMEOUT_BYTE_KEY, signature)) {
-            log.error("Sign operation cancelled by user");
-            throw new DeviceTimeoutException();
+        if (Arrays.equals(AgentConstants.DEVICE_FAILED_BYTE, signature)) {
+            log.error("Sign operation failed");
+            throw new SignFailedException();
         }
-
         return signature;
     }
-
 }

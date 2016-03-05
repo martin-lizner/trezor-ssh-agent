@@ -2,7 +2,9 @@ package com.trezoragent.sshagent;
 
 import com.google.common.base.Optional;
 import com.google.common.eventbus.Subscribe;
+import com.trezoragent.exception.ActionCancelledException;
 import com.trezoragent.exception.DeviceTimeoutException;
+import com.trezoragent.exception.InvalidPinException;
 import com.trezoragent.gui.PinPad;
 import com.trezoragent.gui.TrayProcess;
 import com.trezoragent.utils.AgentConstants;
@@ -21,6 +23,8 @@ import org.multibit.hd.hardware.core.HardwareWalletClient;
 import org.multibit.hd.hardware.core.HardwareWalletService;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvent;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
+import org.multibit.hd.hardware.core.messages.Failure;
+import org.multibit.hd.hardware.core.messages.FailureType;
 import org.multibit.hd.hardware.core.messages.PinMatrixRequest;
 import org.multibit.hd.hardware.core.messages.PublicKey;
 import org.multibit.hd.hardware.core.messages.SignedIdentity;
@@ -131,7 +135,6 @@ public final class TrezorService {
                         } catch (InterruptedException | ExecutionException | TimeoutException ex) {
                             log.error("Timeout when waiting for PIN...");
                             hardwareWalletService.requestCancel();
-                            pinPad.dispose();
                             TrayProcess.handleException(new DeviceTimeoutException());
                             if (timer != null && timer.isRunning()) {
                                 timer.stop(); // stop swing timer since pin was cancelled and pub key frame wont be displayed
@@ -190,7 +193,22 @@ public final class TrezorService {
 
             case SHOW_OPERATION_FAILED:
 
-                asyncSignData.setTrezorData(AgentConstants.DEVICE_TIMEOUT_BYTE_KEY);
+                asyncSignData.setTrezorData(AgentConstants.DEVICE_FAILED_BYTE);
+                asyncKeyData.setTrezorData(AgentConstants.DEVICE_FAILED_STRING);
+
+                Failure failure = (Failure) event.getMessage().get();
+                switch (failure.getType()) {
+                    case PIN_INVALID:
+                        TrayProcess.handleException(new InvalidPinException());
+                        break;
+                    case ACTION_CANCELLED:
+                        TrayProcess.handleException(new ActionCancelledException());
+                        break;
+                    case PIN_CANCELLED:
+                        // TODO: should we inform user explicitly?
+                        break;
+                }
+
                 break;
             default:
             // Ignore

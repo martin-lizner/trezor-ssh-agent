@@ -68,7 +68,7 @@ public class AgentPopUpMenu extends JPopupMenu {
                         TrezorWrapper.getIdentitiesRequest(trezorService);
                         final Timer timer = new Timer(AgentConstants.ASYNC_CHECK_INTERVAL, null);
                         trezorService.setTimer(timer); // TODO: find better way how to stop timer when pubkey action is not finished
-
+                        
                         ActionListener showWindowIfKeyProvided = new ActionListener() {
                             @Override
                             public void actionPerformed(ActionEvent event) {

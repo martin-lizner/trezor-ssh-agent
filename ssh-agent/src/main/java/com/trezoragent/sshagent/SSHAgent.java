@@ -1,6 +1,5 @@
 package com.trezoragent.sshagent;
 
-import com.google.common.base.Charsets;
 import com.trezoragent.struct.PuttyStruct64;
 import com.trezoragent.struct.PuttyStruct32;
 import com.trezoragent.struct.PublicKeyDTO;
@@ -17,24 +16,18 @@ import com.sun.jna.platform.win32.WinUser;
 import com.sun.jna.platform.win32.WinUser.*;
 import com.sun.jna.platform.win32.WinUser.WindowProc;
 import com.trezoragent.exception.DeviceTimeoutException;
-import com.trezoragent.exception.KeyStoreLoadException;
+import com.trezoragent.exception.GetIdentitiesFailedException;
+import com.trezoragent.exception.SignFailedException;
 import com.trezoragent.gui.TrayProcess;
 import com.trezoragent.utils.AgentConstants;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.logging.Level;
 import static com.trezoragent.utils.AgentConstants.*;
+import com.trezoragent.utils.AgentUtils;
 import com.trezoragent.utils.LocalizedLogger;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.security.InvalidKeyException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
 import java.util.List;
 import java.util.logging.Logger;
-import static org.multibit.hd.hardware.core.utils.IdentityUtils.KEY_PREFIX;
-import org.spongycastle.pqc.math.linearalgebra.ByteUtils;
 
 /**
  *
@@ -42,22 +35,6 @@ import org.spongycastle.pqc.math.linearalgebra.ByteUtils;
  *
  */
 public class SSHAgent implements WindowProc {
-
-    private final int MY_WM_COPYDATA = 0x004A;
-    private final String APPNAME = "Pageant";
-
-    /*
-     * SSH-1 and OpenSSH SSH-2 protocol commons
-     */
-    private final int SSH_AGENT_FAILURE = 5;
-
-    /*
-     * OpenSSH protocol SSH-2
-     */
-    private final byte SSH2_AGENTC_REQUEST_IDENTITIES = 11;
-    private final byte SSH2_AGENT_IDENTITIES_ANSWER = 12;
-    private final byte SSH2_AGENTC_SIGN_REQUEST = 13;
-    private final byte SSH2_AGENT_SIGN_RESPONSE = 14;
 
     private User32 libU = null;
     private Kernel32 libK = null;
@@ -187,7 +164,7 @@ public class SSHAgent implements WindowProc {
         sharedMemory.read(0, buff, 0, 5);
 
         byte type = buff[4];
-        switch (type) {
+        switch (type) { //TODO: ssh request came but trezor is not connected situation
             case SSH2_AGENTC_REQUEST_IDENTITIES:
                 Logger.getLogger(SSHAgent.class.getName()).log(Level.INFO, "Request for operation: {0}", "SSH2_AGENTC_REQUEST_IDENTITIES");
                 processKeysRequest(sharedMemory);
@@ -209,13 +186,14 @@ public class SSHAgent implements WindowProc {
         java.util.List<PublicKeyDTO> certs = null;
         try {
             certs = TrezorWrapper.getIdentitiesResponse(trezorService, true);
+            ByteBuffer ret = writeCertificatesToBuffer(certs, SSH2_AGENT_IDENTITIES_ANSWER);
+            sharedMemory.write(0, ret.array(), 0, ret.array().length);
+
         } catch (DeviceTimeoutException ex) {
             TrayProcess.handleException(ex);
+        } catch (GetIdentitiesFailedException ex) {
+            // TODO: log
         }
-
-        ByteBuffer ret = writeCertificatesToBuffer(certs, SSH2_AGENT_IDENTITIES_ANSWER);
-        sharedMemory.write(0, ret.array(), 0, ret.array().length);
-
     }
 
     private byte[] getDataFromRequest(Pointer sharedMemory, int offset) {
@@ -264,47 +242,27 @@ public class SSHAgent implements WindowProc {
         sharedMemory.write(0, buff, 0, buff.length);
     }
 
-    public byte[] frameArray(byte[] array) {
-        ByteBuffer buffer = ByteBuffer.allocate(4 + array.length);
-        buffer.putInt(array.length);
-        buffer.put(array);
-        return buffer.array();
-    }
-
-    public byte[] frameArray(byte[] array1, byte[] array2) {
-        return frameArray(ByteUtils.concatenate(array1, array2));
-    }
-
     private void processSignRequest(Pointer sharedMemory) {
         byte[] keyInBytes = getDataFromRequest(sharedMemory, 5);
         byte[] challengeData = getDataFromRequest(sharedMemory, 5 + 4 + keyInBytes.length);
         byte[] signedDataRaw;
         byte[] signedData;
 
-        byte[] zero = {(byte) 0x00};
-        byte[] respCode = {SSH2_AGENT_SIGN_RESPONSE};
-
         try {
             signedDataRaw = TrezorWrapper.signChallenge(trezorService, challengeData);
+            signedData = AgentUtils.createSSHSignResponse(signedDataRaw);
+            // TODO: throw exception when data are not 65 long
 
-            byte[] noOctet = ByteUtils.subArray(signedDataRaw, 1, signedDataRaw.length); // remove first byte from 65byte array
-            byte[] xSign = ByteUtils.subArray(noOctet, 0, 32); // devide 64byte array into halves
-            byte[] ySign = ByteUtils.subArray(noOctet, 32, noOctet.length);
-            xSign = ByteUtils.concatenate(zero, xSign); // add zero byte
-            ySign = ByteUtils.concatenate(zero, ySign);
-
-            byte[] sigBytes = ByteUtils.concatenate(frameArray(xSign), frameArray(ySign));
-            byte[] dataArray = frameArray(frameArray(KEY_PREFIX.getBytes(Charsets.UTF_8)), frameArray(sigBytes));
-            signedData = frameArray(respCode, dataArray);
-
-            if (signedData == null) {
-                TrayProcess.createWarning(LocalizedLogger.getLocalizedMessage("CERT_USED_ERROR"));
-            } else {
+            if (signedData != null) {
                 sharedMemory.write(0, signedData, 0, signedData.length);
                 TrayProcess.createInfo(LocalizedLogger.getLocalizedMessage("CERT_USE_SUCCESS") + AgentConstants.KEY_COMMENT);
+            } else {
+                TrayProcess.createWarning(LocalizedLogger.getLocalizedMessage("CERT_USED_ERROR"));
             }
         } catch (DeviceTimeoutException ex) {
             TrayProcess.handleException(ex);
+        } catch (SignFailedException ex) { // do nothing, user was already informed by message and we do not want anything to be written in shared memory
+            // TOTO: log
         }
     }
 
@@ -342,7 +300,7 @@ public class SSHAgent implements WindowProc {
             libK = Kernel32.INSTANCE;
         } catch (java.lang.UnsatisfiedLinkError | java.lang.NoClassDefFoundError ex) {
             TrayProcess.handleException(ex);
-            throw new Exception(ex.toString());
+            throw new Exception(ex.toString()); // TODO why Exception?
         }
     }
 
