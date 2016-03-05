@@ -33,7 +33,6 @@ public class AgentPopUpMenu extends JPopupMenu {
     private final String EXIT_BUTTON_LOCALIZED_KEY = "EXIT";
     private final String VIEW_KEYS_BUTTON_LOCALIZED_KEY = "VIEW_KEYS";
     private final String APPLICATION_INFO_KEY = "APPLICATION_INFO";
-    private final String DEVICE_NOT_PRESENT_KEY = "DEVICE_NOT_PRESENT";
 
     private final TrayIcon trayIcon;
     TrezorService trezorService;
@@ -64,11 +63,11 @@ public class AgentPopUpMenu extends JPopupMenu {
             public void actionPerformed(ActionEvent e) {
                 Logger.getLogger(SSHAgent.class.getName()).log(Level.INFO, "Request for operation: {0}", "GUI_GET_IDENTITIES");
                 try {
-                    if (trezorService.getHardwareWalletService().isDeviceReady()) {
-                        TrezorWrapper.getIdentitiesRequest(trezorService);
+                    if (TrayProcess.agent.checkDeviceAvailable()) {
+                        TrezorWrapper.getIdentitiesRequest();
                         final Timer timer = new Timer(AgentConstants.ASYNC_CHECK_INTERVAL, null);
                         trezorService.setTimer(timer); // TODO: find better way how to stop timer when pubkey action is not finished
-                        
+
                         ActionListener showWindowIfKeyProvided = new ActionListener() {
                             @Override
                             public void actionPerformed(ActionEvent event) {
@@ -78,7 +77,7 @@ public class AgentPopUpMenu extends JPopupMenu {
 
                                     PublicKeysFrame frame = new PublicKeysFrame(pubKeys, SSHURI.toString());
                                     frame.setVisible(true);
-                                    
+
                                     trezorService.setTrezorKey(null);
                                     trezorService.checkoutAsyncKeyData(); // clear cache data explicitly, since they were never read by standard call()
                                     timer.stop();
@@ -88,12 +87,10 @@ public class AgentPopUpMenu extends JPopupMenu {
 
                         timer.addActionListener(showWindowIfKeyProvided);
                         timer.setRepeats(true);
-                        
+
                         timer.start();
 
                         Logger.getLogger(SSHAgent.class.getName()).log(Level.INFO, "Operation {0} executed successfully", "GUI_GET_IDENTITIES");
-                    } else {
-                        TrayProcess.createWarning(LocalizedLogger.getLocalizedMessage(DEVICE_NOT_PRESENT_KEY));
                     }
                 } catch (Exception ex) {
                     TrayProcess.handleException(ex);

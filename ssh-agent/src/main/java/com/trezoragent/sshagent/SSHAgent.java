@@ -46,7 +46,6 @@ public class SSHAgent implements WindowProc {
     private boolean mainLoopStarted = false;
 
     private HANDLE mutex = null; // mutex ref, for installer
-    TrezorService trezorService;
 
     public SSHAgent() throws Exception {
         initCoreClasses();
@@ -55,10 +54,6 @@ public class SSHAgent implements WindowProc {
         } else {
             TrayProcess.createErrorWindow(LocalizedLogger.getLocalizedMessage("PAGEANT_IS_RUNNING"));
         }
-    }
-
-    public void setTrezorService(TrezorService trezorService) {
-        this.trezorService = trezorService;
     }
 
     /*
@@ -183,9 +178,9 @@ public class SSHAgent implements WindowProc {
     }
 
     private void processKeysRequest(final Pointer sharedMemory) {
-        java.util.List<PublicKeyDTO> certs = null;
+        java.util.List<PublicKeyDTO> certs;
         try {
-            certs = TrezorWrapper.getIdentitiesResponse(trezorService, true);
+            certs = TrezorWrapper.getIdentitiesResponse(true);
             ByteBuffer ret = writeCertificatesToBuffer(certs, SSH2_AGENT_IDENTITIES_ANSWER);
             sharedMemory.write(0, ret.array(), 0, ret.array().length);
 
@@ -225,13 +220,25 @@ public class SSHAgent implements WindowProc {
     }
 
     private int answerIfDevicePresent(Pointer sharedMemory) {
-        if (trezorService.getHardwareWalletService().isWalletPresent()) {
+        if (checkDeviceAvailable()) {
             return answerMessage(sharedMemory);
         } else {
-            TrayProcess.createWarning(LocalizedLogger.getLocalizedMessage("DEVICE_NOT_PRESENT"));
-            writeAndLogFailure(sharedMemory, "Device not found!");
+            writeAndLogFailure(sharedMemory, "Device not available.");
             return 0;
         }
+    }
+
+    public boolean checkDeviceAvailable() {
+        if (TrayProcess.trezorService.getHardwareWalletService().isDeviceReady()) {
+            if (TrayProcess.trezorService.getHardwareWalletService().isWalletPresent()) {
+                return true;
+            } else {
+                TrayProcess.createWarning(LocalizedLogger.getLocalizedMessage("WALLET_NOT_PRESENT_KEY"));
+            }
+        } else {
+            TrayProcess.createWarning(LocalizedLogger.getLocalizedMessage("DEVICE_NOT_READY_KEY"));
+        }
+        return false;
     }
 
     private void writeAndLogFailure(Pointer sharedMemory, String messageToLog) {
@@ -239,7 +246,7 @@ public class SSHAgent implements WindowProc {
         byte[] buff = new byte[5];
         buff[4] = SSH_AGENT_FAILURE;
         buff[1] = 1;
-        sharedMemory.write(0, buff, 0, buff.length);
+        sharedMemory.write(0, buff, 0, buff.length); // todo refact all to use frames()
     }
 
     private void processSignRequest(Pointer sharedMemory) {
@@ -249,7 +256,7 @@ public class SSHAgent implements WindowProc {
         byte[] signedData;
 
         try {
-            signedDataRaw = TrezorWrapper.signChallenge(trezorService, challengeData);
+            signedDataRaw = TrezorWrapper.signChallenge(challengeData);
             signedData = AgentUtils.createSSHSignResponse(signedDataRaw);
             // TODO: throw exception when data are not 65 long
 
@@ -334,6 +341,7 @@ public class SSHAgent implements WindowProc {
         setCreatedCorrectly(false);
 
         //trezorService.getWallet().softDetach();
-        trezorService.getWallet().disconnect();
+        TrayProcess.trezorService.getWallet().disconnect();
+        TrayProcess.trezorService.getClient().disconnect();
     }
 }

@@ -3,6 +3,7 @@ package com.trezoragent.sshagent;
 import com.trezoragent.exception.DeviceTimeoutException;
 import com.trezoragent.exception.GetIdentitiesFailedException;
 import com.trezoragent.exception.SignFailedException;
+import com.trezoragent.gui.TrayProcess;
 import com.trezoragent.struct.PublicKeyDTO;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,20 +29,18 @@ public class TrezorWrapper {
 
     private static final Logger log = LoggerFactory.getLogger(TrezorWrapper.class);
 
-    public static void getIdentitiesRequest(TrezorService trezorService) {
-        trezorService.getHardwareWalletService().requestPublicKeyForIdentity(AgentConstants.SSHURI, 0, AgentConstants.CURVE_NAME, false);
+    public static void getIdentitiesRequest() {
+        TrayProcess.trezorService.getHardwareWalletService().requestPublicKeyForIdentity(AgentConstants.SSHURI, 0, AgentConstants.CURVE_NAME, false);
     }
 
-    public static List<PublicKeyDTO> getIdentitiesResponse(TrezorService trezorService, Boolean stripPrefix) throws DeviceTimeoutException, GetIdentitiesFailedException {
+    public static List<PublicKeyDTO> getIdentitiesResponse(Boolean stripPrefix) throws DeviceTimeoutException, GetIdentitiesFailedException {
         String trezorKey;
         List<PublicKeyDTO> idents = new ArrayList<>();
-
-        log.info("getIdentities() wallet present: " + trezorService.getHardwareWalletService().isWalletPresent());
-
-        getIdentitiesRequest(trezorService);
+       
+        getIdentitiesRequest();
 
         ExecutorService executor = Executors.newSingleThreadExecutor();
-        Future<String> future = executor.submit(trezorService.checkoutAsyncKeyData());
+        Future<String> future = executor.submit(TrayProcess.trezorService.checkoutAsyncKeyData());
 
         try {
             trezorKey = future.get(AgentConstants.KEY_WAIT_TIMEOUT, TimeUnit.SECONDS);
@@ -72,16 +71,16 @@ public class TrezorWrapper {
         return idents;
     }
 
-    public static byte[] signChallenge(TrezorService trezorService, byte[] challengeHidden) throws DeviceTimeoutException, SignFailedException {
+    public static byte[] signChallenge(byte[] challengeHidden) throws DeviceTimeoutException, SignFailedException {
         byte[] signature;
         String challengeVisual = AgentUtils.getCurrentTimeStamp();
 
         Identity identity = new Identity(AgentConstants.SSHURI, 0, challengeHidden, challengeVisual, AgentConstants.CURVE_NAME);
 
-        trezorService.getHardwareWalletService().signIdentity(identity);
+        TrayProcess.trezorService.getHardwareWalletService().signIdentity(identity);
 
         ExecutorService executor = Executors.newSingleThreadExecutor();
-        Future<byte[]> future = executor.submit(trezorService.checkoutAsyncSignData());
+        Future<byte[]> future = executor.submit(TrayProcess.trezorService.checkoutAsyncSignData());
 
         try {
             signature = future.get(AgentConstants.SIGN_WAIT_TIMEOUT, TimeUnit.SECONDS);

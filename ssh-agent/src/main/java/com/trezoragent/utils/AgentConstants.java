@@ -67,6 +67,8 @@ public final class AgentConstants {
     public static final String UNABLE_TO_USE_KEY_KEY = "UNABLE_TO_USE_KEY";
     public static final String SIGNATURE_EXCEPTION_KEY = "SIGNATURE_EXCEPTION";
     public static final String KEYSTORE_LOAD_ERROR_KEY = "KEYSTORE_LOAD_ERROR";
+    public static final String WALLET_NOT_PRESENT_KEY = "WALLET_NOT_PRESENT";
+    public static final String DEVICE_NOT_READY_KEY = "DEVICE_NOT_READY";        
 
     public static final String LINK_TO_LOG_KEY = "LINK_TO_LOG";
     public static final byte SSH2_AGENT_IDENTITIES_ANSWER = 12;

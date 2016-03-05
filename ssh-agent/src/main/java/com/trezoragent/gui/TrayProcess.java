@@ -42,7 +42,6 @@ public class TrayProcess {
 
         if (agent.isCreatedCorrectly()) {
             trezorService = TrezorService.startTrezorService(); // start device communication on USB
-            agent.setTrezorService(trezorService);
 
             SwingUtilities.invokeLater(new Runnable() { // start GUI
                 @Override
