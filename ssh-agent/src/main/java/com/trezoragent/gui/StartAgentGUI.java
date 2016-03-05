@@ -40,21 +40,25 @@ public class StartAgentGUI {
 
         Logger.getLogger(StartAgentGUI.class.getName()).log(Level.INFO, "Java version: {0} ({1}-bit)", new Object[]{javaVersion, javaPlatform});
         Logger.getLogger(StartAgentGUI.class.getName()).log(Level.INFO, "Java home: {0}", System.getProperty(JAVA_HOME_PROPERTY_KEY));
-
-        //check if platform is supported
-        /*
-         if (javaVersion.startsWith("1.7") || javaVersion.startsWith("1.8")) {
-         // Java7  Java8 is currently supported
-         } else {
-         createErrorWindow(LocalizedLogger.getLocalizedMessage("UNSUPPORTED_PLATFORM_ERROR", javaVersion + " (" + javaPlatform + "-bit)"));
-         return;
-         }
-         */
+              
+        if (getJavaVersion() >= 1.7) { // Java7 and Java8 are currently supported         
+        } else {
+            TrayProcess.createErrorWindow(LocalizedLogger.getLocalizedMessage("UNSUPPORTED_PLATFORM_ERROR", javaVersion + " (" + javaPlatform + "-bit)"));
+            return;
+        }
+        
         TrayProcess.start(); // start GUI and backend services for device and ssh-agent
 
         if (startErrors != null) {
             TrayProcess.createWarning(startErrors);
         }
 
+    }
+
+    static double getJavaVersion() {
+        String version = System.getProperty("java.version");
+        int pos = version.indexOf('.');
+        pos = version.indexOf('.', pos + 1);
+        return Double.parseDouble(version.substring(0, pos));
     }
 }

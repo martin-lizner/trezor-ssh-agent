@@ -24,7 +24,6 @@ import org.multibit.hd.hardware.core.HardwareWalletService;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvent;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
 import org.multibit.hd.hardware.core.messages.Failure;
-import org.multibit.hd.hardware.core.messages.FailureType;
 import org.multibit.hd.hardware.core.messages.PinMatrixRequest;
 import org.multibit.hd.hardware.core.messages.PublicKey;
 import org.multibit.hd.hardware.core.messages.SignedIdentity;

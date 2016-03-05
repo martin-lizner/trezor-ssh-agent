@@ -41,7 +41,7 @@ public class TrayProcess {
         agent = new SSHAgent();
 
         if (agent.isCreatedCorrectly()) {
-            trezorService = TrezorService.startTrezorService(); // start Device communication on USB
+            trezorService = TrezorService.startTrezorService(); // start device communication on USB
             agent.setTrezorService(trezorService);
 
             SwingUtilities.invokeLater(new Runnable() { // start GUI
@@ -55,7 +55,7 @@ public class TrayProcess {
         }
     }
 
-    protected static void createAndShowGUI() {
+    private static void createAndShowGUI() {
         if (!SystemTray.isSupported()) {
             Logger.getLogger(StartAgentGUI.class.getName()).log(Level.SEVERE, "SYSTRAY_NOT_SUPPORTED");
             agent.exitProcess();
@@ -76,7 +76,7 @@ public class TrayProcess {
                 }
             }
         });
-        
+
         popUpMenu.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -85,7 +85,7 @@ public class TrayProcess {
                 }
             }
         });
-        
+
         popUpMenu.addPropertyChangeListener(new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
@@ -102,7 +102,7 @@ public class TrayProcess {
                 }
             }
         });
-        
+
         try {
             tray.add(trayIcon);
         } catch (AWTException e) {
