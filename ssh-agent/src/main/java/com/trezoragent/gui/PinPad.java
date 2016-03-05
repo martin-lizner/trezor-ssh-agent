@@ -15,7 +15,6 @@ import javax.swing.border.Border;
  *
  * @author martin.lizner
  */
-
 public class PinPad extends JFrame {
 
     JPanel controlPanel = new JPanel();
@@ -27,7 +26,7 @@ public class PinPad extends JFrame {
     JLabel deviceLabel = new JLabel("TREZOR");
     JLabel passcodeLabel = new JLabel("Please enter PIN:");
     JPasswordField passcodeField = new JPasswordField(4);
-    JButton jbtNumber;
+    JButton jbtNumber, enterBtn;
     private final int XSIZE = 200;
     private final int YSIZE = 240;
     private final ReadTrezorData pinData;
@@ -68,6 +67,7 @@ public class PinPad extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 passcodeField.setText("");
+                pinPolicyCheck();
             }
         });
         confirmPanel.add(jbtNumber);
@@ -75,22 +75,23 @@ public class PinPad extends JFrame {
         jbtNumber = new JButton("CANCEL");
         jbtNumber.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent e) {   
-                getPinData().setTrezorData(AgentConstants.PIN_CANCELLED_MSG);                
+            public void actionPerformed(ActionEvent e) {
+                getPinData().setTrezorData(AgentConstants.PIN_CANCELLED_MSG);
                 dispose(); // close PIN window                     
             }
         });
         confirmPanel.add(jbtNumber);
 
-        jbtNumber = new JButton("ENTER");
-        jbtNumber.addActionListener(new ActionListener() {
+        enterBtn = new JButton("ENTER");
+        enterBtn.setEnabled(false);
+        enterBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 getPinData().setTrezorData(new String(passcodeField.getPassword()));
                 dispose(); // close PIN window           
             }
         });
-        enterPanel.add(jbtNumber);
+        enterPanel.add(enterBtn);
 
         controlPanel.setLayout(new BorderLayout());
         controlPanel.add(labelPanel, BorderLayout.CENTER);
@@ -136,6 +137,12 @@ public class PinPad extends JFrame {
 
             @Override
             public void mouseClicked(MouseEvent e) {
+                int pinSize = passcodeField.getPassword().length;
+                if (pinSize == 0 || pinSize > 9) { // trezor PIN can be 1-9 long
+                    enterBtn.setEnabled(false);
+                } else {
+                    enterBtn.setEnabled(true);
+                }
             }
         });
 
@@ -159,7 +166,7 @@ public class PinPad extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 passcodeField.setText(new String(passcodeField.getPassword()) + no);
-
+                pinPolicyCheck(); 
             }
         };
         jbtNumberLocal.addActionListener(btnActionListener);
@@ -169,6 +176,15 @@ public class PinPad extends JFrame {
 
     public ReadTrezorData getPinData() {
         return pinData;
+    }
+
+    private void pinPolicyCheck() {
+        int pinSize = passcodeField.getPassword().length;
+        if (pinSize == 0 || pinSize > 9) { // trezor PIN can be 1-9 long
+            enterBtn.setEnabled(false);
+        } else {
+            enterBtn.setEnabled(true);
+        }
     }
 
 }
