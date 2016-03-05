@@ -10,7 +10,7 @@
     <version>0.1.0</version>
 
     <name>trezor-ssh-agent</name>
-    <description>Windows Java application that emulates Pageant SSH-Agent for Trezor Bitcoin HW wallet. Thus enabling usage of applications such as Putty, WinSCP or git client with Trezor device.</description>
+    <description>Windows Java application that emulates Pageant SSH-Agent for Trezor Bitcoin HW wallet. Thus enabling SSH PKI authentication of applications such as Putty, WinSCP or git client with Trezor device.</description>
 
     <repositories>
         <!-- Define the MultiBit staging repository for releases and snapshots -->
@@ -51,22 +51,7 @@
 
     </build>
 
-    <!-- Examples are a standalone downstream project so must provide the dependencies -->
     <dependencies>
-
-        <!-- MultiBit Commons for Bitcoin support -->
-        <dependency>
-            <groupId>org.multibit</groupId>
-            <artifactId>commons</artifactId>
-            <version>1.1.0</version>
-        </dependency>
-
-        <!-- Core -->
-        <dependency>
-            <groupId>org.multibit.hd.hardware</groupId>
-            <artifactId>core</artifactId>
-            <version>develop-SNAPSHOT</version>
-        </dependency>
 
         <!-- Trezor -->
         <dependency>
@@ -74,49 +59,19 @@
             <artifactId>trezor</artifactId>
             <version>develop-SNAPSHOT</version>
         </dependency>
-
-        <!-- Logback for logging within the Examples -->
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>1.0.10</version>
-        </dependency>
-
-        <!-- Testing -->
-
-        <!-- JUnit for testing -->
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.11</version>
-            <scope>test</scope>
-        </dependency>
-
-        <!-- FEST for fluent test assertions -->
-        <dependency>
-            <groupId>org.easytesting</groupId>
-            <artifactId>fest-assert-core</artifactId>
-            <version>2.0M10</version>
-            <scope>test</scope>
-        </dependency>
-
-        <!-- Mockito for mocking -->
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-core</artifactId>
-            <version>1.8.5</version>
-            <scope>test</scope>
-        </dependency>
+        
+        <!-- JNA for OS stuff -->
         <dependency>
             <groupId>net.java.dev.jna</groupId>
             <artifactId>jna</artifactId>
-            <version>4.1.0</version>
+            <version>4.2.1</version>
             <type>jar</type>
         </dependency>
+        
         <dependency>
             <groupId>net.java.dev.jna</groupId>
             <artifactId>jna-platform</artifactId>
-            <version>4.1.0</version>
+            <version>4.2.1</version>
             <type>jar</type>
         </dependency>
     </dependencies>

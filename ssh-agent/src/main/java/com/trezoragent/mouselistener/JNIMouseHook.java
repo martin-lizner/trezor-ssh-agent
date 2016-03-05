@@ -2,9 +2,11 @@ package com.trezoragent.mouselistener;
 
 import com.sun.jna.Native;
 import com.sun.jna.Platform;
+import com.sun.jna.Pointer;
 import com.sun.jna.Structure;
 import com.sun.jna.platform.win32.BaseTSD;
 import com.sun.jna.platform.win32.WinDef;
+import com.sun.jna.platform.win32.WinDef.LPARAM;
 import com.sun.jna.platform.win32.WinUser;
 import com.sun.jna.win32.W32APIOptions;
 import com.trezoragent.sshagent.Kernel32;
@@ -88,13 +90,13 @@ public class JNIMouseHook {
                         while ((USER32INST.GetMessage(msg, null, 0, 0)) != 0) {
                             USER32INST.TranslateMessage(msg);
                             USER32INST.DispatchMessage(msg);
-                            System.out.print(isHooked);
+                            //System.out.print(isHooked);
                             if (!isHooked) {
                                 break;
                             }
                         }
                     } else {
-                        System.out.println("The Hook is already installed.");
+                        //System.out.println("The Hook is already installed.");
                     }
                 } catch (Exception e) {
                     System.err.println(e.getMessage());
@@ -120,15 +122,15 @@ public class JNIMouseHook {
 
                     switch (wParam.intValue()) {
                         case JNIMouseHook.WM_LBUTTONDOWN:
-                            System.out.println("win process mouse event detected");
+                            //System.out.println("win process mouse event detected"); // TODO: change logging
                             addEventToQueue(info.pt.x, info.pt.y);
                             break;
                         case JNIMouseHook.WM_RBUTTONDOWN:
-                            System.out.println("win process mouse event detected");
+                            //System.out.println("win process mouse event detected");
                             addEventToQueue(info.pt.x, info.pt.y);
                             break;
                         case JNIMouseHook.WM_MBUTTONDOWN:
-                            System.out.println("win process mouse event detected");
+                            //System.out.println("win process mouse event detected");
                             addEventToQueue(info.pt.x, info.pt.y);
                             break;
                         case JNIMouseHook.WM_MOUSEMOVE:
@@ -143,7 +145,9 @@ public class JNIMouseHook {
                     }
                 }
 
-                return USER32INST.CallNextHookEx(hhk, nCode, wParam, info.getPointer());
+                Pointer ptr = info.getPointer();
+                long peer = Pointer.nativeValue(ptr);
+                return USER32INST.CallNextHookEx(hhk, nCode, wParam, new LPARAM(peer));
             }
         };
     }
@@ -153,7 +157,7 @@ public class JNIMouseHook {
         // from absolute to relative position
         p.setLocation(x - SOURCE.getLocationOnScreen().x, y - SOURCE.getLocationOnScreen().y);
 
-        System.out.println(SOURCE);
+        //System.out.println(SOURCE);
         if (!SOURCE.contains(p)) {
             //System.out.println("CLICK OUTSIDE COMPONENT DETECTED");
             MouseClickOutsideComponentEvent event = new MouseClickOutsideComponentEvent(SOURCE, MouseEvent.MOUSE_CLICKED, new Date().getTime(), 0, p.x, p.y, 1, true, MouseEvent.BUTTON1);
