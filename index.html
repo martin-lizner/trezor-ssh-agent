@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="trezor-ssh-agent : Trezor SSH Agent for Windows (Putty, WinSCP and more)">
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>trezor-ssh-agent</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/martin-lizner/trezor-ssh-agent">View on GitHub</a>
+
+          <h1 id="project_title">trezor-ssh-agent</h1>
+          <h2 id="project_tagline">Trezor SSH Agent for Windows (Putty, WinSCP and more)</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/martin-lizner/trezor-ssh-agent/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/martin-lizner/trezor-ssh-agent/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h2>
+<a id="trezor-ssh-agent-for-windows-putty-winscp-and-more" class="anchor" href="#trezor-ssh-agent-for-windows-putty-winscp-and-more" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Trezor SSH Agent for Windows (Putty, WinSCP and more)</h2>
+
+<p>Trezor SSH Agent is Windows application that enables users to authenticate to SSH server using their favorite apps like Putty, WinSCP or other Pageant-compatible clients (e.g. git) together with Trezor - hardware bitcoin wallet.
+Trezor SSH Agent is a tray application that emulates Pageant process in Windows. It receives identity requests from SSH client (which gets it from SSH server), uses Trezor hardware to sign challenge and sends data back. All this is framed in special openSSH protocol format.</p>
+
+<h3>
+<a id="limitations" class="anchor" href="#limitations" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Limitations</h3>
+
+<ul>
+<li>Only ecdsa-sha2-nistp256 key is supported at current. ssh-ed25519 may come in future. ssh-rsa is not supported in Trezor HW.</li>
+<li>Trezor wallet with passphrase protection is not supported.</li>
+<li>No other Trezor app (like myTREZOR webpage) can be running simultaneously.</li>
+<li>BIP32 path is currently fixed by constant Identity URI to just one public key per device.</li>
+<li>KeepKey device not supported, this may change in future.</li>
+<li>They are troubles on USB level that makes device deattach from time to time. Unplug&amp;plug device or/and restart Trezor SSH Agent to workaround it. This problem will be hopefully fixed by MultiBit guys soon.</li>
+</ul>
+
+<h3>
+<a id="getting-started" class="anchor" href="#getting-started" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Getting started</h3>
+
+<h4>
+<a id="build" class="anchor" href="#build" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Build</h4>
+
+<p>Trezor SSH Agent uses the standard Maven build process and can be used without having external hardware attached. Just do the usual</p>
+
+<pre><code>$ cd &lt;project directory&gt;
+$ mvn clean install
+</code></pre>
+
+<h4>
+<a id="start" class="anchor" href="#start" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Start</h4>
+
+<p>Run StartAgentGUI class main.</p>
+
+<p>Binaries and Windows installer are coming soon!</p>
+
+<h3>
+<a id="usage" class="anchor" href="#usage" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Usage</h3>
+
+<ul>
+<li>Please  <a href="http://www.chiark.greenend.org.uk/%7Esgtatham/putty/download.html">download</a> latest DEVELOPMENT snapshot of Putty or WinSCP. thats supports ECDSA. Latest STABLE version does not support ECDSA yet and will not work with Trezor.</li>
+<li>After started the app find Trezor icon in Windows tray area and right click to open menu.</li>
+<li>Click "Show Public Key" to get your openSSH public key. Place key on SSH server in your user authorized_keys file. Provide PIN if asked.</li>
+<li>Start Putty with "Attempt authentication using Pageant" option selected (Connection-&gt;SSH-&gt;Auth).</li>
+<li>Use Putty to connect to your favorite SSH server.</li>
+<li>Provide PIN if asked and confirm identity sign operation on the device.</li>
+</ul>
+
+<h4>
+<a id="public-key-example" class="anchor" href="#public-key-example" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Public Key Example</h4>
+
+<p><code>ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBKJHh8o1FNgyEXzPLIc7tlk4n+4/mLlCs/m/SY7+WsUhdoajyHiyP0Zdo+VuWAizLTApW68QIzqWY73fur+i7nk= Trezor</code></p>
+
+<h3>
+<a id="credits" class="anchor" href="#credits" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Credits</h3>
+
+<ul>
+<li>Martin Lizner - author</li>
+<li>Gary Rowe from MultiBit - for providing Trezor Java API</li>
+<li>Roman Zeyde - for providing Trezor Agent in Python</li>
+</ul>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">trezor-ssh-agent maintained by <a href="https://github.com/martin-lizner">martin-lizner</a></p>
+        <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
