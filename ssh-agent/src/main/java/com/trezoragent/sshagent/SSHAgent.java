@@ -342,6 +342,6 @@ public class SSHAgent implements WindowProc {
 
         //trezorService.getWallet().softDetach();
         TrayProcess.trezorService.getWallet().disconnect();
-        TrayProcess.trezorService.getClient().disconnect();
+        //TrayProcess.trezorService.getClient().disconnect();
     }
 }

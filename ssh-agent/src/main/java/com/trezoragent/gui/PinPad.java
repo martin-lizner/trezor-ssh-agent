@@ -2,6 +2,7 @@ package com.trezoragent.gui;
 
 import com.trezoragent.sshagent.ReadTrezorData;
 import com.trezoragent.utils.AgentConstants;
+import com.trezoragent.utils.AgentUtils;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -17,73 +18,103 @@ import javax.swing.border.Border;
  */
 public class PinPad extends JFrame {
 
-    JPanel controlPanel = new JPanel();
+    JPanel pinPadPanel = new JPanel();
     JPanel labelPanel = new JPanel();
     JPanel buttonPanel = new JPanel();
     JPanel numPanel = new JPanel();
-    JPanel confirmPanel = new JPanel();
+    JPanel clearCancelPanel = new JPanel();
     JPanel enterPanel = new JPanel();
-    JLabel deviceLabel = new JLabel("TREZOR");
+    JLabel deviceLabel;
     JLabel passcodeLabel = new JLabel("Please enter PIN:");
-    JPasswordField passcodeField = new JPasswordField(4);
-    JButton jbtNumber, enterBtn;
-    private final int XSIZE = 200;
-    private final int YSIZE = 240;
-    private final ReadTrezorData pinData;
+    JPasswordField passcodeField;
+    PinButton jbtNumber;
+    JButton enterBtn;
+    JButton clearBtn;
+    JButton cancelBtn;
+    private ReadTrezorData pinData;
     static Point mouseDownCompCoords;
+
+    private final int FRAME_XSIZE = 220;
+    private final int FRAME_YSIZE = 410;
 
     public PinPad() {
 
-        pinData = new ReadTrezorData();
-        setUndecorated(true);
-        //setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        //getRootPane().setWindowDecorationStyle(JRootPane.INFORMATION_DIALOG);   
-        //setResizable(false);
+        init(); // init frame
+        setIconImages(AgentUtils.getAllIcons()); // icon
+        addLabelArea(); //top most component with 2x labels and passcode input
+        addNumsArea(); //9x buttons with "?"
+        addClearCancelArea(); // add Clear and Cancel buttons
+        groupButtonPanels(); // place all buttons panel in one panel for easier render
+        addEnterArea(); // add Enter button
+        addGlobalArea(); // outer panel
 
-        Border padding = BorderFactory.createEmptyBorder(10, 10, 10, 10);
-        controlPanel.setBorder(padding);
-        labelPanel.setLayout(new BorderLayout());
-        buttonPanel.setLayout(new BorderLayout(0, 7));
-        numPanel.setLayout(new GridLayout(3, 3));
-        confirmPanel.setLayout(new GridLayout(1, 2));
-        enterPanel.setLayout(new GridLayout(1, 1));
+    }
+
+    private void addLabelArea() {
+        labelPanel.setLayout(new GridLayout(3, 1));
+        Border labelsPadding = BorderFactory.createEmptyBorder(0, 0, 15, 0);
+        labelPanel.setBorder(labelsPadding);
+
+        deviceLabel = new JLabel("TREZOR"); // TODO: get actual customer device name
+        passcodeField = new JPasswordField(3);
+        passcodeField.setEditable(false);
+        passcodeField.setBackground(Color.white);
 
         labelPanel.add(deviceLabel, BorderLayout.NORTH);
         labelPanel.add(passcodeLabel, BorderLayout.CENTER);
         labelPanel.add(passcodeField, BorderLayout.SOUTH);
+    }
 
-        addButtonWithListener(7);
-        addButtonWithListener(8);
-        addButtonWithListener(9);
-        addButtonWithListener(4);
-        addButtonWithListener(5);
-        addButtonWithListener(6);
-        addButtonWithListener(1);
-        addButtonWithListener(2);
-        addButtonWithListener(3);
+    private void addNumsArea() {
+        GridLayout numsLayout = new GridLayout(3, 3);
+        numsLayout.setHgap(10);
+        numsLayout.setVgap(10);
 
-        jbtNumber = new JButton("CLEAR");
-        jbtNumber.addActionListener(new ActionListener() {
+        numPanel.setLayout(numsLayout);
+
+        addNumButtonWithListener(7);
+        addNumButtonWithListener(8);
+        addNumButtonWithListener(9);
+        addNumButtonWithListener(4);
+        addNumButtonWithListener(5);
+        addNumButtonWithListener(6);
+        addNumButtonWithListener(1);
+        addNumButtonWithListener(2);
+        addNumButtonWithListener(3);
+    }
+
+    private void addClearCancelArea() {
+        Border clearCancelPadding = BorderFactory.createEmptyBorder(15, 0, 0, 0);
+        clearCancelPanel.setBorder(clearCancelPadding);
+        clearCancelPanel.setLayout(new GridLayout(1, 2));
+
+        clearBtn = new JButton("CLEAR");
+        clearBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 passcodeField.setText("");
                 pinPolicyCheck();
             }
         });
-        confirmPanel.add(jbtNumber);
+        clearCancelPanel.add(clearBtn);
 
-        jbtNumber = new JButton("CANCEL");
-        jbtNumber.addActionListener(new ActionListener() {
+        cancelBtn = new JButton("CANCEL");
+        cancelBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 getPinData().setTrezorData(AgentConstants.PIN_CANCELLED_MSG);
                 dispose(); // close PIN window                     
             }
         });
-        confirmPanel.add(jbtNumber);
+        clearCancelPanel.add(cancelBtn);
+    }
+
+    private void addEnterArea() {
+        enterPanel.setLayout(new GridLayout(1, 1));
 
         enterBtn = new JButton("ENTER");
         enterBtn.setEnabled(false);
+        enterBtn.setPreferredSize(new Dimension(200, 40));
         enterBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -92,19 +123,32 @@ public class PinPad extends JFrame {
             }
         });
         enterPanel.add(enterBtn);
+    }
 
-        controlPanel.setLayout(new BorderLayout());
-        controlPanel.add(labelPanel, BorderLayout.CENTER);
+    private void addGlobalArea() {
+        Border framePadding = BorderFactory.createEmptyBorder(10, 10, 10, 10);
+        pinPadPanel.setBorder(framePadding);
+
+        pinPadPanel.setLayout(new BorderLayout());
+        pinPadPanel.add(labelPanel, BorderLayout.CENTER);
+        pinPadPanel.add(buttonPanel, BorderLayout.SOUTH);
+
+        add(pinPadPanel);
+    }
+
+    private void groupButtonPanels() {
+        buttonPanel.setLayout(new BorderLayout(0, 7));
 
         buttonPanel.add(numPanel, BorderLayout.NORTH);
-        buttonPanel.add(confirmPanel, BorderLayout.CENTER);
+        buttonPanel.add(clearCancelPanel, BorderLayout.CENTER);
         buttonPanel.add(enterPanel, BorderLayout.SOUTH);
+    }
 
-        controlPanel.add(buttonPanel, BorderLayout.SOUTH);
-
-        add(controlPanel);
-
-        setPreferredSize(new Dimension(XSIZE, YSIZE));
+    private void init() {
+        pinData = new ReadTrezorData();
+        setUndecorated(true);
+        setResizable(false);
+        setPreferredSize(new Dimension(FRAME_XSIZE, FRAME_YSIZE));
 
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
         setLocation(dim.width / 2 - getContentPane().getSize().width / 2, dim.height / 2 - getSize().height / 2);
@@ -159,14 +203,14 @@ public class PinPad extends JFrame {
         });
     }
 
-    private void addButtonWithListener(final int no) {
-        JButton jbtNumberLocal = new JButton("?");
+    private void addNumButtonWithListener(final int no) {
+        PinButton jbtNumberLocal = new PinButton("?");
 
         ActionListener btnActionListener = new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 passcodeField.setText(new String(passcodeField.getPassword()) + no);
-                pinPolicyCheck(); 
+                pinPolicyCheck();
             }
         };
         jbtNumberLocal.addActionListener(btnActionListener);
@@ -184,6 +228,14 @@ public class PinPad extends JFrame {
             enterBtn.setEnabled(false);
         } else {
             enterBtn.setEnabled(true);
+        }
+    }
+
+    private class PinButton extends JButton {
+
+        public PinButton(String text) {
+            super(text);
+            this.setPreferredSize(new Dimension(60, 60)); // x is governed by grid layout and outer frams dimensions
         }
     }
 

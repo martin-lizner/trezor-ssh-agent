@@ -1,9 +1,14 @@
 package com.trezoragent.utils;
 
 import com.google.common.base.Charsets;
+import com.trezoragent.gui.StartAgentGUI;
+import java.awt.Image;
 import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import javax.swing.ImageIcon;
 import static org.multibit.hd.hardware.core.utils.IdentityUtils.KEY_PREFIX;
 import org.spongycastle.pqc.math.linearalgebra.ByteUtils;
 
@@ -41,6 +46,18 @@ public class AgentUtils {
     public static String getCurrentTimeStamp() {
         SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         return sdfDate.format(new Date());
+    }
+
+    public static List<? extends Image> getAllIcons() {
+        List<Image> icons = new ArrayList<>();
+        icons.add(new ImageIcon(StartAgentGUI.class.getResource(AgentConstants.ICON128_PATH)).getImage());
+        icons.add(new ImageIcon(StartAgentGUI.class.getResource(AgentConstants.ICON16_PATH)).getImage());
+        icons.add(new ImageIcon(StartAgentGUI.class.getResource(AgentConstants.ICON24_PATH)).getImage());
+        icons.add(new ImageIcon(StartAgentGUI.class.getResource(AgentConstants.ICON48_PATH)).getImage());
+        icons.add(new ImageIcon(StartAgentGUI.class.getResource(AgentConstants.ICON64_PATH)).getImage());
+        icons.add(new ImageIcon(StartAgentGUI.class.getResource(AgentConstants.ICON72_PATH)).getImage());
+        icons.add(new ImageIcon(StartAgentGUI.class.getResource(AgentConstants.ICON96_PATH)).getImage());
+        return icons;
     }
 
 }

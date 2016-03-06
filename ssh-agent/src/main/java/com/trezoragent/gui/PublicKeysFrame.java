@@ -1,5 +1,19 @@
 package com.trezoragent.gui;
 
+import com.trezoragent.utils.AgentUtils;
+import com.trezoragent.utils.LocalizedLogger;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.List;
+import static javax.swing.GroupLayout.Alignment.*;
+import javax.swing.*;
+
 /**
  *
  * @author Martin Lizner
@@ -7,22 +21,6 @@ package com.trezoragent.gui;
  * Show Public Keys Window
  *
  */
-import com.trezoragent.utils.AgentConstants;
-import com.trezoragent.utils.LocalizedLogger;
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Image;
-import java.awt.Toolkit;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.StringSelection;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.List;
-import static javax.swing.GroupLayout.Alignment.*;
-import javax.swing.*;
-
 public class PublicKeysFrame extends JFrame {
 
     private final int DEFAULT_NUMBER_OF_ROWS = 10;
@@ -42,7 +40,7 @@ public class PublicKeysFrame extends JFrame {
         createTextArea(text);
         createCopyButton();
         createLayout();
-        setIconImages(getAllIcons());
+        setIconImages(AgentUtils.getAllIcons());
         setTitle(title);
         pack();
         positionWindow();
@@ -103,18 +101,6 @@ public class PublicKeysFrame extends JFrame {
                         .addComponent(bottomPanel)
                 ));
 
-    }
-
-    private List<? extends Image> getAllIcons() {
-        List<Image> icons = new ArrayList<>();
-        icons.add(new ImageIcon(StartAgentGUI.class.getResource(AgentConstants.ICON128_PATH)).getImage());
-        icons.add(new ImageIcon(StartAgentGUI.class.getResource(AgentConstants.ICON16_PATH)).getImage());
-        icons.add(new ImageIcon(StartAgentGUI.class.getResource(AgentConstants.ICON24_PATH)).getImage());
-        icons.add(new ImageIcon(StartAgentGUI.class.getResource(AgentConstants.ICON48_PATH)).getImage());
-        icons.add(new ImageIcon(StartAgentGUI.class.getResource(AgentConstants.ICON64_PATH)).getImage());
-        icons.add(new ImageIcon(StartAgentGUI.class.getResource(AgentConstants.ICON72_PATH)).getImage());
-        icons.add(new ImageIcon(StartAgentGUI.class.getResource(AgentConstants.ICON96_PATH)).getImage());
-        return icons;
     }
 
     public JTextArea getTextArea() {
