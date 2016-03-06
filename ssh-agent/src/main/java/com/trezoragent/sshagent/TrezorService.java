@@ -201,7 +201,7 @@ public final class TrezorService {
                         TrayProcess.handleException(new InvalidPinException());
                         break;
                     case ACTION_CANCELLED:
-                        TrayProcess.handleException(new ActionCancelledException());
+                        TrayProcess.handleException(new ActionCancelledException()); // TODO: ignore if this is due to timeout
                         break;
                     case PIN_CANCELLED:
                         // TODO: should we inform user explicitly?

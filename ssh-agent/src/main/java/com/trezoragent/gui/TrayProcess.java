@@ -60,7 +60,8 @@ public class TrayProcess {
             agent.exitProcess();
             return;
         }
-        trayIcon = new TrayIcon(TrayProcess.createImage(AgentConstants.ICON16_PATH, AgentConstants.ICON_DESCRIPTION));
+        
+        trayIcon = new TrayIcon(TrayProcess.createImage(AgentConstants.ICON16_PATH, AgentConstants.ICON_DESCRIPTION), AgentConstants.APP_PUBLIC_NAME);
         final SystemTray tray = SystemTray.getSystemTray();
         final AgentPopUpMenu popUpMenu = new AgentPopUpMenu(tray, trayIcon, agent, trezorService);
 

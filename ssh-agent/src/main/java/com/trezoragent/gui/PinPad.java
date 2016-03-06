@@ -148,6 +148,7 @@ public class PinPad extends JFrame {
         pinData = new ReadTrezorData();
         setUndecorated(true);
         setResizable(false);
+        setAlwaysOnTop(true);
         setPreferredSize(new Dimension(FRAME_XSIZE, FRAME_YSIZE));
 
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();

@@ -36,7 +36,7 @@ public class TrezorWrapper {
     public static List<PublicKeyDTO> getIdentitiesResponse(Boolean stripPrefix) throws DeviceTimeoutException, GetIdentitiesFailedException {
         String trezorKey;
         List<PublicKeyDTO> idents = new ArrayList<>();
-       
+
         getIdentitiesRequest();
 
         ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -46,6 +46,7 @@ public class TrezorWrapper {
             trezorKey = future.get(AgentConstants.KEY_WAIT_TIMEOUT, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException ex) {
             log.error("Timeout when waiting for Trezor...");
+            TrayProcess.trezorService.getHardwareWalletService().requestCancel();
             throw new DeviceTimeoutException();
         }
 
@@ -67,6 +68,7 @@ public class TrezorWrapper {
         p.setsComment(AgentConstants.KEY_COMMENT);
         p.setbComment(AgentConstants.KEY_COMMENT.getBytes());
         idents.add(p);
+        TrayProcess.trezorService.checkoutAsyncKeyData(); // null key
 
         return idents;
     }
@@ -86,6 +88,7 @@ public class TrezorWrapper {
             signature = future.get(AgentConstants.SIGN_WAIT_TIMEOUT, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException ex) {
             log.error("Timeout when waiting for Trezor...");
+            TrayProcess.trezorService.getHardwareWalletService().requestCancel();
             throw new DeviceTimeoutException();
         }
 
@@ -93,6 +96,8 @@ public class TrezorWrapper {
             log.error("Sign operation failed");
             throw new SignFailedException();
         }
+
+        TrayProcess.trezorService.checkoutAsyncSignData(); // null sign data
         return signature;
     }
 }
