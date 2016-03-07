@@ -159,7 +159,7 @@ public class SSHAgent implements WindowProc {
         sharedMemory.read(0, buff, 0, 5);
 
         byte type = buff[4];
-        switch (type) { //TODO: ssh request came but trezor is not connected situation
+        switch (type) {
             case SSH2_AGENTC_REQUEST_IDENTITIES:
                 Logger.getLogger(SSHAgent.class.getName()).log(Level.INFO, "Request for operation: {0}", "SSH2_AGENTC_REQUEST_IDENTITIES");
                 processKeysRequest(sharedMemory);

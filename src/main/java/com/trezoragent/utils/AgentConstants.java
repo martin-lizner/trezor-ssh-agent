@@ -11,7 +11,7 @@ public final class AgentConstants {
     /*
      * GUI Settings
      */
-    public static final String APP_PUBLIC_NAME = "Trezor SSH Agent"; // TODO: No mouse hover desciption on tray icon
+    public static final String APP_PUBLIC_NAME = "Trezor SSH Agent";
 
     public static final String ICON16_PATH = "/icon16.png";
     public static final String ICON24_PATH = "/icon24.png";
