@@ -17,12 +17,12 @@
         <!-- Use https://raw.github.com to provide a consistent result -->
         <repository>
             <id>mbhd-maven-release</id>
-            <url>https://raw.github.com/bitcoin-solutions/mbhd-maven/master/releases</url>
+            <url>https://raw.github.com/martin-lizner/mbhd-maven/master/releases</url>
             <releases/>
         </repository>
         <repository>
             <id>mbhd-maven-snapshot</id>
-            <url>https://raw.github.com/bitcoin-solutions/mbhd-maven/master/snapshots</url>
+            <url>https://raw.github.com/martin-lizner/mbhd-maven/master/snapshots</url>
             <!-- These artifacts change frequently during development iterations -->
             <snapshots>
                 <updatePolicy>always</updatePolicy>
@@ -56,8 +56,20 @@
         <!-- Trezor -->
         <dependency>
             <groupId>org.multibit.hd.hardware</groupId>
-            <artifactId>trezor</artifactId>
+            <artifactId>trezor</artifactId>            
             <version>develop-SNAPSHOT</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.multibit.hd.hardware</groupId>
+                    <artifactId>core</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.multibit.hd.hardware</groupId>
+            <artifactId>core</artifactId>            
+            <version>0.7.1</version>          
         </dependency>
         
         <!-- JNA for OS stuff -->

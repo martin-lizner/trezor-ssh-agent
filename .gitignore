@@ -7,4 +7,3 @@
 .DS_Store
 log/
 target/
-/ssh-agent/nb-configuration.xml
