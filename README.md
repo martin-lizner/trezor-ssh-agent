@@ -1,3 +1,5 @@
+Status: [![Build Status](https://travis-ci.org/martin-lizner/trezor-ssh-agent.svg?branch=master)](https://travis-ci.org/martin-lizner/trezor-ssh-agent)
+
 ## Trezor SSH Agent for Windows (Putty, WinSCP and more) 
 Trezor SSH Agent is Windows application that enables users to authenticate to SSH server using their favorite apps like Putty, WinSCP or other Pageant-compatible clients (e.g. git) together with Trezor - hardware bitcoin wallet.
 Trezor SSH Agent is a GUI-enabled tray application that emulates Pageant process in Windows. It receives identity requests from SSH client (which gets it from SSH server), uses Trezor hardware to sign challenge and sends data back.
@@ -16,7 +18,7 @@ Trezor SSH Agent is a GUI-enabled tray application that emulates Pageant process
 Trezor SSH Agent uses the standard Maven build process and can be used without having external hardware attached. Just do the usual:
 
 ```
-$ cd <project directory>/ssh-agent
+$ cd <project directory>
 $ mvn clean install
 ```
 
@@ -26,7 +28,7 @@ Run class com.trezoragent.gui.StartAgentGUI main.
 Binaries and Windows installer are coming soon!
 
 ### Usage
-* Please  [download](http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html) latest DEVELOPMENT snapshot of Putty or WinSCP that supports ECDSA. Latest STABLE version does not support ECDSA yet and will not work with Trezor.
+* Please  [download](http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html) latest DEVELOPMENT snapshot of Putty or WinSCP 5.8.1+ that support ECDSA and Ed25519 keys. Latest STABLE versions of Putty and WinSCP do not support ECDSA yet and will not work with Trezor.
 * After started the app, find Trezor icon in Windows tray area and right click to open menu.
 * Click "Show Public Key" to get your openSSH public key. Provide PIN if asked. Place key on SSH server in your user authorized_keys file.
 * Start Putty with "Attempt authentication using Pageant" option selected (Connection->SSH->Auth).
