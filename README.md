@@ -14,6 +14,12 @@ Trezor SSH Agent is a GUI-enabled tray application that emulates Pageant process
 
 ### Getting started
 
+#### Start
+
+Download and run EXE binary from latest release. OR:
+
+Build your own java and run class com.trezoragent.gui.StartAgentGUI main.
+
 #### Build
 Trezor SSH Agent uses the standard Maven build process and can be used without having external hardware attached. Just do the usual:
 
@@ -21,11 +27,6 @@ Trezor SSH Agent uses the standard Maven build process and can be used without h
 $ cd <project directory>
 $ mvn clean install
 ```
-
-#### Start
-Run class com.trezoragent.gui.StartAgentGUI main.
-
-Binaries and Windows installer are coming soon!
 
 ### Usage
 * Please  [download](http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html) latest DEVELOPMENT snapshot of Putty or WinSCP 5.8.1+ that support ECDSA and Ed25519 keys. Latest STABLE versions of Putty and WinSCP do not support ECDSA yet and will not work with Trezor.
@@ -42,3 +43,5 @@ Binaries and Windows installer are coming soon!
 * Martin Lizner - author
 * Gary Rowe (MultiBit) - Trezor Java API
 * Roman Zeyde - Trezor SSH Agent in Python
+
+Bitcoin donations: 1QEKWJFAqwkCxPotJoGpfaFDnaShjiNtb5 
