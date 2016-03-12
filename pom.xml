@@ -7,7 +7,7 @@
 
     <groupId>com.trezoragent</groupId>
     <artifactId>trezor-ssh-agent</artifactId>
-    <version>0.1.0</version>
+    <version>0.9.0</version>
 
     <name>trezor-ssh-agent</name>
     <description>Windows Java application that emulates Pageant SSH-Agent for Trezor Bitcoin HW wallet. Thus enabling SSH PKI authentication of applications such as Putty, WinSCP or git client with Trezor device.</description>

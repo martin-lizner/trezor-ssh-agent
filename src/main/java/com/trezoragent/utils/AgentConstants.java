@@ -15,6 +15,7 @@ public final class AgentConstants {
 
     public static final String ICON16_PATH = "/icon16.png";
     public static final String ICON24_PATH = "/icon24.png";
+    public static final String ICON32_PATH = "/icon32.png";
     public static final String ICON48_PATH = "/icon48.png";
     public static final String ICON64_PATH = "/icon64.png";
     public static final String ICON72_PATH = "/icon72.png";
@@ -51,7 +52,7 @@ public final class AgentConstants {
     public static final String LOG_FILE_NAME = "Trezor_Agent.log"; // + change path in logger.properties
 
     public static String MUTEX_NAME = "Trezor_Agent_Mutex"; // mutex for installer - correlates with instaler.iss
-    public static final String VERSION = "0.1.0"; // global version, pom.xml
+    public static final String VERSION = "0.9.0"; // global version, pom.xml
 
     /*
      * Error messages keys
