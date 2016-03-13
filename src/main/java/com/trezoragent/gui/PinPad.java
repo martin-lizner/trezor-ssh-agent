@@ -18,6 +18,7 @@ import javax.swing.border.Border;
  */
 public class PinPad extends JFrame {
 
+    JPanel pinPadWindowPanel = new JPanel();
     JPanel pinPadPanel = new JPanel();
     JPanel labelPanel = new JPanel();
     JPanel buttonPanel = new JPanel();
@@ -25,7 +26,7 @@ public class PinPad extends JFrame {
     JPanel clearCancelPanel = new JPanel();
     JPanel enterPanel = new JPanel();
     JLabel deviceLabel;
-    JLabel passcodeLabel = new JLabel("Please enter PIN:");
+    JLabel passcodeLabel;
     JPasswordField passcodeField;
     PinButton jbtNumber;
     JButton enterBtn;
@@ -33,6 +34,7 @@ public class PinPad extends JFrame {
     JButton cancelBtn;
     private ReadTrezorData pinData;
     static Point mouseDownCompCoords;
+    final Color WINDOW_BORDER_COLOR = new Color(114, 159, 207); // = logo outter frame color
 
     private final int FRAME_XSIZE = 220;
     private final int FRAME_YSIZE = 410;
@@ -55,7 +57,14 @@ public class PinPad extends JFrame {
         Border labelsPadding = BorderFactory.createEmptyBorder(0, 0, 15, 0);
         labelPanel.setBorder(labelsPadding);
 
-        deviceLabel = new JLabel("TREZOR"); // TODO: get actual customer device name
+        deviceLabel = new JLabel(AgentConstants.APP_PUBLIC_NAME.toUpperCase()); // TODO: get actual customer device name... or not?
+        Icon icon = new ImageIcon(TrayProcess.createImage(AgentConstants.ICON24_PATH, AgentConstants.ICON_DESCRIPTION));
+        deviceLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 0));
+        deviceLabel.setIcon(icon);
+        deviceLabel.setIconTextGap(10);
+        deviceLabel.setFont(new Font(null, Font.BOLD, 15));
+
+        passcodeLabel = new JLabel("Please enter PIN:");
         passcodeField = new JPasswordField(3);
         passcodeField.setEditable(false);
         passcodeField.setBackground(Color.white);
@@ -84,7 +93,7 @@ public class PinPad extends JFrame {
     }
 
     private void addClearCancelArea() {
-        Border clearCancelPadding = BorderFactory.createEmptyBorder(15, 0, 0, 0);
+        Border clearCancelPadding = BorderFactory.createEmptyBorder(7, 0, 0, 0);
         clearCancelPanel.setBorder(clearCancelPadding);
         clearCancelPanel.setLayout(new GridLayout(1, 2));
 
@@ -126,14 +135,17 @@ public class PinPad extends JFrame {
     }
 
     private void addGlobalArea() {
-        Border framePadding = BorderFactory.createEmptyBorder(10, 10, 10, 10);
+        Border framePadding = BorderFactory.createEmptyBorder(1, 8, 8, 8);
+        Border lineBorder = BorderFactory.createLineBorder(WINDOW_BORDER_COLOR, 2, false);
         pinPadPanel.setBorder(framePadding);
+        pinPadWindowPanel.setBorder(lineBorder);
 
         pinPadPanel.setLayout(new BorderLayout());
         pinPadPanel.add(labelPanel, BorderLayout.CENTER);
         pinPadPanel.add(buttonPanel, BorderLayout.SOUTH);
 
-        add(pinPadPanel);
+        pinPadWindowPanel.add(pinPadPanel);
+        add(pinPadWindowPanel);
     }
 
     private void groupButtonPanels() {
