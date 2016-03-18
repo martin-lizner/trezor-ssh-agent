@@ -8,8 +8,7 @@ import com.trezoragent.struct.PublicKeyDTO;
 import java.util.ArrayList;
 import java.util.List;
 import org.multibit.hd.hardware.core.domain.Identity;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.logging.Logger;
 import com.trezoragent.utils.AgentUtils;
 import com.trezoragent.utils.AgentConstants;
 import java.util.Arrays;
@@ -19,6 +18,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.logging.Level;
 import javax.xml.bind.DatatypeConverter;
 
 /**
@@ -27,9 +27,8 @@ import javax.xml.bind.DatatypeConverter;
  */
 public class TrezorWrapper {
 
-    private static final Logger log = LoggerFactory.getLogger(TrezorWrapper.class);
-
-    public static void getIdentitiesRequest() {
+    public static void getIdentitiesRequest() { // directly used only for GUI calls with explicit swing timer
+        Logger.getLogger(TrezorWrapper.class.getName()).log(Level.INFO, "Request for operation: {0}", "SSH2_AGENT_GET_IDENTITIES");
         TrayProcess.trezorService.getHardwareWalletService().requestPublicKeyForIdentity(AgentConstants.SSHURI, 0, AgentConstants.CURVE_NAME, false);
     }
 
@@ -45,13 +44,13 @@ public class TrezorWrapper {
         try {
             trezorKey = future.get(AgentConstants.KEY_WAIT_TIMEOUT, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException ex) {
-            log.error("Timeout when waiting for Trezor...");
+            //Logger.getLogger(TrezorWrapper.class.getName()).log(Level.SEVERE, "Timeout when waiting for device");
             TrayProcess.trezorService.getHardwareWalletService().requestCancel();
             throw new DeviceTimeoutException();
         }
 
         if (AgentConstants.DEVICE_FAILED_STRING.equals(trezorKey)) {
-            log.error("Get identities operation failed");
+            Logger.getLogger(TrezorWrapper.class.getName()).log(Level.INFO, "Operation {0} failed", "SSH2_AGENT_GET_IDENTITIES");
             throw new GetIdentitiesFailedException();
         }
 
@@ -68,15 +67,16 @@ public class TrezorWrapper {
         p.setsComment(AgentConstants.KEY_COMMENT);
         p.setbComment(AgentConstants.KEY_COMMENT.getBytes());
         idents.add(p);
-        TrayProcess.trezorService.checkoutAsyncKeyData(); // null key
+        TrayProcess.trezorService.checkoutAsyncKeyData(); // null key        
 
         return idents;
     }
 
     public static byte[] signChallenge(byte[] challengeHidden) throws DeviceTimeoutException, SignFailedException {
         byte[] signature;
-        String challengeVisual = AgentUtils.getCurrentTimeStamp();
+        Logger.getLogger(TrezorWrapper.class.getName()).log(Level.INFO, "Request for operation: {0}", "SSH2_AGENT_SIGN_REQUEST");
 
+        String challengeVisual = AgentUtils.getCurrentTimeStamp();
         Identity identity = new Identity(AgentConstants.SSHURI, 0, challengeHidden, challengeVisual, AgentConstants.CURVE_NAME);
 
         TrayProcess.trezorService.getHardwareWalletService().signIdentity(identity);
@@ -87,17 +87,18 @@ public class TrezorWrapper {
         try {
             signature = future.get(AgentConstants.SIGN_WAIT_TIMEOUT, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException ex) {
-            log.error("Timeout when waiting for Trezor...");
+            //Logger.getLogger(TrezorWrapper.class.getName()).log(Level.SEVERE, "Timeout when waiting for device");
             TrayProcess.trezorService.getHardwareWalletService().requestCancel();
             throw new DeviceTimeoutException();
         }
 
         if (Arrays.equals(AgentConstants.DEVICE_FAILED_BYTE, signature)) {
-            log.error("Sign operation failed");
+            Logger.getLogger(TrezorWrapper.class.getName()).log(Level.INFO, "Operation {0} failed", "SSH2_AGENT_SIGN_REQUEST");
             throw new SignFailedException();
         }
 
-        TrayProcess.trezorService.checkoutAsyncSignData(); // null sign data
+        TrayProcess.trezorService.checkoutAsyncSignData(); // null sign data        
+        
         return signature;
     }
 }

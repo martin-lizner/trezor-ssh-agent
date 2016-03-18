@@ -30,7 +30,7 @@ public class ExceptionHandler {
         } catch (ActionCancelledException e) {
             key = ACTION_CANCELLED_KEY;
         } catch (URISyntaxException e) {
-            key = WRONG_URI_SINTAX_KEY;
+            key = WRONG_URI_SYNTAX_KEY;
         } catch (IOException e) {
             key = UNKNOW_ERROR_KEY;
         } catch (NoSuchAlgorithmException e) {

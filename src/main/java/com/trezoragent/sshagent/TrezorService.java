@@ -8,6 +8,8 @@ import com.trezoragent.exception.InvalidPinException;
 import com.trezoragent.gui.PinPad;
 import com.trezoragent.gui.TrayProcess;
 import com.trezoragent.utils.AgentConstants;
+import com.trezoragent.utils.ExceptionHandler;
+import com.trezoragent.utils.LocalizedLogger;
 import java.security.NoSuchAlgorithmException;
 import java.security.interfaces.ECPublicKey;
 import java.security.spec.InvalidKeySpecException;
@@ -17,6 +19,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.Timer;
 import org.bitcoinj.core.Utils;
 import org.multibit.hd.hardware.core.HardwareWalletClient;
@@ -32,8 +36,6 @@ import org.multibit.hd.hardware.core.wallets.HardwareWallets;
 import org.multibit.hd.hardware.trezor.clients.TrezorHardwareWalletClient;
 import org.multibit.hd.hardware.trezor.wallets.AbstractTrezorHardwareWallet;
 import org.multibit.hd.hardware.trezor.wallets.v1.TrezorV1HidHardwareWallet;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -43,7 +45,6 @@ public final class TrezorService {
 
     private final HardwareWalletService hardwareWalletService;
     private final HardwareWalletClient client;
-    private static final Logger log = LoggerFactory.getLogger(TrezorService.class);
     private String trezorKey;
     byte[] signedData;
     byte[] challengeData;
@@ -74,7 +75,8 @@ public final class TrezorService {
         asyncKeyData = new ReadTrezorData<String>();
         asyncSignData = new ReadTrezorData<byte[]>();
 
-        log.info("Trezor Service Started");
+        Logger.getLogger(TrezorService.class.getName()).log(Level.FINE, "Trezor Service Started.");
+
     }
 
     public static TrezorService startTrezorService() {
@@ -102,8 +104,9 @@ public final class TrezorService {
      */
     @Subscribe
     public void onHardwareWalletEvent(HardwareWalletEvent event) {
+        Logger.getLogger(TrezorService.class.getName()).log(Level.INFO, "Received USB event: {0}", new Object[]{event.getEventType().name()});
+        Logger.getLogger(TrezorService.class.getName()).log(Level.FINE, "Received USB event message: {0}", new Object[]{event.getMessage()});
 
-        log.debug("Received hardware event: '{}'.{}", event.getEventType().name(), event.getMessage());
         switch (event.getEventType()) {
             case SHOW_DEVICE_FAILED:
 
@@ -132,11 +135,13 @@ public final class TrezorService {
                         try {
                             pin = (String) future.get(AgentConstants.PIN_WAIT_TIMEOUT, TimeUnit.SECONDS);
                         } catch (InterruptedException | ExecutionException | TimeoutException ex) {
-                            log.error("Timeout when waiting for PIN...");
+                            Logger.getLogger(TrezorService.class.getName()).log(Level.FINE, "Timeout when waiting for PIN.");
                             hardwareWalletService.requestCancel();
-                            TrayProcess.handleException(new DeviceTimeoutException());
+                            pinPad.setVisible(false);
+
                             if (timer != null && timer.isRunning()) {
                                 timer.stop(); // stop swing timer since pin was cancelled and pub key frame wont be displayed
+                                TrayProcess.handleException(new DeviceTimeoutException()); // only when called from GUI
                             }
                         }
 
@@ -159,23 +164,24 @@ public final class TrezorService {
                 PublicKey pubKey = (PublicKey) event.getMessage().get();
 
                 try {
-                    log.info("Raw Public Key:\n{}", (pubKey.getHdNodeType().get().getPublicKey().get()));
+                    byte[] rawPub = pubKey.getHdNodeType().get().getPublicKey().get();
 
                     // Retrieve public key from node (not xpub)
-                    ECPublicKey publicKey = IdentityUtils.getPublicKeyFromBytes(pubKey.getHdNodeType().get().getPublicKey().get());
+                    ECPublicKey publicKey = IdentityUtils.getPublicKeyFromBytes(rawPub);
 
                     // Decompress key
                     String decompressedSSHKey = IdentityUtils.decompressSSHKeyFromNistp256(publicKey);
 
                     String openSSHkeyNistp256 = IdentityUtils.printOpenSSHkeyNistp256(decompressedSSHKey, null);
                     // Convert key to openSSH format
-                    log.info("SSH Public Key:\n{}", openSSHkeyNistp256);
+                    Logger.getLogger(TrezorService.class.getName()).log(Level.FINE, "SSH Public Key: {0}", openSSHkeyNistp256);
 
                     setTrezorKey(openSSHkeyNistp256); // this is for swing timer - frame window to display pubkey scenario
                     asyncKeyData.setTrezorData(openSSHkeyNistp256); // this is for Callable.call() - ssh server asks identities before sign
 
+                    Logger.getLogger(TrezorService.class.getName()).log(Level.INFO, "Operation {0} executed successfully", "SSH2_AGENT_GET_IDENTITIES");
                 } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-                    log.error("deviceTx FAILED.", e); // TODO: unify logs
+                    Logger.getLogger(TrezorService.class.getName()).log(Level.SEVERE, "deviceTx FAILED");
                 }
 
                 break;
@@ -185,9 +191,10 @@ public final class TrezorService {
                 SignedIdentity signature = (SignedIdentity) event.getMessage().get();
 
                 signedData = signature.getSignatureBytes().get();
-                log.info("Signature:\n{}", Utils.HEX.encode(signedData));
+                Logger.getLogger(TrezorService.class.getName()).log(Level.FINE, "Signature: {0}", Utils.HEX.encode(signedData));
                 asyncSignData.setTrezorData(signedData);
 
+                Logger.getLogger(TrezorService.class.getName()).log(Level.INFO, "Operation {0} executed successfully", "SSH2_AGENT_SIGN_REQUEST");
                 break;
 
             case SHOW_OPERATION_FAILED:
@@ -196,14 +203,20 @@ public final class TrezorService {
                 asyncKeyData.setTrezorData(AgentConstants.DEVICE_FAILED_STRING);
 
                 Failure failure = (Failure) event.getMessage().get();
+                String exceptionKey;
+
                 switch (failure.getType()) {
                     case PIN_INVALID:
-                        TrayProcess.handleException(new InvalidPinException());
+                        exceptionKey = ExceptionHandler.getErrorKeyForException(new InvalidPinException());
+                        TrayProcess.createWarning(LocalizedLogger.getLocalizedMessage(exceptionKey));
                         break;
                     case ACTION_CANCELLED:
-                        TrayProcess.handleException(new ActionCancelledException()); // TODO: ignore if this is due to timeout
+                        Logger.getLogger(TrezorService.class.getName()).log(Level.FINE, "Action cancelled.");
+                        //exceptionKey = ExceptionHandler.getErrorKeyForException(new ActionCancelledException()); // TODO: ignore if this is due to timeout
+                        //TrayProcess.createWarning(LocalizedLogger.getLocalizedMessage(exceptionKey));
                         break;
                     case PIN_CANCELLED:
+                        Logger.getLogger(TrezorService.class.getName()).log(Level.FINE, "PIN cancelled.");
                         // TODO: should we inform user explicitly?
                         break;
                 }

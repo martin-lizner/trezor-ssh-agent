@@ -101,14 +101,13 @@ public class SSHAgent implements WindowProc {
      */
     @Override
     public LRESULT callback(HWND hwnd, int uMsg, WPARAM wParam, LPARAM lParam) {
-        Logger.getLogger(SSHAgent.class.getName()).log(Level.FINE, "Incoming request for operation: {0}", uMsg);
+        Logger.getLogger(SSHAgent.class.getName()).log(Level.FINE, "Windows requests operation: {0}", uMsg);
 
         switch (uMsg) {
             case MY_WM_COPYDATA: {
                 return processMessage(hwnd, wParam, lParam);
             }
-            case WinUser.WM_CREATE: {
-                Logger.getLogger(SSHAgent.class.getName()).log(Level.FINE, "onCreate: WM_CREATE ");
+            case WinUser.WM_CREATE: {                
                 return new LRESULT(0);
             }
             case WinUser.WM_DESTROY: {
@@ -161,14 +160,10 @@ public class SSHAgent implements WindowProc {
         byte type = buff[4];
         switch (type) {
             case SSH2_AGENTC_REQUEST_IDENTITIES:
-                Logger.getLogger(SSHAgent.class.getName()).log(Level.INFO, "Request for operation: {0}", "SSH2_AGENTC_REQUEST_IDENTITIES");
                 processKeysRequest(sharedMemory);
-                Logger.getLogger(SSHAgent.class.getName()).log(Level.INFO, "Operation {0} executed successfully", "SSH2_AGENTC_REQUEST_IDENTITIES");
                 return 1;
-            case SSH2_AGENTC_SIGN_REQUEST:
-                Logger.getLogger(SSHAgent.class.getName()).log(Level.INFO, "Request for operation: {0}", "SSH2_AGENTC_SIGN_REQUEST");
-                processSignRequest(sharedMemory);
-                Logger.getLogger(SSHAgent.class.getName()).log(Level.INFO, "Operation {0} executed successfully", "SSH2_AGENTC_SIGN_REQUEST");
+            case SSH2_AGENTC_SIGN_REQUEST:                
+                processSignRequest(sharedMemory);                
                 return 1;
             default:
                 writeAndLogFailure(sharedMemory, "Request for unsupported operation: " + type);
@@ -196,7 +191,6 @@ public class SSHAgent implements WindowProc {
         sharedMemory.read(offset, length, 0, 4);
         ByteBuffer bb = ByteBuffer.wrap(length);
         int dataLength = bb.getInt();
-        Logger.getLogger(SSHAgent.class.getName()).log(Level.FINER, "reading data length: {0}", dataLength);
         byte[] data = new byte[dataLength];
         sharedMemory.read(offset + 4, data, 0, dataLength);
         return data;
