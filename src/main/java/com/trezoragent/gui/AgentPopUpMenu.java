@@ -67,7 +67,6 @@ public class AgentPopUpMenu extends JPopupMenu {
                         TrezorWrapper.getIdentitiesRequest();
                         final Timer timer = new Timer(AgentConstants.ASYNC_CHECK_INTERVAL, null);
                         trezorService.setTimer(timer); // TODO: find better way how to stop timer when pubkey action is not finished
-                        // TODO: stop timer when device is detached. scenario: show pub, unplug, plug, show pub
                         
                         ActionListener showWindowIfKeyProvided = new ActionListener() {
                             @Override
@@ -76,7 +75,7 @@ public class AgentPopUpMenu extends JPopupMenu {
                                     List<String> pubKeys = new ArrayList<>();
                                     pubKeys.add(trezorService.getTrezorKey() + " " + KEY_COMMENT);
 
-                                    PublicKeysFrame frame = new PublicKeysFrame(pubKeys, SSHURI.toString());
+                                    PublicKeysFrame frame = new PublicKeysFrame(pubKeys, trezorService.getDeviceLabel());
                                     frame.setVisible(true);
 
                                     trezorService.setTrezorKey(null);

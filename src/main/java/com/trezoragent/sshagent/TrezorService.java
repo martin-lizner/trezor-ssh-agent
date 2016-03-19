@@ -27,6 +27,7 @@ import org.multibit.hd.hardware.core.HardwareWalletService;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvent;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
 import org.multibit.hd.hardware.core.messages.Failure;
+import org.multibit.hd.hardware.core.messages.Features;
 import org.multibit.hd.hardware.core.messages.PinMatrixRequest;
 import org.multibit.hd.hardware.core.messages.PublicKey;
 import org.multibit.hd.hardware.core.messages.SignedIdentity;
@@ -51,6 +52,7 @@ public final class TrezorService {
     private final ReadTrezorData asyncSignData;
     private final AbstractTrezorHardwareWallet wallet;
     private Timer timer;
+    private String deviceLabel;
 
     public TrezorService() {
         this.trezorKey = null;
@@ -115,13 +117,14 @@ public final class TrezorService {
                 // Can simply wait for another device to be connected again
                 break;
             case SHOW_DEVICE_READY:
+                this.deviceLabel = ((Features) event.getMessage().get()).getLabel();
                 break;
 
             case SHOW_PIN_ENTRY:
                 // Device requires the current PIN to proceed
 
                 PinMatrixRequest request = (PinMatrixRequest) event.getMessage().get();
-                String pin = null;
+                String pin;
                 switch (request.getPinMatrixRequestType()) {
                     case CURRENT:
 
@@ -138,7 +141,7 @@ public final class TrezorService {
                             hardwareWalletService.requestCancel();
                             pinPad.setVisible(false);
 
-                            if (timer != null && timer.isRunning()) {                               
+                            if (timer != null && timer.isRunning()) {
                                 TrayProcess.handleException(new DeviceTimeoutException()); // only when called from GUI
                             }
                             break;
@@ -244,6 +247,13 @@ public final class TrezorService {
     public ReadTrezorData checkoutAsyncSignData() {
         asyncSignData.setTrezorData(null);
         return asyncSignData;
+    }
+
+    /**
+     * @return the deviceLabel
+     */
+    public String getDeviceLabel() {
+        return deviceLabel;
     }
 
 }

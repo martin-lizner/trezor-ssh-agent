@@ -260,7 +260,7 @@ public class SSHAgent implements WindowProc {
 
             if (signedData != null) {
                 sharedMemory.write(0, signedData, 0, signedData.length);
-                TrayProcess.createInfo(LocalizedLogger.getLocalizedMessage("CERT_USE_SUCCESS") + AgentConstants.KEY_COMMENT); // TODO: get actual device name
+                TrayProcess.createInfo(LocalizedLogger.getLocalizedMessage("CERT_USE_SUCCESS") + TrayProcess.trezorService.getDeviceLabel());
             } else {
                 TrayProcess.createWarning(LocalizedLogger.getLocalizedMessage("CERT_USED_ERROR"));
             }
