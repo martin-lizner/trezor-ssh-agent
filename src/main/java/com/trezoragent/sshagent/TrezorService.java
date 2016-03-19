@@ -2,7 +2,6 @@ package com.trezoragent.sshagent;
 
 import com.google.common.base.Optional;
 import com.google.common.eventbus.Subscribe;
-import com.trezoragent.exception.ActionCancelledException;
 import com.trezoragent.exception.DeviceTimeoutException;
 import com.trezoragent.exception.InvalidPinException;
 import com.trezoragent.gui.PinPad;
@@ -139,17 +138,14 @@ public final class TrezorService {
                             hardwareWalletService.requestCancel();
                             pinPad.setVisible(false);
 
-                            if (timer != null && timer.isRunning()) {
-                                timer.stop(); // stop swing timer since pin was cancelled and pub key frame wont be displayed
+                            if (timer != null && timer.isRunning()) {                               
                                 TrayProcess.handleException(new DeviceTimeoutException()); // only when called from GUI
                             }
+                            break;
                         }
 
                         if (AgentConstants.PIN_CANCELLED_MSG.equals(pin)) {
                             hardwareWalletService.requestCancel();
-                            if (timer != null && timer.isRunning()) {
-                                timer.stop(); // stop swing timer
-                            }
                             break;
                         }
 
@@ -199,8 +195,8 @@ public final class TrezorService {
 
             case SHOW_OPERATION_FAILED:
 
-                asyncSignData.setTrezorData(AgentConstants.DEVICE_FAILED_BYTE);
-                asyncKeyData.setTrezorData(AgentConstants.DEVICE_FAILED_STRING);
+                asyncSignData.setTrezorData(AgentConstants.SIGN_FAILED_BYTE);
+                asyncKeyData.setTrezorData(AgentConstants.GET_IDENTITIES_FAILED_STRING);
 
                 Failure failure = (Failure) event.getMessage().get();
                 String exceptionKey;
@@ -212,13 +208,14 @@ public final class TrezorService {
                         break;
                     case ACTION_CANCELLED:
                         Logger.getLogger(TrezorService.class.getName()).log(Level.FINE, "Action cancelled.");
-                        //exceptionKey = ExceptionHandler.getErrorKeyForException(new ActionCancelledException()); // TODO: ignore if this is due to timeout
-                        //TrayProcess.createWarning(LocalizedLogger.getLocalizedMessage(exceptionKey));
+                        asyncSignData.setTrezorData(AgentConstants.SIGN_CANCELLED_BYTE); // no need to raise error, since sign fail was caused by user pressing Cancel button
                         break;
                     case PIN_CANCELLED:
                         Logger.getLogger(TrezorService.class.getName()).log(Level.FINE, "PIN cancelled.");
-                        // TODO: should we inform user explicitly?
                         break;
+                }
+                if (timer != null && timer.isRunning()) {
+                    timer.stop(); // stop swing timer
                 }
 
                 break;

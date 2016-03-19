@@ -10,7 +10,7 @@ Trezor SSH Agent is a GUI-enabled tray application that emulates Pageant process
 * No other Trezor app (like myTREZOR webpage) can be running simultaneously.
 * BIP32 path is currently fixed by constant Identity URI to just one public key per device.
 * KeepKey device not supported, this may change in future.
-* They are troubles on USB level that makes device deattach from time to time. Unplug&plug device or/and restart Trezor SSH Agent to workaround it. This problem will be hopefully fixed by MultiBit guys soon.
+* They are troubles on USB level that makes device init last some time (10-20 sec) in certain situations. This problem will be hopefully fixed by MultiBit guys soon.
 
 ### Getting started
 

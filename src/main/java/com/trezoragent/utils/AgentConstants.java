@@ -25,15 +25,15 @@ public final class AgentConstants {
     public static final String ICON_DESCRIPTION = "tray icon"; //Windows tray
 
     // Trezor settings:
-    
     public static final String CURVE_NAME = "nist256p1";
     public static final URI SSHURI = URI.create("ssh://btc.rulez/connect");
     public static final String KEY_COMMENT = "Trezor";
 
     public static final String PIN_CANCELLED_MSG = "_PIN_CANCEL_"; // for pinpad, TODO: do better?
-    public static final byte[] DEVICE_FAILED_BYTE = {(byte) 0x00}; // for sign operation
-    public static final String DEVICE_FAILED_STRING = "_FAILED_"; // for getpub operation
-    
+    public static final byte[] SIGN_FAILED_BYTE = {(byte) 0x00}; // sign operation failed
+    public static final byte[] SIGN_CANCELLED_BYTE = {(byte) 0x01}; // sign operation failed because user cancelled
+    public static final String GET_IDENTITIES_FAILED_STRING = "_FAILED_"; // for getpub operation
+
     public static final int PIN_WAIT_TIMEOUT = 120; //sec
     public static final int KEY_WAIT_TIMEOUT = 120; //sec
     public static final int SIGN_WAIT_TIMEOUT = 120; //sec
@@ -59,17 +59,16 @@ public final class AgentConstants {
      */
     public static final String DEVICE_TIMEOUT_KEY = "DEVICE_TIMEOUT";
     public static final String INCORRECT_PIN_ENTERED_KEY = "INCORRECT_PIN_ENTERED";
-    public static final String ACTION_CANCELLED_KEY = "ACTION_CANCELLED";  
-
+    public static final String ACTION_CANCELLED_KEY = "ACTION_CANCELLED";
     public static final String WRONG_URI_SYNTAX_KEY = "WRONG_URI_SYNTAX";
     public static final String UNKNOW_ERROR_KEY = "UNKNOW_ERROR";
     public static final String NOT_SUPPORTED_ALGORITHM_KEY = "NOT_SUPPORTED_ALGORITHM";
-    public static final String UNABLE_TO_USE_CERTIFICATE_KEY = "UNABLE_TO_USE_CERTIFICATE";
     public static final String UNABLE_TO_USE_KEY_KEY = "UNABLE_TO_USE_KEY";
     public static final String SIGNATURE_EXCEPTION_KEY = "SIGNATURE_EXCEPTION";
-    public static final String KEYSTORE_LOAD_ERROR_KEY = "KEYSTORE_LOAD_ERROR";
     public static final String WALLET_NOT_PRESENT_KEY = "WALLET_NOT_PRESENT";
-    public static final String DEVICE_NOT_READY_KEY = "DEVICE_NOT_READY";        
+    public static final String DEVICE_NOT_READY_KEY = "DEVICE_NOT_READY";
+    public static final String SIGN_FAILED_KEY = "SIGN_FAILED";
+    public static final String GET_IDENTITIES_FAILED_KEY = "GET_IDENTITIES_FAILED";
 
     public static final String LINK_TO_LOG_KEY = "LINK_TO_LOG";
     public static final byte SSH2_AGENT_IDENTITIES_ANSWER = 12;

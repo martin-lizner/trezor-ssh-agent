@@ -6,14 +6,14 @@ package com.trezoragent.utils;
  */
 import com.trezoragent.exception.ActionCancelledException;
 import com.trezoragent.exception.DeviceTimeoutException;
+import com.trezoragent.exception.GetIdentitiesFailedException;
 import com.trezoragent.exception.InvalidPinException;
+import com.trezoragent.exception.SignFailedException;
 import static com.trezoragent.utils.AgentConstants.*;
-import com.trezoragent.exception.KeyStoreLoadException;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
-import java.security.SignatureException;
 import java.security.UnrecoverableKeyException;
 
 public class ExceptionHandler {
@@ -37,10 +37,10 @@ public class ExceptionHandler {
             key = NOT_SUPPORTED_ALGORITHM_KEY;
         } catch (InvalidKeyException | UnrecoverableKeyException e) {
             key = UNABLE_TO_USE_KEY_KEY;
-        } catch (SignatureException e) {
-            key = SIGNATURE_EXCEPTION_KEY;
-        } catch (KeyStoreLoadException e) {
-            key = KEYSTORE_LOAD_ERROR_KEY;
+        } catch (SignFailedException e) {
+            key = SIGN_FAILED_KEY;
+        } catch (GetIdentitiesFailedException e) {
+            key = GET_IDENTITIES_FAILED_KEY;
         } catch (Throwable e) {
             key = UNKNOW_ERROR_KEY;
         }

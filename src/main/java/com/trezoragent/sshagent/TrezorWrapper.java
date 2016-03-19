@@ -1,5 +1,6 @@
 package com.trezoragent.sshagent;
 
+import com.trezoragent.exception.ActionCancelledException;
 import com.trezoragent.exception.DeviceTimeoutException;
 import com.trezoragent.exception.GetIdentitiesFailedException;
 import com.trezoragent.exception.SignFailedException;
@@ -49,8 +50,7 @@ public class TrezorWrapper {
             throw new DeviceTimeoutException();
         }
 
-        if (AgentConstants.DEVICE_FAILED_STRING.equals(trezorKey)) {
-            Logger.getLogger(TrezorWrapper.class.getName()).log(Level.INFO, "Operation {0} failed", "SSH2_AGENT_GET_IDENTITIES");
+        if (AgentConstants.GET_IDENTITIES_FAILED_STRING.equals(trezorKey)) {            
             throw new GetIdentitiesFailedException();
         }
 
@@ -72,7 +72,7 @@ public class TrezorWrapper {
         return idents;
     }
 
-    public static byte[] signChallenge(byte[] challengeHidden) throws DeviceTimeoutException, SignFailedException {
+    public static byte[] signChallenge(byte[] challengeHidden) throws DeviceTimeoutException, SignFailedException, ActionCancelledException {
         byte[] signature;
         Logger.getLogger(TrezorWrapper.class.getName()).log(Level.INFO, "Request for operation: {0}", "SSH2_AGENT_SIGN_REQUEST");
 
@@ -86,15 +86,17 @@ public class TrezorWrapper {
 
         try {
             signature = future.get(AgentConstants.SIGN_WAIT_TIMEOUT, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException ex) {
-            //Logger.getLogger(TrezorWrapper.class.getName()).log(Level.SEVERE, "Timeout when waiting for device");
+        } catch (InterruptedException | ExecutionException | TimeoutException ex) {            
             TrayProcess.trezorService.getHardwareWalletService().requestCancel();
             throw new DeviceTimeoutException();
         }
 
-        if (Arrays.equals(AgentConstants.DEVICE_FAILED_BYTE, signature)) {
-            Logger.getLogger(TrezorWrapper.class.getName()).log(Level.INFO, "Operation {0} failed", "SSH2_AGENT_SIGN_REQUEST");
-            throw new SignFailedException();
+        if (Arrays.equals(AgentConstants.SIGN_FAILED_BYTE, signature)) {
+            throw new SignFailedException("Sign operation failed on HW.");
+        }
+        
+        if (Arrays.equals(AgentConstants.SIGN_CANCELLED_BYTE, signature)) {
+            throw new ActionCancelledException();
         }
 
         TrayProcess.trezorService.checkoutAsyncSignData(); // null sign data        

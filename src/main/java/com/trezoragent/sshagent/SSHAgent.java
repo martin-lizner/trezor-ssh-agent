@@ -15,6 +15,7 @@ import com.sun.jna.platform.win32.WinNT.HANDLE;
 import com.sun.jna.platform.win32.WinUser;
 import com.sun.jna.platform.win32.WinUser.*;
 import com.sun.jna.platform.win32.WinUser.WindowProc;
+import com.trezoragent.exception.ActionCancelledException;
 import com.trezoragent.exception.DeviceTimeoutException;
 import com.trezoragent.exception.GetIdentitiesFailedException;
 import com.trezoragent.exception.SignFailedException;
@@ -107,7 +108,7 @@ public class SSHAgent implements WindowProc {
             case MY_WM_COPYDATA: {
                 return processMessage(hwnd, wParam, lParam);
             }
-            case WinUser.WM_CREATE: {                
+            case WinUser.WM_CREATE: {
                 return new LRESULT(0);
             }
             case WinUser.WM_DESTROY: {
@@ -162,8 +163,8 @@ public class SSHAgent implements WindowProc {
             case SSH2_AGENTC_REQUEST_IDENTITIES:
                 processKeysRequest(sharedMemory);
                 return 1;
-            case SSH2_AGENTC_SIGN_REQUEST:                
-                processSignRequest(sharedMemory);                
+            case SSH2_AGENTC_SIGN_REQUEST:
+                processSignRequest(sharedMemory);
                 return 1;
             default:
                 writeAndLogFailure(sharedMemory, "Request for unsupported operation: " + type);
@@ -182,7 +183,7 @@ public class SSHAgent implements WindowProc {
         } catch (DeviceTimeoutException ex) {
             TrayProcess.handleException(ex);
         } catch (GetIdentitiesFailedException ex) {
-            // TODO: log
+            Logger.getLogger(SSHAgent.class.getName()).log(Level.SEVERE, "Operation {0} failed", "SSH2_AGENT_GET_IDENTITIES");
         }
     }
 
@@ -251,19 +252,22 @@ public class SSHAgent implements WindowProc {
 
         try {
             signedDataRaw = TrezorWrapper.signChallenge(challengeData);
+            if (signedDataRaw == null || signedDataRaw.length != 65) {
+                throw new SignFailedException("HW sign response must have 65 bytes, length: " + signedDataRaw.length);
+            }
+
             signedData = AgentUtils.createSSHSignResponse(signedDataRaw);
-            // TODO: throw exception when data are not 65 long
 
             if (signedData != null) {
                 sharedMemory.write(0, signedData, 0, signedData.length);
-                TrayProcess.createInfo(LocalizedLogger.getLocalizedMessage("CERT_USE_SUCCESS") + AgentConstants.KEY_COMMENT);
+                TrayProcess.createInfo(LocalizedLogger.getLocalizedMessage("CERT_USE_SUCCESS") + AgentConstants.KEY_COMMENT); // TODO: get actual device name
             } else {
                 TrayProcess.createWarning(LocalizedLogger.getLocalizedMessage("CERT_USED_ERROR"));
             }
-        } catch (DeviceTimeoutException ex) {
+        } catch (DeviceTimeoutException | SignFailedException ex) {
             TrayProcess.handleException(ex);
-        } catch (SignFailedException ex) { // do nothing, user was already informed by message and we do not want anything to be written in shared memory
-            // TOTO: log
+        } catch (ActionCancelledException ex) {
+            Logger.getLogger(SSHAgent.class.getName()).log(Level.FINE, "Sign operation cancelled on HW.");
         }
     }
 
@@ -301,7 +305,7 @@ public class SSHAgent implements WindowProc {
             libK = Kernel32.INSTANCE;
         } catch (java.lang.UnsatisfiedLinkError | java.lang.NoClassDefFoundError ex) {
             TrayProcess.handleException(ex);
-            throw new Exception(ex.toString()); // TODO why Exception?
+            throw new Exception(ex.toString());
         }
     }
 

@@ -57,7 +57,7 @@ public class PinPad extends JFrame {
         Border labelsPadding = BorderFactory.createEmptyBorder(0, 0, 15, 0);
         labelPanel.setBorder(labelsPadding);
 
-        deviceLabel = new JLabel(AgentConstants.APP_PUBLIC_NAME.toUpperCase()); // TODO: get actual customer device name... or not?
+        deviceLabel = new JLabel(AgentConstants.APP_PUBLIC_NAME.toUpperCase());
         Icon icon = new ImageIcon(TrayProcess.createImage(AgentConstants.ICON24_PATH, AgentConstants.ICON_DESCRIPTION));
         deviceLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 5, 0));
         deviceLabel.setIcon(icon);
