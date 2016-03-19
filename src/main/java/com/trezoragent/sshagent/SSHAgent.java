@@ -177,7 +177,7 @@ public class SSHAgent implements WindowProc {
         java.util.List<PublicKeyDTO> certs;
         try {
             certs = TrezorWrapper.getIdentitiesResponse(true);
-            ByteBuffer ret = writeCertificatesToBuffer(certs, SSH2_AGENT_IDENTITIES_ANSWER);
+            ByteBuffer ret = writeCertificatesToFrame(certs, SSH2_AGENT_IDENTITIES_ANSWER);
             sharedMemory.write(0, ret.array(), 0, ret.array().length);
 
         } catch (DeviceTimeoutException ex) {
@@ -241,7 +241,7 @@ public class SSHAgent implements WindowProc {
         byte[] buff = new byte[5];
         buff[4] = SSH_AGENT_FAILURE;
         buff[1] = 1;
-        sharedMemory.write(0, buff, 0, buff.length); // todo refact all to use frames()
+        sharedMemory.write(0, buff, 0, buff.length);
     }
 
     private void processSignRequest(Pointer sharedMemory) {
@@ -282,21 +282,25 @@ public class SSHAgent implements WindowProc {
         return length;
     }
 
-    private ByteBuffer writeCertificatesToBuffer(List<PublicKeyDTO> certs, byte response) {
+    private ByteBuffer writeCertificatesToFrame(List<PublicKeyDTO> certs, byte resultCode) {
         int responseLength = getResponseLength(certs);
         ByteBuffer ret = ByteBuffer.allocate(responseLength);
-        ret.putInt(responseLength);
-        ret.put(response);
+        ret.put(AgentUtils.frameArray(writeCertificatesToArray(certs, resultCode, responseLength - 4)));
+        return ret;
+    }
+
+    private byte[] writeCertificatesToArray(List<PublicKeyDTO> certs, byte resultCode, int frameLength) {
+        ByteBuffer ret = ByteBuffer.allocate(frameLength);
+
+        ret.put(resultCode);
         if (!certs.isEmpty()) {
-            ret.putInt(certs.size());
+            ret.putInt(certs.size()); // number of keys (not byte size)
             for (PublicKeyDTO i : certs) {
-                ret.putInt(i.getbPublicKey().length);
-                ret.put(i.getbPublicKey());
-                ret.putInt(i.getbComment().length);
-                ret.put(i.getbComment());
+                ret.put(AgentUtils.frameArray(i.getbPublicKey()));
+                ret.put(AgentUtils.frameArray(i.getbComment()));
             }
         }
-        return ret;
+        return ret.array();
     }
 
     private void initCoreClasses() throws Exception {
