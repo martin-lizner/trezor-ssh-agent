@@ -36,6 +36,13 @@ $ mvn clean install
 * Use Putty to connect to your favorite SSH server.
 * Provide PIN if asked and confirm identity sign operation on the device.
 
+**TIP** - You can also use Trezor SSH Agent with "agent forwarding" option set in SSH client. This would enable chaining connections back to original agent.
+Example:
+
+1. Open SSH to UNIX with agent forwarding enabled in Putty.
+2. From UNIX shell command line open another ssh connection (e.g. ssh root@localhost) to server which trusts your public key.
+3. Confirm operation on Trezor device and you are logged in.
+
 #### Public Key Example
 `ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBKJHh8o1FNgyEXzPLIc7tlk4n+4/mLlCs/m/SY7+WsUhdoajyHiyP0Zdo+VuWAizLTApW68QIzqWY73fur+i7nk= Trezor`
 
