@@ -30,6 +30,9 @@ $ mvn clean install
 * Edit logger.properties file and set com.trezoragent.level = FINE for more detailed logging. 
 * Application log is saved in your C:\Users\\...\ directory under default name: Trezor_Agent.log
 * You can also access log by using the "Open Log File" item in the application tray menu.
+* Also make sure that SSH Server you are connecting to supports ECDSA:
+  * ECDSA is generally supported since [OpenSSH 5.7](http://www.openssh.com/txt/release-5.7)
+  * But there are backports to some older openSSH versions, e.g. Redhat/CentOS [5.3p1-112.el6_7](http://www.rpmfind.net/linux/RPM/centos/updates/6.7/x86_64/Packages/openssh-5.3p1-112.el6_7.x86_64.html)
 
 ### Usage
 * Please  [download](http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html) latest DEVELOPMENT snapshot of Putty or WinSCP 5.8.1+ that support ECDSA and Ed25519 keys. Latest STABLE versions of Putty and WinSCP do not support ECDSA yet and will not work with Trezor.
