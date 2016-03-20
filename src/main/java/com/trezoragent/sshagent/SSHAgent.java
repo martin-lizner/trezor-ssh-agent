@@ -215,25 +215,12 @@ public class SSHAgent implements WindowProc {
     }
 
     private int answerIfDevicePresent(Pointer sharedMemory) {
-        if (checkDeviceAvailable()) {
+        if (AgentUtils.checkDeviceAvailable()) {
             return answerMessage(sharedMemory);
         } else {
             writeAndLogFailure(sharedMemory, "Device not available.");
             return 0;
         }
-    }
-
-    public boolean checkDeviceAvailable() {
-        if (TrayProcess.trezorService.getHardwareWalletService().isDeviceReady()) {
-            if (TrayProcess.trezorService.getHardwareWalletService().isWalletPresent()) {
-                return true;
-            } else {
-                TrayProcess.createWarning(LocalizedLogger.getLocalizedMessage("WALLET_NOT_PRESENT_KEY"));
-            }
-        } else {
-            TrayProcess.createWarning(LocalizedLogger.getLocalizedMessage("DEVICE_NOT_READY_KEY"));
-        }
-        return false;
     }
 
     private void writeAndLogFailure(Pointer sharedMemory, String messageToLog) {

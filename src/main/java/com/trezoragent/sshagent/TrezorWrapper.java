@@ -30,6 +30,9 @@ public class TrezorWrapper {
 
     public static void getIdentitiesRequest() { // directly used only for GUI calls with explicit swing timer
         Logger.getLogger(TrezorWrapper.class.getName()).log(Level.INFO, "Request for operation: {0}", "SSH2_AGENT_GET_IDENTITIES");
+        if (!AgentUtils.checkDeviceAvailable()) {
+            return;
+        }
         TrayProcess.trezorService.getHardwareWalletService().requestPublicKeyForIdentity(AgentConstants.SSHURI, 0, AgentConstants.CURVE_NAME, false);
     }
 
@@ -38,6 +41,10 @@ public class TrezorWrapper {
         List<PublicKeyDTO> idents = new ArrayList<>();
 
         getIdentitiesRequest();
+
+        if (!AgentUtils.checkDeviceAvailable()) {
+            return idents;
+        }
 
         ExecutorService executor = Executors.newSingleThreadExecutor();
         Future<String> future = executor.submit(TrayProcess.trezorService.checkoutAsyncKeyData());
@@ -50,7 +57,8 @@ public class TrezorWrapper {
             throw new DeviceTimeoutException();
         }
 
-        if (AgentConstants.GET_IDENTITIES_FAILED_STRING.equals(trezorKey)) {            
+        if (AgentConstants.GET_IDENTITIES_FAILED_STRING.equals(trezorKey)) {
+            TrayProcess.trezorService.getHardwareWalletService().requestCancel();
             throw new GetIdentitiesFailedException();
         }
 
@@ -67,7 +75,7 @@ public class TrezorWrapper {
         p.setsComment(AgentConstants.KEY_COMMENT);
         p.setbComment(AgentConstants.KEY_COMMENT.getBytes());
         idents.add(p);
-        TrayProcess.trezorService.checkoutAsyncKeyData(); // null key        
+        //TrayProcess.trezorService.checkoutAsyncKeyData(); // null key        
 
         return idents;
     }
@@ -75,6 +83,10 @@ public class TrezorWrapper {
     public static byte[] signChallenge(byte[] challengeHidden) throws DeviceTimeoutException, SignFailedException, ActionCancelledException {
         byte[] signature;
         Logger.getLogger(TrezorWrapper.class.getName()).log(Level.INFO, "Request for operation: {0}", "SSH2_AGENT_SIGN_REQUEST");
+
+        if (!AgentUtils.checkDeviceAvailable()) {
+            return AgentConstants.SIGN_FAILED_BYTE;
+        }
 
         String challengeVisual = AgentUtils.getCurrentTimeStamp();
         Identity identity = new Identity(AgentConstants.SSHURI, 0, challengeHidden, challengeVisual, AgentConstants.CURVE_NAME);
@@ -86,21 +98,21 @@ public class TrezorWrapper {
 
         try {
             signature = future.get(AgentConstants.SIGN_WAIT_TIMEOUT, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException ex) {            
+        } catch (InterruptedException | ExecutionException | TimeoutException ex) {
             TrayProcess.trezorService.getHardwareWalletService().requestCancel();
             throw new DeviceTimeoutException();
         }
 
         if (Arrays.equals(AgentConstants.SIGN_FAILED_BYTE, signature)) {
+            TrayProcess.trezorService.getHardwareWalletService().requestCancel();
             throw new SignFailedException("Sign operation failed on HW.");
         }
-        
+
         if (Arrays.equals(AgentConstants.SIGN_CANCELLED_BYTE, signature)) {
             throw new ActionCancelledException();
         }
 
-        TrayProcess.trezorService.checkoutAsyncSignData(); // null sign data        
-        
+        //TrayProcess.trezorService.checkoutAsyncSignData(); // null sign data        
         return signature;
     }
 }

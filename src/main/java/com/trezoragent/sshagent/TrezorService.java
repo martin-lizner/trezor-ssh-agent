@@ -2,6 +2,7 @@ package com.trezoragent.sshagent;
 
 import com.google.common.base.Optional;
 import com.google.common.eventbus.Subscribe;
+import com.trezoragent.exception.DeviceFailedException;
 import com.trezoragent.exception.DeviceTimeoutException;
 import com.trezoragent.exception.InvalidPinException;
 import com.trezoragent.gui.PinPad;
@@ -53,6 +54,7 @@ public final class TrezorService {
     private final AbstractTrezorHardwareWallet wallet;
     private Timer timer;
     private String deviceLabel;
+    private String exceptionKey;
 
     public TrezorService() {
         this.trezorKey = null;
@@ -76,8 +78,7 @@ public final class TrezorService {
         asyncKeyData = new ReadTrezorData<String>();
         asyncSignData = new ReadTrezorData<byte[]>();
 
-        Logger.getLogger(TrezorService.class.getName()).log(Level.FINE, "Trezor Service Started.");
-
+        Logger.getLogger(TrezorService.class.getName()).log(Level.INFO, "Trezor Service Started.");
     }
 
     public static TrezorService startTrezorService() {
@@ -110,12 +111,14 @@ public final class TrezorService {
 
         switch (event.getEventType()) {
             case SHOW_DEVICE_FAILED:
-
+                TrayProcess.handleException(new DeviceFailedException());
                 System.exit(0);
                 break;
+                
             case SHOW_DEVICE_DETACHED:
-                // Can simply wait for another device to be connected again
+                resetCachedData();
                 break;
+                
             case SHOW_DEVICE_READY:
                 this.deviceLabel = ((Features) event.getMessage().get()).getLabel();
                 break;
@@ -176,7 +179,7 @@ public final class TrezorService {
                     Logger.getLogger(TrezorService.class.getName()).log(Level.FINE, "SSH Public Key: {0}", openSSHkeyNistp256);
 
                     setTrezorKey(openSSHkeyNistp256); // this is for swing timer - frame window to display pubkey scenario
-                    asyncKeyData.setTrezorData(openSSHkeyNistp256); // this is for Callable.call() - ssh server asks identities before sign
+                    getAsyncKeyData().setTrezorData(openSSHkeyNistp256); // this is for Callable.call() - ssh server asks identities before sign
 
                     Logger.getLogger(TrezorService.class.getName()).log(Level.INFO, "Operation {0} executed successfully", "SSH2_AGENT_GET_IDENTITIES");
                 } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
@@ -191,18 +194,17 @@ public final class TrezorService {
 
                 signedData = signature.getSignatureBytes().get();
                 Logger.getLogger(TrezorService.class.getName()).log(Level.FINE, "Signature: {0}", Utils.HEX.encode(signedData));
-                asyncSignData.setTrezorData(signedData);
+                getAsyncSignData().setTrezorData(signedData);
 
                 Logger.getLogger(TrezorService.class.getName()).log(Level.INFO, "Operation {0} executed successfully", "SSH2_AGENT_SIGN_REQUEST");
                 break;
 
             case SHOW_OPERATION_FAILED:
 
-                asyncSignData.setTrezorData(AgentConstants.SIGN_FAILED_BYTE);
-                asyncKeyData.setTrezorData(AgentConstants.GET_IDENTITIES_FAILED_STRING);
+                getAsyncSignData().setTrezorData(AgentConstants.SIGN_FAILED_BYTE);
+                getAsyncKeyData().setTrezorData(AgentConstants.GET_IDENTITIES_FAILED_STRING);
 
                 Failure failure = (Failure) event.getMessage().get();
-                String exceptionKey;
 
                 switch (failure.getType()) {
                     case PIN_INVALID:
@@ -211,7 +213,7 @@ public final class TrezorService {
                         break;
                     case ACTION_CANCELLED:
                         Logger.getLogger(TrezorService.class.getName()).log(Level.FINE, "Action cancelled.");
-                        asyncSignData.setTrezorData(AgentConstants.SIGN_CANCELLED_BYTE); // no need to raise error, since sign fail was caused by user pressing Cancel button
+                        getAsyncSignData().setTrezorData(AgentConstants.SIGN_CANCELLED_BYTE); // no need to raise error, since sign fail was caused by user pressing Cancel button
                         break;
                     case PIN_CANCELLED:
                         Logger.getLogger(TrezorService.class.getName()).log(Level.FINE, "PIN cancelled.");
@@ -240,13 +242,19 @@ public final class TrezorService {
     }
 
     public ReadTrezorData checkoutAsyncKeyData() {
-        asyncKeyData.setTrezorData(null);
-        return asyncKeyData;
+        getAsyncKeyData().setTrezorData(null);
+        return getAsyncKeyData();
     }
 
     public ReadTrezorData checkoutAsyncSignData() {
-        asyncSignData.setTrezorData(null);
-        return asyncSignData;
+        getAsyncSignData().setTrezorData(null);
+        return getAsyncSignData();
+    }
+
+    public void resetCachedData() {
+        checkoutAsyncKeyData();
+        checkoutAsyncSignData();
+        setTrezorKey(null);
     }
 
     /**
@@ -254,6 +262,20 @@ public final class TrezorService {
      */
     public String getDeviceLabel() {
         return deviceLabel;
+    }
+
+    /**
+     * @return the asyncKeyData
+     */
+    public ReadTrezorData getAsyncKeyData() {
+        return asyncKeyData;
+    }
+
+    /**
+     * @return the asyncSignData
+     */
+    public ReadTrezorData getAsyncSignData() {
+        return asyncSignData;
     }
 
 }

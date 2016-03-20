@@ -2,6 +2,7 @@ package com.trezoragent.utils;
 
 import com.google.common.base.Charsets;
 import com.trezoragent.gui.StartAgentGUI;
+import com.trezoragent.gui.TrayProcess;
 import java.awt.Image;
 import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
@@ -59,6 +60,19 @@ public class AgentUtils {
         icons.add(new ImageIcon(StartAgentGUI.class.getResource(AgentConstants.ICON96_PATH)).getImage());
         icons.add(new ImageIcon(StartAgentGUI.class.getResource(AgentConstants.ICON128_PATH)).getImage());
         return icons;
+    }
+
+    public static boolean checkDeviceAvailable() {
+        if (TrayProcess.trezorService.getHardwareWalletService().isDeviceReady()) {
+            if (TrayProcess.trezorService.getHardwareWalletService().isWalletPresent()) {
+                return true;
+            } else {
+                TrayProcess.createWarning(LocalizedLogger.getLocalizedMessage("WALLET_NOT_PRESENT_KEY"));
+            }
+        } else {
+            TrayProcess.createWarning(LocalizedLogger.getLocalizedMessage("DEVICE_NOT_READY_KEY"));
+        }
+        return false;
     }
 
 }

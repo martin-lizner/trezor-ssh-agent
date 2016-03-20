@@ -5,6 +5,7 @@ import com.trezoragent.sshagent.TrezorService;
 import com.trezoragent.sshagent.TrezorWrapper;
 import com.trezoragent.utils.AgentConstants;
 import static com.trezoragent.utils.AgentConstants.*;
+import com.trezoragent.utils.AgentUtils;
 import com.trezoragent.utils.LocalizedLogger;
 
 import java.awt.*;
@@ -61,35 +62,32 @@ public class AgentPopUpMenu extends JPopupMenu {
         viewKeys.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-             
+
                 try {
-                    if (TrayProcess.agent.checkDeviceAvailable()) {
-                        TrezorWrapper.getIdentitiesRequest();
-                        final Timer timer = new Timer(AgentConstants.ASYNC_CHECK_INTERVAL, null);
-                        trezorService.setTimer(timer); // TODO: find better way how to stop timer when pubkey action is not finished
-                        
-                        ActionListener showWindowIfKeyProvided = new ActionListener() {
-                            @Override
-                            public void actionPerformed(ActionEvent event) {
-                                if (trezorService.getTrezorKey() != null) {
-                                    List<String> pubKeys = new ArrayList<>();
-                                    pubKeys.add(trezorService.getTrezorKey() + " " + KEY_COMMENT);
+                    TrezorWrapper.getIdentitiesRequest();
+                    final Timer timer = new Timer(AgentConstants.ASYNC_CHECK_INTERVAL, null);
+                    trezorService.setTimer(timer); // TODO: find better way how to stop timer when pubkey action is not finished
 
-                                    PublicKeysFrame frame = new PublicKeysFrame(pubKeys, trezorService.getDeviceLabel());
-                                    frame.setVisible(true);
+                    ActionListener showWindowIfKeyProvided = new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent event) {
+                            if (trezorService.getTrezorKey() != null) {
+                                List<String> pubKeys = new ArrayList<>();
+                                pubKeys.add(trezorService.getTrezorKey() + " " + KEY_COMMENT);
 
-                                    trezorService.setTrezorKey(null);
-                                    trezorService.checkoutAsyncKeyData(); // clear cache data explicitly, since they were never read by standard call()
-                                    timer.stop();
-                                }
+                                PublicKeysFrame frame = new PublicKeysFrame(pubKeys, trezorService.getDeviceLabel());
+                                frame.setVisible(true);
+
+                                trezorService.setTrezorKey(null);
+                                trezorService.checkoutAsyncKeyData(); // clear cache data explicitly, since they were never read by standard call()
+                                timer.stop();
                             }
-                        };
+                        }
+                    };
 
-                        timer.addActionListener(showWindowIfKeyProvided);
-                        timer.setRepeats(true);
-                        timer.start();
-                        
-                    }
+                    timer.addActionListener(showWindowIfKeyProvided);
+                    timer.setRepeats(true);
+                    timer.start();
                 } catch (Exception ex) {
                     TrayProcess.handleException(ex);
                 }

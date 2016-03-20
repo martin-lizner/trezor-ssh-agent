@@ -62,6 +62,7 @@ public final class AgentConstants {
     public static final String ACTION_CANCELLED_KEY = "ACTION_CANCELLED";
     public static final String WRONG_URI_SYNTAX_KEY = "WRONG_URI_SYNTAX";
     public static final String UNKNOW_ERROR_KEY = "UNKNOW_ERROR";
+    public static final String DEVICE_HW_FAILED_KEY = "DEVICE_HW_FAILED";
     public static final String NOT_SUPPORTED_ALGORITHM_KEY = "NOT_SUPPORTED_ALGORITHM";
     public static final String UNABLE_TO_USE_KEY_KEY = "UNABLE_TO_USE_KEY";
     public static final String SIGNATURE_EXCEPTION_KEY = "SIGNATURE_EXCEPTION";

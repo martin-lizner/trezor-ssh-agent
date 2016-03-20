@@ -5,6 +5,7 @@ package com.trezoragent.utils;
  * @author martin.lizner
  */
 import com.trezoragent.exception.ActionCancelledException;
+import com.trezoragent.exception.DeviceFailedException;
 import com.trezoragent.exception.DeviceTimeoutException;
 import com.trezoragent.exception.GetIdentitiesFailedException;
 import com.trezoragent.exception.InvalidPinException;
@@ -41,6 +42,8 @@ public class ExceptionHandler {
             key = SIGN_FAILED_KEY;
         } catch (GetIdentitiesFailedException e) {
             key = GET_IDENTITIES_FAILED_KEY;
+        } catch (DeviceFailedException e) {
+            key = DEVICE_HW_FAILED_KEY;
         } catch (Throwable e) {
             key = UNKNOW_ERROR_KEY;
         }
