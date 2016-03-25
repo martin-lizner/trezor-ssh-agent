@@ -4,6 +4,8 @@ Status: [![Build Status](https://travis-ci.org/martin-lizner/trezor-ssh-agent.sv
 Trezor SSH Agent is Windows application that enables users to authenticate to UNIX/Linux SSH server using their favorite apps like Putty, WinSCP or other Pageant-compatible clients (e.g. git) together with Trezor - hardware bitcoin wallet.
 Trezor SSH Agent is a GUI-enabled tray application that emulates Pageant process in Windows. It receives identity requests from SSH client (which gets it from SSH server), uses Trezor hardware to sign challenge and sends data back.
 
+It is absolutely safe to use Trezor SSH Agent. No harm can be caused to your bitcoins or the wallet. Application never asks Trezor for any Bitcoin related action, e.g. it never asks to sign tx.
+
 ### Limitations
 * Only ecdsa-sha2-nistp256 key is supported at current. ssh-ed25519 may come in future. ssh-rsa is not supported by Trezor HW.
 * Trezor wallet with passphrase protection is not supported.
@@ -42,7 +44,8 @@ $ mvn clean install
 * Start Putty with "Attempt authentication using Pageant" option selected (Connection->SSH->Auth).
 ![Putty](https://github.com/martin-lizner/commons/blob/master/trezor-ssh-agent/putty.png)
 * Use Putty to connect to your favorite SSH server.
-* Provide PIN if asked and confirm identity sign operation on the device.
+* Provide PIN if asked.
+* Confirm identity sign operation on the device - "SSH login to: btc.rulez".
 ![Success](https://github.com/martin-lizner/commons/blob/master/trezor-ssh-agent/login.png)
 
 #### Agent Forwarding
