@@ -1,43 +1,33 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en-us">
   <head>
-    <meta charset='utf-8'>
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <meta name="description" content="trezor-ssh-agent : Trezor SSH Agent for Windows (Putty, WinSCP and more)">
-
-    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
-
-    <title>trezor-ssh-agent</title>
+    <meta charset="UTF-8">
+    <title>trezor-ssh-agent by martin-lizner</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
   </head>
-
   <body>
+    <section class="page-header">
+      <h1 class="project-name">trezor-ssh-agent</h1>
+      <h2 class="project-tagline">Trezor SSH Agent for Windows (Putty, WinSCP and more)</h2>
+      <a href="https://github.com/martin-lizner/trezor-ssh-agent" class="btn">View on GitHub</a>
+      <a href="https://github.com/martin-lizner/trezor-ssh-agent/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/martin-lizner/trezor-ssh-agent/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
 
-    <!-- HEADER -->
-    <div id="header_wrap" class="outer">
-        <header class="inner">
-          <a id="forkme_banner" href="https://github.com/martin-lizner/trezor-ssh-agent">View on GitHub</a>
-
-          <h1 id="project_title">trezor-ssh-agent</h1>
-          <h2 id="project_tagline">Trezor SSH Agent for Windows (Putty, WinSCP and more)</h2>
-
-            <section id="downloads">
-              <a class="zip_download_link" href="https://github.com/martin-lizner/trezor-ssh-agent/zipball/master">Download this project as a .zip file</a>
-              <a class="tar_download_link" href="https://github.com/martin-lizner/trezor-ssh-agent/tarball/master">Download this project as a tar.gz file</a>
-            </section>
-        </header>
-    </div>
-
-    <!-- MAIN CONTENT -->
-    <div id="main_content_wrap" class="outer">
-      <section id="main_content" class="inner">
-        <p>Status: <a href="https://travis-ci.org/martin-lizner/trezor-ssh-agent"><img src="https://travis-ci.org/martin-lizner/trezor-ssh-agent.svg?branch=master" alt="Build Status"></a></p>
+    <section class="main-content">
+      <p>Status: <a href="https://travis-ci.org/martin-lizner/trezor-ssh-agent"><img src="https://travis-ci.org/martin-lizner/trezor-ssh-agent.svg?branch=master" alt="Build Status"></a></p>
 
 <h2>
 <a id="trezor-ssh-agent-for-windows-putty-winscp-and-more" class="anchor" href="#trezor-ssh-agent-for-windows-putty-winscp-and-more" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Trezor SSH Agent for Windows (Putty, WinSCP and more)</h2>
 
-<p>Trezor SSH Agent is Windows application that enables users to authenticate to SSH server using their favorite apps like Putty, WinSCP or other Pageant-compatible clients (e.g. git) together with Trezor - hardware bitcoin wallet.
+<p>Trezor SSH Agent is Windows application that enables users to authenticate to UNIX/Linux SSH server using their favorite apps like Putty, WinSCP or other Pageant-compatible clients (e.g. git) together with Trezor - hardware bitcoin wallet.
 Trezor SSH Agent is a GUI-enabled tray application that emulates Pageant process in Windows. It receives identity requests from SSH client (which gets it from SSH server), uses Trezor hardware to sign challenge and sends data back.</p>
+
+<p>It is absolutely safe to use Trezor SSH Agent. No harm can be caused to your bitcoins or the wallet. Application never asks Trezor for any Bitcoin related action, e.g. it never asks to sign tx.</p>
 
 <h3>
 <a id="limitations" class="anchor" href="#limitations" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Limitations</h3>
@@ -48,7 +38,7 @@ Trezor SSH Agent is a GUI-enabled tray application that emulates Pageant process
 <li>No other Trezor app (like myTREZOR webpage) can be running simultaneously.</li>
 <li>BIP32 path is currently fixed by constant Identity URI to just one public key per device.</li>
 <li>KeepKey device not supported, this may change in future.</li>
-<li>They are troubles on USB level that makes device deattach from time to time. Unplug&amp;plug device or/and restart Trezor SSH Agent to workaround it. This problem will be hopefully fixed by MultiBit guys soon.</li>
+<li>There are small troubles on USB level that makes device init last a bit longer (10-20 sec) in certain situations. This <a href="https://github.com/bitcoin-solutions/multibit-hardware/issues/29">problem</a> will be hopefully fixed by MultiBit guys soon.</li>
 </ul>
 
 <h3>
@@ -57,9 +47,11 @@ Trezor SSH Agent is a GUI-enabled tray application that emulates Pageant process
 <h4>
 <a id="start" class="anchor" href="#start" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Start</h4>
 
-<p>Download and run EXE binary from latest release. OR:</p>
-
-<p>Build your own java and run class com.trezoragent.gui.StartAgentGUI main.</p>
+<ul>
+<li>Download and run JAR or EXE binary from latest release.</li>
+<li>Java 1.7 or later is required.</li>
+<li>Or you can build your own java (see bellow) and run class com.trezoragent.gui.StartAgentGUI main.</li>
+</ul>
 
 <h4>
 <a id="build" class="anchor" href="#build" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Build</h4>
@@ -70,17 +62,54 @@ Trezor SSH Agent is a GUI-enabled tray application that emulates Pageant process
 $ mvn clean install
 </code></pre>
 
+<h4>
+<a id="troubleshooting" class="anchor" href="#troubleshooting" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Troubleshooting</h4>
+
+<ul>
+<li>Edit logger.properties file and set com.trezoragent.level = FINE for more detailed logging. </li>
+<li>Application log is saved in your C:\Users\...\ directory under default name: Trezor_Agent.log</li>
+<li>You can also access log by using the "Open Log File" item in the application tray menu.</li>
+<li>Also make sure that SSH Server you are connecting to supports ECDSA:
+
+<ul>
+<li>ECDSA is generally supported since <a href="http://www.openssh.com/txt/release-5.7">OpenSSH 5.7</a>
+</li>
+<li>But there are backports to some older openSSH versions, e.g. Redhat/CentOS <a href="http://www.rpmfind.net/linux/RPM/centos/updates/6.7/x86_64/Packages/openssh-5.3p1-112.el6_7.x86_64.html">5.3p1-112.el6_7</a>
+</li>
+</ul>
+</li>
+</ul>
+
 <h3>
 <a id="usage" class="anchor" href="#usage" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Usage</h3>
 
 <ul>
 <li>Please  <a href="http://www.chiark.greenend.org.uk/%7Esgtatham/putty/download.html">download</a> latest DEVELOPMENT snapshot of Putty or WinSCP 5.8.1+ that support ECDSA and Ed25519 keys. Latest STABLE versions of Putty and WinSCP do not support ECDSA yet and will not work with Trezor.</li>
-<li>After started the app, find Trezor icon in Windows tray area and right click to open menu.</li>
+<li>After started the app, find Trezor icon in Windows tray area and right click to open menu.
+<img src="https://github.com/martin-lizner/commons/blob/master/trezor-ssh-agent/menu1.png" alt="Menu">
+</li>
 <li>Click "Show Public Key" to get your openSSH public key. Provide PIN if asked. Place key on SSH server in your user authorized_keys file.</li>
-<li>Start Putty with "Attempt authentication using Pageant" option selected (Connection-&gt;SSH-&gt;Auth).</li>
+<li>Start Putty with "Attempt authentication using Pageant" option selected (Connection-&gt;SSH-&gt;Auth).
+<img src="https://github.com/martin-lizner/commons/blob/master/trezor-ssh-agent/putty.png" alt="Putty">
+</li>
 <li>Use Putty to connect to your favorite SSH server.</li>
-<li>Provide PIN if asked and confirm identity sign operation on the device.</li>
+<li>Provide PIN if asked.</li>
+<li>Confirm identity sign operation on the device - "SSH login to: btc.rulez".
+<img src="https://github.com/martin-lizner/commons/blob/master/trezor-ssh-agent/login.png" alt="Success">
+</li>
 </ul>
+
+<h4>
+<a id="agent-forwarding" class="anchor" href="#agent-forwarding" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Agent Forwarding</h4>
+
+<p>You can also use Trezor SSH Agent with "agent forwarding" option set in SSH client. This would enable chaining connections back to original agent.
+Example:</p>
+
+<ol>
+<li>Open SSH to UNIX with agent forwarding enabled in Putty.</li>
+<li>From UNIX shell command line open another ssh connection (e.g. ssh root@localhost) to server which trusts your public key.</li>
+<li>Confirm operation on Trezor device and you are logged in.</li>
+</ol>
 
 <h4>
 <a id="public-key-example" class="anchor" href="#public-key-example" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Public Key Example</h4>
@@ -97,18 +126,15 @@ $ mvn clean install
 </ul>
 
 <p>Bitcoin donations: 1QEKWJFAqwkCxPotJoGpfaFDnaShjiNtb5 </p>
-      </section>
-    </div>
 
-    <!-- FOOTER  -->
-    <div id="footer_wrap" class="outer">
-      <footer class="inner">
-        <p class="copyright">trezor-ssh-agent maintained by <a href="https://github.com/martin-lizner">martin-lizner</a></p>
-        <p>Published with <a href="https://pages.github.com">GitHub Pages</a></p>
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/martin-lizner/trezor-ssh-agent">trezor-ssh-agent</a> is maintained by <a href="https://github.com/martin-lizner">martin-lizner</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
       </footer>
-    </div>
 
-    
+    </section>
 
+  
   </body>
 </html>
