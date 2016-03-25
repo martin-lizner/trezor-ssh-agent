@@ -29,7 +29,7 @@ import javax.xml.bind.DatatypeConverter;
 public class TrezorWrapper {
 
     public static void getIdentitiesRequest() { // directly used only for GUI calls with explicit swing timer
-        Logger.getLogger(TrezorWrapper.class.getName()).log(Level.INFO, "Request for operation: {0}", "SSH2_AGENT_GET_IDENTITIES");
+        Logger.getLogger(TrezorWrapper.class.getName()).log(Level.INFO, "Request for operation: {0}", "SSH2_AGENT_GET_IDENTITIES"); // TODO: differentiate in log between call from GUI (e.g. GUI_GET_IDENTITIES) or from SSH Client (SSH2_AGENT_GET_IDENTITIES)
         if (!AgentUtils.checkDeviceAvailable()) {
             return;
         }
