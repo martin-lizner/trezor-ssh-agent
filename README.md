@@ -10,6 +10,7 @@ It is absolutely safe to use Trezor SSH Agent. No harm can be caused to your bit
 * Only ecdsa-sha2-nistp256 key is supported at current. ssh-ed25519 may come in future. ssh-rsa is not supported by Trezor HW.
 * Trezor wallet with passphrase protection is not supported.
 * No other Trezor app (like myTREZOR webpage) can be running simultaneously.
+* Pageant cannot run simultaneously. 
 * BIP32 path is currently fixed by constant Identity URI to just one public key per device.
 * KeepKey device not supported, this may change in future.
 * There are small troubles on USB level that makes device init last a bit longer (10-20 sec) in certain situations. This [problem](https://github.com/bitcoin-solutions/multibit-hardware/issues/29) will be hopefully fixed by MultiBit guys soon.
