@@ -86,7 +86,6 @@ public class PassphraseDialog extends JFrame {
 
         passcodeLabel = new JLabel("Please enter passphrase:");
         passcodeField = new JPasswordField();
-        passcodeField.setEditable(true);
         passcodeField.setBackground(Color.white);
 
         labelPanel.add(deviceLabel, BorderLayout.NORTH);
