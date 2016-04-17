@@ -5,6 +5,7 @@ import com.google.common.eventbus.Subscribe;
 import com.trezoragent.exception.DeviceFailedException;
 import com.trezoragent.exception.DeviceTimeoutException;
 import com.trezoragent.exception.InvalidPinException;
+import com.trezoragent.gui.PassphraseDialog;
 import com.trezoragent.gui.PinPad;
 import com.trezoragent.gui.TrayProcess;
 import com.trezoragent.utils.AgentConstants;
@@ -114,11 +115,11 @@ public final class TrezorService {
                 TrayProcess.handleException(new DeviceFailedException());
                 System.exit(0);
                 break;
-                
+
             case SHOW_DEVICE_DETACHED:
                 resetCachedData();
                 break;
-                
+
             case SHOW_DEVICE_READY:
                 this.deviceLabel = ((Features) event.getMessage().get()).getLabel();
                 break;
@@ -160,6 +161,38 @@ public final class TrezorService {
 
                         break;
                 }
+                break;
+            case SHOW_PASSPHRASE_ENTRY:
+                // Device requires the current passphrase to proceed
+
+                String passphrase;
+                PassphraseDialog passphraseDialog = new PassphraseDialog();
+                passphraseDialog.setVisible(true);
+
+                ExecutorService passExecutor = Executors.newSingleThreadExecutor();
+                Future<Object> passFuture = passExecutor.submit(passphraseDialog.getPassphraseData());
+
+                try {
+                    passphrase = (String) passFuture.get(AgentConstants.PASSPHRASE_WAIT_TIMEOUT, TimeUnit.SECONDS);
+                } catch (InterruptedException | ExecutionException | TimeoutException ex) {
+                    Logger.getLogger(TrezorService.class.getName()).log(Level.FINE, "Timeout when waiting for passphrase.");
+                    hardwareWalletService.requestCancel();
+                    passphraseDialog.setVisible(false);
+
+                    if (timer != null && timer.isRunning()) {
+                        TrayProcess.handleException(new DeviceTimeoutException()); // only when called from GUI
+                    }
+                    break;
+                }
+
+                if (AgentConstants.PASSPHRASE_CANCELLED_MSG.equals(passphrase)) {
+                    hardwareWalletService.requestCancel();
+                    break;
+                }
+
+                hardwareWalletService.providePassphrase(passphrase);
+                passphraseDialog.setVisible(false);
+
                 break;
             case PUBLIC_KEY_FOR_IDENTITY:
                 // Successful identity public key

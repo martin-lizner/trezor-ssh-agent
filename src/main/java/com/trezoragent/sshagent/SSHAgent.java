@@ -20,7 +20,6 @@ import com.trezoragent.exception.DeviceTimeoutException;
 import com.trezoragent.exception.GetIdentitiesFailedException;
 import com.trezoragent.exception.SignFailedException;
 import com.trezoragent.gui.TrayProcess;
-import com.trezoragent.utils.AgentConstants;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.logging.Level;
@@ -29,6 +28,7 @@ import com.trezoragent.utils.AgentUtils;
 import com.trezoragent.utils.LocalizedLogger;
 import java.util.List;
 import java.util.logging.Logger;
+import org.spongycastle.util.encoders.Base64;
 
 /**
  *
@@ -236,8 +236,10 @@ public class SSHAgent implements WindowProc {
         byte[] challengeData = getDataFromRequest(sharedMemory, 5 + 4 + keyInBytes.length);
         byte[] signedDataRaw;
         byte[] signedData;
+        
+        Logger.getLogger(SSHAgent.class.getName()).log(Level.FINE, "Server sent challenge: ", Base64.toBase64String(challengeData)); // TODO: challenge data contains actual username, display it 
 
-        try {
+        try {                
             signedDataRaw = TrezorWrapper.signChallenge(challengeData);
             if (signedDataRaw == null || signedDataRaw.length != 65) {
                 throw new SignFailedException("HW sign response must have 65 bytes, length: " + signedDataRaw.length);
