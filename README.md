@@ -8,7 +8,6 @@ It is absolutely safe to use Trezor SSH Agent. No harm can be caused to your bit
 
 ### Limitations
 * Only ecdsa-sha2-nistp256 key is supported at current. ssh-ed25519 may come in future. ssh-rsa is not supported by Trezor HW.
-* Trezor wallet with passphrase protection is not supported.
 * No other Trezor app (like myTREZOR webpage) can be running simultaneously.
 * Pageant cannot run simultaneously. 
 * BIP32 path is currently fixed by constant Identity URI to just one public key per device.
@@ -41,11 +40,11 @@ $ mvn clean install
 * Please  [download](http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html) latest DEVELOPMENT snapshot of Putty or WinSCP 5.8.1+ that support ECDSA and Ed25519 keys. Latest STABLE versions of Putty and WinSCP do not support ECDSA yet and will not work with Trezor.
 * After started the app, find Trezor icon in Windows tray area and right click to open menu.
 ![Menu](https://github.com/martin-lizner/commons/blob/master/trezor-ssh-agent/menu1.png)
-* Click "Show Public Key" to get your openSSH public key. Provide PIN if asked. Place key on SSH server in your user authorized_keys file.
+* Click "Show Public Key" to get your openSSH public key. Provide PIN/Passphrase if asked. Place key on SSH server in your user authorized_keys file.
 * Start Putty with "Attempt authentication using Pageant" option selected (Connection->SSH->Auth).
 ![Putty](https://github.com/martin-lizner/commons/blob/master/trezor-ssh-agent/putty.png)
 * Use Putty to connect to your favorite SSH server.
-* Provide PIN if asked.
+* Provide PIN/Passphrase if asked.
 * Confirm identity sign operation on the device - "SSH login to: btc.rulez".
 ![Success](https://github.com/martin-lizner/commons/blob/master/trezor-ssh-agent/login.png)
 
@@ -62,7 +61,7 @@ Example:
 
 ### Credits
 * Martin Lizner - author
-* Gary Rowe (MultiBit) - Trezor Java API
-* Roman Zeyde - Trezor SSH Agent in Python
+* Gary Rowe (MultiBit) - [Trezor Java API](https://github.com/bitcoin-solutions/multibit-hardware)
+* Roman Zeyde - [Trezor SSH Agent in Python](https://github.com/romanz/trezor-agent)
 
 Bitcoin donations: 1QEKWJFAqwkCxPotJoGpfaFDnaShjiNtb5 
