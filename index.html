@@ -44,8 +44,8 @@ Trezor SSH Agent is a GUI-enabled tray application that emulates Pageant process
 
 <ul>
 <li>Only ecdsa-sha2-nistp256 key is supported at current. ssh-ed25519 may come in future. ssh-rsa is not supported by Trezor HW.</li>
-<li>Trezor wallet with passphrase protection is not supported.</li>
 <li>No other Trezor app (like myTREZOR webpage) can be running simultaneously.</li>
+<li>Pageant cannot run simultaneously. </li>
 <li>BIP32 path is currently fixed by constant Identity URI to just one public key per device.</li>
 <li>KeepKey device not supported, this may change in future.</li>
 <li>There are small troubles on USB level that makes device init last a bit longer (10-20 sec) in certain situations. This <a href="https://github.com/bitcoin-solutions/multibit-hardware/issues/29">problem</a> will be hopefully fixed by MultiBit guys soon.</li>
@@ -96,16 +96,16 @@ $ mvn clean install
 <ul>
 <li>Please  <a href="http://www.chiark.greenend.org.uk/%7Esgtatham/putty/download.html">download</a> latest DEVELOPMENT snapshot of Putty or WinSCP 5.8.1+ that support ECDSA and Ed25519 keys. Latest STABLE versions of Putty and WinSCP do not support ECDSA yet and will not work with Trezor.</li>
 <li>After started the app, find Trezor icon in Windows tray area and right click to open menu.
-<img src="https://github.com/martin-lizner/commons/blob/master/trezor-ssh-agent/menu1.png" alt="Menu">
+<img src="https://github.com/martin-lizner/commons/raw/master/trezor-ssh-agent/menu1.png" alt="Menu">
 </li>
-<li>Click "Show Public Key" to get your openSSH public key. Provide PIN if asked. Place key on SSH server in your user authorized_keys file.</li>
+<li>Click "Show Public Key" to get your openSSH public key. Provide PIN/Passphrase if asked. Place key on SSH server in your user authorized_keys file.</li>
 <li>Start Putty with "Attempt authentication using Pageant" option selected (Connection-&gt;SSH-&gt;Auth).
-<img src="https://github.com/martin-lizner/commons/blob/master/trezor-ssh-agent/putty.png" alt="Putty">
+<img src="https://github.com/martin-lizner/commons/raw/master/trezor-ssh-agent/putty.png" alt="Putty">
 </li>
 <li>Use Putty to connect to your favorite SSH server.</li>
-<li>Provide PIN if asked.</li>
+<li>Provide PIN/Passphrase if asked.</li>
 <li>Confirm identity sign operation on the device - "SSH login to: btc.rulez".
-<img src="https://github.com/martin-lizner/commons/blob/master/trezor-ssh-agent/login.png" alt="Success">
+<img src="https://github.com/martin-lizner/commons/raw/master/trezor-ssh-agent/login.png" alt="Success">
 </li>
 </ul>
 
@@ -131,8 +131,10 @@ Example:</p>
 
 <ul>
 <li>Martin Lizner - author</li>
-<li>Gary Rowe (MultiBit) - Trezor Java API</li>
-<li>Roman Zeyde - Trezor SSH Agent in Python</li>
+<li>Gary Rowe (MultiBit) - <a href="https://github.com/bitcoin-solutions/multibit-hardware">Trezor Java API</a>
+</li>
+<li>Roman Zeyde - <a href="https://github.com/romanz/trezor-agent">Trezor SSH Agent in Python</a>
+</li>
 </ul>
 
 <p>Bitcoin donations: 1QEKWJFAqwkCxPotJoGpfaFDnaShjiNtb5 </p>
