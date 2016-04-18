@@ -39,14 +39,14 @@ $ mvn clean install
 ### Usage
 * Please  [download](http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html) latest DEVELOPMENT snapshot of Putty or WinSCP 5.8.1+ that support ECDSA and Ed25519 keys. Latest STABLE versions of Putty and WinSCP do not support ECDSA yet and will not work with Trezor.
 * After started the app, find Trezor icon in Windows tray area and right click to open menu.
-![Menu](https://github.com/martin-lizner/commons/blob/master/trezor-ssh-agent/menu1.png)
+![Menu](https://github.com/martin-lizner/commons/raw/master/trezor-ssh-agent/menu1.png)
 * Click "Show Public Key" to get your openSSH public key. Provide PIN/Passphrase if asked. Place key on SSH server in your user authorized_keys file.
 * Start Putty with "Attempt authentication using Pageant" option selected (Connection->SSH->Auth).
-![Putty](https://github.com/martin-lizner/commons/blob/master/trezor-ssh-agent/putty.png)
+![Putty](https://github.com/martin-lizner/commons/raw/master/trezor-ssh-agent/putty.png)
 * Use Putty to connect to your favorite SSH server.
 * Provide PIN/Passphrase if asked.
 * Confirm identity sign operation on the device - "SSH login to: btc.rulez".
-![Success](https://github.com/martin-lizner/commons/blob/master/trezor-ssh-agent/login.png)
+![Success](https://github.com/martin-lizner/commons/raw/master/trezor-ssh-agent/login.png)
 
 #### Agent Forwarding
 You can also use Trezor SSH Agent with "agent forwarding" option set in SSH client. This would enable chaining connections back to original agent.
