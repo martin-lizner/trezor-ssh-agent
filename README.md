@@ -7,12 +7,12 @@ Trezor SSH Agent is a GUI-enabled tray application that emulates Pageant process
 It is absolutely safe to use Trezor SSH Agent. No harm can be caused to your bitcoins or the wallet. Application never asks Trezor for any Bitcoin related action, e.g. it never asks to sign tx.
 
 ### Limitations
-* Only ecdsa-sha2-nistp256 key is supported at current. ssh-ed25519 may come in future. ssh-rsa is not supported by Trezor HW.
+* Only ecdsa-sha2-nistp256 key is supported at current. ssh-ed25519 may come in future depending on Trezor HW support. ssh-rsa is not supported by Trezor HW.
 * No other Trezor app (like myTREZOR webpage) can be running simultaneously.
 * Pageant cannot run simultaneously. 
-* BIP32 path is currently fixed by constant Identity URI to just one public key per device.
+* BIP32 path is currently fixed by constant Identity URI. In PIN-only mode this produces just one public key per device. Turning on passphrase security on your device gives you unique key per every passhrase. 
 * KeepKey device not supported, this may change in future.
-* There are small troubles on USB level that makes device init last a bit longer (10-20 sec) in certain situations. This [problem](https://github.com/bitcoin-solutions/multibit-hardware/issues/29) will be hopefully fixed by MultiBit guys soon.
+* There are small [troubles](https://github.com/bitcoin-solutions/multibit-hardware/issues/29) on USB level that makes device init last a bit longer (10-20 sec) in certain situations.
 
 ### Getting started
 
@@ -37,7 +37,7 @@ $ mvn clean install
   * But there are backports to some older openSSH versions, e.g. Redhat/CentOS [5.3p1-112.el6_7](http://www.rpmfind.net/linux/RPM/centos/updates/6.7/x86_64/Packages/openssh-5.3p1-112.el6_7.x86_64.html)
 
 ### Usage
-* Please  [download](http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html) latest DEVELOPMENT snapshot of Putty or WinSCP 5.8.1+ that support ECDSA and Ed25519 keys. Latest STABLE versions of Putty and WinSCP do not support ECDSA yet and will not work with Trezor.
+* Please  [download](http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html) Putty or WinSCP version that supports ECDSA keys. Certified Putty versions: 0.67+, 0.66, 0.65
 * After started the app, find Trezor icon in Windows tray area and right click to open menu.
 ![Menu](https://github.com/martin-lizner/commons/raw/master/trezor-ssh-agent/menu1.png)
 * Click "Show Public Key" to get your openSSH public key. Provide PIN/Passphrase if asked. Place key on SSH server in your user authorized_keys file.
