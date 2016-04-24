@@ -31,7 +31,9 @@
     <!-- MAIN CONTENT -->
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
-        <h2>
+        <p>Status: <a href="https://travis-ci.org/martin-lizner/trezor-ssh-agent"><img src="https://travis-ci.org/martin-lizner/trezor-ssh-agent.svg?branch=master" alt="Build Status"></a></p>
+
+<h2>
 <a id="trezor-ssh-agent-for-windows-putty-winscp-and-more" class="anchor" href="#trezor-ssh-agent-for-windows-putty-winscp-and-more" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Trezor SSH Agent for Windows (Putty, WinSCP and more)</h2>
 
 <p>Trezor SSH Agent is Windows application that enables users to authenticate to UNIX/Linux SSH server using their favorite apps like Putty, WinSCP or other Pageant-compatible clients (e.g. git) together with Trezor - hardware bitcoin wallet.
@@ -43,12 +45,12 @@ Trezor SSH Agent is a GUI-enabled tray application that emulates Pageant process
 <a id="limitations" class="anchor" href="#limitations" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Limitations</h3>
 
 <ul>
-<li>Only ecdsa-sha2-nistp256 key is supported at current. ssh-ed25519 may come in future. ssh-rsa is not supported by Trezor HW.</li>
+<li>Only ecdsa-sha2-nistp256 key is supported at current. ssh-ed25519 may come in future depending on Trezor HW support. ssh-rsa is not supported by Trezor HW.</li>
 <li>No other Trezor app (like myTREZOR webpage) can be running simultaneously.</li>
 <li>Pageant cannot run simultaneously. </li>
-<li>BIP32 path is currently fixed by constant Identity URI to just one public key per device.</li>
+<li>BIP32 path is currently fixed by constant Identity URI. In PIN-only mode this produces just one public key per device. Turning on passphrase security on your device gives you unique key per every passhrase. </li>
 <li>KeepKey device not supported, this may change in future.</li>
-<li>There are small troubles on USB level that makes device init last a bit longer (10-20 sec) in certain situations. This <a href="https://github.com/bitcoin-solutions/multibit-hardware/issues/29">problem</a> will be hopefully fixed by MultiBit guys soon.</li>
+<li>There are small <a href="https://github.com/bitcoin-solutions/multibit-hardware/issues/29">troubles</a> on USB level that makes device init last a bit longer (10-20 sec) in certain situations.</li>
 </ul>
 
 <h3>
@@ -94,7 +96,7 @@ $ mvn clean install
 <a id="usage" class="anchor" href="#usage" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Usage</h3>
 
 <ul>
-<li>Please  <a href="http://www.chiark.greenend.org.uk/%7Esgtatham/putty/download.html">download</a> latest DEVELOPMENT snapshot of Putty or WinSCP 5.8.1+ that support ECDSA and Ed25519 keys. Latest STABLE versions of Putty and WinSCP do not support ECDSA yet and will not work with Trezor.</li>
+<li>Please  <a href="http://www.chiark.greenend.org.uk/%7Esgtatham/putty/download.html">download</a> Putty or WinSCP version that supports ECDSA keys. Certified Putty versions: 0.67+, 0.66, 0.65</li>
 <li>After started the app, find Trezor icon in Windows tray area and right click to open menu.
 <img src="https://github.com/martin-lizner/commons/raw/master/trezor-ssh-agent/menu1.png" alt="Menu">
 </li>
