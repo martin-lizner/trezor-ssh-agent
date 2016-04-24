@@ -27,7 +27,7 @@ public final class AgentConstants {
     // Trezor settings:
     public static final String CURVE_NAME = "nist256p1";
     public static final URI SSHURI = URI.create("ssh://btc.rulez/connect");
-    public static final String KEY_COMMENT = "Trezor";
+    public static final String DEVICE_LABEL_DEFAULT = "Trezor";
 
     public static final String PIN_CANCELLED_MSG = "_PIN_CANCEL_"; // for pinpad
     public static final String PASSPHRASE_CANCELLED_MSG = "_PASSPHRASE_CANCEL_"; // for passphrase

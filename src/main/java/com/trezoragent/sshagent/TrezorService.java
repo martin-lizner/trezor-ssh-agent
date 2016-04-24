@@ -72,6 +72,8 @@ public final class TrezorService {
         // Wrap the client in a service for high level API suitable for downstream applications
         hardwareWalletService = new HardwareWalletService(client);
 
+        deviceLabel = AgentConstants.DEVICE_LABEL_DEFAULT; // set default name before real one is obtained from HW
+
         getHardwareWalletService().start();
 
         HardwareWalletEvents.subscribe(this);
@@ -268,6 +270,10 @@ public final class TrezorService {
 
     public void setTrezorKey(String trezorKey) {
         this.trezorKey = trezorKey;
+    }
+
+    public Timer getTimer() {
+        return this.timer;
     }
 
     public void setTimer(Timer timer) {

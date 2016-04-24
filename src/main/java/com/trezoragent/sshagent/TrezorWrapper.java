@@ -20,6 +20,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
+import javax.swing.Timer;
 import javax.xml.bind.DatatypeConverter;
 
 /**
@@ -39,6 +40,11 @@ public class TrezorWrapper {
     public static List<PublicKeyDTO> getIdentitiesResponse(Boolean stripPrefix) throws DeviceTimeoutException, GetIdentitiesFailedException {
         String trezorKey;
         List<PublicKeyDTO> idents = new ArrayList<>();
+
+        Timer timer = TrayProcess.trezorService.getTimer();
+        if (timer != null && timer.isRunning()) { // GUI workaround, TODO: replace timers and do-whiles with proper async messaging
+            timer.stop(); // stop swing timer
+        }
 
         getIdentitiesRequest();
 
@@ -72,15 +78,15 @@ public class TrezorWrapper {
         PublicKeyDTO p = new PublicKeyDTO();
         p.setbPublicKey(DatatypeConverter.parseBase64Binary(trezorKey));
         p.setsPublicKey(trezorKey);
-        p.setsComment(AgentConstants.KEY_COMMENT);
-        p.setbComment(AgentConstants.KEY_COMMENT.getBytes());
+        p.setsComment(TrayProcess.trezorService.getDeviceLabel());
+        p.setbComment(TrayProcess.trezorService.getDeviceLabel().getBytes());
         idents.add(p);
         //TrayProcess.trezorService.checkoutAsyncKeyData(); // null key        
 
         return idents;
     }
 
-    public static byte[] signChallenge(byte[] challengeHidden) throws DeviceTimeoutException, SignFailedException, ActionCancelledException {
+    public static byte[] signChallenge(byte[] challengeHidden, byte[] challengeVisualBytes) throws DeviceTimeoutException, SignFailedException, ActionCancelledException {
         byte[] signature;
         Logger.getLogger(TrezorWrapper.class.getName()).log(Level.INFO, "Request for operation: {0}", "SSH2_AGENT_SIGN_REQUEST");
 
@@ -88,7 +94,8 @@ public class TrezorWrapper {
             return AgentConstants.SIGN_FAILED_BYTE;
         }
 
-        String challengeVisual = AgentUtils.getCurrentTimeStamp();
+        String challengeVisual = (challengeVisualBytes != null && challengeVisualBytes.length > 0)
+                ? new String(challengeVisualBytes) : "Warn: No user given!"; // display username contained in SSH Server challenge, if no username is provided by SSH Server display warning
         Identity identity = new Identity(AgentConstants.SSHURI, 0, challengeHidden, challengeVisual, AgentConstants.CURVE_NAME);
 
         TrayProcess.trezorService.getHardwareWalletService().signIdentity(identity);

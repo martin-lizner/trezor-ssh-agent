@@ -232,15 +232,17 @@ public class SSHAgent implements WindowProc {
     }
 
     private void processSignRequest(Pointer sharedMemory) {
-        byte[] keyInBytes = getDataFromRequest(sharedMemory, 5);
+        byte[] keyInBytes = getDataFromRequest(sharedMemory, 5); // TODO: validate pubkey again just to be sure sign operation works ok
         byte[] challengeData = getDataFromRequest(sharedMemory, 5 + 4 + keyInBytes.length);
         byte[] signedDataRaw;
         byte[] signedData;
-        
-        Logger.getLogger(SSHAgent.class.getName()).log(Level.FINE, "Server sent challenge: ", Base64.toBase64String(challengeData)); // TODO: challenge data contains actual username, display it 
+        byte[] userName = unframeUsernameFromChallengeBytes(challengeData);
 
-        try {                
-            signedDataRaw = TrezorWrapper.signChallenge(challengeData);
+        Logger.getLogger(SSHAgent.class.getName()).log(Level.FINE, "Server sent challenge: ", Base64.toBase64String(challengeData));
+        Logger.getLogger(SSHAgent.class.getName()).log(Level.FINE, "Effective username: ", new String(userName));
+
+        try {
+            signedDataRaw = TrezorWrapper.signChallenge(challengeData, userName);
             if (signedDataRaw == null || signedDataRaw.length != 65) {
                 throw new SignFailedException("HW sign response must have 65 bytes, length: " + signedDataRaw.length);
             }
@@ -249,7 +251,7 @@ public class SSHAgent implements WindowProc {
 
             if (signedData != null) {
                 sharedMemory.write(0, signedData, 0, signedData.length);
-                TrayProcess.createInfo(LocalizedLogger.getLocalizedMessage("CERT_USE_SUCCESS") + TrayProcess.trezorService.getDeviceLabel());
+                TrayProcess.createInfo(LocalizedLogger.getLocalizedMessage("CERT_USE_SUCCESS", new String(userName), TrayProcess.trezorService.getDeviceLabel()));
             } else {
                 TrayProcess.createWarning(LocalizedLogger.getLocalizedMessage("CERT_USED_ERROR"));
             }
@@ -334,5 +336,18 @@ public class SSHAgent implements WindowProc {
         //trezorService.getWallet().softDetach();
         TrayProcess.trezorService.getWallet().disconnect();
         //TrayProcess.trezorService.getClient().disconnect();
+    }
+
+    private byte[] unframeUsernameFromChallengeBytes(byte[] challengeData) {
+        byte[] username;
+
+        ByteBuffer bb = ByteBuffer.wrap(challengeData, 0, challengeData.length);
+        int dataLength = bb.getInt(0); // = should be 32 bytes, random data generated on SSH server side      
+        bb.position(4 + dataLength + 4 + 1); // forward buffer to possition where username frame starts
+        int userNameLength = bb.getInt(4 + dataLength + 1); // determine the length of username
+        username = new byte[userNameLength];
+        bb.get(username, 0, userNameLength);
+
+        return username;
     }
 }

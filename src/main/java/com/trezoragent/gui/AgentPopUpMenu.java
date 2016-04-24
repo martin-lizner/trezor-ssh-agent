@@ -5,7 +5,6 @@ import com.trezoragent.sshagent.TrezorService;
 import com.trezoragent.sshagent.TrezorWrapper;
 import com.trezoragent.utils.AgentConstants;
 import static com.trezoragent.utils.AgentConstants.*;
-import com.trezoragent.utils.AgentUtils;
 import com.trezoragent.utils.LocalizedLogger;
 
 import java.awt.*;
@@ -34,6 +33,7 @@ public class AgentPopUpMenu extends JPopupMenu {
     private final String EXIT_BUTTON_LOCALIZED_KEY = "EXIT";
     private final String VIEW_KEYS_BUTTON_LOCALIZED_KEY = "VIEW_KEYS";
     private final String APPLICATION_INFO_KEY = "APPLICATION_INFO";
+    private final String PUBKEY_FRAME_TITLE_KEY = "PUBKEY_FRAME_TITLE";
 
     private final TrayIcon trayIcon;
     TrezorService trezorService;
@@ -73,9 +73,9 @@ public class AgentPopUpMenu extends JPopupMenu {
                         public void actionPerformed(ActionEvent event) {
                             if (trezorService.getTrezorKey() != null) {
                                 List<String> pubKeys = new ArrayList<>();
-                                pubKeys.add(trezorService.getTrezorKey() + " " + KEY_COMMENT);
+                                pubKeys.add(trezorService.getTrezorKey() + " " + trezorService.getDeviceLabel());
 
-                                PublicKeysFrame frame = new PublicKeysFrame(pubKeys, trezorService.getDeviceLabel());
+                                PublicKeysFrame frame = new PublicKeysFrame(pubKeys, trezorService.getDeviceLabel() + " " + LocalizedLogger.getLocalizedMessage(PUBKEY_FRAME_TITLE_KEY));
                                 frame.setVisible(true);
 
                                 trezorService.setTrezorKey(null);
