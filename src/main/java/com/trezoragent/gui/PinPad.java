@@ -3,6 +3,7 @@ package com.trezoragent.gui;
 import com.trezoragent.sshagent.ReadTrezorData;
 import com.trezoragent.utils.AgentConstants;
 import com.trezoragent.utils.AgentUtils;
+import com.trezoragent.utils.LocalizedLogger;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -64,7 +65,7 @@ public class PinPad extends JFrame {
         deviceLabel.setIconTextGap(10);
         deviceLabel.setFont(new Font(null, Font.BOLD, 15));
 
-        passcodeLabel = new JLabel("Please enter PIN:");
+        passcodeLabel = new JLabel(LocalizedLogger.getLocalizedMessage("DIALOG_ENTER_PIN")); 
         passcodeField = new JPasswordField(3);
         passcodeField.setEditable(false);
         passcodeField.setBackground(Color.white);
@@ -97,7 +98,7 @@ public class PinPad extends JFrame {
         clearCancelPanel.setBorder(clearCancelPadding);
         clearCancelPanel.setLayout(new GridLayout(1, 2));
 
-        clearBtn = new JButton("CLEAR");
+        clearBtn = new JButton(LocalizedLogger.getLocalizedMessage("BUTTON_CLEAR"));
         clearBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -107,7 +108,7 @@ public class PinPad extends JFrame {
         });
         clearCancelPanel.add(clearBtn);
 
-        cancelBtn = new JButton("CANCEL");
+        cancelBtn = new JButton(LocalizedLogger.getLocalizedMessage("BUTTON_CANCEL"));
         cancelBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -121,7 +122,7 @@ public class PinPad extends JFrame {
     private void addEnterArea() {
         enterPanel.setLayout(new GridLayout(1, 1));
 
-        enterBtn = new JButton("ENTER");
+        enterBtn = new JButton(LocalizedLogger.getLocalizedMessage("BUTTON_ENTER"));
         enterBtn.setEnabled(false);
         enterBtn.setPreferredSize(new Dimension(200, 40));
         enterBtn.addActionListener(new ActionListener() {

@@ -3,6 +3,7 @@ package com.trezoragent.gui;
 import com.trezoragent.sshagent.ReadTrezorData;
 import com.trezoragent.utils.AgentConstants;
 import com.trezoragent.utils.AgentUtils;
+import com.trezoragent.utils.LocalizedLogger;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -62,6 +63,7 @@ public class PassphraseDialog extends JFrame {
         setUndecorated(true);
         setResizable(false);
         setAlwaysOnTop(true);
+        requestFocusInWindow();
         setPreferredSize(new Dimension(FRAME_XSIZE, FRAME_YSIZE));
 
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
@@ -84,8 +86,9 @@ public class PassphraseDialog extends JFrame {
         deviceLabel.setIconTextGap(10);
         deviceLabel.setFont(new Font(null, Font.BOLD, 15));
 
-        passcodeLabel = new JLabel("Please enter passphrase:");
+        passcodeLabel = new JLabel(LocalizedLogger.getLocalizedMessage("DIALOG_ENTER_PASSPHRASE"));
         passcodeField = new JPasswordField();
+        passcodeField.requestFocusInWindow();
         passcodeField.setBackground(Color.white);
 
         labelPanel.add(deviceLabel, BorderLayout.NORTH);
@@ -96,7 +99,7 @@ public class PassphraseDialog extends JFrame {
     private void addButtonArea() {
         buttonPanel.setLayout(new GridLayout(1, 2));
 
-        enterBtn = new JButton("ENTER");
+        enterBtn = new JButton(LocalizedLogger.getLocalizedMessage("BUTTON_ENTER"));
         enterBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -107,7 +110,7 @@ public class PassphraseDialog extends JFrame {
         buttonPanel.add(enterBtn);
         getRootPane().setDefaultButton(enterBtn);
 
-        cancelBtn = new JButton("CANCEL");
+        cancelBtn = new JButton(LocalizedLogger.getLocalizedMessage("BUTTON_CANCEL"));
         cancelBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
