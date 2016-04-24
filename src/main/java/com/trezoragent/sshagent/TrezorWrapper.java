@@ -32,6 +32,7 @@ public class TrezorWrapper {
     public static void getIdentitiesRequest() { // directly used only for GUI calls with explicit swing timer
         Logger.getLogger(TrezorWrapper.class.getName()).log(Level.INFO, "Request for operation: {0}", "SSH2_AGENT_GET_IDENTITIES"); // TODO: differentiate in log between call from GUI (e.g. GUI_GET_IDENTITIES) or from SSH Client (SSH2_AGENT_GET_IDENTITIES)
         if (!AgentUtils.checkDeviceAvailable()) {
+            stopGUITimer();
             return;
         }
         TrayProcess.trezorService.getHardwareWalletService().requestPublicKeyForIdentity(AgentConstants.SSHURI, 0, AgentConstants.CURVE_NAME, false);
@@ -40,12 +41,8 @@ public class TrezorWrapper {
     public static List<PublicKeyDTO> getIdentitiesResponse(Boolean stripPrefix) throws DeviceTimeoutException, GetIdentitiesFailedException {
         String trezorKey;
         List<PublicKeyDTO> idents = new ArrayList<>();
-
-        Timer timer = TrayProcess.trezorService.getTimer();
-        if (timer != null && timer.isRunning()) { // GUI workaround, TODO: replace timers and do-whiles with proper async messaging
-            timer.stop(); // stop swing timer
-        }
-
+        
+        stopGUITimer();
         getIdentitiesRequest();
 
         if (!AgentUtils.checkDeviceAvailable()) {
@@ -121,5 +118,13 @@ public class TrezorWrapper {
 
         //TrayProcess.trezorService.checkoutAsyncSignData(); // null sign data        
         return signature;
+    }
+
+    private static void stopGUITimer() {
+        // GUI workaround, TODO: replace timers and do-whiles with proper async messaging
+        Timer timer = TrayProcess.trezorService.getTimer();
+        if (timer != null && timer.isRunning()) {
+            timer.stop(); // stop swing timer
+        }
     }
 }

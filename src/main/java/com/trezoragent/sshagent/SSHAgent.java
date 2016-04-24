@@ -176,7 +176,9 @@ public class SSHAgent implements WindowProc {
     private void processKeysRequest(final Pointer sharedMemory) {
         java.util.List<PublicKeyDTO> certs;
         try {
-            certs = TrezorWrapper.getIdentitiesResponse(true);
+            certs = TrezorWrapper.getIdentitiesResponse(true);            
+            // TODO: If subsequent ssh sign request wont come, it means server doesnt know provided key, should we report? log? all? none?
+            
             ByteBuffer ret = writeCertificatesToFrame(certs, SSH2_AGENT_IDENTITIES_ANSWER);
             sharedMemory.write(0, ret.array(), 0, ret.array().length);
 
