@@ -87,6 +87,13 @@
             <version>0.8.1</version>
         </dependency>
         
+        <!-- KeepKey -->
+        <dependency>
+            <groupId>org.multibit.hd.hardware</groupId>
+            <artifactId>keepkey</artifactId>        
+            <version>0.8.1</version>
+        </dependency>
+        
         <!-- JNA for OS stuff -->
         <dependency>
             <groupId>net.java.dev.jna</groupId>

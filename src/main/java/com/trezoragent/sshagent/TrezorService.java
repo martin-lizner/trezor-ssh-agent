@@ -35,6 +35,9 @@ import org.multibit.hd.hardware.core.messages.PublicKey;
 import org.multibit.hd.hardware.core.messages.SignedIdentity;
 import org.multibit.hd.hardware.core.utils.IdentityUtils;
 import org.multibit.hd.hardware.core.wallets.HardwareWallets;
+import org.multibit.hd.hardware.keepkey.clients.KeepKeyHardwareWalletClient;
+import org.multibit.hd.hardware.keepkey.wallets.AbstractKeepKeyHardwareWallet;
+import org.multibit.hd.hardware.keepkey.wallets.v1.KeepKeyV1HidHardwareWallet;
 import org.multibit.hd.hardware.trezor.clients.TrezorHardwareWalletClient;
 import org.multibit.hd.hardware.trezor.wallets.AbstractTrezorHardwareWallet;
 import org.multibit.hd.hardware.trezor.wallets.v1.TrezorV1HidHardwareWallet;
@@ -52,22 +55,32 @@ public final class TrezorService {
     byte[] challengeData;
     private final ReadTrezorData asyncKeyData;
     private final ReadTrezorData asyncSignData;
-    private final AbstractTrezorHardwareWallet wallet;
+    //private final AbstractTrezorHardwareWallet wallet;
+    private final AbstractKeepKeyHardwareWallet wallet;
     private Timer timer;
     private String deviceLabel;
     private String exceptionKey;
 
     public TrezorService() {
         this.trezorKey = null;
+        /*
         wallet = HardwareWallets.newUsbInstance(
                 TrezorV1HidHardwareWallet.class,
                 Optional.<Integer>absent(),
                 Optional.<Integer>absent(),
                 Optional.<String>absent()
         );
+         */
+        wallet = HardwareWallets.newUsbInstance(
+                KeepKeyV1HidHardwareWallet.class,
+                Optional.<Integer>absent(),
+                Optional.<Integer>absent(),
+                Optional.<String>absent()
+        );
 
         // Wrap the hardware wallet in a suitable client to simplify message API
-        client = new TrezorHardwareWalletClient(wallet);
+        //client = new TrezorHardwareWalletClient(wallet);
+        client = new KeepKeyHardwareWalletClient(wallet);
 
         // Wrap the client in a service for high level API suitable for downstream applications
         hardwareWalletService = new HardwareWalletService(client);
@@ -96,7 +109,12 @@ public final class TrezorService {
         return client;
     }
 
+    /*
     public AbstractTrezorHardwareWallet getWallet() {
+        return wallet;
+    }
+     */
+    public AbstractKeepKeyHardwareWallet getWallet() {
         return wallet;
     }
 
