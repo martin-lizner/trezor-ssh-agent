@@ -49,6 +49,8 @@ public final class AgentConstants {
     public static final String SETTINGS_KEY_DEVICE = "DEVICE";
     public static final String SETTINGS_KEY_BIP32_URI = "BIP32_URI";
     public static final String SETTINGS_KEY_BIP32_INDEX = "BIP32_INDEX";
+    public static final String SETTINGS_TREZOR_DEVICE = "trezor";
+    public static final String SETTINGS_KEEPKEY_DEVICE = "keepkey";
 
     /*
      * Logger and local settings

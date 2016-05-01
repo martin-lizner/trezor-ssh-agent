@@ -53,9 +53,10 @@ public class TrayProcess {
         if (agent.isCreatedCorrectly()) {
 
             File settingsFile = new File(System.getProperty("user.home") + File.separator + AgentConstants.SETTINGS_FILE_NAME);
-            if (!settingsFile.exists()) {
+            if (!settingsFile.exists()) { // TODO: release file?
                 try {
                     settings = AgentUtils.initSettingsFile(settingsFile); // create default settings file
+                    Logger.getLogger(TrayProcess.class.getName()).log(Level.INFO, "New settings file created: {0}", new Object[]{settingsFile.getPath()});
                 } catch (Exception ex) {
                     TrayProcess.createError(LocalizedLogger.getLocalizedMessage("INIT_SETTINGS_FILE_ERROR", ex.getLocalizedMessage()), false);
                     Logger.getLogger(TrayProcess.class.getName()).log(Level.SEVERE, null, ex);
@@ -63,13 +64,14 @@ public class TrayProcess {
             } else {
                 settings = new Properties();
                 settings.load(new FileInputStream(settingsFile));
+                Logger.getLogger(TrayProcess.class.getName()).log(Level.INFO, "Existing settings file loaded: {0}", new Object[]{settingsFile.getPath()});
             }
 
             String deviceTypeProperty = AgentUtils.readSetting(settings, AgentConstants.SETTINGS_KEY_DEVICE, AgentConstants.TREZOR_LABEL);
 
             // start device USB communication
-            switch (deviceTypeProperty) {
-                case (AgentConstants.KEEPKEY_LABEL): // TODO: switch to enum?
+            switch (deviceTypeProperty.toLowerCase()) {
+                case (AgentConstants.SETTINGS_KEEPKEY_DEVICE): // TODO: switch to enum?
                     deviceType = AgentConstants.KEEPKEY_LABEL;
                     deviceService = KeepKeyService.startKeepKeyService();
                     break;
