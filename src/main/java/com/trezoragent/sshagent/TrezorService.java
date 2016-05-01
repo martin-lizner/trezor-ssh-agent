@@ -4,7 +4,6 @@ import com.google.common.base.Optional;
 import com.trezoragent.utils.AgentConstants;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.multibit.hd.hardware.core.HardwareWalletClient;
 import org.multibit.hd.hardware.core.HardwareWalletService;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
 import org.multibit.hd.hardware.core.wallets.HardwareWallets;

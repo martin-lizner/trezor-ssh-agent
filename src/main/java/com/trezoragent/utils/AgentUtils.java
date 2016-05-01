@@ -17,6 +17,7 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.ImageIcon;
+import javax.swing.Timer;
 import static org.multibit.hd.hardware.core.utils.IdentityUtils.KEY_PREFIX;
 import org.spongycastle.pqc.math.linearalgebra.ByteUtils;
 
@@ -84,11 +85,13 @@ public class AgentUtils {
     }
 
     public static Properties initSettingsFile(File settings) throws IOException {
-        // create file with default settings
+        // create file with default settings        
+
         Properties properties = new Properties();
-        properties.setProperty(AgentConstants.SETTINGS_KEY_DEVICE, AgentConstants.TREZOR_LABEL);
+        properties.setProperty(AgentConstants.SETTINGS_KEY_DEVICE, AgentConstants.SETTINGS_TREZOR_DEVICE);
         properties.setProperty(AgentConstants.SETTINGS_KEY_BIP32_URI, AgentConstants.BIP32_SSHURI);
         properties.setProperty(AgentConstants.SETTINGS_KEY_BIP32_INDEX, AgentConstants.BIP32_INDEX.toString());
+        Logger.getLogger(AgentUtils.class.getName()).log(Level.FINE, "Setting default properties: {0}", new Object[]{properties});
 
         try (FileOutputStream fileOut = new FileOutputStream(settings)) {
             properties.store(fileOut, null);
@@ -101,9 +104,18 @@ public class AgentUtils {
         String property = settings.getProperty(key);
         // TODO trace getProperty
         if (property == null) {
-            Logger.getLogger(AgentUtils.class.getName()).log(Level.INFO, "Settings property {0} not found, defaulting to value: {1}", new Object[]{key, defaultValue});
+            Logger.getLogger(AgentUtils.class.getName()).log(Level.WARNING, "Settings property {0} not found, defaulting to value: {1}", new Object[]{key, defaultValue});
             return defaultValue;
         }
+        Logger.getLogger(AgentUtils.class.getName()).log(Level.FINE, "Returning settings property {0}={1}", new Object[]{key, property});
         return property;
+    }
+
+    public static void stopGUITimer() {
+        // GUI workaround, TODO: replace timers and do-whiles with proper async messaging
+        Timer timer = TrayProcess.deviceService.getTimer();
+        if (timer != null && timer.isRunning()) {
+            timer.stop(); // stop swing timer
+        }
     }
 }

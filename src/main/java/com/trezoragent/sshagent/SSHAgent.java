@@ -157,6 +157,7 @@ public class SSHAgent implements WindowProc {
     private int answerMessage(Pointer sharedMemory) {
         byte[] buff = new byte[5];
         sharedMemory.read(0, buff, 0, 5);
+        AgentUtils.stopGUITimer(); // Cancel pubkey window request when SSH operations are in progress
 
         byte type = buff[4];
         switch (type) {

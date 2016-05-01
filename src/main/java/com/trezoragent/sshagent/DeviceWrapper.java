@@ -34,7 +34,7 @@ public class DeviceWrapper {
     public static void getIdentitiesRequest() { // directly used only for GUI calls with explicit swing timer
         Logger.getLogger(DeviceWrapper.class.getName()).log(Level.INFO, "Request for operation: {0}", "SSH2_AGENT_GET_IDENTITIES"); // TODO: differentiate in log between call from GUI (e.g. GUI_GET_IDENTITIES) or from SSH Client (SSH2_AGENT_GET_IDENTITIES)
         if (!AgentUtils.checkDeviceAvailable()) {
-            stopGUITimer();
+            AgentUtils.stopGUITimer();
             return;
         }
 
@@ -49,7 +49,7 @@ public class DeviceWrapper {
         String trezorKey;
         List<PublicKeyDTO> idents = new ArrayList<>();
 
-        stopGUITimer();
+        AgentUtils.stopGUITimer();
         getIdentitiesRequest();
 
         if (!AgentUtils.checkDeviceAvailable()) {
@@ -131,11 +131,4 @@ public class DeviceWrapper {
         return signature;
     }
 
-    private static void stopGUITimer() {
-        // GUI workaround, TODO: replace timers and do-whiles with proper async messaging
-        Timer timer = TrayProcess.deviceService.getTimer();
-        if (timer != null && timer.isRunning()) {
-            timer.stop(); // stop swing timer
-        }
-    }
 }
