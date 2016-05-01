@@ -7,11 +7,11 @@ import java.util.concurrent.Callable;
  *
  * @author martin.lizner
  */
-public class ReadTrezorData <T extends Object> implements Callable<T> {
+public class ReadDeviceData <T extends Object> implements Callable<T> {
 
-    private T trezorData = null;
+    private T deviceData = null;
 
-    public ReadTrezorData() {
+    public ReadDeviceData() {
     }
 
     @Override
@@ -19,17 +19,17 @@ public class ReadTrezorData <T extends Object> implements Callable<T> {
         Object retKey;
 
         while (true) {
-            if (trezorData != null) {
-                retKey = cloneObject(trezorData);
-                trezorData = null; // unset data after it has been read
+            if (deviceData != null) {
+                retKey = cloneObject(deviceData);
+                deviceData = null; // unset data after it has been read
                 return (T) retKey;
             }
             Thread.sleep(AgentConstants.ASYNC_CHECK_INTERVAL);
         }
     }
 
-    public void setTrezorData(T trezorData) {
-        this.trezorData = trezorData;
+    public void setDeviceData(T deviceData) {
+        this.deviceData = deviceData;
     }
 
     private Object cloneObject(Object o) {

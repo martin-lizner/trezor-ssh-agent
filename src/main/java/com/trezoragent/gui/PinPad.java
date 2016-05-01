@@ -1,6 +1,6 @@
 package com.trezoragent.gui;
 
-import com.trezoragent.sshagent.ReadTrezorData;
+import com.trezoragent.sshagent.ReadDeviceData;
 import com.trezoragent.utils.AgentConstants;
 import com.trezoragent.utils.AgentUtils;
 import com.trezoragent.utils.LocalizedLogger;
@@ -33,7 +33,7 @@ public class PinPad extends JFrame {
     JButton enterBtn;
     JButton clearBtn;
     JButton cancelBtn;
-    private ReadTrezorData pinData;
+    private ReadDeviceData pinData;
     static Point mouseDownCompCoords;
     final Color WINDOW_BORDER_COLOR = new Color(114, 159, 207); // = logo outter frame color
 
@@ -112,7 +112,7 @@ public class PinPad extends JFrame {
         cancelBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                getPinData().setTrezorData(AgentConstants.PIN_CANCELLED_MSG);
+                getPinData().setDeviceData(AgentConstants.PIN_CANCELLED_MSG);
                 dispose(); // close PIN window                     
             }
         });
@@ -128,7 +128,7 @@ public class PinPad extends JFrame {
         enterBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                getPinData().setTrezorData(new String(passcodeField.getPassword()));
+                getPinData().setDeviceData(new String(passcodeField.getPassword()));
                 dispose(); // close PIN window           
             }
         });
@@ -158,7 +158,7 @@ public class PinPad extends JFrame {
     }
 
     private void init() {
-        pinData = new ReadTrezorData();
+        pinData = new ReadDeviceData();
         setUndecorated(true);
         setResizable(false);
         setAlwaysOnTop(true);
@@ -232,7 +232,7 @@ public class PinPad extends JFrame {
         numPanel.add(jbtNumberLocal);
     }
 
-    public ReadTrezorData getPinData() {
+    public ReadDeviceData getPinData() {
         return pinData;
     }
 

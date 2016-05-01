@@ -16,7 +16,7 @@ public class LocalizedLogger {
 
     public static void setUpDefault() throws URISyntaxException, IOException {
         setupLoggerConfig();
-        setLoggerLanguage(AgentConstants.DEFAULT_LOGGER_LANGUAGE, AgentConstants.DEFAULT_LOGGER_COOUNTRY);
+        setLoggerLanguage(AgentConstants.DEFAULT_LOGGER_LANGUAGE, AgentConstants.DEFAULT_LOGGER_COUNTRY);
     }
 
     private static void setupLoggerConfig() throws URISyntaxException, IOException {
@@ -30,7 +30,7 @@ public class LocalizedLogger {
 
     public static String getLocalizedMessage(String key) {
         if (messages == null) {
-            setLoggerLanguage(AgentConstants.DEFAULT_LOGGER_LANGUAGE, AgentConstants.DEFAULT_LOGGER_COOUNTRY);
+            setLoggerLanguage(AgentConstants.DEFAULT_LOGGER_LANGUAGE, AgentConstants.DEFAULT_LOGGER_COUNTRY);
         }
         return messages.getString(key);
 
@@ -38,7 +38,7 @@ public class LocalizedLogger {
 
     public static String getLocalizedMessage(String messageKey, Object... args) {
         if (messages == null) {
-            setLoggerLanguage(AgentConstants.DEFAULT_LOGGER_LANGUAGE, AgentConstants.DEFAULT_LOGGER_COOUNTRY);
+            setLoggerLanguage(AgentConstants.DEFAULT_LOGGER_LANGUAGE, AgentConstants.DEFAULT_LOGGER_COUNTRY);
         }
         return String.format(messages.getString(messageKey), args);
     }

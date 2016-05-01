@@ -1,6 +1,6 @@
 package com.trezoragent.gui;
 
-import com.trezoragent.sshagent.ReadTrezorData;
+import com.trezoragent.sshagent.ReadDeviceData;
 import com.trezoragent.utils.AgentConstants;
 import com.trezoragent.utils.AgentUtils;
 import com.trezoragent.utils.LocalizedLogger;
@@ -37,7 +37,7 @@ public class PassphraseDialog extends JFrame {
     private final int FRAME_YSIZE = 150;
 
     private static Point mouseDownCompCoords;
-    private ReadTrezorData passphraseData;
+    private ReadDeviceData passphraseData;
     private JLabel deviceLabel;
     private JLabel passcodeLabel;
     private JPasswordField passcodeField;
@@ -59,7 +59,7 @@ public class PassphraseDialog extends JFrame {
     }
 
     private void init() {
-        passphraseData = new ReadTrezorData();
+        passphraseData = new ReadDeviceData();
         setUndecorated(true);
         setResizable(false);
         setAlwaysOnTop(true);
@@ -103,7 +103,7 @@ public class PassphraseDialog extends JFrame {
         enterBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                getPassphraseData().setTrezorData(new String(passcodeField.getPassword()));
+                getPassphraseData().setDeviceData(new String(passcodeField.getPassword()));
                 dispose(); // close passphrase window           
             }
         });
@@ -114,7 +114,7 @@ public class PassphraseDialog extends JFrame {
         cancelBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                getPassphraseData().setTrezorData(AgentConstants.PASSPHRASE_CANCELLED_MSG);
+                getPassphraseData().setDeviceData(AgentConstants.PASSPHRASE_CANCELLED_MSG);
                 dispose(); // close passphrase window                     
             }
         });
@@ -135,7 +135,7 @@ public class PassphraseDialog extends JFrame {
         add(passphraseWindowPanel);
     }
 
-    public ReadTrezorData getPassphraseData() {
+    public ReadDeviceData getPassphraseData() {
         return passphraseData;
     }
 

@@ -8,31 +8,31 @@ import org.multibit.hd.hardware.core.HardwareWalletClient;
 import org.multibit.hd.hardware.core.HardwareWalletService;
 import org.multibit.hd.hardware.core.events.HardwareWalletEvents;
 import org.multibit.hd.hardware.core.wallets.HardwareWallets;
-import org.multibit.hd.hardware.trezor.clients.TrezorHardwareWalletClient;
-import org.multibit.hd.hardware.trezor.wallets.AbstractTrezorHardwareWallet;
-import org.multibit.hd.hardware.trezor.wallets.v1.TrezorV1HidHardwareWallet;
+import org.multibit.hd.hardware.keepkey.clients.KeepKeyHardwareWalletClient;
+import org.multibit.hd.hardware.keepkey.wallets.AbstractKeepKeyHardwareWallet;
+import org.multibit.hd.hardware.keepkey.wallets.v1.KeepKeyV1HidHardwareWallet;
 
 /**
  *
  * @author martin.lizner
  */
-public final class TrezorService extends DeviceService {
+public final class KeepKeyService extends DeviceService {
 
-    private final AbstractTrezorHardwareWallet wallet;
+    private final AbstractKeepKeyHardwareWallet wallet;
 
-    public TrezorService() {
+    public KeepKeyService() {
 
         wallet = HardwareWallets.newUsbInstance(
-                TrezorV1HidHardwareWallet.class,
+                KeepKeyV1HidHardwareWallet.class,
                 Optional.<Integer>absent(),
                 Optional.<Integer>absent(),
                 Optional.<String>absent()
         );
 
         // Wrap the hardware wallet in a suitable client to simplify message API
-        client = new TrezorHardwareWalletClient(wallet);
+        client = new KeepKeyHardwareWalletClient(wallet);
 
-        deviceLabel = AgentConstants.TREZOR_LABEL; // set default name before real one is obtained from HW
+        deviceLabel = AgentConstants.KEEPKEY_LABEL; // set default name before real one is obtained from HW
 
         // Wrap the client in a service for high level API suitable for downstream applications
         hardwareWalletService = new HardwareWalletService(client);
@@ -42,14 +42,14 @@ public final class TrezorService extends DeviceService {
         asyncKeyData = new ReadDeviceData<String>();
         asyncSignData = new ReadDeviceData<byte[]>();
 
-        Logger.getLogger(TrezorService.class.getName()).log(Level.INFO, "Trezor Service Started.");
+        Logger.getLogger(KeepKeyService.class.getName()).log(Level.INFO, "KeepKey Service Started.");
     }
 
-    public static TrezorService startTrezorService() {
-        return new TrezorService();
+    public static KeepKeyService startKeepKeyService() {
+        return new KeepKeyService();
     }
 
-    public AbstractTrezorHardwareWallet getWallet() {
+    public AbstractKeepKeyHardwareWallet getWallet() {
         return wallet;
     }
 }

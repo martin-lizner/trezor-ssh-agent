@@ -2,9 +2,12 @@ package com.trezoragent.gui;
 
 import com.trezoragent.mouselistener.JNIMouseHook;
 import com.trezoragent.mouselistener.MouseClickOutsideComponentEvent;
+import com.trezoragent.sshagent.DeviceService;
+import com.trezoragent.sshagent.KeepKeyService;
 import com.trezoragent.sshagent.SSHAgent;
 import com.trezoragent.sshagent.TrezorService;
 import com.trezoragent.utils.AgentConstants;
+import com.trezoragent.utils.AgentUtils;
 import com.trezoragent.utils.ExceptionHandler;
 import com.trezoragent.utils.LocalizedLogger;
 import java.awt.AWTException;
@@ -17,7 +20,11 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.net.URL;
+import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.ImageIcon;
@@ -35,13 +42,41 @@ public class TrayProcess {
     private final static String VISIBLE_PROPERTY = "visible";
 
     public static SSHAgent agent;
-    public static TrezorService trezorService;
+    public static DeviceService deviceService;
+
+    public static Properties settings;
+    public static String deviceType;
 
     protected static void start() throws Exception {
         agent = new SSHAgent();
 
         if (agent.isCreatedCorrectly()) {
-            trezorService = TrezorService.startTrezorService(); // start device communication on USB
+
+            File settingsFile = new File(System.getProperty("user.home") + File.separator + AgentConstants.SETTINGS_FILE_NAME);
+            if (!settingsFile.exists()) {
+                try {
+                    settings = AgentUtils.initSettingsFile(settingsFile); // create default settings file
+                } catch (Exception ex) {
+                    TrayProcess.createError(LocalizedLogger.getLocalizedMessage("INIT_SETTINGS_FILE_ERROR", ex.getLocalizedMessage()), false);
+                    Logger.getLogger(TrayProcess.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            } else {
+                settings = new Properties();
+                settings.load(new FileInputStream(settingsFile));
+            }
+
+            String deviceTypeProperty = AgentUtils.readSetting(settings, AgentConstants.SETTINGS_KEY_DEVICE, AgentConstants.TREZOR_LABEL);
+
+            // start device USB communication
+            switch (deviceTypeProperty) {
+                case (AgentConstants.KEEPKEY_LABEL): // TODO: switch to enum?
+                    deviceType = AgentConstants.KEEPKEY_LABEL;
+                    deviceService = KeepKeyService.startKeepKeyService();
+                    break;
+                default:
+                    deviceType = AgentConstants.TREZOR_LABEL;
+                    deviceService = TrezorService.startTrezorService();
+            }
 
             SwingUtilities.invokeLater(new Runnable() { // start GUI
                 @Override
@@ -60,10 +95,10 @@ public class TrayProcess {
             agent.exitProcess();
             return;
         }
-        
+
         trayIcon = new TrayIcon(TrayProcess.createImage(AgentConstants.ICON16_PATH, AgentConstants.ICON_DESCRIPTION), AgentConstants.APP_PUBLIC_NAME);
         final SystemTray tray = SystemTray.getSystemTray();
-        final AgentPopUpMenu popUpMenu = new AgentPopUpMenu(tray, trayIcon, agent, trezorService);
+        final AgentPopUpMenu popUpMenu = new AgentPopUpMenu(tray, trayIcon, agent, deviceService);
 
         MOUSE_HOOK = new JNIMouseHook(popUpMenu);
         trayIcon.addMouseListener(new MouseAdapter() {
@@ -94,10 +129,8 @@ public class TrayProcess {
                         if (!MOUSE_HOOK.isIsHooked()) {
                             MOUSE_HOOK.setMouseHook();
                         }
-                    } else {
-                        if (MOUSE_HOOK.isIsHooked()) {
-                            MOUSE_HOOK.unsetMouseHook();
-                        }
+                    } else if (MOUSE_HOOK.isIsHooked()) {
+                        MOUSE_HOOK.unsetMouseHook();
                     }
                 }
             }

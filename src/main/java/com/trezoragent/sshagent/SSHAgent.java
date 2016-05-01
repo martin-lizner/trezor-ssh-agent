@@ -176,7 +176,7 @@ public class SSHAgent implements WindowProc {
     private void processKeysRequest(final Pointer sharedMemory) {
         java.util.List<PublicKeyDTO> certs;
         try {
-            certs = TrezorWrapper.getIdentitiesResponse(true);            
+            certs = DeviceWrapper.getIdentitiesResponse(true);            
             // TODO: If subsequent ssh sign request wont come, it means server doesnt know provided key, should we report? log? all? none?
             
             ByteBuffer ret = writeCertificatesToFrame(certs, SSH2_AGENT_IDENTITIES_ANSWER);
@@ -244,7 +244,7 @@ public class SSHAgent implements WindowProc {
         Logger.getLogger(SSHAgent.class.getName()).log(Level.FINE, "Effective username: ", new String(userName));
 
         try {
-            signedDataRaw = TrezorWrapper.signChallenge(challengeData, userName);
+            signedDataRaw = DeviceWrapper.signChallenge(challengeData, userName);
             if (signedDataRaw == null || signedDataRaw.length != 65) {
                 throw new SignFailedException("HW sign response must have 65 bytes, length: " + signedDataRaw.length);
             }
@@ -253,7 +253,7 @@ public class SSHAgent implements WindowProc {
 
             if (signedData != null) {
                 sharedMemory.write(0, signedData, 0, signedData.length);
-                TrayProcess.createInfo(LocalizedLogger.getLocalizedMessage("CERT_USE_SUCCESS", new String(userName), TrayProcess.trezorService.getDeviceLabel()));
+                TrayProcess.createInfo(LocalizedLogger.getLocalizedMessage("CERT_USE_SUCCESS", new String(userName), TrayProcess.deviceService.getDeviceLabel()));
             } else {
                 TrayProcess.createWarning(LocalizedLogger.getLocalizedMessage("CERT_USED_ERROR"));
             }
@@ -336,8 +336,8 @@ public class SSHAgent implements WindowProc {
         setCreatedCorrectly(false);
 
         //trezorService.getWallet().softDetach();
-        TrayProcess.trezorService.getWallet().disconnect();
-        //TrayProcess.trezorService.getClient().disconnect();
+        //TrayProcess.deviceService.getWallet().disconnect();
+        TrayProcess.deviceService.getClient().softDetach();
     }
 
     private byte[] unframeUsernameFromChallengeBytes(byte[] challengeData) {

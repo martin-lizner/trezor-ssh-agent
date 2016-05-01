@@ -24,10 +24,12 @@ public final class AgentConstants {
 
     public static final String ICON_DESCRIPTION = "tray icon"; //Windows tray
 
-    // Trezor settings:
+    // Device settings:
     public static final String CURVE_NAME = "nist256p1";
-    public static final URI SSHURI = URI.create("ssh://btc.rulez/connect");
-    public static final String DEVICE_LABEL_DEFAULT = "Trezor";
+    public static final String BIP32_SSHURI = "ssh://btc.rulez/connect";
+    public static final Integer BIP32_INDEX = 0;
+    public static final String TREZOR_LABEL = "Trezor";
+    public static final String KEEPKEY_LABEL = "KeepKey";
 
     public static final String PIN_CANCELLED_MSG = "_PIN_CANCEL_"; // for pinpad
     public static final String PASSPHRASE_CANCELLED_MSG = "_PASSPHRASE_CANCEL_"; // for passphrase
@@ -41,17 +43,24 @@ public final class AgentConstants {
     public static final int SIGN_WAIT_TIMEOUT = 120; //sec
     public static final int ASYNC_CHECK_INTERVAL = 10; //ms    
 
+    /*
+     * Settings file properties
+     */
+    public static final String SETTINGS_KEY_DEVICE = "DEVICE";
+    public static final String SETTINGS_KEY_BIP32_URI = "BIP32_URI";
+    public static final String SETTINGS_KEY_BIP32_INDEX = "BIP32_INDEX";
 
     /*
      * Logger and local settings
      */
     public static final String CONFIG_FILE_NAME = "logger.properties";
 
-    public static final String DEFAULT_LOGGER_COOUNTRY = "US";
+    public static final String DEFAULT_LOGGER_COUNTRY = "US";
     public static final String DEFAULT_LOGGER_LANGUAGE = "en";
 
     public static final String LOCALE_BUNDLES_PATH = "MessagesBundle";
     public static final String LOG_FILE_NAME = "Trezor_Agent.log"; // + change path in logger.properties
+    public static final String SETTINGS_FILE_NAME = "Trezor_Agent.properties";
 
     public static String MUTEX_NAME = "Trezor_Agent_Mutex"; // mutex for installer - correlates with instaler.iss
     public static final String VERSION = "1.0.1"; // global version, pom.xml
