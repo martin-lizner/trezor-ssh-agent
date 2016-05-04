@@ -22,10 +22,10 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
-import javax.swing.Timer;
 import javax.xml.bind.DatatypeConverter;
 
 /**
+ * Class to provide higher logic on top of DeviceService
  *
  * @author martin.lizner
  */
@@ -40,7 +40,7 @@ public class DeviceWrapper {
 
         // Load settings from file
         String bip32Path = AgentUtils.readSetting(settings, AgentConstants.SETTINGS_KEY_BIP32_URI, AgentConstants.BIP32_SSHURI);
-        String bip32Index = AgentUtils.readSetting(settings, AgentConstants.SETTINGS_KEY_BIP32_INDEX, AgentConstants.BIP32_INDEX.toString()); // TODO: fix types
+        String bip32Index = AgentUtils.readSetting(settings, AgentConstants.SETTINGS_KEY_BIP32_INDEX, AgentConstants.BIP32_INDEX);
 
         TrayProcess.deviceService.getHardwareWalletService().requestPublicKeyForIdentity(URI.create(bip32Path), new Integer(bip32Index), AgentConstants.CURVE_NAME, false);
     }
@@ -62,7 +62,6 @@ public class DeviceWrapper {
         try {
             trezorKey = future.get(AgentConstants.KEY_WAIT_TIMEOUT, TimeUnit.SECONDS);
         } catch (InterruptedException | ExecutionException | TimeoutException ex) {
-            //Logger.getLogger(TrezorWrapper.class.getName()).log(Level.SEVERE, "Timeout when waiting for device");
             TrayProcess.deviceService.getHardwareWalletService().requestCancel();
             throw new DeviceTimeoutException();
         }
@@ -84,8 +83,7 @@ public class DeviceWrapper {
         p.setsPublicKey(trezorKey);
         p.setsComment(TrayProcess.deviceService.getDeviceLabel());
         p.setbComment(TrayProcess.deviceService.getDeviceLabel().getBytes());
-        idents.add(p);
-        //TrayProcess.trezorService.checkoutAsyncKeyData(); // null key        
+        idents.add(p);     
 
         return idents;
     }
@@ -99,7 +97,7 @@ public class DeviceWrapper {
         }
 
         String bip32Path = AgentUtils.readSetting(settings, AgentConstants.SETTINGS_KEY_BIP32_URI, AgentConstants.BIP32_SSHURI);
-        String bip32Index = AgentUtils.readSetting(settings, AgentConstants.SETTINGS_KEY_BIP32_INDEX, AgentConstants.BIP32_INDEX.toString()); // TODO: fix types
+        String bip32Index = AgentUtils.readSetting(settings, AgentConstants.SETTINGS_KEY_BIP32_INDEX, AgentConstants.BIP32_INDEX);
 
         String challengeVisual = (challengeVisualBytes != null && challengeVisualBytes.length > 0)
                 ? new String(challengeVisualBytes) : "Warn: No user given!"; // display username contained in SSH Server challenge, if no username is provided by SSH Server display warning

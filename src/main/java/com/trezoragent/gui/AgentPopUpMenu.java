@@ -67,6 +67,7 @@ public class AgentPopUpMenu extends JPopupMenu {
             public void actionPerformed(ActionEvent e) {
 
                 try {
+                    deviceService.setDeviceKey(null); // always get fresh key
                     DeviceWrapper.getIdentitiesRequest();
                     final Timer timer = new Timer(AgentConstants.ASYNC_CHECK_INTERVAL, null);
                     deviceService.setTimer(timer); // TODO: find better way how to stop timer when pubkey action is not finished

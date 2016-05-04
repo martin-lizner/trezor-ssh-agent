@@ -3,6 +3,7 @@ package com.trezoragent.gui;
 import com.trezoragent.mouselistener.JNIMouseHook;
 import com.trezoragent.mouselistener.MouseClickOutsideComponentEvent;
 import com.trezoragent.sshagent.DeviceService;
+import com.trezoragent.sshagent.DeviceWrapper;
 import com.trezoragent.sshagent.KeepKeyService;
 import com.trezoragent.sshagent.SSHAgent;
 import com.trezoragent.sshagent.TrezorService;
@@ -22,7 +23,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.net.URL;
 import java.util.Properties;
 import java.util.logging.Level;
@@ -30,6 +30,7 @@ import java.util.logging.Logger;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 
 /**
  *
@@ -47,13 +48,16 @@ public class TrayProcess {
     public static Properties settings;
     public static String deviceType;
 
+    public static Timer sessionTimer;
+
     protected static void start() throws Exception {
         agent = new SSHAgent();
 
         if (agent.isCreatedCorrectly()) {
 
             File settingsFile = new File(System.getProperty("user.home") + File.separator + AgentConstants.SETTINGS_FILE_NAME);
-            if (!settingsFile.exists()) { // TODO: release file?
+
+            if (!settingsFile.exists()) {
                 try {
                     settings = AgentUtils.initSettingsFile(settingsFile); // create default settings file
                     Logger.getLogger(TrayProcess.class.getName()).log(Level.INFO, "New settings file created: {0}", new Object[]{settingsFile.getPath()});
@@ -63,15 +67,16 @@ public class TrayProcess {
                 }
             } else {
                 settings = new Properties();
-                settings.load(new FileInputStream(settingsFile));
+                try (FileInputStream fileIn = new FileInputStream(settingsFile)) {
+                    settings.load(fileIn);
+                }
                 Logger.getLogger(TrayProcess.class.getName()).log(Level.INFO, "Existing settings file loaded: {0}", new Object[]{settingsFile.getPath()});
             }
 
+            // start device USB service depending on device type
             String deviceTypeProperty = AgentUtils.readSetting(settings, AgentConstants.SETTINGS_KEY_DEVICE, AgentConstants.TREZOR_LABEL);
-
-            // start device USB communication
             switch (deviceTypeProperty.toLowerCase()) {
-                case (AgentConstants.SETTINGS_KEEPKEY_DEVICE): // TODO: switch to enum?
+                case (AgentConstants.SETTINGS_KEEPKEY_DEVICE):
                     deviceType = AgentConstants.KEEPKEY_LABEL;
                     deviceService = KeepKeyService.startKeepKeyService();
                     break;
@@ -79,6 +84,8 @@ public class TrayProcess {
                     deviceType = AgentConstants.TREZOR_LABEL;
                     deviceService = TrezorService.startTrezorService();
             }
+
+            initSessionTimer(); // start timer to control session (PIN+Passphrase) expiration
 
             SwingUtilities.invokeLater(new Runnable() { // start GUI
                 @Override
@@ -197,6 +204,19 @@ public class TrayProcess {
             trayIcon.displayMessage(AgentConstants.APP_PUBLIC_NAME, message, TrayIcon.MessageType.INFO);
         }
         Logger.getLogger(SSHAgent.class.getName()).log(Level.INFO, message);
+    }
+
+    private static void initSessionTimer() {
+        Integer delay = 1000 * 60 * new Integer(AgentUtils.readSetting(settings, AgentConstants.SETTINGS_KEY_SESSION_TIMEOUT, AgentConstants.SETTINGS_SESSION_TIMEOUT));
+        sessionTimer = new Timer(delay, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                TrayProcess.deviceService.getClient().clearSession();
+                Logger.getLogger(TrayProcess.class.getName()).log(Level.INFO, "Clear session request has been sent to the device.");
+            }
+        }
+        );
+        sessionTimer.setRepeats(false);
     }
 
 }

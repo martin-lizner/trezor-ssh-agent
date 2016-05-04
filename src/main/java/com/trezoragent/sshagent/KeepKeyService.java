@@ -20,7 +20,6 @@ public final class KeepKeyService extends DeviceService {
     private final AbstractKeepKeyHardwareWallet wallet;
 
     public KeepKeyService() {
-
         wallet = HardwareWallets.newUsbInstance(
                 KeepKeyV1HidHardwareWallet.class,
                 Optional.<Integer>absent(),

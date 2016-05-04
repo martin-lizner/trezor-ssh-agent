@@ -20,7 +20,6 @@ public final class TrezorService extends DeviceService {
     private final AbstractTrezorHardwareWallet wallet;
 
     public TrezorService() {
-
         wallet = HardwareWallets.newUsbInstance(
                 TrezorV1HidHardwareWallet.class,
                 Optional.<Integer>absent(),

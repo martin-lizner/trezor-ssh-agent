@@ -3,7 +3,7 @@ package com.trezoragent.utils;
 import com.google.common.base.Charsets;
 import com.trezoragent.gui.StartAgentGUI;
 import com.trezoragent.gui.TrayProcess;
-import static com.trezoragent.gui.TrayProcess.settings;
+import com.trezoragent.sshagent.DeviceWrapper;
 import java.awt.Image;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -88,9 +88,11 @@ public class AgentUtils {
         // create file with default settings        
 
         Properties properties = new Properties();
-        properties.setProperty(AgentConstants.SETTINGS_KEY_DEVICE, AgentConstants.SETTINGS_TREZOR_DEVICE);
+        properties.setProperty(AgentConstants.SETTINGS_KEY_DEVICE, AgentConstants.SETTINGS_KEEPKEY_DEVICE);
         properties.setProperty(AgentConstants.SETTINGS_KEY_BIP32_URI, AgentConstants.BIP32_SSHURI);
-        properties.setProperty(AgentConstants.SETTINGS_KEY_BIP32_INDEX, AgentConstants.BIP32_INDEX.toString());
+        properties.setProperty(AgentConstants.SETTINGS_KEY_BIP32_INDEX, AgentConstants.BIP32_INDEX);
+        properties.setProperty(AgentConstants.SETTINGS_KEY_SESSION_TIMEOUT, AgentConstants.SETTINGS_SESSION_TIMEOUT);
+
         Logger.getLogger(AgentUtils.class.getName()).log(Level.FINE, "Setting default properties: {0}", new Object[]{properties});
 
         try (FileOutputStream fileOut = new FileOutputStream(settings)) {
@@ -102,7 +104,6 @@ public class AgentUtils {
 
     public static String readSetting(Properties settings, String key, String defaultValue) {
         String property = settings.getProperty(key);
-        // TODO trace getProperty
         if (property == null) {
             Logger.getLogger(AgentUtils.class.getName()).log(Level.WARNING, "Settings property {0} not found, defaulting to value: {1}", new Object[]{key, defaultValue});
             return defaultValue;
@@ -115,7 +116,17 @@ public class AgentUtils {
         // GUI workaround, TODO: replace timers and do-whiles with proper async messaging
         Timer timer = TrayProcess.deviceService.getTimer();
         if (timer != null && timer.isRunning()) {
+            Logger.getLogger(AgentUtils.class.getName()).log(Level.FINE, "Stopping GUI timer", new Object[]{});
             timer.stop(); // stop swing timer
+        }
+    }
+
+    public static void restartSessionTimer() {
+        if (TrayProcess.sessionTimer != null) {
+            Logger.getLogger(DeviceWrapper.class.getName()).log(Level.FINE, "Restarting session timer.");
+            TrayProcess.sessionTimer.restart(); // TODO: change some deviceService fields to static?
+        } else {
+            Logger.getLogger(DeviceWrapper.class.getName()).log(Level.SEVERE, "Session timer not initialized!");
         }
     }
 }

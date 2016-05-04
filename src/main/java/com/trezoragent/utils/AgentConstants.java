@@ -26,8 +26,6 @@ public final class AgentConstants {
 
     // Device settings:
     public static final String CURVE_NAME = "nist256p1";
-    public static final String BIP32_SSHURI = "ssh://btc.rulez/connect";
-    public static final Integer BIP32_INDEX = 0;
     public static final String TREZOR_LABEL = "Trezor";
     public static final String KEEPKEY_LABEL = "KeepKey";
 
@@ -49,8 +47,12 @@ public final class AgentConstants {
     public static final String SETTINGS_KEY_DEVICE = "DEVICE";
     public static final String SETTINGS_KEY_BIP32_URI = "BIP32_URI";
     public static final String SETTINGS_KEY_BIP32_INDEX = "BIP32_INDEX";
+    public static final String SETTINGS_KEY_SESSION_TIMEOUT = "SESSION_TIMEOUT";
     public static final String SETTINGS_TREZOR_DEVICE = "trezor";
-    public static final String SETTINGS_KEEPKEY_DEVICE = "keepkey";
+    public static final String SETTINGS_KEEPKEY_DEVICE = "keepkey";    
+    public static final String BIP32_SSHURI = "ssh://btc.rulez/connect";
+    public static final String BIP32_INDEX = "0";
+    public static final String SETTINGS_SESSION_TIMEOUT = "10"; //mins
 
     /*
      * Logger and local settings

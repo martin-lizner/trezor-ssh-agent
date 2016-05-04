@@ -8,6 +8,7 @@ import com.trezoragent.gui.PassphraseDialog;
 import com.trezoragent.gui.PinPad;
 import com.trezoragent.gui.TrayProcess;
 import com.trezoragent.utils.AgentConstants;
+import com.trezoragent.utils.AgentUtils;
 import com.trezoragent.utils.ExceptionHandler;
 import com.trezoragent.utils.LocalizedLogger;
 import java.security.NoSuchAlgorithmException;
@@ -34,6 +35,8 @@ import org.multibit.hd.hardware.core.messages.SignedIdentity;
 import org.multibit.hd.hardware.core.utils.IdentityUtils;
 
 /**
+ * Common device (Trezor, KeepKey) listener service to handle data and provide
+ * some basic state information
  *
  * @author martin.lizner
  */
@@ -51,7 +54,7 @@ public abstract class DeviceService {
     private String exceptionKey;
 
     public DeviceService() {
-        
+
     }
 
     public HardwareWalletService getHardwareWalletService() {
@@ -82,6 +85,7 @@ public abstract class DeviceService {
 
             case SHOW_DEVICE_DETACHED:
                 resetCachedData();
+                TrayProcess.sessionTimer.stop();
                 break;
 
             case SHOW_DEVICE_READY:
@@ -183,6 +187,7 @@ public abstract class DeviceService {
                     Logger.getLogger(DeviceService.class.getName()).log(Level.SEVERE, "deviceTx FAILED");
                 }
 
+                AgentUtils.restartSessionTimer();
                 break;
 
             case SIGNED_IDENTITY:
@@ -194,6 +199,8 @@ public abstract class DeviceService {
                 getAsyncSignData().setDeviceData(signedData);
 
                 Logger.getLogger(DeviceService.class.getName()).log(Level.INFO, "Operation {0} executed successfully", "SSH2_AGENT_SIGN_REQUEST");
+
+                AgentUtils.restartSessionTimer(); // this is probably redundant, since get pubkey operation preceeds
                 break;
 
             case SHOW_OPERATION_FAILED:
@@ -252,7 +259,7 @@ public abstract class DeviceService {
         return getAsyncSignData();
     }
 
-    public void resetCachedData() {
+    private void resetCachedData() {
         checkoutAsyncKeyData();
         checkoutAsyncSignData();
         setDeviceKey(null);
