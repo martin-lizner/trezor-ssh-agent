@@ -39,8 +39,8 @@ public class DeviceWrapper {
         }
 
         // Load settings from file
-        String bip32Path = AgentUtils.readSetting(settings, AgentConstants.SETTINGS_KEY_BIP32_URI, AgentConstants.BIP32_SSHURI);
-        String bip32Index = AgentUtils.readSetting(settings, AgentConstants.SETTINGS_KEY_BIP32_INDEX, AgentConstants.BIP32_INDEX);
+        String bip32Path = AgentUtils.readSetting(settings, AgentConstants.SETTINGS_KEY_BIP32_URI, AgentConstants.SETTINGS_BIP32_SSHURI);
+        String bip32Index = AgentUtils.readSetting(settings, AgentConstants.SETTINGS_KEY_BIP32_INDEX, AgentConstants.SETTINGS_BIP32_INDEX);
 
         TrayProcess.deviceService.getHardwareWalletService().requestPublicKeyForIdentity(URI.create(bip32Path), new Integer(bip32Index), AgentConstants.CURVE_NAME, false);
     }
@@ -96,8 +96,8 @@ public class DeviceWrapper {
             return AgentConstants.SIGN_FAILED_BYTE;
         }
 
-        String bip32Path = AgentUtils.readSetting(settings, AgentConstants.SETTINGS_KEY_BIP32_URI, AgentConstants.BIP32_SSHURI);
-        String bip32Index = AgentUtils.readSetting(settings, AgentConstants.SETTINGS_KEY_BIP32_INDEX, AgentConstants.BIP32_INDEX);
+        String bip32Path = AgentUtils.readSetting(settings, AgentConstants.SETTINGS_KEY_BIP32_URI, AgentConstants.SETTINGS_BIP32_SSHURI);
+        String bip32Index = AgentUtils.readSetting(settings, AgentConstants.SETTINGS_KEY_BIP32_INDEX, AgentConstants.SETTINGS_BIP32_INDEX);
 
         String challengeVisual = (challengeVisualBytes != null && challengeVisualBytes.length > 0)
                 ? new String(challengeVisualBytes) : "Warn: No user given!"; // display username contained in SSH Server challenge, if no username is provided by SSH Server display warning

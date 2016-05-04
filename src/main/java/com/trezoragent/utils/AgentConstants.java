@@ -50,9 +50,9 @@ public final class AgentConstants {
     public static final String SETTINGS_KEY_SESSION_TIMEOUT = "SESSION_TIMEOUT";
     public static final String SETTINGS_TREZOR_DEVICE = "trezor";
     public static final String SETTINGS_KEEPKEY_DEVICE = "keepkey";    
-    public static final String BIP32_SSHURI = "ssh://btc.rulez/connect";
-    public static final String BIP32_INDEX = "0";
-    public static final String SETTINGS_SESSION_TIMEOUT = "10"; //mins
+    public static final String SETTINGS_BIP32_SSHURI = "ssh://btc.rulez/connect";
+    public static final String SETTINGS_BIP32_INDEX = "0";
+    public static final String SETTINGS_SESSION_TIMEOUT = "60"; //mins
 
     /*
      * Logger and local settings
