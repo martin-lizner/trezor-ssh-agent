@@ -32,6 +32,7 @@ $ mvn clean install
 * Edit logger.properties file and set com.trezoragent.level = FINE for more detailed logging. 
 * Application log is saved in your C:\Users\\...\ directory under default name: Trezor_Agent.log
 * You can also access log by using the "Open Log File" item in the application tray menu.
+* If you are getting "Device not ready" message, try closing your Chrome browser and re-plug the device
 * Also make sure that SSH Server you are connecting to supports ECDSA:
   * ECDSA is generally supported since [OpenSSH 5.7](http://www.openssh.com/txt/release-5.7)
   * But there are backports to some older openSSH versions, e.g. Redhat/CentOS [5.3p1-112.el6_7](http://www.rpmfind.net/linux/RPM/centos/updates/6.7/x86_64/Packages/openssh-5.3p1-112.el6_7.x86_64.html)
@@ -47,6 +48,12 @@ $ mvn clean install
 * Provide PIN/Passphrase if asked.
 * Confirm identity sign operation on the device - "SSH login to: btc.rulez".
 ![Success](https://github.com/martin-lizner/commons/raw/master/trezor-ssh-agent/login.png)
+
+#### KeepKey Users
+* Make sure Chrome browser is switched off if you have KeepKey extension installed
+* After started the application use Edit Settings menu item to set DEVICE=keepkey property in the settings file
+  * You can also access settings file in your Windows user directory under name Trezor_Agent.properties
+* After you have made changes to settings file, please restart the Trezor SSH Agent
 
 #### Agent Forwarding
 You can also use Trezor SSH Agent with "agent forwarding" option set in SSH client. This would enable chaining connections back to original agent.
