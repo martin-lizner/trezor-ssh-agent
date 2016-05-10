@@ -40,7 +40,7 @@ public final class KeepKeyService extends DeviceService {
         asyncKeyData = new ReadDeviceData<String>();
         asyncSignData = new ReadDeviceData<byte[]>();
 
-        Logger.getLogger(KeepKeyService.class.getName()).log(Level.INFO, "KeepKey Service Started.");
+        Logger.getLogger(KeepKeyService.class.getName()).log(Level.INFO, "KeepKey Service Started");
     }
 
     public static KeepKeyService startKeepKeyService() {

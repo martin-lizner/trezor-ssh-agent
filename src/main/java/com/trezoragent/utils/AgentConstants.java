@@ -48,6 +48,7 @@ public final class AgentConstants {
     public static final String SETTINGS_KEY_BIP32_URI = "BIP32_URI";
     public static final String SETTINGS_KEY_BIP32_INDEX = "BIP32_INDEX";
     public static final String SETTINGS_KEY_SESSION_TIMEOUT = "SESSION_TIMEOUT";
+    public static final String SETTINGS_KEY_CURVE_NAME = "CURVE_NAME";
     public static final String SETTINGS_TREZOR_DEVICE = "trezor";
     public static final String SETTINGS_KEEPKEY_DEVICE = "keepkey";    
     public static final String SETTINGS_BIP32_SSHURI = "ssh://btc.rulez/connect";

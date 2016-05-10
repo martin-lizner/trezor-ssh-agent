@@ -40,7 +40,7 @@ public final class TrezorService extends DeviceService {
         asyncKeyData = new ReadDeviceData<String>();
         asyncSignData = new ReadDeviceData<byte[]>();
 
-        Logger.getLogger(TrezorService.class.getName()).log(Level.INFO, "Trezor Service Started.");
+        Logger.getLogger(TrezorService.class.getName()).log(Level.INFO, "Trezor Service Started");
     }
 
     public static TrezorService startTrezorService() {

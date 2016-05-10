@@ -92,6 +92,7 @@ public class AgentUtils {
         properties.setProperty(AgentConstants.SETTINGS_KEY_BIP32_URI, AgentConstants.SETTINGS_BIP32_SSHURI);
         properties.setProperty(AgentConstants.SETTINGS_KEY_BIP32_INDEX, AgentConstants.SETTINGS_BIP32_INDEX);
         properties.setProperty(AgentConstants.SETTINGS_KEY_SESSION_TIMEOUT, AgentConstants.SETTINGS_SESSION_TIMEOUT);
+        properties.setProperty(AgentConstants.SETTINGS_KEY_CURVE_NAME, AgentConstants.CURVE_NAME); // TODO: reserved for future release        
 
         Logger.getLogger(AgentUtils.class.getName()).log(Level.FINE, "Setting default properties: {0}", new Object[]{properties});
 

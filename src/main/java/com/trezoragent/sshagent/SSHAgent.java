@@ -20,6 +20,7 @@ import com.trezoragent.exception.DeviceTimeoutException;
 import com.trezoragent.exception.GetIdentitiesFailedException;
 import com.trezoragent.exception.SignFailedException;
 import com.trezoragent.gui.TrayProcess;
+import com.trezoragent.utils.AgentConstants;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.logging.Level;
@@ -177,9 +178,9 @@ public class SSHAgent implements WindowProc {
     private void processKeysRequest(final Pointer sharedMemory) {
         java.util.List<PublicKeyDTO> certs;
         try {
-            certs = DeviceWrapper.getIdentitiesResponse(true);            
+            certs = DeviceWrapper.getIdentitiesResponse(true);
             // TODO: If subsequent ssh sign request wont come, it means server doesnt know provided key, should we report? log? all? none?
-            
+
             ByteBuffer ret = writeCertificatesToFrame(certs, SSH2_AGENT_IDENTITIES_ANSWER);
             sharedMemory.write(0, ret.array(), 0, ret.array().length);
 
@@ -315,7 +316,7 @@ public class SSHAgent implements WindowProc {
     private void createProcess() {
         hWnd = createWindowsProcess();
         setCreatedCorrectly(true);
-        Logger.getLogger(SSHAgent.class.getName()).log(Level.INFO, "Process started successfully");
+        Logger.getLogger(SSHAgent.class.getName()).log(Level.INFO, AgentConstants.APP_PUBLIC_NAME + " " + AgentConstants.VERSION + " started successfully");
     }
 
     public boolean isCreatedCorrectly() {
