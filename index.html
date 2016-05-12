@@ -36,20 +36,23 @@
 <h2>
 <a id="trezor-ssh-agent-for-windows-putty-winscp-and-more" class="anchor" href="#trezor-ssh-agent-for-windows-putty-winscp-and-more" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Trezor SSH Agent for Windows (Putty, WinSCP and more)</h2>
 
-<p>Trezor SSH Agent is Windows application that enables users to authenticate to UNIX/Linux SSH server using their favorite apps like Putty, WinSCP or other Pageant-compatible clients (e.g. git) together with Trezor - hardware bitcoin wallet.
-Trezor SSH Agent is a GUI-enabled tray application that emulates Pageant process in Windows. It receives identity requests from SSH client (which gets it from SSH server), uses Trezor hardware to sign challenge and sends data back.</p>
+<ul>
+<li>Supported devices: Trezor, KeepKey (see KeepKey Users section)</li>
+</ul>
 
-<p>It is absolutely safe to use Trezor SSH Agent. No harm can be caused to your bitcoins or the wallet. Application never asks Trezor for any Bitcoin related action, e.g. it never asks to sign tx.</p>
+<p>Trezor SSH Agent is Windows application that enables users to authenticate to UNIX/Linux SSH server using their favorite apps like Putty, WinSCP or other Pageant-compatible clients (e.g. git) together hardware bitcoin wallets.
+Trezor SSH Agent is a GUI-enabled tray application that emulates Pageant process in Windows. It receives identity requests from SSH client (which gets it from SSH server), uses wallet hardware to sign challenge and sends data back.</p>
+
+<p>It is absolutely safe to use Trezor SSH Agent. No harm can be caused to your bitcoins or the wallet. Application never asks device for any Bitcoin related action, e.g. it never asks to sign tx.</p>
 
 <h3>
 <a id="limitations" class="anchor" href="#limitations" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Limitations</h3>
 
 <ul>
-<li>Only ecdsa-sha2-nistp256 key is supported at current. ssh-ed25519 may come in future depending on Trezor HW support. ssh-rsa is not supported by Trezor HW.</li>
-<li>No other Trezor app (like myTREZOR webpage) can be running simultaneously.</li>
+<li>Only ecdsa-sha2-nistp256 key is supported at current. ssh-ed25519 may come in future depending on device HW support. ssh-rsa is not supported by device HW.</li>
+<li>No other device app (like myTREZOR webpage or KeepKey Chrome extension) can be running simultaneously.</li>
 <li>Pageant cannot run simultaneously. </li>
-<li>BIP32 path is currently fixed by constant Identity URI. In PIN-only mode this produces just one public key per device. Turning on passphrase security on your device gives you unique key per every passhrase. </li>
-<li>KeepKey device not supported, this may change in future.</li>
+<li>BIP32 path is fixed by constant Identity URI. In PIN-only mode this produces just one public key per device. Turning on passphrase security on your device gives you unique key per every passhrase. Alternatively you can change the path in the settings file (see Advanced) </li>
 <li>There are small <a href="https://github.com/bitcoin-solutions/multibit-hardware/issues/29">troubles</a> on USB level that makes device init last a bit longer (10-20 sec) in certain situations.</li>
 </ul>
 
@@ -81,6 +84,7 @@ $ mvn clean install
 <li>Edit logger.properties file and set com.trezoragent.level = FINE for more detailed logging. </li>
 <li>Application log is saved in your C:\Users\...\ directory under default name: Trezor_Agent.log</li>
 <li>You can also access log by using the "Open Log File" item in the application tray menu.</li>
+<li>If you are getting "Device not ready" message, try closing your Chrome browser and re-plug the device</li>
 <li>Also make sure that SSH Server you are connecting to supports ECDSA:
 
 <ul>
@@ -112,6 +116,29 @@ $ mvn clean install
 </ul>
 
 <h4>
+<a id="keepkey-users" class="anchor" href="#keepkey-users" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>KeepKey Users</h4>
+
+<ul>
+<li>Make sure Chrome browser is switched off if you have KeepKey extension installed - else you may get <strong>KeepKey not ready</strong> warning.</li>
+<li>After started the Trezor SSH Agent use "Edit Settings" menu item to set DEVICE=keepkey property in the settings file.
+
+<ul>
+<li>You can also access settings file in your Windows user directory under name Trezor_Agent.properties</li>
+</ul>
+</li>
+<li>After you have made changes to settings file, please restart the Trezor SSH Agent.</li>
+</ul>
+
+<h4>
+<a id="advanced" class="anchor" href="#advanced" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Advanced</h4>
+
+<ul>
+<li>Using the "Edit Settings" menu you can edit some Trezor SSH Agent properties saved in the settings file. After you make the changes, make sure you restart the app for changes to take effect.</li>
+<li>You can customize the BIP32 URI and Index values that are used to derive your unique device key. This is also text which is displayed on the device when confirming the login operation. Please be aware that BIP32_URI must comfor <a href="http://www.ietf.org/rfc/rfc2396.txt">Java URI</a> as well as <a href="https://github.com/satoshilabs/slips/blob/master/slip-0013.md">SLIP-0013</a> so avoid using chars like underscore.</li>
+<li>SESSION_TIMEOUT property defines minutes of idle time after device automatically locks itself. Display stays on, but PIN and passphrase cache is reseted after timeout. Idle time is zeroed after each successful pubkey or sign operation.</li>
+</ul>
+
+<h4>
 <a id="agent-forwarding" class="anchor" href="#agent-forwarding" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Agent Forwarding</h4>
 
 <p>You can also use Trezor SSH Agent with "agent forwarding" option set in SSH client. This would enable chaining connections back to original agent.
@@ -120,7 +147,7 @@ Example:</p>
 <ol>
 <li>Open SSH to UNIX with agent forwarding enabled in Putty.</li>
 <li>From UNIX shell command line open another ssh connection (e.g. ssh root@localhost) to server which trusts your public key.</li>
-<li>Confirm operation on Trezor device and you are logged in.</li>
+<li>Confirm operation on the device and you are logged in.</li>
 </ol>
 
 <h4>
