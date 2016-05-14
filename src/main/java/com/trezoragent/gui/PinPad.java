@@ -11,6 +11,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import javax.swing.border.Border;
 
 /**
@@ -50,6 +52,7 @@ public class PinPad extends JFrame {
         groupButtonPanels(); // place all buttons panel in one panel for easier render
         addEnterArea(); // add Enter button
         addGlobalArea(); // outer panel
+        addWindowClosingListener();
 
     }
 
@@ -65,7 +68,7 @@ public class PinPad extends JFrame {
         deviceLabel.setIconTextGap(10);
         deviceLabel.setFont(new Font(null, Font.BOLD, 15));
 
-        passcodeLabel = new JLabel(LocalizedLogger.getLocalizedMessage("DIALOG_ENTER_PIN")); 
+        passcodeLabel = new JLabel(LocalizedLogger.getLocalizedMessage("DIALOG_ENTER_PIN"));
         passcodeField = new JPasswordField(3);
         passcodeField.setEditable(false);
         passcodeField.setBackground(Color.white);
@@ -170,6 +173,15 @@ public class PinPad extends JFrame {
 
         pack();
         addAbilityToMoveWindow(this);
+    }
+
+    private void addWindowClosingListener() {
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) { // window was closed differently than with buttons
+                getPinData().setDeviceData(AgentConstants.PIN_CANCELLED_MSG);
+            }
+        });
     }
 
     private void addAbilityToMoveWindow(final JFrame f) {

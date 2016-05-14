@@ -16,6 +16,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -56,6 +58,7 @@ public class PassphraseDialog extends JFrame {
         addInputArea(); // text input field
         addButtonArea(); // enter + cancel buttons
         addGlobalArea(); // outer panel
+        addWindowClosingListener();
     }
 
     private void init() {
@@ -174,6 +177,15 @@ public class PassphraseDialog extends JFrame {
             public void mouseDragged(MouseEvent e) {
                 Point currCoords = e.getLocationOnScreen();
                 f.setLocation(currCoords.x - mouseDownCompCoords.x, currCoords.y - mouseDownCompCoords.y);
+            }
+        });
+    }
+    
+    private void addWindowClosingListener() {
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) { // window was closed differently than with buttons
+                getPassphraseData().setDeviceData(AgentConstants.PASSPHRASE_CANCELLED_MSG);
             }
         });
     }
