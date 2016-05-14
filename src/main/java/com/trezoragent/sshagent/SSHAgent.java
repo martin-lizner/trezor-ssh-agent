@@ -337,8 +337,8 @@ public class SSHAgent implements WindowProc {
         libK.CloseHandle(mutex); // just in case, mutex should be destroyed by now by process exit
         setCreatedCorrectly(false);
 
-        //trezorService.getWallet().softDetach();
         //TrayProcess.deviceService.getWallet().disconnect();
+        //TrayProcess.deviceService.getHardwareWalletService().stopAndWait();
         TrayProcess.deviceService.getClient().softDetach();
     }
 

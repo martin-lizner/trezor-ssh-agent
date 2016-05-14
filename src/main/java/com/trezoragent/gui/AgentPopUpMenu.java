@@ -38,23 +38,26 @@ public class AgentPopUpMenu extends JPopupMenu {
 
     private final TrayIcon trayIcon;
     DeviceService deviceService;
-    
+    private Timer timer;
+
     public AgentPopUpMenu(final SystemTray tray, final TrayIcon trayIcon, final SSHAgent agent, final DeviceService deviceService) {
         this.trayIcon = trayIcon;
         this.deviceService = deviceService;
 
         JMenuItem viewLog = new JMenuItem(LocalizedLogger.getLocalizedMessage(SHOW_LOG_FILE_KEY));
-        JMenuItem editSettings = new JMenuItem(LocalizedLogger.getLocalizedMessage(EDIT_SETTINGS_KEY));        
+        JMenuItem editSettings = new JMenuItem(LocalizedLogger.getLocalizedMessage(EDIT_SETTINGS_KEY));
         JMenuItem aboutItem = new JMenuItem(LocalizedLogger.getLocalizedMessage(ABOUT_BUTTON_LOCALIZED_KEY));
         JMenuItem exitItem = new JMenuItem(LocalizedLogger.getLocalizedMessage(EXIT_BUTTON_LOCALIZED_KEY));
         JMenuItem viewKeys = new JMenuItem(LocalizedLogger.getLocalizedMessage(VIEW_KEYS_BUTTON_LOCALIZED_KEY));
 
         add(viewKeys);
-        add(viewLog);        
+        add(viewLog);
         addSeparator();
         add(editSettings);
         add(aboutItem);
         add(exitItem);
+
+        initPubKeyTimer();
 
         aboutItem.addActionListener(new ActionListener() {
             @Override
@@ -69,28 +72,7 @@ public class AgentPopUpMenu extends JPopupMenu {
                 try {
                     deviceService.setDeviceKey(null); // always get fresh key
                     DeviceWrapper.getIdentitiesRequest();
-                    final Timer timer = new Timer(AgentConstants.ASYNC_CHECK_INTERVAL, null);
-                    deviceService.setTimer(timer); // TODO: find better way how to stop timer when pubkey action is not finished
-                    
-                    ActionListener showWindowIfKeyProvided = new ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent event) {
-                            if (deviceService.getDeviceKey() != null) {
-                                List<String> pubKeys = new ArrayList<>();
-                                pubKeys.add(deviceService.getDeviceKey() + " " + deviceService.getDeviceLabel());
-                                
-                                PublicKeysFrame frame = new PublicKeysFrame(pubKeys, deviceService.getDeviceLabel() + " " + LocalizedLogger.getLocalizedMessage(PUBKEY_FRAME_TITLE_KEY));
-                                frame.setVisible(true);
 
-                                deviceService.setDeviceKey(null);
-                                deviceService.checkoutAsyncKeyData(); // clear cache data explicitly, since they were never read by standard call()
-                                timer.stop();
-                            }
-                        }
-                    };
-
-                    timer.addActionListener(showWindowIfKeyProvided);
-                    timer.setRepeats(true);
                     timer.start();
                 } catch (Exception ex) {
                     TrayProcess.handleException(ex);
@@ -111,7 +93,7 @@ public class AgentPopUpMenu extends JPopupMenu {
                 }
             }
         });
-        
+
         editSettings.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -135,6 +117,30 @@ public class AgentPopUpMenu extends JPopupMenu {
                 System.exit(0);
             }
         });
+    }
+
+    private void initPubKeyTimer() {
+        timer = new Timer(AgentConstants.ASYNC_CHECK_INTERVAL, null); // timer for showing PubKey window
+        final ActionListener showWindowIfKeyProvided = new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent event) {
+                if (deviceService.getDeviceKey() != null) {
+                    List<String> pubKeys = new ArrayList<>();
+                    pubKeys.add(deviceService.getDeviceKey() + " " + deviceService.getDeviceLabel());
+
+                    PublicKeysFrame frame = new PublicKeysFrame(pubKeys, deviceService.getDeviceLabel() + " " + LocalizedLogger.getLocalizedMessage(PUBKEY_FRAME_TITLE_KEY));
+                    frame.setVisible(true);
+
+                    deviceService.setDeviceKey(null);
+                    deviceService.checkoutAsyncKeyData(); // clear cache data explicitly, since they were never read by standard call()
+                    timer.stop();
+                }
+            }
+        };
+        deviceService.setTimer(timer); // TODO: find better way how to stop timer when pubkey action is not finished
+
+        timer.addActionListener(showWindowIfKeyProvided);
+        timer.setRepeats(true);
     }
 
 }
