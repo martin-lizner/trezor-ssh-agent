@@ -29,6 +29,7 @@ import com.trezoragent.utils.AgentUtils;
 import com.trezoragent.utils.LocalizedLogger;
 import java.util.List;
 import java.util.logging.Logger;
+import org.multibit.hd.hardware.core.utils.IdentityUtils;
 import org.spongycastle.util.encoders.Base64;
 
 /**
@@ -236,11 +237,12 @@ public class SSHAgent implements WindowProc {
     }
 
     private void processSignRequest(Pointer sharedMemory) {
-        byte[] keyInBytes = getDataFromRequest(sharedMemory, 5); // TODO: validate pubkey again just to be sure sign operation works ok
+        byte[] keyInBytes = getDataFromRequest(sharedMemory, 5);
         byte[] challengeData = getDataFromRequest(sharedMemory, 5 + 4 + keyInBytes.length);
         byte[] signedDataRaw;
-        byte[] signedData;
+        byte[] signedData = null;
         byte[] userName = unframeUsernameFromChallengeBytes(challengeData);
+        boolean isSignatureValid = false;
 
         Logger.getLogger(SSHAgent.class.getName()).log(Level.FINE, "Server sent challenge: ", Base64.toBase64String(challengeData));
         Logger.getLogger(SSHAgent.class.getName()).log(Level.FINE, "Effective username: ", new String(userName));
@@ -251,7 +253,18 @@ public class SSHAgent implements WindowProc {
                 throw new SignFailedException("HW sign response must have 65 bytes, length: " + signedDataRaw.length);
             }
 
-            signedData = AgentUtils.createSSHSignResponse(signedDataRaw);
+            try {
+                isSignatureValid = IdentityUtils.isValidSignature(AgentUtils.unframeUncompressedNistpKeyFromSSHKey(keyInBytes),
+                        challengeData, AgentUtils.createDERSignResponse(signedDataRaw)); // double check that SSH server sent public key that can verify signature provided by HW
+            } catch (Throwable th) {
+                throw new SignFailedException("Error occured while validating signature.", th);
+            }
+
+            if (isSignatureValid) {
+                signedData = AgentUtils.createSSHSignResponse(signedDataRaw);
+            } else {
+                throw new SignFailedException("Signature was validated using provided public key with negative result.");
+            }
 
             if (signedData != null) {
                 sharedMemory.write(0, signedData, 0, signedData.length);
@@ -347,7 +360,7 @@ public class SSHAgent implements WindowProc {
 
         ByteBuffer bb = ByteBuffer.wrap(challengeData, 0, challengeData.length);
         int dataLength = bb.getInt(0); // = should be 32 bytes, random data generated on SSH server side      
-        bb.position(4 + dataLength + 4 + 1); // forward buffer to possition where username frame starts
+        bb.position(4 + dataLength + 4 + 1); // forward buffer to position where username frame starts
         int userNameLength = bb.getInt(4 + dataLength + 1); // determine the length of username
         username = new byte[userNameLength];
         bb.get(username, 0, userNameLength);

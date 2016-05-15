@@ -29,10 +29,12 @@ public class AgentUtils {
 
     final static byte[] ZERO = {(byte) 0x00};
     final static byte[] SSH2_AGENT_SIGN_RESPONSE_ARRAY = {AgentConstants.SSH2_AGENT_SIGN_RESPONSE};
+    static final byte[] OCTET02 = {(byte) 0x02};
+    static final byte[] OCTET30 = {(byte) 0x30};
 
     public static byte[] createSSHSignResponse(byte[] trezorSign) {
         byte[] noOctet = ByteUtils.subArray(trezorSign, 1, trezorSign.length); // remove first byte from 65byte array
-        byte[] xSign = ByteUtils.subArray(noOctet, 0, 32); // devide 64byte array into halves
+        byte[] xSign = ByteUtils.subArray(noOctet, 0, 32); // divide 64byte array into halves
         byte[] ySign = ByteUtils.subArray(noOctet, 32, noOctet.length);
         xSign = ByteUtils.concatenate(ZERO, xSign); // add zero byte
         ySign = ByteUtils.concatenate(ZERO, ySign);
@@ -129,5 +131,43 @@ public class AgentUtils {
         } else {
             Logger.getLogger(DeviceWrapper.class.getName()).log(Level.SEVERE, "Session timer not initialized!");
         }
+    }
+
+    /*
+        - First byte in return value is encoding type, SSH use "4" to signalize uncompressed POINT. (uncompressed means both X and Y are provided)
+        - Doc: http://grepcode.com/file/repo1.maven.org/maven2/com.madgag/scprov-jdk15on/1.47.0.1/org/spongycastle/math/ec/ECCurve.java        
+     */
+    public static byte[] unframeUncompressedNistpKeyFromSSHKey(byte[] pubKeySSH) {
+        byte[] compressedKey;
+        ByteBuffer bb = ByteBuffer.wrap(pubKeySSH, 0, pubKeySSH.length);
+        int data1Length = bb.getInt(0); // determine length of the 1st frame
+        int data2Length = bb.getInt(4 + data1Length); // determine length of the 2nd frame
+        //int data3Length = bb.getInt(4 + data1Length + data2Length + 4); // determine length of 3rd frame = 65bytes key we are looking for
+        bb.position(4 + data1Length + data2Length + 4 + 4); // forward buffer to the 3rd frame
+        compressedKey = new byte[65];
+        bb.get(compressedKey, 0, 65); // read the 3rd uncompressed frame (1B octet + 32B X cord + 32B Y cord)
+        return compressedKey;
+    }
+
+    public static byte[] frameArrayWithUnsignedInt(byte[] array) {
+        ByteBuffer buffer = ByteBuffer.allocate(1 + array.length); // unsigned int occupies only 1 byte
+        buffer.put((byte) array.length);
+        buffer.put(array);
+        return buffer.array();
+    }
+
+    public static byte[] frameArrayWithUnsignedInt(byte[] array1, byte[] array2) {
+        return AgentUtils.frameArrayWithUnsignedInt(ByteUtils.concatenate(array1, array2));
+    }
+
+    public static byte[] createDERSignResponse(byte[] trezorSign) {
+        byte[] xSign = ByteUtils.subArray(trezorSign, 0, 33); // signed integer
+        byte[] ySign = ByteUtils.subArray(trezorSign, 33, trezorSign.length);
+        byte[] xFrame = ByteUtils.concatenate(OCTET02, AgentUtils.frameArrayWithUnsignedInt(xSign)); // add special octet byte
+        byte[] yFrame = ByteUtils.concatenate(OCTET02, AgentUtils.frameArrayWithUnsignedInt(ySign));
+        byte[] xyFrame = AgentUtils.frameArrayWithUnsignedInt(xFrame, yFrame);
+        byte[] sigBytes = ByteUtils.concatenate(OCTET30, xyFrame);
+
+        return sigBytes;
     }
 }
