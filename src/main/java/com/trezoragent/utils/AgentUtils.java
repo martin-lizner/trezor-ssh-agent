@@ -1,6 +1,5 @@
 package com.trezoragent.utils;
 
-import com.google.common.base.Charsets;
 import com.trezoragent.gui.StartAgentGUI;
 import com.trezoragent.gui.TrayProcess;
 import com.trezoragent.sshagent.DeviceWrapper;
@@ -18,7 +17,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.ImageIcon;
 import javax.swing.Timer;
-import static org.multibit.hd.hardware.core.utils.IdentityUtils.KEY_PREFIX;
 import org.spongycastle.pqc.math.linearalgebra.ByteUtils;
 
 /**
@@ -27,22 +25,6 @@ import org.spongycastle.pqc.math.linearalgebra.ByteUtils;
  */
 public class AgentUtils {
 
-    final static byte[] ZERO = {(byte) 0x00};
-    final static byte[] SSH2_AGENT_SIGN_RESPONSE_ARRAY = {AgentConstants.SSH2_AGENT_SIGN_RESPONSE};
-    static final byte[] OCTET02 = {(byte) 0x02};
-    static final byte[] OCTET30 = {(byte) 0x30};
-
-    public static byte[] createSSHSignResponse(byte[] trezorSign) {
-        byte[] noOctet = ByteUtils.subArray(trezorSign, 1, trezorSign.length); // remove first byte from 65byte array
-        byte[] xSign = ByteUtils.subArray(noOctet, 0, 32); // divide 64byte array into halves
-        byte[] ySign = ByteUtils.subArray(noOctet, 32, noOctet.length);
-        xSign = ByteUtils.concatenate(ZERO, xSign); // add zero byte
-        ySign = ByteUtils.concatenate(ZERO, ySign);
-
-        byte[] sigBytes = ByteUtils.concatenate(frameArray(xSign), frameArray(ySign));
-        byte[] dataArray = frameArray(frameArray(KEY_PREFIX.getBytes(Charsets.UTF_8)), frameArray(sigBytes));
-        return frameArray(SSH2_AGENT_SIGN_RESPONSE_ARRAY, dataArray);
-    }
 
     public static byte[] frameArray(byte[] array) {
         ByteBuffer buffer = ByteBuffer.allocate(4 + array.length);
@@ -94,7 +76,7 @@ public class AgentUtils {
         properties.setProperty(AgentConstants.SETTINGS_KEY_BIP32_URI, AgentConstants.SETTINGS_BIP32_SSHURI);
         properties.setProperty(AgentConstants.SETTINGS_KEY_BIP32_INDEX, AgentConstants.SETTINGS_BIP32_INDEX);
         properties.setProperty(AgentConstants.SETTINGS_KEY_SESSION_TIMEOUT, AgentConstants.SETTINGS_SESSION_TIMEOUT);
-        properties.setProperty(AgentConstants.SETTINGS_KEY_CURVE_NAME, AgentConstants.CURVE_NAME); // TODO: reserved for future release        
+        properties.setProperty(AgentConstants.SETTINGS_KEY_CURVE_NAME, AgentConstants.CURVE_NAME_NISTP256);
 
         Logger.getLogger(AgentUtils.class.getName()).log(Level.FINE, "Setting default properties: {0}", new Object[]{properties});
 
@@ -133,22 +115,6 @@ public class AgentUtils {
         }
     }
 
-    /*
-        - First byte in return value is encoding type, SSH use "4" to signalize uncompressed POINT. (uncompressed means both X and Y are provided)
-        - Doc: http://grepcode.com/file/repo1.maven.org/maven2/com.madgag/scprov-jdk15on/1.47.0.1/org/spongycastle/math/ec/ECCurve.java        
-     */
-    public static byte[] unframeUncompressedNistpKeyFromSSHKey(byte[] pubKeySSH) {
-        byte[] compressedKey;
-        ByteBuffer bb = ByteBuffer.wrap(pubKeySSH, 0, pubKeySSH.length);
-        int data1Length = bb.getInt(0); // determine length of the 1st frame
-        int data2Length = bb.getInt(4 + data1Length); // determine length of the 2nd frame
-        //int data3Length = bb.getInt(4 + data1Length + data2Length + 4); // determine length of 3rd frame = 65bytes key we are looking for
-        bb.position(4 + data1Length + data2Length + 4 + 4); // forward buffer to the 3rd frame
-        compressedKey = new byte[65];
-        bb.get(compressedKey, 0, 65); // read the 3rd uncompressed frame (1B octet + 32B X cord + 32B Y cord)
-        return compressedKey;
-    }
-
     public static byte[] frameArrayWithUnsignedInt(byte[] array) {
         ByteBuffer buffer = ByteBuffer.allocate(1 + array.length); // unsigned int occupies only 1 byte
         buffer.put((byte) array.length);
@@ -160,14 +126,4 @@ public class AgentUtils {
         return AgentUtils.frameArrayWithUnsignedInt(ByteUtils.concatenate(array1, array2));
     }
 
-    public static byte[] createDERSignResponse(byte[] trezorSign) {
-        byte[] xSign = ByteUtils.subArray(trezorSign, 0, 33); // signed integer
-        byte[] ySign = ByteUtils.subArray(trezorSign, 33, trezorSign.length);
-        byte[] xFrame = ByteUtils.concatenate(OCTET02, AgentUtils.frameArrayWithUnsignedInt(xSign)); // add special octet byte
-        byte[] yFrame = ByteUtils.concatenate(OCTET02, AgentUtils.frameArrayWithUnsignedInt(ySign));
-        byte[] xyFrame = AgentUtils.frameArrayWithUnsignedInt(xFrame, yFrame);
-        byte[] sigBytes = ByteUtils.concatenate(OCTET30, xyFrame);
-
-        return sigBytes;
-    }
 }
