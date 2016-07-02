@@ -52,6 +52,7 @@ public abstract class DeviceService {
     private Timer timer;
     protected String deviceLabel;
     private String exceptionKey;
+    String passphrase;
 
     public DeviceService() {
 
@@ -133,7 +134,6 @@ public abstract class DeviceService {
             case SHOW_PASSPHRASE_ENTRY:
                 // Device requires the current passphrase to proceed
 
-                String passphrase;
                 PassphraseDialog passphraseDialog = new PassphraseDialog();
                 passphraseDialog.setVisible(true);
 
@@ -172,7 +172,7 @@ public abstract class DeviceService {
 
                     if (rawPub[0] == 0x00) { // this is ed25519                        
                         Logger.getLogger(DeviceService.class.getName()).log(Level.FINE, "Device returned public key curve: {0}", AgentConstants.CURVE_NAME_ED25519);
-                        
+
                         openSSHkey = IdentityUtils.serializeSSHKeyFromEd25519(rawPub);
                     } else { // this is nistp256
                         Logger.getLogger(DeviceService.class.getName()).log(Level.FINE, "Device returned public key curve: {0}", AgentConstants.CURVE_NAME_NISTP256);
@@ -218,19 +218,29 @@ public abstract class DeviceService {
                 getAsyncKeyData().setDeviceData(AgentConstants.GET_IDENTITIES_FAILED_STRING);
 
                 Failure failure = (Failure) event.getMessage().get();
+                //String errMsg = failure.getMessage();
 
                 switch (failure.getType()) {
                     case PIN_INVALID:
+                        Logger.getLogger(DeviceService.class.getName()).log(Level.FINE, "PIN_INVALID");
                         exceptionKey = ExceptionHandler.getErrorKeyForException(new InvalidPinException());
                         TrayProcess.createWarning(LocalizedLogger.getLocalizedMessage(exceptionKey));
                         break;
                     case ACTION_CANCELLED:
-                        Logger.getLogger(DeviceService.class.getName()).log(Level.FINE, "Action cancelled.");
+                        Logger.getLogger(DeviceService.class.getName()).log(Level.FINE, "ACTION_CANCELLED");
                         getAsyncSignData().setDeviceData(AgentConstants.SIGN_CANCELLED_BYTE); // no need to raise error, since sign fail was caused by user pressing Cancel button
                         break;
                     case PIN_CANCELLED:
-                        Logger.getLogger(DeviceService.class.getName()).log(Level.FINE, "PIN cancelled.");
+                        Logger.getLogger(DeviceService.class.getName()).log(Level.FINE, "PIN_CANCELLED");
                         break;
+                    case NOT_INITIALIZED:
+                        if (!AgentConstants.PASSPHRASE_CANCELLED_MSG.equals(passphrase)) { // do not raise error when passphrase was cancelled, we are interested in device not initialized state or unknown curve
+                            Logger.getLogger(DeviceService.class.getName()).log(Level.SEVERE, "NOT_INITIALIZED");
+                            TrayProcess.createError("Device not initialized or unsupported curve.", false);
+                        }
+                        break;
+                    default:
+                    // Ignore
                 }
                 if (timer != null && timer.isRunning()) {
                     timer.stop(); // stop swing timer
