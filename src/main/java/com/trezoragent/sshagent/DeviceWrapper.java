@@ -41,8 +41,10 @@ public class DeviceWrapper {
         // Load settings from file
         String bip32Path = AgentUtils.readSetting(settings, AgentConstants.SETTINGS_KEY_BIP32_URI, AgentConstants.SETTINGS_BIP32_SSHURI);
         String bip32Index = AgentUtils.readSetting(settings, AgentConstants.SETTINGS_KEY_BIP32_INDEX, AgentConstants.SETTINGS_BIP32_INDEX);
-
-        TrayProcess.deviceService.getHardwareWalletService().requestPublicKeyForIdentity(URI.create(bip32Path), new Integer(bip32Index), AgentConstants.CURVE_NAME, false);
+        //TODO: check that setting parameter is set to correct curve
+        String curveName = AgentUtils.readSetting(settings, AgentConstants.SETTINGS_KEY_CURVE_NAME, AgentConstants.CURVE_NAME_NISTP256);
+        
+        TrayProcess.deviceService.getHardwareWalletService().requestPublicKeyForIdentity(URI.create(bip32Path), new Integer(bip32Index), curveName, false);
     }
 
     public static List<PublicKeyDTO> getIdentitiesResponse(Boolean stripPrefix) throws DeviceTimeoutException, GetIdentitiesFailedException {
@@ -102,7 +104,8 @@ public class DeviceWrapper {
         String challengeVisual = (challengeVisualBytes != null && challengeVisualBytes.length > 0)
                 ? new String(challengeVisualBytes) : "Warn: No user given!"; // display username contained in SSH Server challenge, if no username is provided by SSH Server display warning
 
-        Identity identity = new Identity(URI.create(bip32Path), new Integer(bip32Index), challengeHidden, challengeVisual, AgentConstants.CURVE_NAME);
+        String curveName = AgentUtils.readSetting(settings, AgentConstants.SETTINGS_KEY_CURVE_NAME, AgentConstants.CURVE_NAME_NISTP256);        
+        Identity identity = new Identity(URI.create(bip32Path), new Integer(bip32Index), challengeHidden, challengeVisual, curveName);
 
         TrayProcess.deviceService.getHardwareWalletService().signIdentity(identity);
 

@@ -1,7 +1,5 @@
 package com.trezoragent.utils;
 
-import java.net.URI;
-
 /**
  *
  * @author martin.lizner
@@ -25,7 +23,8 @@ public final class AgentConstants {
     public static final String ICON_DESCRIPTION = "tray icon"; //Windows tray
 
     // Device settings:
-    public static final String CURVE_NAME = "nist256p1";
+    public static final String CURVE_NAME_NISTP256 = "nist256p1";
+    public static final String CURVE_NAME_ED25519 = "ed25519";
     public static final String TREZOR_LABEL = "Trezor";
     public static final String KEEPKEY_LABEL = "KeepKey";
 

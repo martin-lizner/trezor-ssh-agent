@@ -29,7 +29,7 @@ import com.trezoragent.utils.AgentUtils;
 import com.trezoragent.utils.LocalizedLogger;
 import java.util.List;
 import java.util.logging.Logger;
-import org.multibit.hd.hardware.core.utils.IdentityUtils;
+import com.trezoragent.utils.IdentityUtils;
 import org.spongycastle.util.encoders.Base64;
 
 /**
@@ -243,9 +243,11 @@ public class SSHAgent implements WindowProc {
         byte[] signedData = null;
         byte[] userName = unframeUsernameFromChallengeBytes(challengeData);
         boolean isSignatureValid = false;
+        String keyTypeProvided = unframeKeyTypeFromProvidedSSHKey(keyInBytes);
 
-        Logger.getLogger(SSHAgent.class.getName()).log(Level.FINE, "Server sent challenge: ", Base64.toBase64String(challengeData));
-        Logger.getLogger(SSHAgent.class.getName()).log(Level.FINE, "Effective username: ", new String(userName));
+        Logger.getLogger(SSHAgent.class.getName()).log(Level.FINE, "Server sent challenge: {0}", Base64.toBase64String(challengeData));
+        Logger.getLogger(SSHAgent.class.getName()).log(Level.FINE, "Effective username: {0}", new String(userName));
+        Logger.getLogger(SSHAgent.class.getName()).log(Level.FINE, "Effective public key: {0}", Base64.toBase64String(keyInBytes));
 
         try {
             signedDataRaw = DeviceWrapper.signChallenge(challengeData, userName);
@@ -253,17 +255,29 @@ public class SSHAgent implements WindowProc {
                 throw new SignFailedException("HW sign response must have 65 bytes, length: " + signedDataRaw.length);
             }
 
-            try {
-                isSignatureValid = IdentityUtils.isValidSignature(AgentUtils.unframeUncompressedNistpKeyFromSSHKey(keyInBytes),
-                        challengeData, AgentUtils.createDERSignResponse(signedDataRaw)); // double check that SSH server sent public key that can verify signature provided by HW
-            } catch (Throwable th) {
-                throw new SignFailedException("Error occured while validating signature.", th);
-            }
+            Logger.getLogger(SSHAgent.class.getName()).log(Level.FINE, "SSH returned key type: {0}", keyTypeProvided);
+            switch (keyTypeProvided) {
+                case IdentityUtils.NISTP256_KEY_PREFIX:
+                    try {
+                        isSignatureValid = IdentityUtils.isValidSignature(IdentityUtils.unframeUncompressedNistpKeyFromSSHKey(keyInBytes),
+                                challengeData, IdentityUtils.createDERSignResponse(signedDataRaw)); // double check that SSH server sent public key that can verify signature provided by HW
+                    } catch (Throwable th) {
+                        throw new SignFailedException("Error occured while validating signature.", th);
+                    }
 
-            if (isSignatureValid) {
-                signedData = AgentUtils.createSSHSignResponse(signedDataRaw);
-            } else {
-                throw new SignFailedException("Signature was validated using provided public key with negative result.");
+                    if (isSignatureValid) {
+                        signedData = IdentityUtils.createSSHSignResponseFromNistpKey(signedDataRaw);
+                    } else { // isSignatureValid==false
+                        throw new SignFailedException("Signature was validated using provided public key with negative result.");
+                    }
+
+                    break;
+                case IdentityUtils.ED25519_KEY_PREFIX:
+                    // TODO: isSignatureValid missing, find secure java validator for ed25519
+                    signedData = IdentityUtils.createSSHSignResponseFromEd25519Key(signedDataRaw);
+                    break;
+                default:
+                    throw new SignFailedException("SSH server returned unknown key type: " + keyTypeProvided);
             }
 
             if (signedData != null) {
@@ -329,7 +343,9 @@ public class SSHAgent implements WindowProc {
     private void createProcess() {
         hWnd = createWindowsProcess();
         setCreatedCorrectly(true);
-        Logger.getLogger(SSHAgent.class.getName()).log(Level.INFO, AgentConstants.APP_PUBLIC_NAME + " " + AgentConstants.VERSION + " started successfully");
+        Logger
+                .getLogger(SSHAgent.class
+                        .getName()).log(Level.INFO, AgentConstants.APP_PUBLIC_NAME + " " + AgentConstants.VERSION + " started successfully");
     }
 
     public boolean isCreatedCorrectly() {
@@ -345,7 +361,8 @@ public class SSHAgent implements WindowProc {
     }
 
     public void exitProcess() {
-        Logger.getLogger(SSHAgent.class.getName()).log(Level.FINE, "Sending exit signal.");
+        Logger.getLogger(SSHAgent.class
+                .getName()).log(Level.FINE, "Sending exit signal.");
         libU.DestroyWindow(hWnd);
         libK.CloseHandle(mutex); // just in case, mutex should be destroyed by now by process exit
         setCreatedCorrectly(false);
@@ -366,5 +383,18 @@ public class SSHAgent implements WindowProc {
         bb.get(username, 0, userNameLength);
 
         return username;
+    }
+
+    private String unframeKeyTypeFromProvidedSSHKey(byte[] sshKey) {
+        byte[] keyTypeBytes;
+
+        ByteBuffer bb = ByteBuffer.wrap(sshKey, 0, sshKey.length);
+        int keyTypeLength = bb.getInt(0); // determine the length of keytype
+        bb.position(4); // forward buffer to position where keyType frame starts
+
+        keyTypeBytes = new byte[keyTypeLength];
+        bb.get(keyTypeBytes, 0, keyTypeLength);
+
+        return new String(keyTypeBytes);
     }
 }

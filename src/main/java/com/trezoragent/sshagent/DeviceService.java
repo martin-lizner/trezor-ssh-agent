@@ -32,7 +32,7 @@ import org.multibit.hd.hardware.core.messages.Features;
 import org.multibit.hd.hardware.core.messages.PinMatrixRequest;
 import org.multibit.hd.hardware.core.messages.PublicKey;
 import org.multibit.hd.hardware.core.messages.SignedIdentity;
-import org.multibit.hd.hardware.core.utils.IdentityUtils;
+import com.trezoragent.utils.IdentityUtils;
 
 /**
  * Common device (Trezor, KeepKey) listener service to handle data and provide
@@ -165,22 +165,31 @@ public abstract class DeviceService {
             case PUBLIC_KEY_FOR_IDENTITY:
                 // Successful identity public key
                 PublicKey pubKey = (PublicKey) event.getMessage().get();
+                String openSSHkey;
 
                 try {
                     byte[] rawPub = pubKey.getHdNodeType().get().getPublicKey().get();
 
-                    // Retrieve public key from node (not xpub)
-                    ECPublicKey publicKey = IdentityUtils.getPublicKeyFromBytes(rawPub);
+                    if (rawPub[0] == 0x00) { // this is ed25519                        
+                        Logger.getLogger(DeviceService.class.getName()).log(Level.FINE, "Device returned public key curve: {0}", AgentConstants.CURVE_NAME_ED25519);
+                        
+                        openSSHkey = IdentityUtils.serializeSSHKeyFromEd25519(rawPub);
+                    } else { // this is nistp256
+                        Logger.getLogger(DeviceService.class.getName()).log(Level.FINE, "Device returned public key curve: {0}", AgentConstants.CURVE_NAME_NISTP256);
 
-                    // Decompress key
-                    String decompressedSSHKey = IdentityUtils.decompressSSHKeyFromNistp256(publicKey);
+                        // Retrieve public key from node (not xpub)
+                        ECPublicKey publicKey = IdentityUtils.decodeNISTP256PublicKeyFromBytes(rawPub);
 
-                    String openSSHkeyNistp256 = IdentityUtils.printOpenSSHkeyNistp256(decompressedSSHKey, null);
+                        // Decompress key
+                        String decompressedSSHKey = IdentityUtils.serializeSSHKeyFromNistp256(publicKey);
+                        openSSHkey = IdentityUtils.printOpenSSHkeyNistp256(decompressedSSHKey, null);
+                    }
+
                     // Convert key to openSSH format
-                    Logger.getLogger(DeviceService.class.getName()).log(Level.FINE, "SSH Public Key: {0}", openSSHkeyNistp256);
+                    Logger.getLogger(DeviceService.class.getName()).log(Level.FINE, "SSH public key: {0}", openSSHkey);
 
-                    setDeviceKey(openSSHkeyNistp256); // this is for swing timer - frame window to display pubkey scenario
-                    getAsyncKeyData().setDeviceData(openSSHkeyNistp256); // this is for Callable.call() - ssh server asks identities before sign
+                    setDeviceKey(openSSHkey); // this is for swing timer - frame window to display pubkey scenario
+                    getAsyncKeyData().setDeviceData(openSSHkey); // this is for Callable.call() - ssh server asks identities before sign
 
                     Logger.getLogger(DeviceService.class.getName()).log(Level.INFO, "Operation {0} executed successfully", "SSH2_AGENT_GET_IDENTITIES");
                 } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
