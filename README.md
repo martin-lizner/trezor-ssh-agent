@@ -2,18 +2,19 @@ Status: [![Build Status](https://travis-ci.org/martin-lizner/trezor-ssh-agent.sv
 
 ## Trezor SSH Agent for Windows (Putty, WinSCP and more) 
 * Supported devices: Trezor, KeepKey (see KeepKey Users section)
+* Supported keys: ecdsa-sha2-nistp256, ssh-ed25519 (currently only Trezor)
 
 Trezor SSH Agent is Windows application that enables users to authenticate to UNIX/Linux SSH server using their favorite apps like Putty, WinSCP or other Pageant-compatible clients (e.g. git) together hardware bitcoin wallets.
-Trezor SSH Agent is a GUI-enabled tray application that emulates Pageant process in Windows. It receives identity requests from SSH client (which gets it from SSH server), uses wallet hardware to sign challenge and sends data back.
+Trezor SSH Agent is a GUI-enabled tray application that emulates Pageant process in Windows. It receives identity requests from SSH client (which gets it from SSH server), uses wallet hardware to sign challenge and sends data back. All this is framed in super secure Elliptic curve cryptography (ECC) and PIN obfuscation approach giving user the cutting edge security when authenticating to SSH server.
 
 It is absolutely safe to use Trezor SSH Agent. No harm can be caused to your bitcoins or the wallet. Application never asks device for any Bitcoin related action, e.g. it never asks to sign tx.
 
 ### Limitations
-* Only ecdsa-sha2-nistp256 key is supported at current. ssh-ed25519 may come in future depending on device HW support. ssh-rsa is not supported by device HW.
+* ssh-rsa is not supported by the device HW.
 * No other device app (like myTREZOR webpage or KeepKey Chrome extension) can be running simultaneously.
 * Pageant cannot run simultaneously. 
 * BIP32 path is fixed by constant Identity URI. In PIN-only mode this produces just one public key per device. Turning on passphrase security on your device gives you unique key per every passhrase. Alternatively you can change the path in the settings file (see Advanced) 
-* There are small [troubles](https://github.com/bitcoin-solutions/multibit-hardware/issues/29) on USB level that makes device init last a bit longer (10-20 sec) in certain situations.
+* There are small [troubles](https://github.com/bitcoin-solutions/multibit-hardware/issues/29) on USB level that makes Trezor init last a bit longer (20-30 sec) in certain situations.
 
 ### Getting started
 
@@ -34,7 +35,7 @@ $ mvn clean install
 * Application log is saved in your C:\Users\\...\ directory under default name: Trezor_Agent.log
 * You can also access log by using the "Open Log File" item in the application tray menu.
 * If you are getting "Device not ready" message, try closing your Chrome browser and re-plug the device
-* Also make sure that SSH Server you are connecting to supports ECDSA:
+* Also make sure that SSH Server you are connecting to supports ECC:
   * ECDSA is generally supported since [OpenSSH 5.7](http://www.openssh.com/txt/release-5.7)
   * But there are backports to some older openSSH versions, e.g. Redhat/CentOS [5.3p1-112.el6_7](http://www.rpmfind.net/linux/RPM/centos/updates/6.7/x86_64/Packages/openssh-5.3p1-112.el6_7.x86_64.html)
 
@@ -60,6 +61,7 @@ $ mvn clean install
 * Using the "Edit Settings" menu you can edit some Trezor SSH Agent properties saved in the settings file. After you make the changes, make sure you restart the app for changes to take effect.
 * You can customize the BIP32 URI and Index values that are used to derive your unique device key. This is also text which is displayed on the device when confirming the login operation. Please be aware that BIP32_URI must comfor [Java URI] (http://www.ietf.org/rfc/rfc2396.txt) as well as [SLIP-0013](https://github.com/satoshilabs/slips/blob/master/slip-0013.md) so avoid using chars like underscore.
 * SESSION_TIMEOUT property defines minutes of idle time after device automatically locks itself. Display stays on, but PIN and passphrase cache is reseted after timeout. Idle time is zeroed after each successful pubkey or sign operation.
+* CURVE_NAME property = {nist256p1 | ed25519} specifies which key type will be requested from the device. Please keep in mind, that ed25519 support was added just recently in Trezor 1.3.6 firmware.
 
 #### Agent Forwarding
 You can also use Trezor SSH Agent with "agent forwarding" option set in SSH client. This would enable chaining connections back to original agent.
@@ -71,6 +73,8 @@ Example:
 
 #### Public Key Example
 `ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBKJHh8o1FNgyEXzPLIc7tlk4n+4/mLlCs/m/SY7+WsUhdoajyHiyP0Zdo+VuWAizLTApW68QIzqWY73fur+i7nk= Trezor`
+
+`ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIK66qZJ26L1x5XEeUKewwerLqvltSf8yvx884ObsvwB3 TrezorDEV`
 
 ### Credits
 * Martin Lizner - author
