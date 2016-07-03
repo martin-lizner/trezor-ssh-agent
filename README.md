@@ -4,8 +4,8 @@ Status: [![Build Status](https://travis-ci.org/martin-lizner/trezor-ssh-agent.sv
 * Supported devices: Trezor, KeepKey (see KeepKey Users section)
 * Supported keys: ecdsa-sha2-nistp256, ssh-ed25519 (currently only Trezor)
 
-Trezor SSH Agent is Windows application that enables users to authenticate to UNIX/Linux SSH server using their favorite apps like Putty, WinSCP or other Pageant-compatible clients (e.g. git) together hardware bitcoin wallets.
-Trezor SSH Agent is a GUI-enabled tray application that emulates Pageant process in Windows. It receives identity requests from SSH client (which gets it from SSH server), uses wallet hardware to sign challenge and sends data back. All this is framed in super secure Elliptic curve cryptography (ECC) and PIN obfuscation approach giving user the cutting edge security when authenticating to SSH server.
+Trezor SSH Agent is a Windows application that allows users to authenticate to UNIX/Linux SSH servers using their favorite apps like Putty, WinSCP or other Pageant-compatible clients (e.g. git) together with their bitcoin hardware wallet.
+Trezor SSH Agent is a GUI-enabled tray application that emulates Pageant process in Windows. It receives identity requests from SSH client (which gets it from SSH server), uses wallet hardware to sign challenge and sends data back. All this is framed in secure Elliptic curve cryptography (ECC) and PIN obfuscation approach giving user the cutting edge security while authenticating to SSH server.
 
 It is absolutely safe to use Trezor SSH Agent. No harm can be caused to your bitcoins or the wallet. Application never asks device for any Bitcoin related action, e.g. it never asks to sign tx.
 
