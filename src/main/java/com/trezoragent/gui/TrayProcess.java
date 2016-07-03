@@ -62,8 +62,8 @@ public class TrayProcess {
                     settings = AgentUtils.initSettingsFile(settingsFile); // create default settings file
                     Logger.getLogger(TrayProcess.class.getName()).log(Level.INFO, "New settings file created: {0}", new Object[]{settingsFile.getPath()});
                 } catch (Exception ex) {
-                    TrayProcess.createError(LocalizedLogger.getLocalizedMessage("INIT_SETTINGS_FILE_ERROR", ex.getLocalizedMessage()), false);
-                    Logger.getLogger(TrayProcess.class.getName()).log(Level.SEVERE, null, ex);
+                    TrayProcess.createError(LocalizedLogger.getLocalizedMessage("INIT_SETTINGS_FILE_ERROR", ex.getLocalizedMessage()), false, ex);
+                    //Logger.getLogger(TrayProcess.class.getName()).log(Level.SEVERE, null, ex);
                 }
             } else {
                 settings = new Properties();
@@ -162,8 +162,8 @@ public class TrayProcess {
     // Display exceptions to GUI
     public static void handleException(Throwable ex) {
         String exceptionKey = ExceptionHandler.getErrorKeyForException(ex);
-        createError(LocalizedLogger.getLocalizedMessage(exceptionKey, ex), true);
-        Logger.getLogger(SSHAgent.class.getName()).log(Level.SEVERE, "", ex);
+        createError(LocalizedLogger.getLocalizedMessage(exceptionKey, ex), true, ex);
+        //Logger.getLogger(SSHAgent.class.getName()).log(Level.SEVERE, "", ex);
     }
 
     public static void createWarning(String message) {
@@ -188,7 +188,7 @@ public class TrayProcess {
         }
     }
 
-    public static void createError(String message, boolean addLogLinkMessage) {
+    public static void createError(String message, boolean addLogLinkMessage, Throwable ex) {
         String message2 = message;
         if (addLogLinkMessage) {
             message2 = message.concat("\n").concat(LocalizedLogger.getLocalizedMessage(AgentConstants.LINK_TO_LOG_KEY));
@@ -196,7 +196,7 @@ public class TrayProcess {
         if (trayIcon != null) {
             trayIcon.displayMessage(AgentConstants.APP_PUBLIC_NAME, message2, TrayIcon.MessageType.ERROR);
         }
-        Logger.getLogger(SSHAgent.class.getName()).log(Level.SEVERE, message);
+        Logger.getLogger(SSHAgent.class.getName()).log(Level.SEVERE, message, ex);
     }
 
     public static void createInfo(String message) {

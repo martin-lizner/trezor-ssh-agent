@@ -88,8 +88,8 @@ public class AgentPopUpMenu extends JPopupMenu {
                     File log = new File(System.getProperty("user.home") + File.separator + AgentConstants.LOG_FILE_NAME);
                     Desktop.getDesktop().open(log);
                 } catch (Exception ex) {
-                    TrayProcess.createError(LocalizedLogger.getLocalizedMessage("OPEN_LOG_FILE_ERROR", ex.getLocalizedMessage()), false);
-                    Logger.getLogger(AgentPopUpMenu.class.getName()).log(Level.SEVERE, null, ex);
+                    TrayProcess.createError(LocalizedLogger.getLocalizedMessage("OPEN_LOG_FILE_ERROR", ex.getLocalizedMessage()), false, ex);
+                    //Logger.getLogger(AgentPopUpMenu.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         });
@@ -101,8 +101,8 @@ public class AgentPopUpMenu extends JPopupMenu {
                     File log = new File(System.getProperty("user.home") + File.separator + AgentConstants.SETTINGS_FILE_NAME);
                     Desktop.getDesktop().open(log);
                 } catch (Exception ex) {
-                    TrayProcess.createError(LocalizedLogger.getLocalizedMessage("OPEN_LOG_FILE_ERROR", ex.getLocalizedMessage()), false);
-                    Logger.getLogger(AgentPopUpMenu.class.getName()).log(Level.SEVERE, null, ex);
+                    TrayProcess.createError(LocalizedLogger.getLocalizedMessage("OPEN_LOG_FILE_ERROR", ex.getLocalizedMessage()), false, ex);
+                    //Logger.getLogger(AgentPopUpMenu.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         });

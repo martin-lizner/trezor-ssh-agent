@@ -6,4 +6,12 @@ package com.trezoragent.exception;
  */
 public class GetIdentitiesFailedException extends Exception {
 
+    public GetIdentitiesFailedException() {
+        super();
+    }
+
+    public GetIdentitiesFailedException(Exception e) {
+        super(e);
+    }
+
 }

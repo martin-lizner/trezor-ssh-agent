@@ -255,7 +255,7 @@ public class SSHAgent implements WindowProc {
                 throw new SignFailedException("HW sign response must have 65 bytes, length: " + signedDataRaw.length);
             }
 
-            Logger.getLogger(SSHAgent.class.getName()).log(Level.FINE, "SSH returned key type: {0}", keyTypeProvided);
+            Logger.getLogger(SSHAgent.class.getName()).log(Level.FINE, "SSH server returned key type: {0}", keyTypeProvided);
             switch (keyTypeProvided) {
                 case IdentityUtils.NISTP256_KEY_PREFIX:
                     try {
