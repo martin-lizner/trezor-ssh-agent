@@ -3,10 +3,12 @@ package com.trezoragent.sshagent;
 import com.google.common.eventbus.Subscribe;
 import com.trezoragent.exception.DeviceFailedException;
 import com.trezoragent.exception.DeviceTimeoutException;
+import com.trezoragent.exception.GetIdentitiesFailedException;
 import com.trezoragent.exception.InvalidPinException;
 import com.trezoragent.gui.PassphraseDialog;
 import com.trezoragent.gui.PinPad;
 import com.trezoragent.gui.TrayProcess;
+import static com.trezoragent.gui.TrayProcess.settings;
 import com.trezoragent.utils.AgentConstants;
 import com.trezoragent.utils.AgentUtils;
 import com.trezoragent.utils.ExceptionHandler;
@@ -55,7 +57,6 @@ public abstract class DeviceService {
     String passphrase;
 
     public DeviceService() {
-
     }
 
     public HardwareWalletService getHardwareWalletService() {
@@ -74,7 +75,7 @@ public abstract class DeviceService {
      * @param event The hardware wallet event indicating a state change
      */
     @Subscribe
-    public void onHardwareWalletEvent(HardwareWalletEvent event) {
+    public void onHardwareWalletEvent(HardwareWalletEvent event) throws GetIdentitiesFailedException {
         Logger.getLogger(DeviceService.class.getName()).log(Level.INFO, "Received USB event: {0}", new Object[]{event.getEventType().name()});
         Logger.getLogger(DeviceService.class.getName()).log(Level.FINE, "Received USB event message: {0}", new Object[]{event.getMessage()});
 
@@ -169,12 +170,19 @@ public abstract class DeviceService {
 
                 try {
                     byte[] rawPub = pubKey.getHdNodeType().get().getPublicKey().get();
+                    String curveName = AgentUtils.readSetting(settings, AgentConstants.SETTINGS_KEY_CURVE_NAME, AgentConstants.CURVE_NAME_NISTP256);
 
                     if (rawPub[0] == 0x00) { // this is ed25519                        
+                        if (!AgentConstants.CURVE_NAME_ED25519.equals(curveName)) {
+                            throw new RuntimeException(LocalizedLogger.getLocalizedMessage("INVALID_KEY_MISMATCH", curveName, AgentConstants.CURVE_NAME_ED25519));
+                        }
                         Logger.getLogger(DeviceService.class.getName()).log(Level.FINE, "Device returned public key curve: {0}", AgentConstants.CURVE_NAME_ED25519);
 
                         openSSHkey = IdentityUtils.serializeSSHKeyFromEd25519(rawPub);
                     } else { // this is nistp256
+                        if (!AgentConstants.CURVE_NAME_NISTP256.equals(curveName)) {
+                            throw new RuntimeException(LocalizedLogger.getLocalizedMessage("INVALID_KEY_MISMATCH", curveName, AgentConstants.CURVE_NAME_NISTP256)); // e.g. using old trezor fw to retrieve ed25519, but device is returning nistp256 as default                       
+                        }
                         Logger.getLogger(DeviceService.class.getName()).log(Level.FINE, "Device returned public key curve: {0}", AgentConstants.CURVE_NAME_NISTP256);
 
                         // Retrieve public key from node (not xpub)
@@ -192,8 +200,10 @@ public abstract class DeviceService {
                     getAsyncKeyData().setDeviceData(openSSHkey); // this is for Callable.call() - ssh server asks identities before sign
 
                     Logger.getLogger(DeviceService.class.getName()).log(Level.INFO, "Operation {0} executed successfully", "SSH2_AGENT_GET_IDENTITIES");
-                } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
-                    Logger.getLogger(DeviceService.class.getName()).log(Level.SEVERE, "deviceTx FAILED");
+                } catch (NoSuchAlgorithmException | InvalidKeySpecException | RuntimeException e) {
+                    TrayProcess.createError(LocalizedLogger.getLocalizedMessage("INVALID_KEY_OR_ALG", e.getLocalizedMessage()), true, e);
+                    // TODO: send error to SSH server to cancel auth process
+
                 }
 
                 AgentUtils.restartSessionTimer();
@@ -235,8 +245,7 @@ public abstract class DeviceService {
                         break;
                     case NOT_INITIALIZED:
                         if (!AgentConstants.PASSPHRASE_CANCELLED_MSG.equals(passphrase)) { // do not raise error when passphrase was cancelled, we are interested in device not initialized state or unknown curve
-                            Logger.getLogger(DeviceService.class.getName()).log(Level.SEVERE, "NOT_INITIALIZED");
-                            TrayProcess.createError("Device not initialized or unsupported curve.", false);
+                            TrayProcess.createError(LocalizedLogger.getLocalizedMessage("NOT_INITIALIZED"), false, null);
                         }
                         break;
                     default:
