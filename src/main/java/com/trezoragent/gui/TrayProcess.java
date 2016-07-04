@@ -3,7 +3,6 @@ package com.trezoragent.gui;
 import com.trezoragent.mouselistener.JNIMouseHook;
 import com.trezoragent.mouselistener.MouseClickOutsideComponentEvent;
 import com.trezoragent.sshagent.DeviceService;
-import com.trezoragent.sshagent.DeviceWrapper;
 import com.trezoragent.sshagent.KeepKeyService;
 import com.trezoragent.sshagent.SSHAgent;
 import com.trezoragent.sshagent.TrezorService;

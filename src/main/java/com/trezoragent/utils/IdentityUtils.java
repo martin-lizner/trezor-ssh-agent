@@ -2,7 +2,6 @@ package com.trezoragent.utils;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
-import java.math.BigInteger;
 import org.bitcoinj.core.Sha256Hash;
 import org.bitcoinj.crypto.ChildNumber;
 import org.spongycastle.jce.ECNamedCurveTable;
@@ -21,9 +20,6 @@ import java.security.spec.ECPoint;
 import java.security.spec.ECPublicKeySpec;
 import java.security.spec.InvalidKeySpecException;
 import java.util.List;
-import org.spongycastle.asn1.x9.X9ECParameters;
-import org.spongycastle.crypto.ec.CustomNamedCurves;
-import org.spongycastle.jce.spec.ECParameterSpec;
 
 /**
  * <p>
@@ -267,52 +263,6 @@ public class IdentityUtils {
         compressedKey = new byte[65];
         bb.get(compressedKey, 0, 65); // read the 3rd uncompressed frame (1B octet + 32B X cord + 32B Y cord)
         return compressedKey;
-    }
-
-    // PLAYGROUND for trying to construct Ed25519 verifier
-    public static ECPublicKey getEd25519PublicKeyFromBytes(byte[] pubKey) throws NoSuchAlgorithmException, InvalidKeySpecException, InvalidAlgorithmParameterException {
-        X9ECParameters ecP = CustomNamedCurves.getByName("curve25519");
-        ECParameterSpec ecSpec = new ECParameterSpec(ecP.getCurve(), ecP.getG(), ecP.getN(), ecP.getH(), ecP.getSeed());
-
-        //org.spongycastle.math.ec.ECPoint decodePoint = ecSpec.getCurve().decodePoint(pubKey);
-
-        /*
-        Provider bcProvider = new BouncyCastleProvider();
-        KeyPairGenerator g = KeyPairGenerator.getInstance("ECDSA", bcProvider);       
-        g.initialize(ecSpec, new SecureRandom());
-        KeyPair keyPair = g.generateKeyPair();
-        System.out.println("getPublic: " + keyPair.getPublic());
-         */
-        ECNamedCurveParameterSpec spec = ECNamedCurveTable.getParameterSpec("curve25519");
-        KeyFactory kf = KeyFactory.getInstance("ECDSA", new BouncyCastleProvider());
-        ECNamedCurveSpec params = new ECNamedCurveSpec("curve25519", spec.getCurve(), spec.getG(), spec.getN());
-        ECPoint point = ECPointUtil.decodePoint(params.getCurve(), pubKey);
-        ECPublicKeySpec pubKeySpec = new ECPublicKeySpec(point, params);
-        ECPublicKey pk = (ECPublicKey) kf.generatePublic(pubKeySpec);
-
-        return pk;
-    }
-
-    private static void testEd25519(byte[] pubKey) throws Exception {
-        String hexPubKeyXY_orig = "01f82bfb2f0a3e988adc3d053d8e6ff878154306e402d871b7d6000823a1397f";
-        String hexPubKeyXY = ByteUtils.toHexString(pubKey);
-
-        //BigInteger x16 = new BigInteger(ByteUtils.subArray(pubKey, 0, 15));
-        //BigInteger y16 = new BigInteger(ByteUtils.subArray(pubKey, 16, 32));
-        //ECPoint point = new ECPoint(x16, y16);
-        String hexX = hexPubKeyXY.substring(0, 32);
-        String hexY = hexPubKeyXY.substring(32);
-        ECPoint point = new ECPoint(new BigInteger(hexX, 16), new BigInteger(hexY, 16));
-
-        ECNamedCurveParameterSpec spec = ECNamedCurveTable.getParameterSpec("curve25519");
-        KeyFactory kf = KeyFactory.getInstance("ECDSA", new BouncyCastleProvider());
-        ECNamedCurveSpec params = new ECNamedCurveSpec("curve25519", spec.getCurve(), spec.getG(), spec.getN());
-
-        ECPublicKeySpec pubKeySpec = new ECPublicKeySpec(point, params);
-        ECPublicKey pk = (ECPublicKey) kf.generatePublic(pubKeySpec);
-
-        System.out.println("PublicKey: " + pk);
-
     }
 
 }

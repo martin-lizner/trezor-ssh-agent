@@ -41,7 +41,6 @@ public class DeviceWrapper {
         // Load settings from file
         String bip32Path = AgentUtils.readSetting(settings, AgentConstants.SETTINGS_KEY_BIP32_URI, AgentConstants.SETTINGS_BIP32_SSHURI);
         String bip32Index = AgentUtils.readSetting(settings, AgentConstants.SETTINGS_KEY_BIP32_INDEX, AgentConstants.SETTINGS_BIP32_INDEX);
-        //TODO: check that setting parameter is set to correct curve
         String curveName = AgentUtils.readSetting(settings, AgentConstants.SETTINGS_KEY_CURVE_NAME, AgentConstants.CURVE_NAME_NISTP256);
         
         TrayProcess.deviceService.getHardwareWalletService().requestPublicKeyForIdentity(URI.create(bip32Path), new Integer(bip32Index), curveName, false);
