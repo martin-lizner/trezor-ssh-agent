@@ -2,7 +2,7 @@ Status: [![Build Status](https://travis-ci.org/martin-lizner/trezor-ssh-agent.sv
 
 ## Trezor SSH Agent for Windows (Putty, WinSCP and more) 
 * Supported devices: Trezor, KeepKey (see KeepKey Users section)
-* Supported keys: ecdsa-sha2-nistp256, ssh-ed25519 (currently only Trezor)
+* Supported keys: ecdsa-sha2-nistp256, ssh-ed25519
 
 Trezor SSH Agent is a Windows application that allows users to authenticate to UNIX/Linux SSH servers using their favorite apps like Putty, WinSCP or other Pageant-compatible clients (e.g. git) together with their bitcoin hardware wallet.
 Trezor SSH Agent is a GUI-enabled tray application that emulates Pageant process in Windows. It receives identity requests from SSH client (which gets it from SSH server), uses wallet hardware to sign challenge and sends data back. All this is framed in secure Elliptic curve cryptography (ECC) and PIN obfuscation approach giving user the cutting edge security while authenticating to SSH server.
@@ -61,7 +61,7 @@ $ mvn clean install
 * Using the "Edit Settings" menu you can edit some Trezor SSH Agent properties saved in the settings file. After you make the changes, make sure you restart the app for changes to take effect.
 * You can customize the BIP32 URI and Index values that are used to derive your unique device key. This is also text which is displayed on the device when confirming the login operation. Please be aware that BIP32_URI must comfor [Java URI] (http://www.ietf.org/rfc/rfc2396.txt) as well as [SLIP-0013](https://github.com/satoshilabs/slips/blob/master/slip-0013.md) so avoid using chars like underscore.
 * SESSION_TIMEOUT property defines minutes of idle time after device automatically locks itself. Display stays on, but PIN and passphrase cache is reseted after timeout. Idle time is zeroed after each successful pubkey or sign operation.
-* CURVE_NAME property = {nist256p1 | ed25519} specifies which key type will be requested from the device. Please keep in mind, that ed25519 support was added just recently in Trezor 1.3.6 firmware.
+* CURVE_NAME property = {nist256p1 | ed25519} specifies which key type will be requested from the device. Please keep in mind, that ed25519 support is available since Trezor 1.3.6 and KeepKey 3.0.17 firmwares.
 
 #### Agent Forwarding
 You can also use Trezor SSH Agent with "agent forwarding" option set in SSH client. This would enable chaining connections back to original agent.
