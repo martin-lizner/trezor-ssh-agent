@@ -1,6 +1,5 @@
-sudo: false
-#dist: trusty
-
+sudo: required
+dist: trusty
 language: java
 
 jdk:
