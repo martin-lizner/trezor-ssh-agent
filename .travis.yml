@@ -1,10 +1,9 @@
-sudo: false
+sudo: required
 dist: trusty
-
 language: java
 
 jdk:
-  - openjdk7
-  - oraclejdk7
-  #- openjdk8
+  #- openjdk7
+  #- oraclejdk7
+  - openjdk8
   - oraclejdk8
