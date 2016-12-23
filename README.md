@@ -20,7 +20,7 @@ It is absolutely safe to use Trezor SSH Agent. No harm can be caused to your bit
 
 #### Start
 * Download and run JAR or EXE binary from latest release.
-* Java 1.7 or later is required.
+* Java 1.8 is required.
 * Or you can build your own java (see bellow) and run class com.trezoragent.gui.StartAgentGUI main.
 
 #### Build
@@ -37,7 +37,7 @@ $ mvn clean install
 * If you are getting "Device not ready" message, try closing your Chrome browser and re-plug the device
 * Also make sure that SSH Server you are connecting to supports ECC:
   * ECDSA is generally supported since [OpenSSH 5.7](http://www.openssh.com/txt/release-5.7)
-  * But there are backports to some older openSSH versions, e.g. Redhat/CentOS [5.3p1-112.el6_7](http://www.rpmfind.net/linux/RPM/centos/updates/6.7/x86_64/Packages/openssh-5.3p1-112.el6_7.x86_64.html)
+  * But there are backports to some older openSSH versions, e.g. Redhat/CentOS 5.3p1-112
 
 ### Usage
 * Please  [download](http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html) Putty or WinSCP version that supports ECDSA keys. Certified Putty versions: 0.67+, 0.66, 0.65
